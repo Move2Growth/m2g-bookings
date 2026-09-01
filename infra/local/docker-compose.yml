@@ -1,0 +1,88 @@
+# Entorno local de M2G Agenda — todo el stack con un comando.
+#
+#   make arriba    levanta, migra y siembra
+#   make abajo     para y libera puertos
+#
+# El nombre del proyecto es explícito a propósito: sin él, `docker compose up` en este repo
+# puede recrear el Postgres de otro repo de la casa que use el mismo nombre por defecto.
+name: m2g-agenda
+
+services:
+  db:
+    # PostGIS, no `postgres:16` pelado: la extensión hace falta desde la primera migración.
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: agenda_owner
+      POSTGRES_PASSWORD: agenda
+      POSTGRES_DB: agenda
+      # Sin esto, la base local nace con la configuración regional del anfitrión y los
+      # ordenamientos de texto no coinciden con los del servidor de producción.
+      POSTGRES_INITDB_ARGS: "--locale=C.UTF-8 --encoding=UTF8"
+    command:
+      # Los slots de replicación y el WAL no hacen falta en local; sí un log de consultas lentas,
+      # que es como se detecta a tiempo una búsqueda que no usa índice.
+      - postgres
+      - -c
+      - log_min_duration_statement=300
+    ports:
+      - "5433:5432"
+    volumes:
+      - datos_db:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agenda_owner -d agenda"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: ../../apps/api
+      dockerfile: Dockerfile
+    env_file: ../../.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://agenda_app:agenda@db:5432/agenda
+      DATABASE_URL_MIGRACIONES: postgresql+psycopg://agenda_owner:agenda@db:5432/agenda
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../../apps/api:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["uvicorn", "agenda.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  worker:
+    # Misma imagen que la API, otro comando: el worker no es otro proyecto.
+    build:
+      context: ../../apps/api
+      dockerfile: Dockerfile
+    env_file: ../../.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://agenda_app:agenda@db:5432/agenda
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - ../../apps/api:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["arq", "agenda.trabajos.ajustes.WorkerSettings"]
+
+volumes:
+  datos_db:

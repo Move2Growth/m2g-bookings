@@ -1,0 +1,15 @@
+{
+  "name": "m2g-agenda",
+  "private": true,
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "web": "pnpm --filter @agenda/web dev",
+    "backoffice": "pnpm --filter @agenda/backoffice dev",
+    "tipos": "pnpm --filter @agenda/api-types generar",
+    "lint": "pnpm -r lint",
+    "pruebas": "pnpm -r test"
+  }
+}

@@ -1,0 +1,44 @@
+# Entorno y secretos — nunca en git
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+CLAUDE.local.md
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+*.egg-info/
+
+# JavaScript
+node_modules/
+.next/
+out/
+build/
+.turbo/
+*.tsbuildinfo
+.pnpm-store/
+
+# Expo
+.expo/
+.expo-shared/
+
+# Datos locales y volúmenes
+infra/local/datos/
+*.sqlite3
+*.dump
+
+# Editor y sistema
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json

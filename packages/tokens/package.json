@@ -1,0 +1,16 @@
+{
+  "name": "@agenda/tokens",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./tokens.ts",
+  "exports": {
+    ".": "./tokens.ts",
+    "./css": "./variables.css",
+    "./json": "./tokens.json"
+  },
+  "scripts": {
+    "generar": "node generar.mjs",
+    "contraste": "node verificar-contraste.mjs"
+  }
+}

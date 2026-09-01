@@ -1,0 +1,98 @@
+/* Generado por generar.mjs a partir de tokens.json. No editar a mano. */
+
+:root {
+  color-scheme: light;
+  --color-superficie: #FFFFFF;
+  --color-superficie-suave: #F6F5F3;
+  --color-superficie-elevada: #FFFFFF;
+  --color-borde: #DFDCD6;
+  --color-borde-fuerte: #8A857C;
+  --color-texto: #1B1A18;
+  --color-texto-suave: #5C5851;
+  --color-texto-tenue: #8A857C;
+  --color-acento: #125E52;
+  --color-acento-hover: #0E4C42;
+  --color-acento-suave: #E4F0ED;
+  --color-acento-texto: #FFFFFF;
+  --color-exito: #1F7A45;
+  --color-aviso: #9A6206;
+  --color-peligro: #A32118;
+  --color-peligro-suave: #FBEAE8;
+  --estado-reserva-pendiente-fondo: #FDF3DC;
+  --estado-reserva-pendiente-texto: #6B4A05;
+  --estado-reserva-pendiente-borde: #E2C173;
+  --estado-reserva-confirmada-fondo: #E4F0ED;
+  --estado-reserva-confirmada-texto: #0E4C42;
+  --estado-reserva-confirmada-borde: #7FBDB1;
+  --estado-reserva-completada-fondo: #E7F1E9;
+  --estado-reserva-completada-texto: #1B5C36;
+  --estado-reserva-completada-borde: #8CBB9E;
+  --estado-reserva-no_show-fondo: #F3F1EE;
+  --estado-reserva-no_show-texto: #5C5851;
+  --estado-reserva-no_show-borde: #C4BFB6;
+  --estado-reserva-cancelada-fondo: #FBEAE8;
+  --estado-reserva-cancelada-texto: #8A1C15;
+  --estado-reserva-cancelada-borde: #DFA49E;
+  --tipografia-familia: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --tipografia-familia-cifras: "IBM Plex Sans", system-ui, sans-serif;
+  --tipografia-cifras-tabulares: tabular-nums;
+  --tipografia-pesos-normal: 400;
+  --tipografia-pesos-medio: 500;
+  --tipografia-pesos-fuerte: 600;
+  --tipografia-tamano-micro: 0.75rem;
+  --tipografia-tamano-menor: 0.875rem;
+  --tipografia-tamano-cuerpo: 1rem;
+  --tipografia-tamano-mayor: 1.125rem;
+  --tipografia-tamano-titulo-3: 1.25rem;
+  --tipografia-tamano-titulo-2: 1.5rem;
+  --tipografia-tamano-titulo-1: 2rem;
+  --tipografia-interlineado-apretado: 1.2;
+  --tipografia-interlineado-normal: 1.5;
+  --tipografia-interlineado-suelto: 1.7;
+  --espacio-0: 0;
+  --espacio-1: 0.25rem;
+  --espacio-2: 0.5rem;
+  --espacio-3: 0.75rem;
+  --espacio-4: 1rem;
+  --espacio-5: 1.5rem;
+  --espacio-6: 2rem;
+  --espacio-7: 3rem;
+  --espacio-8: 4rem;
+  --espacio-toque-minimo: 44px;
+  --radio-nada: 0;
+  --radio-chico: 2px;
+  --radio-normal: 4px;
+  --radio-grande: 8px;
+  --radio-pildora: 999px;
+  --sombra-ninguna: none;
+  --sombra-menu: 0 2px 8px rgba(27, 26, 24, 0.12);
+  --sombra-hoja: 0 -2px 16px rgba(27, 26, 24, 0.16);
+  --pantalla-movil: 390px;
+  --pantalla-tableta: 768px;
+  --pantalla-escritorio: 1120px;
+  --movimiento-rapido: 120ms;
+  --movimiento-normal: 200ms;
+  --movimiento-curva: cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+/* El modo oscuro está definido desde el día uno pero no se activa en la Fase 1: se enciende
+   añadiendo data-tema="oscuro" a la raíz. Modo claro por defecto. */
+[data-tema="oscuro"] {
+  color-scheme: dark;
+  --color-superficie: #141412;
+  --color-superficie-suave: #1D1D1A;
+  --color-superficie-elevada: #232320;
+  --color-borde: #35342F;
+  --color-borde-fuerte: #4E4C45;
+  --color-texto: #F2F0EC;
+  --color-texto-suave: #B6B2A9;
+  --color-texto-tenue: #87837B;
+  --color-acento: #4FB3A0;
+  --color-acento-hover: #69C6B4;
+  --color-acento-suave: #16302C;
+  --color-acento-texto: #0B1F1B;
+  --color-exito: #5CBB80;
+  --color-aviso: #D9A441;
+  --color-peligro: #E8776B;
+  --color-peligro-suave: #3A1E1B;
+}

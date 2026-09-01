@@ -1,0 +1,5 @@
+# `apps/api` es Python y no forma parte del workspace de pnpm: se gestiona con uv
+# (ADR-0001). El glob lo incluiría sin daño, porque no tiene package.json.
+packages:
+  - "apps/*"
+  - "packages/*"
