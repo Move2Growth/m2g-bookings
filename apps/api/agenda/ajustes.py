@@ -33,7 +33,7 @@ class Ajustes(BaseSettings):
     # Los importes se guardan en centavos; esto es solo el código de moneda que los acompaña.
     moneda_defecto: str = "USD"
 
-    database_url: str = "postgresql+asyncpg://agenda_app:agenda@localhost:5433/agenda"
+    database_url: str = "postgresql+asyncpg://agenda_api:agenda@localhost:5433/agenda"
     database_url_migraciones: str = "postgresql+psycopg://agenda_owner:agenda@localhost:5433/agenda"
     redis_url: str = "redis://localhost:6380/0"
 

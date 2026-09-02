@@ -25,7 +25,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 URL_APP = os.environ.get(
     "DATABASE_URL_PRUEBAS",
-    "postgresql+asyncpg://agenda_app:agenda@localhost:5433/agenda",
+    "postgresql+asyncpg://agenda_api:agenda@localhost:5433/agenda",
 )
 URL_DUENO = os.environ.get(
     "DATABASE_URL_MIGRACIONES",

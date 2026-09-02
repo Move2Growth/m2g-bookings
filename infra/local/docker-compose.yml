@@ -52,7 +52,7 @@ services:
       dockerfile: Dockerfile
     env_file: ../../.env
     environment:
-      DATABASE_URL: postgresql+asyncpg://agenda_app:agenda@db:5432/agenda
+      DATABASE_URL: postgresql+asyncpg://agenda_api:agenda@db:5432/agenda
       DATABASE_URL_MIGRACIONES: postgresql+psycopg://agenda_owner:agenda@db:5432/agenda
       REDIS_URL: redis://redis:6379/0
     ports:
@@ -73,7 +73,7 @@ services:
       dockerfile: Dockerfile
     env_file: ../../.env
     environment:
-      DATABASE_URL: postgresql+asyncpg://agenda_app:agenda@db:5432/agenda
+      DATABASE_URL: postgresql+asyncpg://agenda_api:agenda@db:5432/agenda
       REDIS_URL: redis://redis:6379/0
     volumes:
       - ../../apps/api:/app

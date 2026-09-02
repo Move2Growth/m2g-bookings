@@ -49,7 +49,7 @@ local, WhatsApp, la pasarela y los mapas usan implementaciones de desarrollo.
    make arriba
    ```
 4. **Comprueba que responde.** La documentación de la API queda en
-   <http://localhost:8000/docs> y la base en `postgresql://agenda_app@localhost:5433/agenda`.
+   <http://localhost:8000/docs> y la base en `postgresql://agenda_api@localhost:5433/agenda`.
 5. **Ejecuta las pruebas.** Corren contra un PostgreSQL real, no contra una base de mentira:
    lo que hay que probar son restricciones de exclusión, seguridad por fila y PostGIS, y nada
    de eso existe en SQLite.
