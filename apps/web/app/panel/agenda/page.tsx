@@ -143,16 +143,14 @@ export default function Agenda() {
           <ul className="agenda">
             {citas.map((cita) => (
               <li key={cita.id} className={`agenda__fila agenda__fila--${cita.estado}`}>
-                <span className="agenda__hora cifras">
-                  <strong>{hora.format(new Date(cita.inicio))}</strong>
-                  <span className="tenue">{hora.format(new Date(cita.fin))}</span>
+                <span className="agenda__hora">
+                  {hora.format(new Date(cita.inicio))}
+                  <small>{hora.format(new Date(cita.fin))}</small>
                 </span>
-                <span>
-                  <strong>{cita.cliente}</strong>
-                  <span className="apagado" style={{ display: 'block', fontSize: 'var(--tipografia-tamano-menor)' }}>
-                    {cita.servicios.map((s) => s.nombre).join(' + ')}
-                  </span>
-                  <span className={`estado estado--${cita.estado}`} style={{ marginTop: 'var(--espacio-2)' }}>
+                <span className="agenda__quien">{cita.cliente}</span>
+                <span className="agenda__que">
+                  {cita.servicios.map((s) => s.nombre).join(' + ')}
+                  <span className={`estado estado--${cita.estado}`} style={{ marginInlineStart: 'var(--espacio-2)' }}>
                     {ETIQUETA[cita.estado] ?? cita.estado}
                   </span>
                 </span>

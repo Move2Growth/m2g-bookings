@@ -783,6 +783,9 @@ a:has(> svg) {
   grid-template-rows: auto 1fr auto;
 }
 
+/* La barra del panel es de tinta, no blanca. Es la fachada del local visto desde dentro: se
+   sabe en qué salón estás desde el primer vistazo, y de paso el producto deja de ser blanco con
+   rayas grises en la pantalla que más se abre. */
 .app__barra {
   display: flex;
   align-items: center;
@@ -790,8 +793,10 @@ a:has(> svg) {
   min-width: 0;
   min-height: 56px;
   padding-inline: var(--espacio-4);
-  background: var(--color-lienzo);
-  border-bottom: 1px solid var(--color-borde-fuerte);
+  background: var(--color-tinta);
+  color: var(--color-papel);
+  --foco-anillo: var(--color-papel);
+  border-bottom: var(--filo-grosor) solid var(--color-abre);
   position: sticky;
   top: 0;
   z-index: 20;
@@ -803,9 +808,12 @@ a:has(> svg) {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: var(--tipografia-pesos-medio);
-  color: var(--color-tinta-suave);
+  font-stretch: var(--tipografia-ancho-rotulo);
+  color: var(--color-papel);
 }
+.app__barra .boton--llano { color: var(--color-papel); }
 .app__cuerpo {
+  background: var(--color-papel);
   /* El hueco de abajo es la altura de la barra de pestañas más el área segura del teléfono:
      sin esto, la última fila de cualquier lista queda tapada y nadie la ve. */
   padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px) + var(--espacio-5));
@@ -892,7 +900,8 @@ a:has(> svg) {
     font-size: var(--tipografia-tamano-menor);
   }
   .pestana[aria-current='page']::before { inset: auto 12px -1px 12px; height: 3px; }
-  .app__cuerpo { padding-bottom: var(--espacio-8); }
+  .app__cuerpo {
+  background: var(--color-papel); padding-bottom: var(--espacio-8); }
 }
 
 /* ── Estados: cargando, vacío, error ───────────────────────────────────────── */
@@ -1926,39 +1935,102 @@ textarea.entrada { resize: vertical; min-height: 7rem; line-height: var(--tipogr
   box-shadow: inset 0 0 0 1px var(--color-borde-fuerte); cursor: not-allowed; transform: none;
 }
 
-.pestanas { display: flex; gap: var(--espacio-5); border-bottom: 1px solid var(--color-borde-fuerte); }
+/* La barra de navegación del armazón. Abajo en el teléfono, donde llega el pulgar; fila bajo
+   la cabecera en escritorio. El indicador de la activa es el filo naranja, no un fondo. */
+.pestanas {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 30;
+  background: var(--color-arena);
+  border-top: 2px solid var(--color-tinta);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.pestanas__lista {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.pestanas__lista::-webkit-scrollbar { display: none; }
+.pestanas__lista > li { flex: 1 0 auto; min-width: 72px; }
+
 .pestana {
   position: relative;
-  background: none; border: 0;
-  padding: var(--espacio-3) 0 calc(var(--espacio-3) + var(--filo-grosor));
-  min-height: var(--espacio-toque-minimo);
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: var(--espacio-2) var(--espacio-2) var(--espacio-3);
+  min-height: 60px;
+  background: none;
+  border: 0;
   color: var(--color-tinta-suave);
-  font-size: var(--tipografia-tamano-cuerpo);
-  font-weight: var(--tipografia-pesos-medio);
-  font-stretch: var(--tipografia-ancho-texto);
+  text-decoration: none;
+  font-size: var(--tipografia-tamano-micro);
+  font-stretch: var(--tipografia-ancho-estrecho);
   cursor: pointer;
   transition: color var(--movimiento-rapido) var(--movimiento-curva);
 }
-/* Cada pestaña reserva de antemano el ancho que ocupará cuando esté activa y su letra pase de
-   100 % a 112 %. Sin esto, elegir una pestaña mueve las otras de sitio. Requiere data-texto. */
-.pestana::after {
-  content: attr(data-texto); display: block; height: 0; overflow: hidden;
-  font-stretch: var(--tipografia-ancho-rotulo);
-  font-weight: var(--tipografia-pesos-fuerte);
-  visibility: hidden; pointer-events: none;
-}
+.pestana__icono { position: relative; display: block; line-height: 0; }
+.pestana__icono { transition: transform var(--movimiento-rapido) var(--movimiento-curva-empuje); }
+.pestana__texto { text-align: center; }
 .pestana:hover { color: var(--color-tinta); }
+.pestana:active .pestana__icono { transform: scale(0.9); }
 .pestana:focus-visible { outline: var(--foco-grosor) solid var(--foco-anillo); outline-offset: calc(var(--foco-separacion) * -1); }
-.pestana[aria-selected="true"] {
+
+.pestana[aria-current='page'] {
   color: var(--color-tinta);
   font-weight: var(--tipografia-pesos-fuerte);
-  font-stretch: var(--tipografia-ancho-rotulo);
+  background: var(--color-lienzo);
 }
-.pestana[aria-selected="true"]::before {
-  content: ""; position: absolute; left: 0; right: 0; bottom: 0;
-  height: var(--filo-grosor); background: var(--color-tinta);
+.pestana[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  inset: -2px 0 auto 0;
+  height: var(--filo-grosor);
+  background: var(--color-abre);
 }
-.pestana[disabled] { color: var(--color-tinta-tenue); cursor: not-allowed; }
+
+.pestana__cuenta {
+  position: absolute;
+  top: -4px;
+  inset-inline-start: 14px;
+  min-width: 18px;
+  height: 18px;
+  padding-inline: 4px;
+  display: grid;
+  place-items: center;
+  background: var(--color-abre);
+  color: var(--color-abre-texto);
+  font-size: 11px;
+  font-weight: var(--tipografia-pesos-fuerte);
+  border-radius: var(--radio-control);
+}
+
+@media (min-width: 900px) {
+  .pestanas {
+    position: sticky;
+    inset: 56px auto auto 0;
+    border-top: none;
+    border-bottom: 2px solid var(--color-tinta);
+  }
+  .pestanas__lista {
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: var(--espacio-6);
+    overflow: visible;
+  }
+  .pestanas__lista > li { flex: 0 0 auto; min-width: 0; }
+  .pestana {
+    grid-template-columns: auto auto;
+    align-items: center;
+    gap: var(--espacio-2);
+    padding: var(--espacio-3) var(--espacio-4);
+    min-height: 48px;
+    font-size: var(--tipografia-tamano-menor);
+  }
+}
 
 /* Canto vivo (radio 0) porque no se toca. El color va en el filo macizo, que es lo único del
    sello que se ve al sol, y el nombre va escrito: quien no distingue el ámbar del verde sigue

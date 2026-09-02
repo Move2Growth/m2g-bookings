@@ -58,17 +58,25 @@ export function Pestanas({ pestanas, etiqueta }: { pestanas: Pestana[]; etiqueta
 /**
  * Los iconos.
  *
- * Están dibujados aquí y no vienen de una librería porque son ocho, se usan a un solo tamaño y
- * una dependencia de iconos entera pesa más que estas líneas. Todos comparten trazo de 1,75 y
- * caja de 24, que es lo que hace que una fila de iconos se lea como una familia y no como un
- * muestrario.
+ * Están dibujados aquí y no vienen de una librería, y eso importa más de lo que parece: los que
+ * había eran de una librería con el grosor cambiado, y **traían remates redondos** mientras el
+ * logotipo de la marca se dibuja a escuadra. Un icono redondo al lado de un rótulo a escuadra se
+ * nota aunque nadie sepa decir por qué.
+ *
+ * Tres reglas y ninguna más:
+ *
+ * · **Remate a escuadra y unión en ángulo vivo**, como el wordmark. Nada redondeado.
+ * · **Trazo de 2 sobre caja de 24**, en coordenadas enteras. Así el dibujo cae en la rejilla de
+ *   píxeles y no sale gris y borroso a tamaño pequeño, que es donde vive un icono de pestaña.
+ * · **Rectilíneo salvo cuando la curva es el significado.** El corazón de guardar y la cabeza de
+ *   una persona necesitan curva; una agenda, un servicio o una métrica, no.
  */
 const trazo = {
   fill: 'none',
   stroke: 'currentColor',
-  strokeWidth: 1.75,
-  strokeLinecap: 'round' as const,
-  strokeLinejoin: 'round' as const,
+  strokeWidth: 2,
+  strokeLinecap: 'square' as const,
+  strokeLinejoin: 'miter' as const,
 }
 
 function Svg({ children }: { children: ReactNode }) {
@@ -80,88 +88,96 @@ function Svg({ children }: { children: ReactNode }) {
 }
 
 export const Iconos = {
+  /* La lupa es un cuadrado con mango: el círculo era el único redondeado de la familia. */
   buscar: (
     <Svg>
-      <circle cx="11" cy="11" r="7" />
-      <path d="M16.5 16.5 21 21" />
+      <path d="M4 4h12v12H4z" />
+      <path d="M16 16l4 4" />
     </Svg>
   ),
+  /* La agenda es el bloque con la muesca del icono de marca, con la anilla arriba. */
   agenda: (
     <Svg>
-      <rect x="3" y="5" width="18" height="16" rx="1" />
-      <path d="M3 10h18M8 3v4M16 3v4" />
+      <path d="M3 6h18v15H3z" />
+      <path d="M3 11h18" />
+      <path d="M8 3v4M16 3v4" />
+      <path d="M13 15h5v4h-5z" />
     </Svg>
   ),
   citas: (
     <Svg>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v5l3.5 2" />
+      <path d="M3 4h18v17H3z" />
+      <path d="M12 9v4h4" />
     </Svg>
   ),
   corazon: (
     <Svg>
-      <path d="M12 20s-7.5-4.6-7.5-9.6A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 7.5 2.8C19.5 15.4 12 20 12 20Z" />
+      <path d="M12 20 4 12.4A4.6 4.6 0 0 1 12 7.4a4.6 4.6 0 0 1 8 5z" />
     </Svg>
   ),
   persona: (
     <Svg>
-      <circle cx="12" cy="8" r="3.5" />
-      <path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" />
+      <path d="M8 4h8v6H8z" />
+      <path d="M4 21v-4h16v4" />
     </Svg>
   ),
   equipo: (
     <Svg>
-      <circle cx="9" cy="8" r="3.2" />
-      <path d="M2.5 19.5c1-3.1 3.4-4.7 6.5-4.7s5.5 1.6 6.5 4.7" />
-      <path d="M16.5 5.4a3.2 3.2 0 0 1 0 5.2M18 14.9c2.1.5 3.3 1.9 4 4.6" />
+      <path d="M3 4h7v6H3z" />
+      <path d="M14 4h7v6h-7z" />
+      <path d="M3 21v-4h7v4M14 21v-4h7v4" />
     </Svg>
   ),
+  /* La carta de servicios: renglones de distinta longitud, como una lista de precios. */
   servicios: (
     <Svg>
-      <path d="M4 7h16M4 12h16M4 17h10" />
+      <path d="M4 6h16M4 12h16M4 18h10" />
     </Svg>
   ),
   horario: (
     <Svg>
-      <rect x="3" y="5" width="18" height="16" rx="1" />
-      <path d="M3 10h18" />
-      <path d="M8 14h3M8 17.5h6" />
+      <path d="M3 6h18v15H3z" />
+      <path d="M3 11h18M9 11v10M15 11v10" />
     </Svg>
   ),
   clientes: (
     <Svg>
-      <circle cx="12" cy="8" r="3.5" />
-      <path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" />
-      <path d="M17.5 3.5 19 5l3-3" />
+      <path d="M4 5h9v5H4z" />
+      <path d="M3 21v-4h11v4" />
+      <path d="M17 8l2 2 4-4" />
     </Svg>
   ),
   ficha: (
     <Svg>
-      <rect x="3" y="4" width="18" height="17" rx="1" />
-      <path d="M3 9h18M7 13h5M7 16.5h9" />
+      <path d="M3 4h18v17H3z" />
+      <path d="M3 9h18" />
+      <path d="M7 13h6M7 17h10" />
     </Svg>
   ),
   ajustes: (
     <Svg>
-      <circle cx="12" cy="12" r="3" />
-      <path d="M12 2.8v2.4M12 18.8v2.4M4.5 4.5l1.7 1.7M17.8 17.8l1.7 1.7M2.8 12h2.4M18.8 12h2.4M4.5 19.5l1.7-1.7M17.8 6.2l1.7-1.7" />
+      <path d="M5 4v16M12 4v16M19 4v16" />
+      <path d="M2 8h6M9 15h6M16 7h6" />
     </Svg>
   ),
   negocios: (
     <Svg>
-      <path d="M3 21V9l9-6 9 6v12" />
-      <path d="M9 21v-6h6v6" />
+      <path d="M3 21V8l9-5 9 5v13z" />
+      <path d="M9 21v-7h6v7" />
     </Svg>
   ),
+  /* La moderación es el hueco de la marca dentro de un escudo cuadrado. */
   moderacion: (
     <Svg>
-      <path d="M12 3 4 6v6c0 4.4 3.2 8 8 9 4.8-1 8-4.6 8-9V6l-8-3Z" />
-      <path d="M12 9v4M12 16.2v.1" />
+      <path d="M4 4h16v9l-8 8-8-8z" />
+      <path d="M12 8v4" />
+      <path d="M12 15v1" />
     </Svg>
   ),
   metricas: (
     <Svg>
-      <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
+      <path d="M3 21h18" />
+      <path d="M5 21V11h4v10M14 21V4h5v17" />
     </Svg>
   ),
 } as const

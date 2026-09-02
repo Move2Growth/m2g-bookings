@@ -190,11 +190,11 @@ function BotonGuardar({
     >
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
         <path
-          d="M12 20s-7.5-4.6-7.5-9.6A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 7.5 2.8C19.5 15.4 12 20 12 20Z"
+          d="M12 20 4 12.4A4.6 4.6 0 0 1 12 7.4a4.6 4.6 0 0 1 8 5z"
           fill={activo ? 'currentColor' : 'none'}
           stroke="currentColor"
-          strokeWidth={1.75}
-          strokeLinejoin="round"
+          strokeWidth={2}
+          strokeLinejoin="miter"
         />
       </svg>
     </button>
