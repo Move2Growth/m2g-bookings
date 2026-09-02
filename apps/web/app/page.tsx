@@ -58,7 +58,9 @@ export default async function Portada({ searchParams }: Props) {
         method="get"
         style={{ display: 'flex', gap: 'var(--espacio-2)', marginBottom: 'var(--espacio-4)' }}
       >
-        <label style={{ flex: 1 }}>
+        {/* `minWidth: 0` no es cosmético: sin él, el ancho intrínseco del campo impide que
+            encoja y la página entera se sale de los 390 px. */}
+        <label style={{ flex: 1, minWidth: 0 }}>
           <span className="oculto-visualmente">Qué buscas</span>
           <input
             type="search"

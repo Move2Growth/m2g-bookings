@@ -79,7 +79,11 @@ local, WhatsApp, la pasarela y los mapas usan implementaciones de desarrollo.
 
 ## Estado
 
-**Fase 0 — en proceso.** Arquitectura decidida (catorce ADR), modelo de datos, contratos de API,
-flujos y design system escritos, y el **motor de disponibilidad con su núcleo puro y sus pruebas
-en verde**. Pendiente de la aprobación de Luis para pasar a la Fase 1. El detalle, en
+**Fases 0 y 1 construidas; la 2, a medias.** Un salón entra por teléfono, se da de alta, pone
+horario, servicios y equipo, y opera su agenda desde el móvil; el marketplace busca, filtra por
+zona y sirve los perfiles en servidor. 107 pruebas en verde, 14 de ellas contra un PostgreSQL
+real.
+
+**Lo que hay, cómo verlo funcionando y qué hace falta: [`docs/ENTREGA.md`](docs/ENTREGA.md).**
+El estado por rol y la deuda viva, en
 [`docs/ai-development/ESTADO-GLOBAL.md`](docs/ai-development/ESTADO-GLOBAL.md).

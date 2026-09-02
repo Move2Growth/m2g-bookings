@@ -43,6 +43,10 @@ html {
 
 body {
   margin: 0;
+  /* La página no se desplaza en horizontal **nunca**. Lo que no cabe se corta o se desplaza
+     dentro de su propio contenedor; que se mueva la página entera a 390 px es el fallo que
+     hace que el pulgar pierda el sitio y que la acción principal desaparezca de la vista. */
+  overflow-x: hidden;
   font-family: var(--tipografia-familia);
   font-size: var(--tipografia-tamano-cuerpo);
   line-height: var(--tipografia-interlineado-normal);
