@@ -63,9 +63,17 @@ h1 { line-height: var(--tipografia-interlineado-apretado); }
   line-height: 1;
 }
 
-h1 { font-size: var(--tipografia-tamano-titulo-1); line-height: var(--tipografia-interlineado-apretado); }
-h2 { font-size: var(--tipografia-tamano-titulo-2); }
-h3 { font-size: var(--tipografia-tamano-titulo-3); }
+/* Los titulares escalan con el ancho, no saltan por puntos de ruptura.
+   La escala de los tokens marca los dos extremos: el valor pequeño es lo que se lee en un
+   teléfono de 390 px y el grande es el de la escala. En medio interpola.
+   Sin esto, un titular a ancho de rótulo mide 44 px fijos en un móvil y se come la pantalla;
+   y un punto de ruptura lo arregla en 391 px pero no en 375. */
+h1 {
+  font-size: clamp(2rem, 1.35rem + 2.9vw, var(--tipografia-tamano-titulo-1));
+  line-height: var(--tipografia-interlineado-apretado);
+}
+h2 { font-size: clamp(1.5rem, 1.18rem + 1.45vw, var(--tipografia-tamano-titulo-2)); }
+h3 { font-size: clamp(1.25rem, 1.1rem + 0.7vw, var(--tipografia-tamano-titulo-3)); }
 h4 { font-size: var(--tipografia-tamano-titulo-4); }
 
 p { margin: 0; text-wrap: pretty; }
@@ -385,7 +393,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* ── Escala tipográfica en pantallas grandes ────────────────────────────────── */
 
 @media (min-width: 768px) {
-  h1 { font-size: var(--tipografia-tamano-cartel); }
+  /* El salto de titular a cartel ya no es un salto: sigue interpolando hasta el tamaño de
+     cartel, que es el que hace que la portada se lea como un rótulo en un escritorio. */
+  h1 { font-size: clamp(var(--tipografia-tamano-titulo-1), 1.2rem + 4.2vw, var(--tipografia-tamano-cartel)); }
   .seccion { padding-block: var(--espacio-8); }
   .seccion--holgada { padding-block: var(--espacio-9); }
   .contenedor { padding-inline: var(--espacio-6); }
@@ -1370,7 +1380,7 @@ select.entrada {
   padding-block: var(--espacio-5);
   border-top: 2px solid var(--color-tinta);
 }
-.bloque-panel:first-of-type { border-top: none; padding-top: 0; }
+.bloque-panel:first-of-type { border-top: none; }
 
 /* ── Estado de publicación ─────────────────────────────────────────────────── */
 
@@ -1388,3 +1398,144 @@ select.entrada {
 .lista-checklist .hecho { color: var(--color-tinta-tenue); text-decoration: line-through; }
 
 textarea.entrada { resize: vertical; min-height: 7rem; line-height: var(--tipografia-interlineado-normal); }
+
+/* Pares dato/valor. Dos columnas en cuanto hay sitio, porque leídos en pareja se comparan de
+   un vistazo y apilados hay que recorrerlos. */
+.datos { display: grid; grid-template-columns: auto 1fr; gap: var(--espacio-2) var(--espacio-4); margin: 0; }
+.datos dt { color: var(--color-tinta-suave); font-size: var(--tipografia-tamano-menor); }
+.datos dd { margin: 0; font-weight: var(--tipografia-pesos-medio); }
+
+/* ── Ficha de un salón ─────────────────────────────────────────────────────── */
+
+/* Galería a sangre. Se desliza en horizontal con ajuste por foto: en un teléfono, seis fotos
+   apiladas son seis pantallas que nadie recorre. */
+.galeria {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 86%;
+  gap: var(--espacio-2);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  background: var(--color-arena);
+}
+.galeria::-webkit-scrollbar { display: none; }
+.galeria > * { scroll-snap-align: center; }
+.galeria img { width: 100%; height: 100%; object-fit: cover; display: block; aspect-ratio: 3 / 2; }
+.galeria--una { grid-auto-columns: 100%; }
+@media (min-width: 900px) {
+  .galeria { grid-auto-columns: 44%; aspect-ratio: auto; }
+  .galeria img { aspect-ratio: 3 / 2; max-height: 420px; }
+}
+/* Sin fotos, el bloque ocupa el ancho entero: heredar las columnas de la galería lo dejaría
+   cortado a media pantalla y parecería una imagen que no cargó. */
+.galeria--vacia {
+  display: grid;
+  grid-auto-flow: row;
+  grid-auto-columns: auto;
+  place-items: center;
+  aspect-ratio: 3 / 1;
+  max-height: 260px;
+  background: var(--color-acento);
+  color: var(--color-acento-texto);
+}
+.galeria--vacia span {
+  font-family: var(--tipografia-familia-display);
+  font-weight: var(--tipografia-pesos-display);
+  font-stretch: var(--tipografia-ancho-rotulo);
+  font-size: var(--tipografia-tamano-cartel);
+  line-height: 1;
+}
+
+.identidad {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--espacio-4);
+  margin-top: var(--espacio-3);
+}
+.identidad h1 { font-size: var(--tipografia-tamano-titulo-1); }
+.identidad__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-3);
+  align-items: baseline;
+  margin-top: var(--espacio-2);
+  font-size: var(--tipografia-tamano-menor);
+}
+.identidad__texto { margin-top: var(--espacio-4); color: var(--color-tinta-suave); }
+
+.acciones-salon { display: flex; gap: var(--espacio-2); flex-wrap: wrap; }
+.acciones-salon .boton { gap: var(--espacio-2); }
+
+.atributos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-2);
+  list-style: none;
+  margin: var(--espacio-4) 0 0;
+  padding: 0;
+}
+.atributos li {
+  padding: 4px var(--espacio-3);
+  background: var(--color-arena);
+  border: 1px solid var(--color-borde-fuerte);
+  font-size: var(--tipografia-tamano-menor);
+}
+
+.servicio__duracion {
+  display: block;
+  color: var(--color-tinta-suave);
+  font-size: var(--tipografia-tamano-menor);
+}
+
+.equipo { display: flex; flex-wrap: wrap; gap: var(--espacio-4); list-style: none; margin: var(--espacio-4) 0 0; padding: 0; }
+.equipo__persona { display: grid; justify-items: center; gap: var(--espacio-2); font-size: var(--tipografia-tamano-menor); }
+.equipo__inicial {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  background: var(--color-tinta);
+  color: var(--color-papel);
+  font-family: var(--tipografia-familia-display);
+  font-weight: var(--tipografia-pesos-display);
+  font-size: var(--tipografia-tamano-titulo-4);
+}
+
+/* ── Reseñas ───────────────────────────────────────────────────────────────── */
+
+.resumen-notas {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-5);
+  flex-wrap: wrap;
+  margin-top: var(--espacio-4);
+}
+.resumen-notas__media { line-height: 1; }
+.resumen-notas__reparto { flex: 1; min-width: 200px; display: grid; gap: 4px; }
+.resumen-notas__fila {
+  display: grid;
+  grid-template-columns: 1ch 1fr 3ch;
+  gap: var(--espacio-2);
+  align-items: center;
+  font-size: var(--tipografia-tamano-menor);
+}
+.resumen-notas__barra { height: 8px; background: var(--color-arena); display: block; }
+.resumen-notas__barra > span { display: block; height: 100%; background: var(--color-acento); }
+
+.resenas { list-style: none; margin: var(--espacio-5) 0 0; padding: 0; display: grid; gap: var(--espacio-4); }
+.resena { padding-top: var(--espacio-4); border-top: 1px solid var(--color-borde); }
+.resena__cabeza { display: flex; flex-wrap: wrap; gap: var(--espacio-3); align-items: baseline; }
+.resena__autor { font-weight: var(--tipografia-pesos-medio); }
+.resena__texto { margin-top: var(--espacio-2); }
+/* La respuesta del salón va sangrada y sobre arena: se ve que es otra voz sin necesidad de
+   escribir «respuesta del negocio» en grande. */
+.resena__respuesta {
+  margin-top: var(--espacio-3);
+  padding: var(--espacio-3);
+  background: var(--color-arena);
+  border-left: 3px solid var(--color-borde-fuerte);
+  font-size: var(--tipografia-tamano-menor);
+}

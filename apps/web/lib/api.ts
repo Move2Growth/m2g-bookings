@@ -37,6 +37,36 @@ export type Perfil = NegocioEnLista & {
   zona_horaria: string
   servicios: Servicio[]
   equipo: Profesional[]
+  /* Lo que la ficha pública enseña además de servicios y equipo. Va opcional porque el perfil
+     se sirve igual mientras un salón no lo haya rellenado: una ficha a medias tiene que salir,
+     no romperse. */
+  descripcion?: string | null
+  rating?: number | null
+  numero_reviews?: number
+  fotos?: { id: string; url: string; texto_alternativo: string | null; clase: string }[]
+  atributos?: { slug: string; nombre: string; grupo: string }[]
+  horario?: { dia: number; abre: string; cierra: string }[]
+}
+
+export type ResenaPublica = {
+  id: string
+  nota: number
+  texto: string | null
+  fecha: string
+  autor: string
+  profesional: string | null
+  fotos: { id: string; url: string }[]
+  respuesta: { texto: string; fecha: string } | null
+}
+
+export type ResenasDelPerfil = {
+  resumen: { total: number; media: number | null; reparto: Record<string, number> }
+  resenas: ResenaPublica[]
+}
+
+/** Las reseñas de un salón. Si el salón no tiene ninguna, la ficha sale igual y lo dice. */
+export function verResenas(slug: string): Promise<ResenasDelPerfil> {
+  return pedir<ResenasDelPerfil>(`/api/v1/publico/negocios/${slug}/reviews`, { revalidar: 300 })
 }
 
 export type Slot = { inicio: string; fin: string; profesional_id: string | null }

@@ -155,7 +155,7 @@ function Contenido() {
           <p
             style={{
               marginTop: 'var(--espacio-3)',
-              color: 'var(--color-texto-tenue)',
+              color: 'var(--color-tinta-tenue)',
               fontSize: 'var(--tipografia-tamano-menor)',
             }}
           >
@@ -165,7 +165,7 @@ function Contenido() {
         </>
       ) : (
         <form onSubmit={paso === 'telefono' ? pedirCodigo : verificar} style={{ display: 'grid', gap: 'var(--espacio-3)' }}>
-          <p style={{ color: 'var(--color-texto-suave)' }}>
+          <p style={{ color: 'var(--color-tinta-suave)' }}>
             Para reservar necesitamos tu teléfono. Te mandamos un código y listo. No hay
             contraseña que recordar.
           </p>
@@ -208,7 +208,7 @@ function Contenido() {
                 className="entrada entrada--codigo"
               />
               {pista && (
-                <span style={{ color: 'var(--color-texto-tenue)', fontSize: 'var(--tipografia-tamano-menor)' }}>
+                <span style={{ color: 'var(--color-tinta-tenue)', fontSize: 'var(--tipografia-tamano-menor)' }}>
                   En local no hay WhatsApp todavía. Tu código es <strong className="cifras">{pista}</strong>.
                 </span>
               )}
@@ -236,7 +236,7 @@ export default function Reservar() {
 }
 
 const etiqueta: React.CSSProperties = {
-  color: 'var(--color-texto-suave)',
+  color: 'var(--color-tinta-suave)',
   fontSize: 'var(--tipografia-tamano-menor)',
   margin: 0,
 }
