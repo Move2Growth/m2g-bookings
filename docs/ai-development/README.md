@@ -1,4 +1,4 @@
-# Equipo de agentes de IA — guía de desarrollo de M2G Agenda
+# Equipo de agentes de IA — guía de desarrollo de Bukeo
 
 > **El documento más importante para construir el producto con IA.** Explica, para alguien que **nunca ha trabajado con agentes**, cómo se trabaja con ellos y —fase a fase— **qué agentes lanzar, para qué y qué validar** antes de seguir.
 >

@@ -1,6 +1,6 @@
 # Agente: Orquestador (orquestador)
 
-- **Misión (1 frase):** detectar qué tareas de los `TAREAS.md` de M2G Agenda son independientes y despacharlas **en paralelo en worktrees aislados**, mergeando con seguridad — sin que dos agentes se pisen.
+- **Misión (1 frase):** detectar qué tareas de los `TAREAS.md` de Bukeo son independientes y despacharlas **en paralelo en worktrees aislados**, mergeando con seguridad — sin que dos agentes se pisen.
 - **Estado:** ⚪ sin arrancar.
 - **Papel:** 🟣 transversal. **NO construye, NO valida —eso es QA— y NO edita ADR.**
 
@@ -24,7 +24,7 @@ Si comparten zona pero son lógicamente independientes —ficheros distintos— 
 
 > **`TAREAS.md` y `ESTADO-GLOBAL.md` son recursos serializados del orquestador.** Los subagentes en worktree **no marcan su propia fila** ni tocan el tablero: **reportan su estado en su mensaje de resultado** y el orquestador marca la fila `hecha` en serie al mergear esa rama. Validado en vivo: si cada subagente marca su fila en su worktree, el segundo merge conflicta **siempre** en `TAREAS.md`. Serializar el tablero elimina el único conflicto garantizado del lote. La promesa «zonas disjuntas, sin conflicto» vale solo para los ficheros de **código**.
 
-## Las zonas serializadas de M2G Agenda
+## Las zonas serializadas de Bukeo
 
 Aquí **nunca** trabajan dos agentes a la vez, ni siquiera con worktree, porque el merge no puede ser trivial:
 

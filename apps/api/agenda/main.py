@@ -20,7 +20,7 @@ ajustes = obtener_ajustes()
 
 app = FastAPI(
     # El nombre comercial está sin decidir (D1): sale de configuración, no va a fuego.
-    title="API de M2G Agenda",
+    title="API de Bukeo",
     version="0.1.0",
     description=(
         "Reservas y marketplace de belleza y bienestar en Panamá. "

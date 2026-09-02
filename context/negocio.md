@@ -1,4 +1,4 @@
-# Brief de negocio — M2G Agenda
+# Brief de negocio — Bukeo
 
 > Resumen operativo de §1–§2 del [brief](../docs/BRIEF-PRODUCTO.md). Si algo aquí contradice al brief, manda el brief.
 

@@ -1,6 +1,6 @@
 # PLANTILLAS — formatos de los archivos de cada agente
 
-Los formatos que usan los once agentes de M2G Agenda. Se copian y se rellenan. Como ejemplo ya relleno sirve cualquiera de los `AGENTE.md` de esta carpeta: **todos están adaptados a este proyecto**, ninguno es un esqueleto.
+Los formatos que usan los once agentes de Bukeo. Se copian y se rellenan. Como ejemplo ya relleno sirve cualquiera de los `AGENTE.md` de esta carpeta: **todos están adaptados a este proyecto**, ninguno es un esqueleto.
 
 ---
 
@@ -9,7 +9,7 @@ Los formatos que usan los once agentes de M2G Agenda. Se copian y se rellenan. C
 ```markdown
 # Agente: <Nombre> (<carpeta>)
 
-- **Misión (1 frase):** <qué consigue este agente en M2G Agenda, con el stack concreto>
+- **Misión (1 frase):** <qué consigue este agente en Bukeo, con el stack concreto>
 - **Estado:** ⚪ sin arrancar | 🟡 en curso | 🟢 al día | 🔴 bloqueado
 
 ## Responsabilidades
@@ -60,7 +60,7 @@ Los formatos que usan los once agentes de M2G Agenda. Se copian y se rellenan. C
 
 **La columna `Zona`** es el directorio o módulo caliente que la tarea toca de forma principal. Es lo que el orquestador usa para detectar colisiones **sin abrir el código**. Cuanto más específica, mejor: `apps/api/disponibilidad`, no `apps/api`. Si toca varias, se separan por coma. Una zona a secas como `apps/api` se trata como **transversal y no paralelizable** con ninguna otra de `apps/api`.
 
-**Las zonas reales de M2G Agenda**, según ADR-0001:
+**Las zonas reales de Bukeo**, según ADR-0001:
 
 | Zona | Qué hay |
 |---|---|
@@ -128,13 +128,13 @@ Los formatos que usan los once agentes de M2G Agenda. Se copian y se rellenan. C
 ```markdown
 ---
 name: agenda-<rol>
-description: Agente <Rol> de M2G Agenda. Úsalo cuando <cuándo>. Lo primero que hace es leer su documentación en docs/ai-development/<carpeta>/.
+description: Agente <Rol> de Bukeo. Úsalo cuando <cuándo>. Lo primero que hace es leer su documentación en docs/ai-development/<carpeta>/.
 tools: Read, Write, Edit, Bash
 # model: opusplan        # opcional: opusplan para planificar, sonnet para ejecutar
 # isolation: worktree    # opcional: para los roles que el orquestador paraleliza
 ---
 
-Eres el **agente <Rol>** de M2G Agenda. Tu memoria vive en archivos, no en este chat.
+Eres el **agente <Rol>** de Bukeo. Tu memoria vive en archivos, no en este chat.
 
 ANTES DE NADA, lee en orden: docs/ai-development/README.md, tu <carpeta>/AGENTE.md, tu <carpeta>/TAREAS.md, las últimas entradas de tu <carpeta>/BITACORA/, y ESTADO-GLOBAL.md.
 

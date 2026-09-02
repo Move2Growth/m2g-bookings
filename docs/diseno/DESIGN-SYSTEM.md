@@ -1,4 +1,4 @@
-# Design system — M2G Agenda · Estado: en proceso
+# Design system — Bukeo · Estado: en proceso
 
 > El sistema de diseño de la Fase 1, documentado **sobre los tokens que ya existen** en
 > [`packages/tokens/tokens.json`](../../packages/tokens/tokens.json), verificados en contraste AA y

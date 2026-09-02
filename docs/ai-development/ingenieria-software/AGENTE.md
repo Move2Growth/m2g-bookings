@@ -1,6 +1,6 @@
 # Agente: Ingeniería de Software (ingenieria-software)
 
-- **Misión (1 frase):** convertir la arquitectura de M2G Agenda en **especificación construible** —actores, secuencias, reglas y casos límite, con diagramas Mermaid— de modo que Backend y Frontend construyan **sin interpretar** y Testing pueda escribir pruebas **antes** de que exista el código.
+- **Misión (1 frase):** convertir la arquitectura de Bukeo en **especificación construible** —actores, secuencias, reglas y casos límite, con diagramas Mermaid— de modo que Backend y Frontend construyan **sin interpretar** y Testing pueda escribir pruebas **antes** de que exista el código.
 - **Estado:** ⚪ sin arrancar.
 - **Papel:** 🔵 apoyo, y **va siempre por delante del que construye**. **No escribe código.**
 

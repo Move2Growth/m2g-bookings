@@ -1,12 +1,12 @@
-# M2G Agenda
+# Bukeo
 
 Plataforma de reservas y marketplace para belleza y bienestar en **Panamá**, **gratis para el
 negocio**. Los negocios gestionan su agenda y su equipo sin pagar; los clientes descubren y
 reservan; M2G monetiza con posicionamiento pagado y, cuando toque, con una suscripción cuyo precio
 es un parámetro (0 al lanzamiento).
 
-> Codename interno: *M2G Agenda*. **El nombre comercial está por definir** (decisión D1): no lo
-> metas a fuego en ningún sitio, que salga de configuración.
+> La marca es **Bukeo** (ADR-0015). No se escribe a fuego en ninguna pantalla: sale de
+> configuración y de `packages/tokens`, para que un cambio de identidad sea cambiar valores.
 
 ## Por dónde empezar
 

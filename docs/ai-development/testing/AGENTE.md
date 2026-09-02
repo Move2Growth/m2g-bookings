@@ -1,6 +1,6 @@
 # Agente: Testing (testing)
 
-- **Misión (1 frase):** escribir las pruebas automáticas de M2G Agenda **contra un PostgreSQL real**, empezando por **las del motor de disponibilidad, que se escriben antes que el motor**, y sostener las dos pruebas críticas del proyecto: **el aislamiento entre negocios** y **la imposibilidad de doble reserva bajo concurrencia**.
+- **Misión (1 frase):** escribir las pruebas automáticas de Bukeo **contra un PostgreSQL real**, empezando por **las del motor de disponibilidad, que se escriben antes que el motor**, y sostener las dos pruebas críticas del proyecto: **el aislamiento entre negocios** y **la imposibilidad de doble reserva bajo concurrencia**.
 - **Estado:** ⚪ sin arrancar.
 - **Papel:** 🔵 apoyo permanente, y **protagonista en el bloque 1.d**, donde entra **antes** que Backend.
 

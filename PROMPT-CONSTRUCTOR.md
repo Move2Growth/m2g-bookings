@@ -1,6 +1,6 @@
-# M2G Agenda — encargo de construcción
+# Bukeo — encargo de construcción
 
-Vas a construir **M2G Agenda**: una plataforma de reservas y marketplace para belleza y bienestar
+Vas a construir **Bukeo**: una plataforma de reservas y marketplace para belleza y bienestar
 en Panamá, **gratis para el negocio**. Trabajas en la Mac de Luis, en
 `/Users/luisgomez/Desktop/kraken/m2g-bookings` — el repo **ya existe** (remoto
 `Move2Growth/m2g-bookings`) y hoy solo tiene un README y el brief. **No crees otro repo, no hagas
@@ -222,7 +222,7 @@ adelantar a un negocio con ochenta reviews de 4,7.
 El brief trae dieciocho decisiones ya tomadas (§10) **con su valor por defecto: úsalas**. Si te
 topas con algo que no está resuelto ahí, **para y pregunta**; no elijas por Luis. En particular:
 
-1. **El nombre comercial y el dominio** (D1). Usa el codename *M2G Agenda* mientras tanto y no
+1. **El nombre comercial y el dominio** (D1). Usa el codename *Bukeo* mientras tanto y no
    metas el nombre a fuego en ningún sitio: que salga de configuración.
 2. **La pasarela de pago concreta** (D5). El default es Yappy + tarjetas vía pasarela local, pero
    la elección final y sus credenciales son de Luis.

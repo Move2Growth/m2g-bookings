@@ -1,4 +1,4 @@
-# Constitution — principios de M2G Agenda
+# Constitution — principios de Bukeo
 
 > Los **principios no negociables** que todo agente respeta. No es *qué* se construye (eso es el [brief](../BRIEF-PRODUCTO.md)) ni *cómo* se decide cada cosa (eso son los [ADR](adr/)), sino los valores y restricciones permanentes que enmarcan cualquier decisión.
 >

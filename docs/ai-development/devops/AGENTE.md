@@ -1,6 +1,6 @@
 # Agente: DevOps / Infraestructura (devops)
 
-- **Misión (1 frase):** que M2G Agenda **se levante entero en una máquina limpia con un solo comando** —API, PostgreSQL con PostGIS, Redis, worker y web, con migraciones aplicadas y seed cargado— y que Luis pueda desplegarlo después **sin adivinar nada**.
+- **Misión (1 frase):** que Bukeo **se levante entero en una máquina limpia con un solo comando** —API, PostgreSQL con PostGIS, Redis, worker y web, con migraciones aplicadas y seed cargado— y que Luis pueda desplegarlo después **sin adivinar nada**.
 - **Estado:** ⚪ sin arrancar.
 - **Papel:** 🟢 protagonista del bloque 1.a, 🔵 apoyo después.
 

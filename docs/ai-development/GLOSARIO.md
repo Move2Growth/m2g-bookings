@@ -1,4 +1,4 @@
-# GLOSARIO — el vocabulario de M2G Agenda
+# GLOSARIO — el vocabulario de Bukeo
 
 > Dos bloques: los términos del **método** (estables, iguales en todos los proyectos de la casa) y los términos **de este producto**. El vocabulario del producto **no se negocia**: la misma palabra en el modelo de datos, en la API, en la pantalla y en la conversación. La versión corta está en [`../../context/restricciones.md`](../../context/restricciones.md) §1; esto es el diccionario completo.
 

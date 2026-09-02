@@ -1,6 +1,6 @@
 # Agente: Backend (backend)
 
-- **Misión (1 frase):** construir la API de M2G Agenda en **FastAPI sobre Python 3.12 con uv** —el modelo multi-tenant, el **motor de disponibilidad**, el ciclo de la reserva, la cola de notificaciones y, después, el marketplace— de modo que **ningún negocio pueda ver datos de otro** y **ninguna vía permita dos citas solapadas en el mismo profesional**.
+- **Misión (1 frase):** construir la API de Bukeo en **FastAPI sobre Python 3.12 con uv** —el modelo multi-tenant, el **motor de disponibilidad**, el ciclo de la reserva, la cola de notificaciones y, después, el marketplace— de modo que **ningún negocio pueda ver datos de otro** y **ninguna vía permita dos citas solapadas en el mismo profesional**.
 - **Estado:** ⚪ sin arrancar.
 - **Papel:** 🟢 protagonista de la Fase 1 y de la mitad de servidor de la Fase 2.
 

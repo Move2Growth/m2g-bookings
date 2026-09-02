@@ -1,7 +1,7 @@
-# M2G Agenda — Brief de producto y requisitos funcionales
+# Bukeo — Brief de producto y requisitos funcionales
 
 **Versión:** 0.1 · 1 sep 2026 · Redactado a partir de la nota de voz de Luis
-**Nombre comercial:** por definir (codename interno: *M2G Agenda*)
+**Nombre comercial:** **Bukeo** (decidido por Luis el 1 sep 2026; ver ADR-0015)
 
 > Este es el brief de producto **tal como lo entregó Luis**. Es la fuente de verdad de QUÉ hay que
 > construir. El encargo de desarrollo —el cómo, el orden y las reglas— está en
@@ -241,7 +241,7 @@ Orden de 4 y 5 según D15.
 
 | # | Decisión | Default | Alternativa |
 |---|---|---|---|
-| D1 | Nombre comercial y dominio | Codename *M2G Agenda* | — |
+| D1 | Nombre comercial y dominio | Codename *Bukeo* | — |
 | D2 | Alcance de la app | Dos modos; configuración avanzada solo en web | App solo clientes |
 | D3 | Unidad de cobro futura | Por negocio; preparado por profesional | Por profesional |
 | D4 | Comisión por reserva | No en v1 | — |

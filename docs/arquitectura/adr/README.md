@@ -41,3 +41,4 @@
 | [0012](0012-api-rest-versionada-y-contrato-openapi.md) | API REST versionada con el OpenAPI como contrato generado | aceptada | Convenciones, errores con forma única, idempotencia y regla de compatibilidad |
 | [0013](0013-design-system-propio-mobile-first.md) | Design system propio, mobile-first, con tokens | aceptada | Se diseña a 390 px primero; modo claro por defecto; tokens como fuente única |
 | [0014](0014-entorno-local-migraciones-y-seed.md) | Entorno local de un comando, migraciones desde cero y seed real | aceptada | Lo que hay que dejar impecable para que el despliegue de Luis no adivine nada |
+| [0015](0015-la-marca-es-bukeo.md) | La marca es Bukeo | aceptada | Supera el «por definir» de D1. La identidad vive en el brandbook y se implementa en los tokens |

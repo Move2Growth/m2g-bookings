@@ -19,7 +19,7 @@ flowchart TB
     equipo["Equipo M2G<br/>soporte, moderación, finanzas"]
     google["Google<br/>indexa perfiles y páginas de zona"]
 
-    sistema["M2G Agenda"]
+    sistema["Bukeo"]
 
     whatsapp["Meta WhatsApp Cloud API<br/>OTP y avisos"]
     pasarela["Pasarela de pago<br/>sin decidir - D5"]

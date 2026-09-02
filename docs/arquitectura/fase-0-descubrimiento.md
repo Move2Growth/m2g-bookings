@@ -23,7 +23,7 @@
 
 | # | Decisión | **Valor que se usa** | Dónde se materializa |
 |---|---|---|---|
-| **D1** | Nombre comercial y dominio | **Codename *M2G Agenda***, nunca a fuego en el código | Configuración y tokens · ADR-0013 · pregunta abierta **P1** |
+| **D1** | Nombre comercial y dominio | **Codename *Bukeo***, nunca a fuego en el código | Configuración y tokens · ADR-0013 · pregunta abierta **P1** |
 | **D2** | Alcance de la app | **Dos modos, cliente y negocio**; la configuración avanzada se queda en la web | Fase 5 · APP-3 |
 | **D3** | Unidad de cobro futura | **Por negocio**, con el modelo preparado para cobrar por profesional | ADR-0010 · `subscriptions` |
 | **D4** | Comisión por reserva | **No en v1** | Ninguna tabla de comisiones en el modelo |
@@ -89,7 +89,7 @@ Son las que el encargo aparta explícitamente de las manos del equipo.
 #### P1 · ¿Cómo se va a llamar esto de cara al público y en qué dominio va a vivir?
 
 **Qué se pregunta.** El nombre comercial de la plataforma y el dominio de internet donde se va a
-publicar. Hoy se usa *M2G Agenda*, que es un nombre interno para entendernos, no un nombre de
+publicar. Hoy se usa *Bukeo*, que es un nombre interno para entendernos, no un nombre de
 producto.
 
 **Por qué hace falta.** El nombre aparece en muchos sitios que después cuesta cambiar: el logotipo,
@@ -232,7 +232,7 @@ plantilla que Meta revisa una a una.
    internet que hay que darle a Meta la aporta el equipo cuando exista un entorno publicado; hasta
    entonces no hace falta.
 
-**Cómo guardarlo en Bitwarden.** Una entrada llamada **`M2G Agenda · Meta WhatsApp Cloud API`** con
+**Cómo guardarlo en Bitwarden.** Una entrada llamada **`Bukeo · Meta WhatsApp Cloud API`** con
 estos campos, cada uno con su nombre tal cual:
 
 - `WHATSAPP_TOKEN` — el acceso del usuario del sistema, el del punto 6.
@@ -279,7 +279,7 @@ Lo segundo es lo que hace posible «barberías cerca de mí», que es el gesto p
    el punto que decide el precio: guardar las coordenadas de un negocio en nuestra base de datos —lo
    que hacemos para no pagar dos veces por la misma dirección— no entra en el uso temporal.
 
-**Cómo guardarlo en Bitwarden.** Una entrada **`M2G Agenda · Mapbox`** con los campos
+**Cómo guardarlo en Bitwarden.** Una entrada **`Bukeo · Mapbox`** con los campos
 `MAPBOX_PUBLIC_TOKEN` y `MAPBOX_SECRET_TOKEN`, y una nota indicando si el almacenamiento permanente
 quedó contratado o no.
 
@@ -315,7 +315,7 @@ se sirve rápido y se procesa a varios tamaños para que la web cargue en 3G.
    sola vez.**
 4. Anotar la dirección del servicio y la región, que aparecen en la ficha del espacio.
 
-**Cómo guardarlo en Bitwarden.** Una entrada **`M2G Agenda · Almacenamiento de fotos`** con los
+**Cómo guardarlo en Bitwarden.** Una entrada **`Bukeo · Almacenamiento de fotos`** con los
 campos `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` y
 `S3_PUBLIC_BASE_URL`.
 
@@ -350,7 +350,7 @@ interno.
 4. Decidir la dirección del remitente. Por coherencia con el resto de la casa, algo del estilo de
    `noreply@m2g.dev` hasta que haya dominio propio.
 
-**Cómo guardarlo en Bitwarden.** Una entrada **`M2G Agenda · Resend`** con los campos
+**Cómo guardarlo en Bitwarden.** Una entrada **`Bukeo · Resend`** con los campos
 `RESEND_API_KEY` y `MAIL_FROM`.
 
 **Qué se hace mientras tanto.** El correo usa el mismo proveedor de desarrollo que WhatsApp: escribe
@@ -387,11 +387,11 @@ la razón de mencionarlo ahora aunque no haga falta hasta la Fase 5.
    Firebase para las notificaciones y descargar el archivo de configuración de la aplicación
    Android, y una cuenta de servicio con permiso de publicación.
 
-**Cómo guardarlo en Bitwarden.** Tres entradas separadas: **`M2G Agenda · Apple Developer`** con el
+**Cómo guardarlo en Bitwarden.** Tres entradas separadas: **`Bukeo · Apple Developer`** con el
 correo de la cuenta, el número D-U-N-S, y adjuntos el archivo de la clave de App Store Connect y el
 de la clave de notificaciones, cada uno con su identificador de clave y su identificador de emisor;
-**`M2G Agenda · Google Play Console`** con el correo y adjunto el archivo de la cuenta de servicio;
-y **`M2G Agenda · Firebase`** con el archivo de configuración de Android.
+**`Bukeo · Google Play Console`** con el correo y adjunto el archivo de la cuenta de servicio;
+y **`Bukeo · Firebase`** con el archivo de configuración de Android.
 
 **Qué se hace mientras tanto.** Nada que dependa de esto entra en las fases 0, 1 y 2: la aplicación
 es la Fase 5. Lo único que se hace ahora es no cerrarle la puerta: la interfaz de la web se diseña

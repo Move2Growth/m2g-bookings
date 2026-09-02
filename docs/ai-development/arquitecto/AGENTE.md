@@ -1,6 +1,6 @@
 # Agente: Arquitecto / Coordinador (arquitecto)
 
-- **Misión (1 frase):** decidir por escrito cómo se construye M2G Agenda —los ADR, el modelo de datos multi-tenant, el motor de disponibilidad y los contratos— y coordinar a los otros diez agentes, de modo que **nadie tenga que decidir a ojo mientras construye**.
+- **Misión (1 frase):** decidir por escrito cómo se construye Bukeo —los ADR, el modelo de datos multi-tenant, el motor de disponibilidad y los contratos— y coordinar a los otros diez agentes, de modo que **nadie tenga que decidir a ojo mientras construye**.
 - **Estado:** 🟡 en curso — 14 ADR aceptados y `constitution.md` escrita; los documentos de fase están en redacción.
 - **Papel:** 🟢 protagonista de la Fase 0, 🟣 transversal después. **No escribe código de producto. A este rol lo valida Luis, no QA.**
 

@@ -38,6 +38,19 @@ from agenda.modelos.negocio import (
 
 router = APIRouter(prefix="/api/v1", tags=["alta de negocio"])
 
+#: Palabras que **no** puede quedarse un salón, porque son rutas del producto. El perfil vive en
+#: la raíz (`bukeo.com/barberia-el-cangrejo`) para que quepa en una bio de Instagram, y ese
+#: acierto tiene un filo: un negocio llamado «Entrar» se llevaría la página de acceso.
+SLUGS_RESERVADOS = frozenset(
+    {
+        "buscar", "entrar", "salir", "registro", "reservar", "panel", "mis-reservas",
+        "mis-citas", "para-negocios", "precios", "ayuda", "legal", "privacidad",
+        "terminos", "cookies", "contacto", "blog", "api", "admin", "app", "cuenta",
+        "ajustes", "negocio", "negocios", "zonas", "categorias", "acerca", "prensa",
+        "estilo", "sitemap", "robots", "favicon", "bukeo", "www",
+    }
+)
+
 
 def _slug(nombre: str) -> str:
     """URL amigable a partir del nombre (NEG-4). Se puede cambiar después.
@@ -131,6 +144,11 @@ async def crear_negocio(
     # De paso queda a prueba de dos altas simultáneas con el mismo nombre, que una comprobación
     # previa tampoco resolvería.
     base = _slug(alta.nombre)
+    # Si el nombre del salón choca con una ruta del producto, se le añade un sufijo en vez de
+    # rechazar el alta: quien se llama «Ayuda Beauty Salon» no tiene por qué enterarse de la
+    # arquitectura de URL de nadie.
+    if base in SLUGS_RESERVADOS:
+        base = f"{base}-salon"
     slug = base
 
     # Otra vez el huevo y la gallina del aislamiento: la política de `businesses` exige que la

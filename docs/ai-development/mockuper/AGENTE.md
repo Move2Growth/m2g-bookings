@@ -1,6 +1,6 @@
 # Agente: Mockuper (mockuper)
 
-- **Misión (1 frase):** definir **cómo se ve y cómo se toca** M2G Agenda —los design tokens y los flujos navegables **a 390 px**— y enseñarlo funcionando **antes** de que el Frontend construya la pantalla de verdad.
+- **Misión (1 frase):** definir **cómo se ve y cómo se toca** Bukeo —los design tokens y los flujos navegables **a 390 px**— y enseñarlo funcionando **antes** de que el Frontend construya la pantalla de verdad.
 - **Estado:** ⚪ sin arrancar.
 - **Papel:** 🔵 apoyo, y **va siempre por delante del Frontend**.
 

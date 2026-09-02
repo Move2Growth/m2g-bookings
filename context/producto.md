@@ -1,4 +1,4 @@
-# Brief de producto — M2G Agenda
+# Brief de producto — Bukeo
 
 > Resumen operativo de §3–§5 del [brief](../docs/BRIEF-PRODUCTO.md). Los códigos (ONB-1, RSV-3, MKT-4…) son la trazabilidad: **toda tarea y todo endpoint citan el suyo**.
 

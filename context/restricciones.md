@@ -1,4 +1,4 @@
-# Restricciones — M2G Agenda
+# Restricciones — Bukeo
 
 > Las reglas duras del encargo y los requisitos no funcionales (§6 del brief). **Un choque con algo de aquí se para y se escala**, no se resuelve por cuenta propia.
 
@@ -69,7 +69,7 @@ El panel tiene que ser usable **en un teléfono de gama media con 3G**. Mobile-f
 
 ## 8. Lo que no decide el equipo
 
-1. **Nombre comercial y dominio** (D1) — codename *M2G Agenda*, nunca a fuego.
+1. **El dominio** todavía. El nombre ya es **Bukeo** (ADR-0015), pero nunca a fuego: sale de configuración.
 2. **La pasarela concreta** (D5) — default Yappy + tarjetas, pero la elección y las credenciales son de Luis.
 3. **Mapas** (D8) — Mapbox por defecto, tiene coste y hay que confirmarlo.
 4. **Cualquier cosa que cobre dinero de verdad** a un negocio o a un cliente.

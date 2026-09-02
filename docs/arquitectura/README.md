@@ -1,4 +1,4 @@
-# docs/arquitectura — el plano de M2G Agenda
+# docs/arquitectura — el plano de Bukeo
 
 > El «plano del edificio»: las decisiones de arquitectura y el diseño. **La fuente de verdad.** Lo que no está aquí, no está decidido.
 

@@ -1,8 +1,8 @@
 // Comprueba que las combinaciones de color que de verdad se usan cumplen WCAG AA.
 //
-// Existe porque el contraste es lo que más fácil se rompe al retocar un color «solo un poco»,
-// y porque aquí importa de verdad: esto se mira en un salón con luz fuerte, en un teléfono de
-// gama media, y los colores de estado tienen que leerse. Si falla, el proceso sale con error.
+// Existe porque el contraste es lo que más fácil se rompe al retocar un color «solo un poco», y
+// porque aquí importa: esto se mira en un salón con luz fuerte, en un teléfono de gama media.
+// Si falla, el proceso sale con error.
 //
 //   pnpm --filter @agenda/tokens contraste
 
@@ -29,33 +29,35 @@ function contraste(a, b) {
 const { claro, oscuro } = tokens.color;
 const estados = tokens["estado-reserva"];
 
-// AA pide 4,5 para texto normal y 3 para texto grande y para bordes y elementos de interfaz.
-const comprobaciones = [
-  ["texto sobre superficie (claro)", claro.texto, claro.superficie, 4.5],
-  ["texto suave sobre superficie (claro)", claro["texto-suave"], claro.superficie, 4.5],
-  ["texto sobre superficie suave (claro)", claro.texto, claro["superficie-suave"], 4.5],
-  ["texto del acento sobre acento (claro)", claro["acento-texto"], claro.acento, 4.5],
-  ["acento sobre superficie (claro)", claro.acento, claro.superficie, 4.5],
-  ["peligro sobre superficie (claro)", claro.peligro, claro.superficie, 4.5],
-  ["aviso sobre superficie (claro)", claro.aviso, claro.superficie, 4.5],
-  ["éxito sobre superficie (claro)", claro.exito, claro.superficie, 4.5],
-  ["borde fuerte sobre superficie (claro)", claro["borde-fuerte"], claro.superficie, 3],
-  // El anillo de foco es un elemento de interfaz: AA le pide 3, y si no se ve, la navegación
-  // con teclado deja de existir para quien la necesita.
-  ["anillo de foco sobre superficie (claro)", claro.foco, claro.superficie, 3],
-  ["anillo de foco sobre superficie (oscuro)", oscuro.foco, oscuro.superficie, 3],
-  ["éxito sobre su fondo suave (claro)", claro.exito, claro["exito-suave"], 4.5],
-  ["aviso sobre su fondo suave (claro)", claro.aviso, claro["aviso-suave"], 4.5],
-  ["peligro sobre su fondo suave (claro)", claro.peligro, claro["peligro-suave"], 4.5],
-  ["texto sobre superficie (oscuro)", oscuro.texto, oscuro.superficie, 4.5],
-  ["texto suave sobre superficie (oscuro)", oscuro["texto-suave"], oscuro.superficie, 4.5],
-  ["texto del acento sobre acento (oscuro)", oscuro["acento-texto"], oscuro.acento, 4.5],
-  ["acento sobre superficie (oscuro)", oscuro.acento, oscuro.superficie, 4.5],
-  ["peligro sobre superficie (oscuro)", oscuro.peligro, oscuro.superficie, 4.5],
-  ...Object.entries(estados)
-    .filter(([clave]) => !clave.startsWith("_"))
-    .map(([clave, v]) => [`estado ${clave}`, v.texto, v.fondo, 4.5]),
-];
+// AA pide 4,5 para texto normal y 3 para texto grande y para elementos de interfaz.
+const comprobaciones = [];
+
+for (const [modo, p] of [["claro", claro], ["oscuro", oscuro]]) {
+  comprobaciones.push(
+    [`texto sobre papel (${modo})`, p.tinta, p.papel, 4.5],
+    [`texto sobre lienzo (${modo})`, p.tinta, p.lienzo, 4.5],
+    [`texto sobre arena (${modo})`, p.tinta, p.arena, 4.5],
+    [`texto suave sobre papel (${modo})`, p["tinta-suave"], p.papel, 4.5],
+    [`texto tenue sobre papel (${modo})`, p["tinta-tenue"], p.papel, 4.5],
+    [`acento sobre papel (${modo})`, p.acento, p.papel, 4.5],
+    [`texto del acento sobre acento (${modo})`, p["acento-texto"], p.acento, 4.5],
+    [`peligro sobre papel (${modo})`, p.peligro, p.papel, 4.5],
+    [`peligro sobre su fondo suave (${modo})`, p.peligro, p["peligro-suave"], 4.5],
+    [`exito sobre papel (${modo})`, p.exito, p.papel, 4.5],
+    [`exito sobre su fondo suave (${modo})`, p.exito, p["exito-suave"], 4.5],
+    [`aviso sobre papel (${modo})`, p.aviso, p.papel, 4.5],
+    [`aviso sobre su fondo suave (${modo})`, p.aviso, p["aviso-suave"], 4.5],
+    // El anillo de foco es un elemento de interfaz: si no se ve, la navegación con teclado
+    // deja de existir para quien la necesita.
+    [`anillo de foco sobre papel (${modo})`, p.foco, p.papel, 3],
+    [`borde fuerte sobre papel (${modo})`, p["borde-fuerte"], p.papel, 3],
+  );
+}
+
+for (const [clave, v] of Object.entries(estados)) {
+  if (clave.startsWith("_")) continue;
+  comprobaciones.push([`estado ${clave}`, v.texto, v.fondo, 4.5]);
+}
 
 let fallos = 0;
 for (const [nombre, frente, fondo, minimo] of comprobaciones) {
@@ -71,4 +73,4 @@ if (fallos > 0) {
   console.error(`\n${fallos} combinación(es) por debajo de AA. Ajusta los tokens.`);
   process.exit(1);
 }
-console.log("\nTodas las combinaciones cumplen AA.");
+console.log(`\n${comprobaciones.length} combinaciones, todas cumplen AA.`);

@@ -1,6 +1,6 @@
 # Fase 3 · Modelo de datos — Estado: completado (Fase 0, pendiente de aprobación de Luis)
 
-> El esquema completo de M2G Agenda, dominio a dominio. Es la traducción a tablas de los requisitos
+> El esquema completo de Bukeo, dominio a dominio. Es la traducción a tablas de los requisitos
 > del [brief](../BRIEF-PRODUCTO.md) y de las decisiones ya tomadas en los
 > [ADR 0001–0014](adr/). **Los ADR no se discuten aquí: el modelo los obedece.** Si algo de este
 > documento contradice un ADR, manda el ADR y este documento está mal.
