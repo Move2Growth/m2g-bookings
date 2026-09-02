@@ -854,7 +854,7 @@ async def _negocio(
 
     if definicion["estado"] == "publicado":
         await _agenda_de_ejemplo(sesion, negocio, equipo, servicios, fichas)
-        await _resenas_de_ejemplo(sesion, negocio, equipo, fichas)
+        await _resenas_de_ejemplo(sesion, negocio, equipo, fichas, definicion["categoria"])
 
 
 async def _agenda_de_ejemplo(
@@ -901,15 +901,77 @@ async def _agenda_de_ejemplo(
                 await _cita(sesion, negocio, profesional, servicio, cliente, inicio, fin, estado)
 
 
-#: Qué escribe cada clienta. Textos de salón panameño, no «Muy bueno» repetido cuatro veces:
-#: una lista de reseñas todas iguales no deja ver si el reparto de notas se pinta bien.
-RESENAS = [
-    (5, "Kevin me dejó el corte impecable y salí en cuarenta minutos. Vuelvo fijo."),
-    (5, "Puntualísimos. Me atendieron a la hora exacta que reservé, cosa rara por aquí."),
-    (4, "Muy buen trabajo, aunque el local es pequeño y hay que esperar de pie."),
-    (5, "Le expliqué lo que quería con una foto y salió igualito. Recomendadísimo."),
-    (3, "El resultado bien, pero me atendieron veinte minutos tarde."),
-    (4, "Buen precio para la zona y trato amable. Repetiré."),
+#: Qué escribe cada clienta, **por tipo de salón**. Los textos van por categoría porque una
+#: reseña que dice «me dejó el corte impecable» en un spa de masajes se nota a la primera, y una
+#: demo que se nota deja de servir para enseñar nada. `{quien}` se sustituye por el nombre de la
+#: profesional que atendió esa cita de verdad, no por un nombre inventado.
+RESENAS_POR_CATEGORIA: dict[str, list[tuple[int, str]]] = {
+    "barberia": [
+        (5, "{quien} me dejó el corte impecable y salí en cuarenta minutos. Vuelvo fijo."),
+        (5, "Puntualísimos. Me atendieron a la hora exacta que reservé, cosa rara por aquí."),
+        (4, "Buen corte, aunque el local es pequeño y hay que esperar de pie."),
+        (5, "Le enseñé una foto a {quien} y salió igualito. Recomendadísimo."),
+        (3, "El corte bien, pero me atendieron veinte minutos tarde."),
+        (4, "Buen precio para la zona y trato amable. Repetiré."),
+    ],
+    "peluqueria": [
+        (5, "El balayage me quedó justo del tono que quería. {quien} tiene muy buena mano."),
+        (5, "Me explicaron qué le iba a hacer al pelo antes de tocarlo. Se agradece."),
+        (4, "Bien el color, aunque tardó más de lo que decía la reserva."),
+        (5, "Salí con el pelo como no lo tenía hace años. Ya reservé la próxima."),
+        (3, "El corte correcto, pero el secado lo hicieron con prisa."),
+        (4, "Trato buenísimo y precio justo para Ciudad de Panamá."),
+    ],
+    "unas": [
+        (5, "Me duraron tres semanas enteras sin saltarse ni una. {quien} es una crack."),
+        (5, "Súper limpio todo, y el diseño quedó igual a la foto que llevé."),
+        (4, "Bonitas, pero se me astilló una a los diez días."),
+        (5, "Es el único sitio donde no me han dejado la cutícula destrozada."),
+        (3, "El trabajo bien; el problema fue la espera, casi media hora."),
+        (4, "Buen precio y muy cómodo el sitio. Volveré."),
+    ],
+    "pestanas-cejas": [
+        (5, "Me dejó las cejas simétricas por primera vez en mi vida. Gracias, {quien}."),
+        (5, "Las pestañas duraron mes y medio y no se me cayó ni una tanda."),
+        (4, "Buen resultado, aunque el diseño quedó un pelín más marcado de lo que pedí."),
+        (5, "Me asesoró con la forma en vez de hacerme lo de siempre. Eso vale mucho."),
+        (3, "Bien, pero la sesión se alargó y llegué tarde a lo mío."),
+        (4, "Sitio limpio y precio razonable para la zona."),
+    ],
+    "spa-masajes": [
+        (5, "{quien} encontró justo el nudo del hombro sin que se lo dijera. Salí de otra manera."),
+        (5, "El sitio es tranquilísimo y no te meten prisa al terminar."),
+        (4, "Muy buen masaje, aunque la sala estaba un poco fría."),
+        (5, "Me reservé la hora un martes y me atendieron puntuales. Repetiré."),
+        (3, "Bien el masaje, pero la música se oía desde la recepción."),
+        (4, "Buena relación calidad-precio. Vuelvo el mes que viene."),
+    ],
+    "maquillaje": [
+        (5, "Me maquilló {quien} para una boda y aguantó doce horas sin retocar."),
+        (5, "Escuchó lo que quería en vez de hacerme lo que le gusta a ella. Eso se nota."),
+        (4, "Muy bien el resultado, aunque hubo que ir con bastante antelación."),
+        (5, "Salí en las fotos como quería salir. No se puede pedir más."),
+        (3, "Correcto, pero para el precio esperaba algo más de asesoría."),
+        (4, "Trato encantador y sitio muy cómodo."),
+    ],
+    "estetica": [
+        (5, "La limpieza facial me dejó la piel como no la tenía hace meses."),
+        (5, "{quien} me explicó qué me iba a hacer y por qué. Nada de vender por vender."),
+        (4, "Buen tratamiento, aunque la cabina es pequeña."),
+        (5, "Se nota que saben: me recomendaron esperar en vez de venderme una sesión más."),
+        (3, "El resultado bien, pero me atendieron con retraso."),
+        (4, "Precio honesto y trato cercano. Repetiré."),
+    ],
+}
+
+#: Para un salón cuya categoría no está arriba. Sirve para cualquier oficio.
+RESENAS_GENERICAS = [
+    (5, "Puntualísimos y muy buen trato. {quien} sabe lo que hace."),
+    (5, "Reservé desde el móvil y me atendieron a la hora exacta. Sin llamadas."),
+    (4, "Muy buen resultado, aunque el sitio es pequeño."),
+    (5, "Ya es el tercer mes que vuelvo. Eso lo dice todo."),
+    (3, "Bien, pero me atendieron con veinte minutos de retraso."),
+    (4, "Buen precio para la zona y trato amable."),
 ]
 
 #: Lo que responde el salón. Una por reseña, que es lo que permite REV-3.
@@ -925,6 +987,7 @@ async def _resenas_de_ejemplo(
     negocio: Business,
     equipo: list[StaffProfile],
     fichas: list[BusinessClient],
+    categoria: str,
 ) -> None:
     """Reseñas sobre citas **completadas**, con su respuesta y el agregado ya calculado.
 
@@ -951,8 +1014,13 @@ async def _resenas_de_ejemplo(
 
     # Ni todas las citas llevan reseña ni ninguna: una de cada tres es lo que se ve en un
     # marketplace real, y es lo que hace que el rating bayesiano tenga sentido.
+    textos = RESENAS_POR_CATEGORIA.get(categoria, RESENAS_GENERICAS)
     for indice, reserva in enumerate(completadas[::3]):
-        nota, texto = RESENAS[indice % len(RESENAS)]
+        nota, plantilla = textos[indice % len(textos)]
+        # Quien atendió esa cita, por su nombre. Antes salía «Kevin» en todos los salones,
+        # incluidos los spas cuyo equipo son Ivonne y Rita: se ve a la primera que es de mentira.
+        quien = next((p.display_name for p in equipo if p.id == reserva.staff_id), "el equipo")
+        texto = plantilla.format(quien=quien.split()[0])
         ficha = next((f for f in fichas if f.id == reserva.business_client_id), None)
         resena = Review(
             business_id=negocio.id,
