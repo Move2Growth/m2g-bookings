@@ -169,11 +169,15 @@ export const tokens = {
     "ancho": "1160px"
   },
   "movimiento": {
-    "_nota": "Contenido a propósito: esto se usa en 3G. Todo se apaga con prefers-reduced-motion.",
-    "rapido": "120ms",
-    "normal": "200ms",
+    "_nota": "Contenido a proposito: esto se usa en 3G y en gama media. La regla no es «poco «movimiento», es que TODO movimiento tenga un motivo: decir de donde sale algo, confirmar que se ha tocado o tapar una espera. Nada se mueve solo en bucle. Todo se apaga con prefers-reduced-motion.",
+    "instante": "90ms",
+    "rapido": "140ms",
+    "normal": "220ms",
     "lento": "380ms",
-    "curva": "cubic-bezier(0.2, 0, 0.2, 1)"
+    "curva": "cubic-bezier(0.2, 0, 0.2, 1)",
+    "curva-salida": "cubic-bezier(0.4, 0, 1, 1)",
+    "curva-empuje": "cubic-bezier(0.34, 1.3, 0.64, 1)",
+    "escalonado": "34ms"
   }
 } as const;
 

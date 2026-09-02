@@ -46,6 +46,10 @@ class Ajustes(BaseSettings):
     # Rol de solo lectura del marketplace. Es otra conexión, no un `SET ROLE`: un olvido con
     # una sola conexión dejaría una consulta pública corriendo con permisos de negocio.
     database_url_publico: str = "postgresql+asyncpg://agenda_publico:agenda@localhost:5433/agenda"
+    # Rol del back-office. Tercera conexión y no un `SET ROLE`, por lo mismo que la pública:
+    # si un endpoint de la consola compartiera conexión con la API del negocio, un fallo de
+    # autorización allí tendría los permisos del equipo interno aquí.
+    database_url_admin: str = "postgresql+asyncpg://agenda_admin:agenda@localhost:5433/agenda"
     redis_url: str = "redis://localhost:6380/0"
 
     whatsapp_token: str = ""
@@ -63,6 +67,21 @@ class Ajustes(BaseSettings):
     antelacion_maxima_dias: int = Field(default=60, ge=1)
     ventana_cancelacion_horas: int = Field(default=2, ge=0)
     ventana_review_dias: int = Field(default=14, ge=1)
+
+    # Base de las URL de las fotos. Vacía significa «la clave ya es una ruta servible»
+    # (`/fotos/spa.webp`) o una URL absoluta; cuando entre el almacenamiento de objetos, se
+    # rellena aquí y no se toca ni una fila ni una pantalla.
+    url_base_media: str = ""
+
+    # La sesión del back-office caduca antes que la de un cliente y no se negocia: quien tiene
+    # acceso a todos los negocios no puede dejarse la sesión abierta en un portátil.
+    acceso_admin_minutos: int = Field(default=30, ge=5, le=240)
+    refresco_admin_horas: int = Field(default=8, ge=1, le=72)
+
+    # Cuenta de la consola que se crea con `python -m agenda.consola_alta`. Sin valor en el
+    # repositorio: se pone en el `.env` de cada máquina y nunca se commitea.
+    consola_email_inicial: str = ""
+    consola_password_inicial: str = ""
 
     @property
     def es_local(self) -> bool:

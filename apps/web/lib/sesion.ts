@@ -23,6 +23,10 @@ export type Sesion = {
    *  porque un panel que no dice en qué salón estás es un panel en el que se apunta una cita
    *  en la agenda equivocada. */
   negocio_nombre?: string | null
+  /** `dueno` o `profesional`. Decide qué pestañas se enseñan; **no decide permisos**: eso lo
+   *  resuelve el servidor con la membresía, que es lo único que no se puede falsear desde el
+   *  navegador. */
+  negocio_rol?: string | null
 }
 
 export function guardarSesion(sesion: Sesion): void {

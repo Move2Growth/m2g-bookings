@@ -126,3 +126,61 @@ class TelefonoNoVerificado(ErrorDeDominio):
     codigo = "TELEFONO_NO_VERIFICADO"
     estado_http = 403
     mensaje = "Verifica tu teléfono para poder reservar."
+
+
+class NoExiste(ErrorDeDominio):
+    """Lo que se pidió no está, o está en otro negocio y por tanto **no está**.
+
+    Es el mismo error en los dos casos a propósito: distinguir «no existe» de «existe pero no
+    es tuyo» convierte cualquier listado en un detector de identificadores ajenos.
+    """
+
+    codigo = "NO_EXISTE"
+    estado_http = 404
+    mensaje = "Eso no existe o ya no está disponible."
+
+
+class DatoInvalido(ErrorDeDominio):
+    """El cuerpo cumple el esquema pero la regla de negocio no se cumple."""
+
+    codigo = "DATO_INVALIDO"
+    estado_http = 422
+    mensaje = "Alguno de los datos enviados no es válido."
+
+
+# ── Reseñas ───────────────────────────────────────────────────────────────────────────────
+
+
+class ResenaNoPermitida(ErrorDeDominio):
+    """REV-1 en una sola clase: sin cita completada, fuera de plazo o repetida.
+
+    El mensaje concreto lo pone quien la lanza; el código es uno solo porque para el cliente
+    todos significan lo mismo — esta reseña no se puede dejar — y ramificar por subcódigos le
+    obligaría a mantener una lista que no le sirve para nada.
+    """
+
+    codigo = "RESENA_NO_PERMITIDA"
+    estado_http = 422
+    mensaje = "Esa reseña no se puede dejar."
+
+
+class YaExiste(ErrorDeDominio):
+    """Se intentó crear algo que ya estaba: una segunda reseña, una segunda respuesta."""
+
+    codigo = "YA_EXISTE"
+    estado_http = 409
+    mensaje = "Eso ya existe y no se puede duplicar."
+
+
+# ── Back-office ───────────────────────────────────────────────────────────────────────────
+
+
+class CredencialesInvalidas(ErrorDeDominio):
+    """Correo, contraseña o segundo factor incorrectos. **Los tres dan el mismo error.**
+
+    Decir cuál de los tres falló le diría a quien prueba combinaciones por dónde va bien.
+    """
+
+    codigo = "CREDENCIALES_INVALIDAS"
+    estado_http = 401
+    mensaje = "No pudimos verificar esas credenciales."

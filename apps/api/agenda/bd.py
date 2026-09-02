@@ -57,6 +57,24 @@ crear_sesion_publica = async_sessionmaker(
     motor_publico, class_=AsyncSession, expire_on_commit=False
 )
 
+# El back-office de M2G. Tercera conexión por el mismo motivo que la pública: sus consultas
+# cruzan todos los negocios y su rol tiene permisos que la API del salón no tiene. Con una sola
+# conexión y un `SET ROLE` por petición, un olvido dejaría un endpoint del panel corriendo con
+# los permisos del equipo interno — y ese olvido no falla, devuelve de más.
+#
+# `agenda_admin` **tampoco** tiene `BYPASSRLS`: tiene sus propias políticas, escritas en la
+# migración, y por eso el aislamiento sigue siendo de la base y no de la buena voluntad.
+motor_admin = create_async_engine(
+    _ajustes.database_url_admin,
+    pool_pre_ping=True,
+    # El back-office lo usan unas pocas personas; un pool grande aquí solo quitaría conexiones
+    # a la API, que es la que atiende a los salones.
+    pool_size=5,
+    max_overflow=5,
+)
+
+crear_sesion_admin = async_sessionmaker(motor_admin, class_=AsyncSession, expire_on_commit=False)
+
 
 @asynccontextmanager
 async def sesion_de_negocio(negocio_id: str) -> AsyncIterator[AsyncSession]:

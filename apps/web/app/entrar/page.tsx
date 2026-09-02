@@ -78,7 +78,7 @@ export default function Entrar() {
           body: JSON.stringify({ negocio_id: negocios[0].id }),
         }).then((r) => (r.ok ? r.json() : null))
         if (conNegocio) {
-          guardarSesion({ ...conNegocio, negocio_nombre: negocios[0].nombre })
+          guardarSesion({ ...conNegocio, negocio_nombre: negocios[0].nombre, negocio_rol: negocios[0].rol })
           router.push('/panel')
           return
         }
@@ -154,7 +154,7 @@ export default function Entrar() {
                         body: JSON.stringify({ negocio_id: n.id }),
                       }).then((r) => (r.ok ? r.json() : null))
                       if (conNegocio) {
-                        guardarSesion({ ...conNegocio, negocio_nombre: n.nombre })
+                        guardarSesion({ ...conNegocio, negocio_nombre: n.nombre, negocio_rol: n.rol })
                         router.push('/panel')
                       }
                     }}

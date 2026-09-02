@@ -36,6 +36,9 @@ export function Cabecera({ variante = 'clara' }: { variante?: 'clara' | 'transpa
           <Link href="/buscar" className="boton boton--llano">
             Buscar
           </Link>
+          <Link href="/como-funciona" className="boton boton--llano oculto-en-movil">
+            Cómo funciona
+          </Link>
           <Link href="/para-negocios" className="boton boton--llano oculto-en-movil">
             Para salones
           </Link>

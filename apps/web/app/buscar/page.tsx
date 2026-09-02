@@ -1,66 +1,81 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { Suspense } from 'react'
+import { Buscador } from '@/componentes/buscador'
 import { Cabecera } from '@/componentes/cabecera'
+import { Vacio } from '@/componentes/estados'
+import { ListaSalones } from '@/componentes/lista-salones'
+import { Iconos } from '@/componentes/pestanas'
+import { PestanasClienteSiHaySesion } from '@/componentes/pestanas-cliente'
 import { Pie } from '@/componentes/pie'
 import { buscarNegocios, ErrorDeApi, type ResultadoDeBusqueda } from '@/lib/api'
-
-export const metadata: Metadata = {
-  title: 'Buscar salones y barberías',
-  description:
-    'Busca por servicio o por zona en Ciudad de Panamá y mira las horas libres de cada salón.',
-}
+import { nombreDeZona } from '@/lib/taxonomia'
 
 /**
  * El marketplace.
  *
- * El buscador va por formulario con método GET a propósito: cada búsqueda tiene su URL, se
- * comparte por WhatsApp y el rastreador la puede seguir. Un buscador que solo funciona con
- * JavaScript es un buscador que Google no usa, y de Google llega media clientela.
+ * Se resuelve en el servidor y con la búsqueda en la URL, a propósito: cada combinación de
+ * filtros tiene su propia dirección, se comparte por WhatsApp y la puede seguir un rastreador.
+ * Un buscador que solo funciona con JavaScript es un buscador que Google no usa, y de Google
+ * llega media clientela.
  */
 
-type Props = { searchParams: Promise<{ texto?: string; zona?: string; categoria?: string }> }
+type Filtros = {
+  texto?: string
+  zona?: string
+  categoria?: string
+  precio_min?: string
+  precio_max?: string
+  rating_min?: string
+  disponibilidad?: string
+  dia?: string
+  abierto_ahora?: string
+  orden?: string
+}
 
-const ZONAS = [
-  ['Bella Vista', 'bella-vista'],
-  ['El Cangrejo', 'el-cangrejo'],
-  ['Obarrio', 'obarrio'],
-  ['San Francisco', 'san-francisco'],
-  ['Costa del Este', 'costa-del-este'],
-  ['Juan Díaz', 'juan-diaz'],
-]
+type Props = { searchParams: Promise<Filtros> }
 
-const CATEGORIAS = [
-  ['Barbería', 'barberia'],
-  ['Peluquería', 'peluqueria'],
-  ['Uñas', 'unas'],
-  ['Pestañas y cejas', 'pestanas-cejas'],
-  ['Spa y masajes', 'spa-masajes'],
-  ['Estética', 'estetica'],
-]
-
-function enlaceCon(actual: Record<string, string | undefined>, clave: string, valor: string) {
-  const p = new URLSearchParams()
-  for (const [k, v] of Object.entries(actual)) if (v && k !== clave) p.set(k, v)
-  if (actual[clave] !== valor) p.set(clave, valor)
-  const cadena = p.toString()
-  return cadena ? `/buscar?${cadena}` : '/buscar'
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const { zona, categoria } = await searchParams
+  const nombreZona = nombreDeZona(zona)
+  // El título de una página de zona es lo que se lee en Google, así que dice el sitio con su
+  // nombre propio y no «resultados de búsqueda».
+  const titulo = nombreZona
+    ? `Salones y barberías en ${nombreZona}`
+    : categoria
+      ? 'Salones por servicio en Ciudad de Panamá'
+      : 'Buscar salones y barberías en Ciudad de Panamá'
+  return {
+    title: titulo,
+    description: nombreZona
+      ? `Mira las horas libres de los salones de ${nombreZona} y reserva sin llamar.`
+      : 'Busca por servicio o por zona en Ciudad de Panamá y mira las horas libres de cada salón.',
+  }
 }
 
 export default async function Buscar({ searchParams }: Props) {
   const filtros = await searchParams
-  const { texto, zona, categoria } = filtros
 
   let resultados: ResultadoDeBusqueda[] = []
   let fallo: string | null = null
   try {
-    resultados = await buscarNegocios({ texto, zona, categoria })
+    resultados = await buscarNegocios(filtros)
   } catch (error) {
     // Si la API no responde, la página sale igual y lo dice. Una pantalla en blanco no informa
     // de nada, y una excepción sin capturar tumba el renderizado del servidor.
     fallo = error instanceof ErrorDeApi ? error.message : 'No pudimos cargar los salones.'
   }
 
-  const hayFiltro = Boolean(texto || zona || categoria)
+  const hayFiltro = Boolean(
+    filtros.texto ||
+      filtros.zona ||
+      filtros.categoria ||
+      filtros.precio_max ||
+      filtros.rating_min ||
+      filtros.disponibilidad ||
+      filtros.abierto_ahora,
+  )
+  const nombreZona = nombreDeZona(filtros.zona)
 
   return (
     <>
@@ -69,67 +84,14 @@ export default async function Buscar({ searchParams }: Props) {
       <main className="seccion">
         <div className="contenedor">
           <h1 style={{ fontSize: 'var(--tipografia-tamano-titulo-2)' }}>
-            {zona
-              ? `Salones en ${ZONAS.find(([, s]) => s === zona)?.[0] ?? zona}`
-              : 'Salones y barberías en Ciudad de Panamá'}
+            {nombreZona ? `Salones en ${nombreZona}` : 'Salones y barberías en Ciudad de Panamá'}
           </h1>
 
-          <form
-            method="get"
-            style={{
-              display: 'flex',
-              gap: 'var(--espacio-2)',
-              marginTop: 'var(--espacio-4)',
-              maxWidth: '34rem',
-            }}
-          >
-            {zona && <input type="hidden" name="zona" value={zona} />}
-            {categoria && <input type="hidden" name="categoria" value={categoria} />}
-            <div className="campo" style={{ flex: 1, minWidth: 0 }}>
-              <label htmlFor="texto" className="oculto-visualmente">
-                Qué buscas
-              </label>
-              <input
-                id="texto"
-                className="entrada"
-                type="search"
-                name="texto"
-                defaultValue={texto ?? ''}
-                placeholder="Corte, balayage, uñas…"
-              />
-            </div>
-            <button type="submit" className="boton boton--primario">
-              Buscar
-            </button>
-          </form>
+          <Suspense fallback={<div style={{ height: 132 }} />}>
+            <Buscador />
+          </Suspense>
 
-          <nav aria-label="Filtrar por zona" className="tira" style={{ marginTop: 'var(--espacio-4)' }}>
-            {ZONAS.map(([nombre, slug]) => (
-              <Link
-                key={slug}
-                href={enlaceCon(filtros, 'zona', slug)}
-                className="ficha"
-                aria-current={zona === slug ? 'true' : undefined}
-              >
-                {nombre}
-              </Link>
-            ))}
-          </nav>
-
-          <nav aria-label="Filtrar por servicio" className="tira" style={{ marginTop: 'var(--espacio-2)' }}>
-            {CATEGORIAS.map(([nombre, slug]) => (
-              <Link
-                key={slug}
-                href={enlaceCon(filtros, 'categoria', slug)}
-                className="ficha"
-                aria-current={categoria === slug ? 'true' : undefined}
-              >
-                {nombre}
-              </Link>
-            ))}
-          </nav>
-
-          <p className="tenue" style={{ marginTop: 'var(--espacio-5)' }} aria-live="polite">
+          <p className="tenue buscador__cuantos" aria-live="polite">
             {fallo
               ? ''
               : `${resultados.length} ${resultados.length === 1 ? 'salón' : 'salones'}${
@@ -144,60 +106,37 @@ export default async function Buscar({ searchParams }: Props) {
           )}
 
           {!fallo && resultados.length === 0 && (
-            /* Un resultado vacío dice qué pasó y qué hacer, no «sin resultados» a secas. */
-            <div className="panel" style={{ marginTop: 'var(--espacio-4)' }}>
-              <p>
-                {hayFiltro
-                  ? 'No encontramos salones con eso.'
-                  : 'Todavía no hay salones publicados por aquí.'}
-              </p>
-              <p className="apagado" style={{ marginTop: 'var(--espacio-2)' }}>
-                {hayFiltro ? (
-                  <>
-                    Prueba otra palabra o <Link href="/buscar">quita los filtros</Link>.
-                  </>
-                ) : (
-                  <>
-                    Si tienes un salón, <Link href="/para-negocios">el tuyo puede ser el primero</Link>.
-                  </>
-                )}
-              </p>
+            <div style={{ marginTop: 'var(--espacio-4)' }}>
+              <Vacio
+                icono={Iconos.buscar}
+                titulo={
+                  hayFiltro
+                    ? 'No encontramos salones con eso'
+                    : 'Todavía no hay salones publicados por aquí'
+                }
+                texto={
+                  hayFiltro ? (
+                    <>
+                      Prueba otra palabra, quita algún filtro o{' '}
+                      <Link href="/buscar">empieza de cero</Link>.
+                    </>
+                  ) : (
+                    <>
+                      Si tienes un salón,{' '}
+                      <Link href="/para-negocios">el tuyo puede ser el primero</Link>.
+                    </>
+                  )
+                }
+              />
             </div>
           )}
 
-          <ul className="resultados">
-            {resultados.map((negocio) => (
-              <li key={negocio.slug}>
-                <Link href={`/${negocio.slug}`} className="resultado">
-                  {negocio.patrocinado && (
-                    /* Un patrocinado va etiquetado siempre y encima del nombre, donde se lee
-                       antes de decidir. Es la regla MKT-4 y no admite matices. */
-                    <span className="etiqueta">Patrocinado</span>
-                  )}
-                  <h2>{negocio.nombre}</h2>
-                  <p className="apagado">
-                    {[negocio.zona, negocio.direccion].filter(Boolean).join(' · ')}
-                  </p>
-                  <p className="resultado__pie">
-                    {typeof negocio.servicios_desde_centavos === 'number' && (
-                      <span className="resultado__precio cifras">
-                        Desde ${(negocio.servicios_desde_centavos / 100).toFixed(2)}
-                      </span>
-                    )}
-                    {typeof negocio.distancia_metros === 'number' && (
-                      <span className="tenue cifras">
-                        A {(negocio.distancia_metros / 1000).toFixed(1)} km
-                      </span>
-                    )}
-                  </p>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {resultados.length > 0 && <ListaSalones salones={resultados} />}
         </div>
       </main>
 
       <Pie />
+      <PestanasClienteSiHaySesion />
     </>
   )
 }

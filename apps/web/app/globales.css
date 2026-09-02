@@ -243,9 +243,24 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* La etiqueta va ENCIMA del campo y existe siempre. El marcador de posición no es una
    etiqueta: desaparece justo cuando hace falta. */
 .campo > label,
+.campo > span:first-child,
 .campo-etiqueta {
   font-weight: var(--tipografia-pesos-medio);
   font-size: var(--tipografia-tamano-menor);
+}
+
+/* Un formulario es una columna de campos con el mismo aire entre ellos. Sin esto cada
+   pantalla inventa su propio margen y ninguna coincide con la de al lado. */
+.formulario { display: grid; gap: var(--espacio-4); }
+
+/* Un dato que se enseña con forma de campo pero no se edita: el teléfono de la cuenta. Se
+   dibuja como campo porque está en la misma columna y saltaría a la vista si no. */
+.entrada--fija {
+  display: flex;
+  align-items: center;
+  background: var(--color-arena);
+  color: var(--color-tinta-suave);
+  margin: 0;
 }
 
 .entrada {
@@ -754,3 +769,622 @@ a:has(> svg) {
   display: inline-flex;
   align-items: center;
 }
+
+/* ══ Armazón de aplicación ═══════════════════════════════════════════════════
+   Las zonas con sesión —el panel del salón, el área de la clienta y la consola de M2G— no son
+   páginas sueltas: son una aplicación con pestañas. Comparten armazón para que cambiar de
+   pestaña no repinte la cabecera ni mueva el contenido de sitio.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.app {
+  min-height: 100dvh;
+  background: var(--color-papel);
+  display: grid;
+  /* En el teléfono la barra de pestañas va abajo, donde llega el pulgar, y por eso es la
+     última fila. En escritorio se sube: ver más abajo. */
+  grid-template-rows: auto 1fr auto;
+}
+
+.app__barra {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+  min-height: 56px;
+  padding-inline: var(--espacio-4);
+  background: var(--color-lienzo);
+  border-bottom: 1px solid var(--color-borde);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.app__contexto {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--tipografia-pesos-medio);
+  color: var(--color-tinta-suave);
+}
+.app__cuerpo {
+  /* El hueco de abajo es la altura de la barra de pestañas más el área segura del teléfono:
+     sin esto, la última fila de cualquier lista queda tapada y nadie la ve. */
+  padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px) + var(--espacio-5));
+  min-width: 0;
+}
+
+/* ── Pestañas ──────────────────────────────────────────────────────────────── */
+
+.pestanas {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 30;
+  background: var(--color-lienzo);
+  border-top: 2px solid var(--color-tinta);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.pestanas__lista {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* Con seis o más pestañas en un teléfono estrecho, la fila se desplaza en lugar de apretar
+     los objetivos por debajo de lo que se puede tocar. */
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.pestanas__lista::-webkit-scrollbar { display: none; }
+.pestanas__lista > li { flex: 1 0 auto; min-width: 72px; }
+
+.pestana {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: var(--espacio-2) var(--espacio-2) var(--espacio-3);
+  min-height: 60px;
+  color: var(--color-tinta-suave);
+  text-decoration: none;
+  font-size: var(--tipografia-tamano-micro);
+  transition: color var(--movimiento-rapido) var(--movimiento-curva);
+}
+.pestana__icono { position: relative; display: block; line-height: 0; }
+.pestana__texto { text-align: center; }
+.pestana:active .pestana__icono { transform: scale(0.9); }
+.pestana__icono {
+  transition: transform var(--movimiento-rapido) var(--movimiento-curva-empuje);
+}
+
+/* La pestaña activa. El indicador es una barra de color arriba, no un fondo: sobre un bloque
+   de color plano, un fondo detrás del icono sería un tercer color en la misma pieza. */
+.pestana[aria-current='page'] { color: var(--color-tinta); font-weight: var(--tipografia-pesos-medio); }
+.pestana[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  inset: -2px 12px auto 12px;
+  height: 3px;
+  background: var(--color-abre);
+  animation: entra-indicador var(--movimiento-normal) var(--movimiento-curva-empuje);
+}
+@keyframes entra-indicador {
+  from { transform: scaleX(0.2); opacity: 0; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+
+/* La cuenta de novedades. Nunca se pinta un cero: un cero no es una novedad. */
+.pestana__cuenta {
+  position: absolute;
+  top: -4px;
+  inset-inline-start: 14px;
+  min-width: 18px;
+  height: 18px;
+  padding-inline: 4px;
+  display: grid;
+  place-items: center;
+  background: var(--color-abre);
+  color: var(--color-abre-texto);
+  font-size: 11px;
+  font-weight: var(--tipografia-pesos-fuerte);
+  border-radius: var(--radio-control);
+}
+
+/* En escritorio las pestañas suben bajo la cabecera y se leen en fila. Abajo del todo, en una
+   pantalla de 1400 px, una barra fija es una franja de ruido que nadie mira. */
+@media (min-width: 900px) {
+  .pestanas {
+    position: sticky;
+    inset: 56px auto auto 0;
+    border-top: none;
+    border-bottom: 1px solid var(--color-borde);
+  }
+  .pestanas__lista {
+    max-width: var(--medida-contenedor, 72rem);
+    margin-inline: auto;
+    padding-inline: var(--espacio-6);
+    overflow: visible;
+  }
+  .pestanas__lista > li { flex: 0 0 auto; min-width: 0; }
+  .pestana {
+    grid-template-columns: auto auto;
+    align-items: center;
+    gap: var(--espacio-2);
+    padding: var(--espacio-3) var(--espacio-4);
+    min-height: 48px;
+    font-size: var(--tipografia-tamano-menor);
+  }
+  .pestana[aria-current='page']::before { inset: auto 12px -1px 12px; height: 3px; }
+  .app__cuerpo { padding-bottom: var(--espacio-8); }
+}
+
+/* ── Estados: cargando, vacío, error ───────────────────────────────────────── */
+
+.esqueleto { display: grid; gap: var(--espacio-3); }
+.esqueleto__fila {
+  background: var(--color-arena);
+  /* El brillo recorre la fila una vez cada 1,4 s. Es la única animación en bucle del producto
+     y existe porque su trabajo es justamente decir «esto sigue pasando». */
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.68) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: brilla 1.4s var(--movimiento-curva) infinite;
+}
+@keyframes brilla {
+  from { background-position: 140% 0; }
+  to { background-position: -40% 0; }
+}
+
+.vacio {
+  display: grid;
+  justify-items: start;
+  gap: var(--espacio-3);
+  padding: var(--espacio-6) var(--espacio-5);
+  background: var(--color-arena);
+  border-top: 3px solid var(--color-tinta);
+}
+.vacio__icono { color: var(--color-tinta-tenue); line-height: 0; }
+.vacio__titulo {
+  font-family: var(--tipografia-familia-display);
+  font-size: var(--tipografia-tamano-titulo-4);
+  font-weight: var(--tipografia-pesos-display);
+  font-stretch: var(--tipografia-ancho-rotulo);
+}
+.vacio__texto { color: var(--color-tinta-suave); max-width: 46ch; }
+
+.error-bloque { display: grid; gap: var(--espacio-3); justify-items: start; }
+
+/* ── Movimiento ────────────────────────────────────────────────────────────────
+   Tres gestos y ninguno más. Cada uno dice algo: de dónde sale, que se ha tocado, o que hay
+   que esperar. Lo que se mueve por moverse no está aquí.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* 1. Entra. Lo que aparece sube dos píxeles al aparecer, para que el ojo sepa que es nuevo. */
+@keyframes entra {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+.entra { animation: entra var(--movimiento-normal) var(--movimiento-curva) both; }
+
+/* 2. Escalonado. Una lista entra fila a fila, no de golpe: se entiende que son elementos
+      distintos y no un bloque. Se corta a las diez para que la última no tarde medio segundo. */
+.escalona > * { animation: entra var(--movimiento-normal) var(--movimiento-curva) both; }
+.escalona > *:nth-child(1) { animation-delay: 0ms; }
+.escalona > *:nth-child(2) { animation-delay: calc(var(--movimiento-escalonado) * 1); }
+.escalona > *:nth-child(3) { animation-delay: calc(var(--movimiento-escalonado) * 2); }
+.escalona > *:nth-child(4) { animation-delay: calc(var(--movimiento-escalonado) * 3); }
+.escalona > *:nth-child(5) { animation-delay: calc(var(--movimiento-escalonado) * 4); }
+.escalona > *:nth-child(6) { animation-delay: calc(var(--movimiento-escalonado) * 5); }
+.escalona > *:nth-child(7) { animation-delay: calc(var(--movimiento-escalonado) * 6); }
+.escalona > *:nth-child(8) { animation-delay: calc(var(--movimiento-escalonado) * 7); }
+.escalona > *:nth-child(9) { animation-delay: calc(var(--movimiento-escalonado) * 8); }
+.escalona > *:nth-child(n + 10) { animation-delay: calc(var(--movimiento-escalonado) * 9); }
+
+/* 3. Hoja. Sube desde abajo, que es de donde viene el gesto del pulgar. Se usa para filtros y
+      para confirmar, nunca para contenido que se pueda leer en la página. */
+.hoja-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: var(--color-velo);
+  animation: aparece var(--movimiento-rapido) var(--movimiento-curva) both;
+}
+@keyframes aparece { from { opacity: 0; } to { opacity: 1; } }
+.hoja {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 41;
+  max-height: 86dvh;
+  overflow-y: auto;
+  padding: var(--espacio-5) var(--espacio-4) calc(var(--espacio-5) + env(safe-area-inset-bottom, 0px));
+  background: var(--color-lienzo);
+  border-top: 3px solid var(--color-tinta);
+  box-shadow: var(--sombra-hoja);
+  animation: sube var(--movimiento-normal) var(--movimiento-curva) both;
+}
+@keyframes sube {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+@media (min-width: 900px) {
+  /* En escritorio no sube desde abajo: aparece centrada, porque ahí no hay pulgar ni borde
+     inferior que justifique el gesto. */
+  .hoja {
+    inset: 50% auto auto 50%;
+    transform: translate(-50%, -50%);
+    width: min(34rem, calc(100vw - var(--espacio-7)));
+    max-height: 80dvh;
+    border: 3px solid var(--color-tinta);
+    animation: entra var(--movimiento-normal) var(--movimiento-curva) both;
+  }
+  @keyframes sube { from { transform: translate(-50%, -46%); opacity: 0; } to { transform: translate(-50%, -50%); opacity: 1; } }
+}
+
+/* Un par de acciones juntas. Se apilan a lo ancho completo en el teléfono, porque dos botones
+   medio vacíos uno al lado del otro no se tocan bien con una mano. */
+.acciones { display: flex; flex-wrap: wrap; gap: var(--espacio-3); }
+@media (max-width: 480px) {
+  .acciones { display: grid; }
+  .acciones > .boton { width: 100%; }
+}
+
+/* El botón secundario tiene el filete en tinta, que dentro de un bloque oscuro desaparece.
+   Aquí hereda el color del bloque, como el resto de la pieza. */
+.boton--sobre-oscuro {
+  border-color: currentColor;
+  color: inherit;
+  background: transparent;
+}
+.boton--sobre-oscuro:hover { background: rgba(255, 255, 255, 0.12); }
+
+/* Los pasos dentro de un bloque de color: el filete gris no existe sobre azul ni sobre tinta. */
+.seccion--azul .pasos li,
+.seccion--tinta .pasos li,
+.seccion--naranja .pasos li { border-top-color: currentColor; opacity: 1; }
+.seccion--azul .pasos__numero,
+.seccion--tinta .pasos__numero { color: var(--color-abre); }
+.seccion--naranja .pasos__numero { color: var(--color-tinta); }
+
+/* ── Citas de la clienta ───────────────────────────────────────────────────── */
+
+.hueco-pestanas { height: calc(64px + env(safe-area-inset-bottom, 0px)); }
+@media (min-width: 900px) { .hueco-pestanas { display: none; } }
+
+.citas { list-style: none; margin: var(--espacio-3) 0 0; padding: 0; display: grid; gap: var(--espacio-3); }
+.cita {
+  padding: var(--espacio-4);
+  background: var(--color-lienzo);
+  /* Filete grueso a la izquierda en vez de tarjeta con sombra: en una lista larga marca el
+     principio de cada cita sin dibujar una caja por elemento. */
+  border-left: 4px solid var(--color-acento);
+  border-block: 1px solid var(--color-borde);
+  border-right: 1px solid var(--color-borde);
+}
+.cita__cuando {
+  font-weight: var(--tipografia-pesos-fuerte);
+  font-size: var(--tipografia-tamano-mayor);
+}
+.cita__donde { margin-top: var(--espacio-1); }
+.cita__que { margin-top: var(--espacio-1); color: var(--color-tinta-suave); font-size: var(--tipografia-tamano-menor); }
+.cita__estado { margin-top: var(--espacio-3); }
+.cita__acciones { margin-top: var(--espacio-3); }
+.cita__nota { margin-top: var(--espacio-3); color: var(--color-tinta-tenue); font-size: var(--tipografia-tamano-menor); max-width: 52ch; }
+
+/* Una cita que ya pasó no compite con la de mañana. */
+.cita:has(.estado--completada),
+.cita:has(.estado--no_show),
+.cita:has(.estado--cancelada_cliente),
+.cita:has(.estado--cancelada_negocio) { border-left-color: var(--color-borde-fuerte); }
+
+/* ── Un salón en una lista ─────────────────────────────────────────────────── */
+
+.salones { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--espacio-3); }
+@media (min-width: 900px) {
+  .salones { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--espacio-4); }
+}
+@media (min-width: 1240px) {
+  .salones { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.salon {
+  position: relative;
+  background: var(--color-lienzo);
+  border: 1px solid var(--color-borde);
+  transition: border-color var(--movimiento-rapido) var(--movimiento-curva),
+              transform var(--movimiento-rapido) var(--movimiento-curva);
+}
+.salon:hover { border-color: var(--color-tinta); }
+.salon:active { transform: translateY(1px); }
+
+/* La foto llega al canto de la ficha. Con margen alrededor, el corazón blanco de la esquina
+   parece un mordisco en la imagen en vez de un botón encima de ella. */
+.salon__enlace {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  text-decoration: none;
+  color: var(--color-tinta);
+}
+@media (min-width: 900px) {
+  /* En rejilla la foto pasa arriba y ocupa el ancho: hay sitio para que la imagen haga su
+     trabajo, que en el teléfono no lo hay sin comerse la mitad de la pantalla por salón. */
+  .salon__enlace { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Sin foto, el bloque de color con la inicial. El tono lo elige la propia ficha con
+   `--tono`, para que una lista de diez salones sin foto tenga ritmo en vez de ser diez
+   rectángulos azules iguales. */
+.salon__foto {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--tono, var(--color-acento));
+}
+.salon:nth-child(4n + 1) { --tono: var(--color-acento); --tono-texto: var(--color-acento-texto); }
+.salon:nth-child(4n + 2) { --tono: var(--color-tinta); --tono-texto: var(--color-papel); }
+.salon:nth-child(4n + 3) { --tono: var(--color-abre); --tono-texto: var(--color-abre-texto); }
+.salon:nth-child(4n + 4) { --tono: var(--color-borde-fuerte); --tono-texto: var(--color-papel); }
+@media (min-width: 900px) { .salon__foto { aspect-ratio: 16 / 10; } }
+.salon__foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.salon__inicial {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--tono-texto, var(--color-acento-texto));
+  font-family: var(--tipografia-familia-display);
+  font-weight: var(--tipografia-pesos-display);
+  font-stretch: var(--tipografia-ancho-rotulo);
+  font-size: var(--tipografia-tamano-titulo-2);
+}
+
+.salon__cuerpo {
+  display: grid;
+  gap: 2px;
+  align-content: start;
+  min-width: 0;
+  padding: var(--espacio-3);
+  /* Hueco para el corazón, que está por encima en posición absoluta. Sin esto el nombre pasa
+     por debajo del botón y se lee «Maquillaje por Ka». */
+  padding-inline-end: var(--espacio-7);
+}
+@media (min-width: 900px) {
+  /* En rejilla el corazón está sobre la foto, no junto al nombre: el texto recupera el ancho. */
+  .salon__cuerpo { padding-inline-end: var(--espacio-3); }
+}
+.salon__nombre {
+  font-family: var(--tipografia-familia-display);
+  font-weight: var(--tipografia-pesos-display);
+  font-stretch: var(--tipografia-ancho-rotulo);
+  /* En el teléfono el nombre baja un escalón: a ancho de rótulo, un titular-4 en 240 px
+     partía todos los nombres de dos palabras. */
+  font-size: var(--tipografia-tamano-mayor);
+  line-height: var(--tipografia-interlineado-apretado);
+  overflow-wrap: anywhere;
+}
+@media (min-width: 900px) {
+  .salon__nombre { font-size: var(--tipografia-tamano-titulo-4); }
+}
+.salon__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-2);
+  align-items: baseline;
+  font-size: var(--tipografia-tamano-menor);
+  margin-top: var(--espacio-1);
+}
+.salon__nota { font-weight: var(--tipografia-pesos-medio); }
+.salon__categorias {
+  font-size: var(--tipografia-tamano-menor);
+  color: var(--color-tinta-tenue);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.salon__pie {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-3);
+  align-items: baseline;
+  margin-top: var(--espacio-2);
+  font-size: var(--tipografia-tamano-menor);
+}
+.salon__precio { font-weight: var(--tipografia-pesos-fuerte); }
+/* La próxima hora libre es lo accionable de la ficha, así que va en el azul que cierra. */
+.salon__hora { color: var(--color-acento); font-weight: var(--tipografia-pesos-medio); }
+
+.salon__guardar {
+  position: absolute;
+  top: var(--espacio-1);
+  inset-inline-end: var(--espacio-1);
+  width: var(--espacio-toque-minimo);
+  height: var(--espacio-toque-minimo);
+  display: grid;
+  place-items: center;
+  border: none;
+  background: var(--color-lienzo);
+  color: var(--color-tinta-suave);
+  cursor: pointer;
+  border-radius: var(--radio-control);
+  box-shadow: var(--sombra-elevada);
+  transition: color var(--movimiento-rapido) var(--movimiento-curva),
+              transform var(--movimiento-rapido) var(--movimiento-curva-empuje);
+}
+.salon__guardar[aria-pressed='true'] { color: var(--color-peligro); }
+.salon__guardar:active { transform: scale(0.88); }
+
+/* ── Barra del marketplace ─────────────────────────────────────────────────── */
+
+.buscador { margin-top: var(--espacio-4); display: grid; gap: var(--espacio-3); }
+.buscador__fila {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--espacio-2);
+  max-width: 34rem;
+}
+.buscador__modos {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+  min-width: 0;
+}
+/* La fila de modos se desplaza y el botón de filtros no: si el botón se fuera con el desliz,
+   habría que volver atrás para encontrarlo. */
+.buscador__modos > .tira { flex: 1; min-width: 0; }
+.buscador__filtros { flex: 0 0 auto; }
+.buscador__cuenta {
+  margin-inline-start: var(--espacio-2);
+  min-width: 20px;
+  padding-inline: 5px;
+  display: inline-grid;
+  place-items: center;
+  background: var(--color-abre);
+  color: var(--color-abre-texto);
+  font-size: var(--tipografia-tamano-micro);
+  font-weight: var(--tipografia-pesos-fuerte);
+  border-radius: var(--radio-control);
+}
+.buscador__cuantos { margin-top: var(--espacio-4); margin-bottom: var(--espacio-3); }
+
+/* Una ficha pulsada es un filtro puesto. Se marca con el bloque de tinta, igual que el día
+   elegido en la agenda, para que «seleccionado» signifique lo mismo en todo el producto. */
+.ficha[aria-pressed='true'],
+.ficha[aria-selected='true'] {
+  background: var(--color-tinta);
+  color: var(--color-papel);
+  border-color: var(--color-tinta);
+}
+.ficha--modo { cursor: pointer; font-family: inherit; }
+
+.tira--envuelve { flex-wrap: wrap; overflow: visible; }
+
+/* ── Hoja ──────────────────────────────────────────────────────────────────── */
+
+.hoja__cabeza {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  margin-bottom: var(--espacio-4);
+}
+.hoja .grupo {
+  border: none;
+  margin: 0 0 var(--espacio-5);
+  padding: 0;
+  display: grid;
+  gap: var(--espacio-2);
+}
+.hoja .grupo legend { padding: 0; }
+.hoja__pie {
+  position: sticky;
+  bottom: calc(var(--espacio-5) * -1);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  padding-block: var(--espacio-3);
+  background: var(--color-lienzo);
+  border-top: 1px solid var(--color-borde);
+}
+
+/* ── Listas del panel ──────────────────────────────────────────────────────── */
+
+.cabeza-seccion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  flex-wrap: wrap;
+  margin-block: var(--espacio-5) var(--espacio-4);
+}
+
+.filas { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--color-tinta); }
+.filas--apagadas { border-top-color: var(--color-borde-fuerte); opacity: 0.72; }
+.fila { border-bottom: 1px solid var(--color-borde); }
+/* La fila entera es el objetivo táctil, no un lápiz de 24 px al final. Con una mano y de pie,
+   apuntar a un icono pequeño es lo que hace que se toque el de al lado. */
+.fila__boton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  width: 100%;
+  min-height: 64px;
+  padding: var(--espacio-3) 0;
+  background: transparent;
+  border: none;
+  text-align: start;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.fila__boton:hover { background: var(--color-arena); }
+.fila__principal { display: grid; gap: 2px; min-width: 0; }
+.fila__nombre { font-weight: var(--tipografia-pesos-medio); }
+.fila__detalle { font-size: var(--tipografia-tamano-menor); color: var(--color-tinta-suave); }
+.fila__alerta { color: var(--color-aviso); }
+.fila__cifra { flex: 0 0 auto; font-weight: var(--tipografia-pesos-fuerte); white-space: nowrap; }
+
+/* Dos campos que se leen juntos: duración y descanso, desde y hasta. Se apilan en pantalla
+   estrecha porque dos selectores de 150 px no caben con sus etiquetas. */
+.pareja { display: grid; gap: var(--espacio-4); }
+@media (min-width: 480px) { .pareja { grid-template-columns: 1fr 1fr; } }
+
+/* Interruptor. Es una casilla de verdad, no un div con aspecto de interruptor: así funciona
+   con teclado, con lector de pantalla y con autorrelleno sin escribir una línea. */
+.interruptor {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+  min-height: var(--espacio-toque-minimo);
+  cursor: pointer;
+}
+.interruptor input { width: 22px; height: 22px; accent-color: var(--color-acento); }
+
+select.entrada {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+                    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 18px) calc(50% + 2px), calc(100% - 12px) calc(50% + 2px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-inline-end: var(--espacio-7);
+}
+
+/* Un día de trabajo: el nombre y las dos horas. En pantalla estrecha las horas mandan y el
+   nombre del día se abrevia solo por el ancho de la columna. */
+.tramos { list-style: none; margin: var(--espacio-3) 0 0; padding: 0; display: grid; gap: var(--espacio-2); }
+.tramo {
+  display: grid;
+  grid-template-columns: minmax(4.5rem, auto) 1fr auto 1fr;
+  align-items: center;
+  gap: var(--espacio-2);
+}
+.tramo__dia { font-size: var(--tipografia-tamano-menor); font-weight: var(--tipografia-pesos-medio); }
+.tramo .entrada { min-height: var(--espacio-toque-minimo); padding-inline: var(--espacio-2); }
+
+/* Un bloque del panel: un tema con su título y su aire. Separados por filete grueso, que es lo
+   que en esta dirección hace de división sin dibujar una tarjeta por sección. */
+.bloque-panel {
+  padding-block: var(--espacio-5);
+  border-top: 2px solid var(--color-tinta);
+}
+.bloque-panel:first-of-type { border-top: none; padding-top: 0; }
+
+/* ── Estado de publicación ─────────────────────────────────────────────────── */
+
+/* Lo primero de la ficha, y con color de bloque: quien acaba de darse de alta cree que ya está
+   fuera y no lo está. Esto es lo que resuelve esa confusión sin leer nada más. */
+.estado-ficha { padding: var(--espacio-4); border-left: 4px solid var(--color-tinta); }
+.estado-ficha--borrador { background: var(--color-aviso-suave); border-left-color: var(--color-aviso); }
+.estado-ficha--publicado { background: var(--color-exito-suave); border-left-color: var(--color-exito); }
+.estado-ficha--suspendido { background: var(--color-peligro-suave); border-left-color: var(--color-peligro); }
+.estado-ficha__titulo { font-weight: var(--tipografia-pesos-fuerte); }
+.estado-ficha__texto { margin-top: var(--espacio-2); font-size: var(--tipografia-tamano-menor); }
+
+.lista-checklist { list-style: none; margin: var(--espacio-3) 0 0; padding: 0; display: grid; gap: var(--espacio-2); }
+.lista-checklist li { display: flex; gap: var(--espacio-2); align-items: center; min-height: 32px; }
+.lista-checklist .hecho { color: var(--color-tinta-tenue); text-decoration: line-through; }
+
+textarea.entrada { resize: vertical; min-height: 7rem; line-height: var(--tipografia-interlineado-normal); }

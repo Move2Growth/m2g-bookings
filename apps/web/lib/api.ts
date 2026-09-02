@@ -100,20 +100,41 @@ export type ResultadoDeBusqueda = {
   zona: string | null
   distancia_metros: number | null
   rating: number | null
+  /** Cuántas reseñas sostienen esa nota. Una nota de 5 con una reseña no es una nota de 5, y
+   *  enseñarla sin el número engaña. */
+  numero_reviews?: number
   servicios_desde_centavos: number | null
+  foto_portada?: string | null
+  categorias?: string[]
+  abierto_ahora?: boolean | null
+  proxima_hora?: string | null
   patrocinado: boolean
 }
 
 /** La búsqueda del marketplace. Cada combinación de filtros tiene su propia URL indexable. */
-export function buscarNegocios(filtros: {
-  texto?: string
-  zona?: string
-  categoria?: string
-}): Promise<ResultadoDeBusqueda[]> {
+export function buscarNegocios(
+  filtros: Record<string, string | undefined>,
+): Promise<ResultadoDeBusqueda[]> {
+  // Se pasan tal cual los filtros que la API conoce. La lista está escrita aquí y no se manda
+  // el objeto entero porque un parámetro inventado en la URL no puede llegar al servidor.
+  const ADMITIDOS = [
+    'texto',
+    'zona',
+    'categoria',
+    'precio_min',
+    'precio_max',
+    'rating_min',
+    'disponibilidad',
+    'dia',
+    'abierto_ahora',
+    'orden',
+    'pagina',
+  ]
   const parametros = new URLSearchParams()
-  if (filtros.texto) parametros.set('texto', filtros.texto)
-  if (filtros.zona) parametros.set('zona', filtros.zona)
-  if (filtros.categoria) parametros.set('categoria', filtros.categoria)
+  for (const clave of ADMITIDOS) {
+    const valor = filtros[clave]
+    if (valor) parametros.set(clave, valor)
+  }
   const cadena = parametros.toString()
   return pedir<ResultadoDeBusqueda[]>(
     `/api/v1/publico/buscar${cadena ? `?${cadena}` : ''}`,

@@ -26,9 +26,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from agenda.api.dependencias import Identidad, SesionNegocio
 from agenda.dominio.reservas import Actor, EstadoReserva
-from agenda.errores import NoAutorizado, ReservaNoModificable
+from agenda.errores import ReservaNoModificable
 from agenda.modelos.clientes import BusinessClient
-from agenda.modelos.equipo import StaffProfile
 from agenda.modelos.reservas import Booking, BookingItem
 from agenda.servicios import reservas as servicio_reservas
 
@@ -108,12 +107,13 @@ async def agenda(
     if profesional is not None:
         consulta = consulta.where(Booking.staff_id == profesional)
 
-    # El profesional solo ve su agenda (STF-3). La regla vive aquí y no en la interfaz: si
-    # estuviera en el front, bastaría con llamar a la API a mano para saltársela.
-    if not identidad.es_dueno:
-        consulta = consulta.where(
-            Booking.staff_id == await _perfil_del_profesional(sesion, identidad)
-        )
+    # El profesional solo ve su agenda (STF-3). **Quien lo impide es la base**: la
+    # dependencia de sesión declaró `app.current_staff_id` y las políticas restrictivas de la
+    # migración 0006 acotan la consulta aunque este filtro no estuviera. Se escribe igualmente
+    # porque es lo que hace que el planificador use el índice y porque la intención tiene que
+    # verse en el código (ADR-0002); pero si un día se cae de aquí, no se cae la garantía.
+    if identidad.staff_id is not None:
+        consulta = consulta.where(Booking.staff_id == identidad.staff_id)
 
     citas = (await sesion.execute(consulta)).scalars().all()
     return [await _pintar_cita(sesion, cita) for cita in citas]
@@ -207,26 +207,6 @@ async def reprogramar(
         actor_user_id=identidad.usuario_id,
     )
     return await _pintar_cita(sesion, reserva)
-
-
-async def _perfil_del_profesional(sesion: AsyncSession, identidad: Identidad) -> uuid.UUID:
-    """El perfil de profesional de quien pide, que **no** es su identificador de usuario.
-
-    Son dos cosas distintas y confundirlas dejaría a un profesional viendo una agenda vacía —o,
-    peor, filtrando por un identificador que casualmente exista.
-    """
-    perfil = (
-        await sesion.execute(
-            select(StaffProfile.id).where(
-                StaffProfile.business_id == identidad.negocio_id,
-                StaffProfile.user_id == identidad.usuario_id,
-            )
-        )
-    ).scalar_one_or_none()
-
-    if perfil is None:
-        raise NoAutorizado("Tu cuenta no tiene un perfil de profesional en este negocio.")
-    return perfil
 
 
 async def _cita_del_negocio(

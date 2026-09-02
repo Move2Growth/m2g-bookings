@@ -77,6 +77,9 @@ export function Pie() {
             {NOMBRE}, Ciudad de Panamá. Precios en dólares.
           </p>
           <nav aria-label="Legal" style={{ display: 'flex', gap: 'var(--espacio-4)' }}>
+            <Link href="/como-funciona" className="tenue">
+              Cómo funciona
+            </Link>
             <Link href="/legal/privacidad" className="tenue">
               Privacidad
             </Link>
