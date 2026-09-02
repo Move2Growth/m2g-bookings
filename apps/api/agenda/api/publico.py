@@ -13,21 +13,34 @@ puerta y apuntar en una lista que hay que cerrarla.
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Query
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 
+from agenda.api.comunes import url_de_media
 from agenda.api.dependencias import SesionPublica
 from agenda.bd import sesion_de_negocio
-from agenda.errores import NegocioNoPublicado
+from agenda.errores import DatoInvalido, NegocioNoPublicado, NoExiste
 from agenda.modelos.catalogo import Service
 from agenda.modelos.equipo import StaffProfile
-from agenda.modelos.negocio import Business, Location
+from agenda.modelos.marketplace import ListingClickDaily
+from agenda.modelos.negocio import (
+    AttributeValue,
+    Business,
+    BusinessAttribute,
+    BusinessHours,
+    BusinessMedia,
+    Location,
+)
+from agenda.modelos.reviews import BusinessRatingStats
 from agenda.servicios import busqueda as servicio_busqueda
 from agenda.servicios import disponibilidad as servicio_disponibilidad
+from agenda.servicios import tarjetas as servicio_tarjetas
 
 router = APIRouter(prefix="/api/v1/publico", tags=["público"])
 
@@ -74,14 +87,40 @@ class NegocioEnLista(BaseModel):
     servicios_desde_centavos: int | None = None
 
 
+class TramoPublico(BaseModel):
+    """Un tramo de apertura, en hora local del negocio. Para pintar «hoy abre de 9 a 19»."""
+
+    dia: int = Field(ge=0, le=6, description="0 = lunes … 6 = domingo")
+    abre: time
+    cierra: time
+
+
 class PerfilPublico(NegocioEnLista):
     id: uuid.UUID
     zona_horaria: str
+    descripcion: str | None = None
+    #: Todas las fotos aprobadas, **la portada primero**.
+    fotos: list[str] = Field(default_factory=list)
+    foto_portada: str | None = None
+    rating: float | None = Field(
+        default=None, description="El bayesiano (REV-5), que es el que se enseña"
+    )
+    numero_reviews: int = 0
+    #: Nombres de los atributos filtrables que declaró el negocio (NEG-2): «atiende cabello
+    #: afro», «estacionamiento», «acepta Yappy».
+    atributos: list[str] = Field(default_factory=list)
+    horario: list[TramoPublico] = Field(default_factory=list)
+    abierto_ahora: bool | None = None
+    #: **Nunca el número.** Solo si hay canal, para pintar el botón que salta al servidor.
+    tiene_whatsapp: bool = False
     servicios: list[ServicioPublico]
     equipo: list[ProfesionalPublico]
 
 
 class ResultadoDeBusqueda(BaseModel):
+    #: Hace falta además del slug: los favoritos se guardan por identificador, y el slug puede
+    #: cambiar (por eso existe `slug_redirects`). Guardar por slug sería guardar una URL.
+    negocio_id: uuid.UUID
     slug: str
     nombre: str
     direccion: str | None
@@ -91,6 +130,14 @@ class ResultadoDeBusqueda(BaseModel):
     #: El más barato de sus servicios activos. Sin esto hay que entrar en cada ficha para
     #: descartarla, y eso es exactamente lo que devuelve a la gente al WhatsApp.
     servicios_desde_centavos: int | None = None
+    foto_portada: str | None = None
+    numero_reviews: int = 0
+    categorias: list[str] = Field(default_factory=list)
+    #: `null` cuando el negocio **no tiene horario cargado**, que no es lo mismo que cerrado.
+    abierto_ahora: bool | None = None
+    #: Primera hora libre de hoy. Solo viene cuando se filtra por disponibilidad o se pide con
+    #: `con_proxima_hora`: cuesta una consulta de agenda por negocio.
+    proxima_hora: datetime | None = None
     patrocinado: bool = Field(
         default=False,
         description="Si es un resultado pagado. Va etiquetado en pantalla, sin excepción",
@@ -108,18 +155,56 @@ async def buscar(
     longitud: Annotated[float | None, Query()] = None,
     latitud: Annotated[float | None, Query()] = None,
     radio_metros: Annotated[int, Query(ge=200, le=50_000)] = 10_000,
+    precio_min: Annotated[
+        int | None, Query(ge=0, description="En centavos. Filtra por ALGÚN servicio en rango")
+    ] = None,
+    precio_max: Annotated[int | None, Query(ge=0, description="En centavos")] = None,
+    rating_min: Annotated[
+        float | None, Query(ge=0, le=5, description="Sobre el rating bayesiano, no la media")
+    ] = None,
+    disponibilidad: Annotated[
+        str | None,
+        Query(
+            pattern="^(ahora|hoy|fecha)$",
+            description="Disponibilidad real, calculada con el motor de reservas",
+        ),
+    ] = None,
+    dia: Annotated[date | None, Query(description="Obligatorio con disponibilidad=fecha")] = None,
+    abierto_ahora: Annotated[bool, Query()] = False,
+    orden: Annotated[
+        str, Query(pattern="^(relevancia|distancia|precio|rating|nuevos)$")
+    ] = "relevancia",
+    con_proxima_hora: Annotated[
+        bool,
+        Query(
+            description=(
+                "Calcula la primera hora libre de hoy de cada resultado. Cuesta una consulta "
+                "de agenda por negocio: se pide cuando la pantalla lo va a pintar"
+            )
+        ),
+    ] = False,
     pagina: Annotated[int, Query(ge=1)] = 1,
 ) -> list[ResultadoDeBusqueda]:
-    """Busca por texto, categoría, zona o cercanía, y ordena por la fórmula de ranking.
+    """Busca por texto, categoría, zona o cercanía, filtra y ordena.
 
     Buscar «por zona» no es lo mismo que buscar «cerca de mí»: la zona es un sitio con nombre
     que la gente escribe en Google, y el radio es el gesto de quien tiene el GPS encendido. Se
     puede combinar, y quien pide «Bella Vista» ve también El Cangrejo y Obarrio, que están
     dentro.
 
+    **El filtro de disponibilidad usa el mismo motor que la reserva**, no una copia (MKT-2):
+    prometer horas libres con una fórmula distinta a la de reservar es mandar a la gente a un
+    hueco que no existe. Es también el filtro más caro, así que se aplica al final y solo sobre
+    los candidatos que ya pasaron todo lo demás.
+
     Los patrocinados se intercalan aquí cuando existan (Fase 4): **se insertan entre los
     orgánicos, nunca en su lugar**, y siempre etiquetados.
     """
+    if disponibilidad == "fecha" and dia is None:
+        # `DATO_INVALIDO` y no «no existe»: lo que falta es un parámetro de la petición, no un
+        # recurso. El código del error lo consume el cliente y tiene que decir la verdad.
+        raise DatoInvalido("Para filtrar por una fecha concreta hay que decir cuál, en «dia».")
+
     resultados = await servicio_busqueda.buscar(
         sesion,
         texto=texto,
@@ -128,11 +213,20 @@ async def buscar(
         longitud=longitud,
         latitud=latitud,
         radio_metros=radio_metros,
+        precio_min=precio_min,
+        precio_max=precio_max,
+        rating_min=rating_min,
+        disponibilidad=disponibilidad,
+        dia=dia,
+        abierto_ahora=abierto_ahora,
+        orden=orden,
+        con_proxima_hora=con_proxima_hora,
         pagina=pagina,
     )
 
     return [
         ResultadoDeBusqueda(
+            negocio_id=r.negocio_id,
             slug=r.slug,
             nombre=r.nombre,
             direccion=r.direccion,
@@ -140,6 +234,11 @@ async def buscar(
             distancia_metros=int(r.distancia_metros) if r.distancia_metros is not None else None,
             rating=r.rating,
             servicios_desde_centavos=r.desde_centavos,
+            foto_portada=r.foto_portada,
+            numero_reviews=r.numero_reviews,
+            categorias=r.categorias or [],
+            abierto_ahora=r.abierto_ahora,
+            proxima_hora=r.proxima_hora,
             patrocinado=r.patrocinado,
         )
         for r in resultados
@@ -190,9 +289,12 @@ async def listar_negocios(sesion: SesionPublica) -> list[NegocioEnLista]:
 async def perfil(slug: str, sesion: SesionPublica) -> PerfilPublico:
     """El perfil que indexa Google y desde el que se reserva.
 
-    Lleva servicios con precio y duración, y el equipo visible. **No lleva el teléfono**: el
-    click-to-chat se resuelve en servidor, porque si el número viaja aquí, alguien se lleva la
-    base entera de negocios en una tarde.
+    Lleva servicios con precio y duración, equipo visible, fotos, horario, atributos y el
+    rating agregado. **No lleva el teléfono**: el click-to-chat se resuelve en servidor, porque
+    si el número viajara aquí, alguien se lleva la base entera de negocios en una tarde.
+
+    Todo sale con el rol del marketplace, que **no tiene permiso** sobre reservas ni sobre
+    fichas de cliente: aunque este código quisiera, no podría filtrar un dato de una persona.
     """
     negocio = (
         await sesion.execute(select(Business).where(Business.slug == slug))
@@ -227,13 +329,71 @@ async def perfil(slug: str, sesion: SesionPublica) -> PerfilPublico:
         .scalars()
         .all()
     )
+    fotos = (
+        (
+            await sesion.execute(
+                select(BusinessMedia)
+                .where(
+                    BusinessMedia.business_id == negocio.id,
+                    BusinessMedia.moderation_status == "aprobada",
+                )
+                # La portada primero: `kind` ordena al revés alfabéticamente, de ahí el `desc`.
+                .order_by(BusinessMedia.kind.desc(), BusinessMedia.position, BusinessMedia.id)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    tramos = (
+        (
+            await sesion.execute(
+                select(BusinessHours)
+                .where(BusinessHours.business_id == negocio.id)
+                .order_by(BusinessHours.weekday, BusinessHours.opens_at)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    atributos = list(
+        (
+            await sesion.execute(
+                select(AttributeValue.name)
+                .join(
+                    BusinessAttribute,
+                    BusinessAttribute.attribute_value_id == AttributeValue.id,
+                )
+                .where(BusinessAttribute.business_id == negocio.id)
+                .order_by(AttributeValue.position, AttributeValue.name)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    stats = await sesion.get(BusinessRatingStats, negocio.id)
+
+    urls = [u for f in fotos if (u := url_de_media(f.storage_key)) is not None]
 
     return PerfilPublico(
         id=negocio.id,
         slug=negocio.slug,
         nombre=negocio.display_name,
+        descripcion=negocio.description,
         zona_horaria=negocio.timezone,
         direccion=ubicacion.address_line if ubicacion else None,
+        fotos=urls,
+        foto_portada=urls[0] if urls else None,
+        rating=(
+            float(stats.rating_bayesian) if stats and stats.rating_bayesian is not None else None
+        ),
+        numero_reviews=stats.reviews_count if stats else 0,
+        atributos=atributos,
+        horario=[TramoPublico(dia=t.weekday, abre=t.opens_at, cierra=t.closes_at) for t in tramos],
+        abierto_ahora=servicio_tarjetas.esta_abierto(
+            [(t.weekday, t.opens_at, t.closes_at) for t in tramos], negocio.timezone
+        ),
+        # Solo **si lo hay**. El número no viaja ni aquí ni en ningún otro sitio público.
+        tiene_whatsapp=bool(negocio.whatsapp_phone_e164),
         servicios_desde_centavos=min(
             (s.price_minor for s in servicios if s.price_minor is not None), default=None
         ),
@@ -249,6 +409,63 @@ async def perfil(slug: str, sesion: SesionPublica) -> PerfilPublico:
         ],
         equipo=[ProfesionalPublico(id=p.id, nombre=p.display_name) for p in equipo],
     )
+
+
+@router.get(
+    "/negocios/{slug}/chat",
+    summary="Salto a WhatsApp resuelto en servidor (NEG-1, MKT-8)",
+    response_class=RedirectResponse,
+    status_code=307,
+)
+async def click_to_chat(slug: str, sesion: SesionPublica) -> RedirectResponse:
+    """Registra el clic y redirige. **El número nunca llega al navegador.**
+
+    Es la garantía nº 3 del proyecto hecha código: si el teléfono viajara en el perfil, un
+    script se lleva la base entera de negocios de Panamá en una tarde. Aquí el cliente pide una
+    URL de nuestro dominio, el servidor apunta el clic y responde con la redirección; el número
+    solo existe entre la base de datos y esta función.
+
+    El clic se cuenta **agregado por día** (MKT-8): 5.000 negocios generando una fila por
+    evento no aporta nada que la serie no cuente mejor.
+    """
+    negocio = (
+        await sesion.execute(select(Business).where(Business.slug == slug))
+    ).scalar_one_or_none()
+    if negocio is None:
+        raise NegocioNoPublicado()
+    if not negocio.whatsapp_phone_e164:
+        raise NoExiste("Ese negocio no tiene WhatsApp configurado.")
+
+    # El contador vive en una tabla del negocio, así que hay que declararlo. `ON CONFLICT DO
+    # UPDATE` suma sin leer antes, que es atómico y aguanta dos clics a la vez.
+    async with sesion_de_negocio(str(negocio.id)) as sesion_negocio:
+        await sesion_negocio.execute(
+            pg_insert(ListingClickDaily.__table__)
+            .values(
+                business_id=negocio.id,
+                day=datetime.now(UTC).date(),
+                surface="web",
+                kind="whatsapp",
+                count=1,
+            )
+            # El conflicto se declara por **columnas** y no por nombre de restricción: el
+            # único es un índice `NULLS NOT DISTINCT` creado a mano en la migración, y
+            # PostgreSQL no acepta `ON CONSTRAINT` para un índice único que no es restricción.
+            .on_conflict_do_update(
+                index_elements=[
+                    "business_id",
+                    "day",
+                    "surface",
+                    "kind",
+                    "zone_id",
+                    "service_category_id",
+                ],
+                set_={"count": ListingClickDaily.__table__.c.count + 1},
+            )
+        )
+
+    numero = negocio.whatsapp_phone_e164.lstrip("+")
+    return RedirectResponse(url=f"https://wa.me/{numero}", status_code=307)
 
 
 @router.get(

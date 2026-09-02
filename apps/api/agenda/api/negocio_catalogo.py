@@ -27,7 +27,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from agenda.api.comunes import url_de_media
-from agenda.api.dependencias import SesionNegocio, SesionPublica
+from agenda.api.dependencias import SesionNegocio, SesionPublica, exigir_dueno
 from agenda.errores import DatoInvalido, NoExiste
 from agenda.modelos.catalogo import Service, ServiceCategory, ServiceVariant
 from agenda.modelos.equipo import StaffService
@@ -163,8 +163,14 @@ async def listar_servicios(
 async def editar_servicio(
     servicio_id: uuid.UUID, cambio: CambioDeServicio, sesion_negocio: SesionNegocio
 ) -> ServicioDelPanel:
-    """Cambia lo que venga. **No reescribe las citas ya creadas** (ADR-0004)."""
+    """Cambia lo que venga. **No reescribe las citas ya creadas** (ADR-0004).
+
+    El catálogo es del dueño (STF-3). La política restrictiva de la migración 0006 ya lo
+    impediría, pero se comprueba además aquí para poder decirlo con una frase: sin esto, el
+    profesional recibiría un error de escritura sin efecto en vez de un «no te toca».
+    """
     sesion, identidad = sesion_negocio
+    exigir_dueno(identidad)
     servicio = await _servicio_del_negocio(sesion, identidad.negocio_id, servicio_id)
 
     if cambio.categoria is not None:
@@ -219,6 +225,7 @@ async def retirar_servicio(
     contado.
     """
     sesion, identidad = sesion_negocio
+    exigir_dueno(identidad)
     servicio = await _servicio_del_negocio(sesion, identidad.negocio_id, servicio_id)
 
     servicio.active = False
@@ -237,6 +244,7 @@ async def crear_variante(
 ) -> VarianteDeServicio:
     """«Cabello largo», «con mechas»: misma silla, otra duración y otro precio."""
     sesion, identidad = sesion_negocio
+    exigir_dueno(identidad)
     servicio = await _servicio_del_negocio(sesion, identidad.negocio_id, servicio_id)
 
     if alta.tipo_de_precio != "consultar" and alta.precio_centavos is None:
@@ -269,6 +277,7 @@ async def borrar_variante(
     lo impide y se traduce a desactivarla.
     """
     sesion, identidad = sesion_negocio
+    exigir_dueno(identidad)
     variante = (
         await sesion.execute(
             select(ServiceVariant).where(

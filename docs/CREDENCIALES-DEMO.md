@@ -1,11 +1,16 @@
-# Credenciales de la demo — Estado: al día (1 sep 2026)
+# Credenciales de la demo — Estado: al día (2 sep 2026)
 
 > **Todas estas cuentas son de mentira y viven solo en tu máquina.** Las crea `make semilla` y
 > se rehacen enteras cada vez que lo ejecutas. Aquí no hay ni un dato de una persona real.
 >
-> **No hay contraseñas.** Se entra con el teléfono y un código de seis dígitos que **la propia
-> pantalla te enseña**, porque en local todavía no hay canal de WhatsApp. En cualquier otro
-> entorno el código viaja por WhatsApp y no aparece en ningún sitio.
+> **Para clientes y salones no hay contraseñas.** Se entra con el teléfono y un código de seis
+> dígitos que **la propia pantalla te enseña**, porque en local todavía no hay canal de
+> WhatsApp. En cualquier otro entorno el código viaja por WhatsApp y no aparece en ningún sitio.
+>
+> **La consola interna sí tiene contraseña y segundo factor**, y por eso está más abajo con una
+> advertencia: esa cuenta **solo la crea el seed cuando `ENTORNO=local`**. No es una convención
+> ni un aviso; es un `return` en `agenda/semilla.py` que impide que llegue a existir en
+> cualquier otro entorno por copiar el seed.
 
 ---
 
@@ -17,6 +22,7 @@
 | Entrar (clientes y salones, la misma puerta) | <http://localhost:3100/entrar> |
 | Mis citas (cliente) | <http://localhost:3100/mis-reservas> |
 | Panel del salón | <http://localhost:3100/panel> |
+| Consola interna de M2G | <http://localhost:3100/consola> |
 | Documentación de la API | <http://localhost:8000/docs> |
 
 ---
@@ -61,10 +67,71 @@ base de datos.
 **Cómo entrar a un salón:** <http://localhost:3100/entrar> con el teléfono del dueño. Como esa
 cuenta sí tiene negocio, te lleva directo a la agenda.
 
+### Los profesionales con cuenta
+
+**El primero de cada salón tiene cuenta; los demás no**, que es el reparto de un salón real
+(ONB-4): el dueño apunta a su equipo en dos minutos y las invitaciones llegan después.
+
+| Teléfono | Quién | Salón |
+|---|---|---|
+| `+50762000001` | Kevin Ortega | Barbería El Cangrejo |
+| `+50762000002` … `+50762000011` | El primero del equipo | Los otros diez salones, en el orden de la tabla de arriba |
+
+**Qué ve un profesional y qué no.** Entra igual que un dueño y aterriza en el panel, pero:
+
+- su agenda trae **solo sus citas**; las de su compañera no existen para él,
+- puede editar **su** horario y sus descansos, no los de nadie más,
+- ve los servicios y los precios —le hacen falta para entender su día— pero **no puede
+  cambiarlos**: recibe `403 NO_AUTORIZADO`,
+- de finanzas no ve **nada**, ni facturas ni suscripción.
+
+Y lo que importa: eso **no lo decide un `if`**. Lo decide PostgreSQL con políticas restrictivas
+(migración 0006). Si te conectas a la base con el rol de la aplicación declarando el negocio y
+el profesional, un `SELECT * FROM bookings` sin `WHERE` sigue devolviendo solo lo suyo.
+
+---
+
+## La consola interna de M2G
+
+> ⚠️ **Cuenta de mentira y solo local.** Ni esta contraseña ni este segundo factor existen fuera
+> de tu máquina. La cuenta de verdad se crea con `python -m agenda.consola_alta`, que genera
+> credenciales al azar y **las enseña una sola vez**.
+
+| | |
+|---|---|
+| **Correo** | `consola@bukeo.local` |
+| **Contraseña** | `consola-de-demo-solo-en-local` |
+| **Segundo factor (base32)** | `JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP` |
+| Rol | `superadmin` |
+
+**El segundo factor es obligatorio y no se puede apagar**: quien entra aquí ve los datos de
+todos los negocios de la plataforma. Tienes dos formas de conseguir el código:
+
+```bash
+# La cómoda: te lo imprime por pantalla (solo funciona con ENTORNO=local)
+cd apps/api && ./.venv/bin/python -m agenda.consola_codigo
+
+# La de verdad: mete el secreto base32 de arriba en tu autenticador
+```
+
+**Qué se puede hacer desde la consola:** buscar negocios y ver cuántas reservas, clientes y
+reseñas tiene cada uno; **suspender** uno y comprobar que desaparece del marketplace *sin
+perder ni una cita*; reactivarlo; resolver reportes de reseñas —ocultar una recalcula el rating
+del salón en el acto—; **cambiar los pesos del ranking**, que crea una versión nueva en vez de
+un `UPDATE`, porque hay que poder responder a «¿con qué pesos salía este negocio el noveno la
+semana pasada?»; publicar versiones de plan; ver las métricas; y exportar CSV.
+
+**Su sesión dura menos** que la de un cliente (30 minutos de acceso, 8 horas de refresco) y
+**su token no vale en `/mi` ni en `/negocio`**, aunque esté firmado con la misma clave.
+
+---
+
 ### Los clientes del seed
 
-Cada salón tiene fichas de cliente con historial —completadas, un no-show y una cancelada— para
-que las métricas y el ranking tengan de qué comer. Son estos, y **también pueden entrar**:
+Cada salón tiene fichas de cliente con **dos semanas de historial hacia atrás** —completadas,
+no-shows y canceladas— para que las métricas, el ranking y las reseñas tengan de qué comer. Sin
+pasado no habría ni una reseña posible, porque REV-1 las ata a una cita atendida. Son estos, y
+**también pueden entrar**:
 
 `+50761230001` Abdiel Him · `+50761230002` Zuleika Rodríguez · `+50761230003` Carlos Alberto
 Vega · `+50761230004` Milagros Espino · `+50761230005` Ricardo Sanjur · `+50761230006` Nadia
@@ -89,6 +156,20 @@ maquillaje de novia de tres horas deja el día prácticamente cerrado.
 **Que no se puede reservar dos veces el mismo hueco.** Abre el mismo salón en dos pestañas,
 elige la misma hora en las dos y confirma. Una entra; la otra recibe *«ese horario se acaba de
 ocupar»*. No lo decide el código: lo decide PostgreSQL.
+
+**Que el rating no es la media.** En el perfil de cualquier salón, compara los dos números del
+resumen: la media aritmética y la puntuación. Un salón con cuatro reseñas de cinco estrellas
+**no** aparece con 5,00, sino cerca de 4,4: es la ponderación bayesiana de REV-5, y es lo que
+impide que una sola opinión adelante a un negocio con ochenta.
+
+**Que una reseña necesita una cita atendida.** Entra como cliente, abre una cita futura e
+intenta reseñarla: no se puede. Pídele al salón que la marque como completada y entonces sí.
+La segunda reseña de la misma cita devuelve `409`, y no porque lo mire el código: hay un único
+en la base que lo impide igual.
+
+**Que el teléfono del salón no viaja.** Mira el JSON de <http://localhost:8000/api/v1/publico/negocios/spa-costa-del-este>:
+trae `tiene_whatsapp: true` y **ningún número**. El botón de WhatsApp llama a `/chat`, que
+apunta el clic en el servidor y responde con la redirección.
 
 **Que el borrador no existe para el público.** <http://localhost:3100/unas-por-vanessa> devuelve
 404 aunque el negocio esté en la base con sus servicios y su equipo.

@@ -76,9 +76,7 @@ async def test_un_recordatorio_caducado_se_descarta_en_vez_de_reintentarse(
     """
     negocio = await montar_negocio()
     ahora = datetime.now(UTC)
-    notificacion_id = await _encolar(
-        abrir_negocio, negocio, caduca_en=ahora - timedelta(hours=1)
-    )
+    notificacion_id = await _encolar(abrir_negocio, negocio, caduca_en=ahora - timedelta(hours=1))
 
     async with abrir_negocio(negocio.id) as sesion:
         resumen = await entregar_pendientes(sesion, proveedores=proveedores, ahora=ahora)
@@ -105,9 +103,7 @@ async def test_una_notificacion_viva_se_entrega_y_queda_escrita(
     """
     negocio = await montar_negocio()
     ahora = datetime.now(UTC)
-    notificacion_id = await _encolar(
-        abrir_negocio, negocio, caduca_en=ahora + timedelta(hours=2)
-    )
+    notificacion_id = await _encolar(abrir_negocio, negocio, caduca_en=ahora + timedelta(hours=2))
 
     async with abrir_negocio(negocio.id) as sesion:
         resumen = await entregar_pendientes(sesion, proveedores=proveedores, ahora=ahora)
@@ -118,9 +114,7 @@ async def test_una_notificacion_viva_se_entrega_y_queda_escrita(
         ).scalar_one()
         entregas = (
             await sesion.execute(
-                text(
-                    "SELECT count(*) FROM notification_deliveries WHERE notification_id = :id"
-                ),
+                text("SELECT count(*) FROM notification_deliveries WHERE notification_id = :id"),
                 {"id": notificacion_id},
             )
         ).scalar_one()

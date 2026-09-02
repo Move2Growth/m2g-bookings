@@ -93,6 +93,19 @@ async def sesion_de_negocio(negocio_id: str) -> AsyncIterator[AsyncSession]:
 
 
 @asynccontextmanager
+async def sesion_de_marketplace() -> AsyncIterator[AsyncSession]:
+    """El rol público, abierto a mano y no por dependencia de FastAPI.
+
+    Hace falta cuando un endpoint que ya tiene abierta la sesión de la plataforma necesita
+    además datos publicables —la tarjeta de un salón guardado en favoritos, por ejemplo—. Pedir
+    dos dependencias de sesión con roles distintos las encadenaría; abrir la segunda aquí deja
+    claro cuál es cuál y con qué permisos corre cada consulta.
+    """
+    async with crear_sesion_publica() as sesion, sesion.begin():
+        yield sesion
+
+
+@asynccontextmanager
 async def sesion_sin_tenant() -> AsyncIterator[AsyncSession]:
     """Para lo que legítimamente cruza negocios: el marketplace y los catálogos globales.
 

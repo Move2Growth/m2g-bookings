@@ -100,9 +100,7 @@ async def test_dos_hechos_distintos_sobre_la_misma_cita_son_dos_mensajes(abrir_n
     async with abrir_negocio(negocio.id) as sesion:
         total = (
             await sesion.execute(
-                text(
-                    "SELECT count(*) FROM notifications WHERE idempotency_key LIKE :patron"
-                ),
+                text("SELECT count(*) FROM notifications WHERE idempotency_key LIKE :patron"),
                 {"patron": f"%:booking:{reserva_id}"},
             )
         ).scalar_one()

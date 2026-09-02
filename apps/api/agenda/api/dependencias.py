@@ -243,6 +243,19 @@ async def identidad_de_consola(
     )
 
 
+async def sesion_de_consola_anonima() -> AsyncIterator[AsyncSession]:
+    """Para **entrar** en la consola, que es lo que se hace antes de tener sesión.
+
+    Usa el rol del back-office aunque todavía no haya nadie identificado, y no es un descuido:
+    `admin_users` y `admin_sessions` **solo tienen permiso concedido a `agenda_admin`**, así
+    que con el rol de la aplicación este endpoint no podría ni leer la cuenta. Lo que sí hace
+    falta es que estas tres rutas —entrar, refrescar y salir— sean las únicas que lo usen sin
+    identidad, y por eso la dependencia es otra y se llama distinto.
+    """
+    async with crear_sesion_admin() as sesion, sesion.begin():
+        yield sesion
+
+
 async def sesion_de_consola(
     identidad: Annotated[IdentidadAdmin, Depends(identidad_de_consola)],
 ) -> AsyncIterator[tuple[AsyncSession, IdentidadAdmin]]:
@@ -263,6 +276,7 @@ def exigir_dueno(identidad: Identidad) -> None:
 
 
 SesionConsola = Annotated[tuple[AsyncSession, IdentidadAdmin], Depends(sesion_de_consola)]
+SesionConsolaAnonima = Annotated[AsyncSession, Depends(sesion_de_consola_anonima)]
 SesionPublica = Annotated[AsyncSession, Depends(sesion_publica)]
 SesionPlataforma = Annotated[AsyncSession, Depends(sesion_de_plataforma)]
 SesionCliente = Annotated[tuple[AsyncSession, Identidad], Depends(sesion_de_cliente)]

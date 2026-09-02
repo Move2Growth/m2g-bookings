@@ -122,9 +122,7 @@ async def test_quien_apago_el_canal_no_recibe_el_recordatorio(ctx, abrir_negocio
                 text("SELECT client_user_id FROM bookings WHERE id = :id"), {"id": reserva_id}
             )
         ).scalar_one()
-    await apagar_canal(
-        negocio, usuario_id=usuario_id, canal="whatsapp", categoria="recordatorios"
-    )
+    await apagar_canal(negocio, usuario_id=usuario_id, canal="whatsapp", categoria="recordatorios")
 
     encoladas = await encolar_recordatorios_de_negocio(ctx, str(negocio.id), 24)
 

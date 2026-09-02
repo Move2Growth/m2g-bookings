@@ -21,7 +21,7 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from agenda.api.comunes import url_de_media
-from agenda.api.dependencias import SesionNegocio
+from agenda.api.dependencias import SesionNegocio, exigir_dueno
 from agenda.errores import DatoInvalido, NoExiste
 from agenda.modelos.catalogo import ServiceCategory
 from agenda.modelos.marketplace import Zone
@@ -127,6 +127,7 @@ async def editar_ficha(cambio: CambioDeFicha, sesion_negocio: SesionNegocio) -> 
     corregir una tilde del nombre.
     """
     sesion, identidad = sesion_negocio
+    exigir_dueno(identidad)
     negocio = await sesion.get(Business, identidad.negocio_id)
     if negocio is None:
         raise NoExiste("Ese negocio no existe.")
@@ -211,6 +212,7 @@ async def anadir_foto(alta: AltaDeFoto, sesion_negocio: SesionNegocio) -> FotoDe
     de antes se queda en la galería, no desaparece.
     """
     sesion, identidad = sesion_negocio
+    exigir_dueno(identidad)
 
     if alta.clase == "portada":
         anterior = (
@@ -246,6 +248,7 @@ async def quitar_foto(foto_id: uuid.UUID, sesion_negocio: SesionNegocio) -> None
     porque despublicar a alguien por borrar una foto sería una sorpresa muy cara.
     """
     sesion, identidad = sesion_negocio
+    exigir_dueno(identidad)
     foto = (
         await sesion.execute(
             select(BusinessMedia).where(

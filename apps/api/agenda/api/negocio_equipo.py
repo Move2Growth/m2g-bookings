@@ -21,7 +21,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from agenda.api.comunes import url_de_media
-from agenda.api.dependencias import SesionNegocio
+from agenda.api.dependencias import SesionNegocio, exigir_dueno
 from agenda.errores import DatoInvalido, NoExiste
 from agenda.modelos.catalogo import Service
 from agenda.modelos.equipo import StaffHours, StaffProfile, StaffService
@@ -109,6 +109,9 @@ async def editar_profesional(
     es lo que pide un salón con un ayudante nuevo.
     """
     sesion, identidad = sesion_negocio
+    # El equipo lo gestiona el dueño (STF-3): quién entra, quién se va y quién sale en el
+    # marketplace. Un profesional edita su horario, no su ficha ni la de nadie.
+    exigir_dueno(identidad)
     profesional = await _profesional_del_negocio(sesion, identidad.negocio_id, profesional_id)
 
     for campo, columna in (
@@ -144,6 +147,7 @@ async def dar_de_baja(
     habiéndolo leído.
     """
     sesion, identidad = sesion_negocio
+    exigir_dueno(identidad)
     profesional = await _profesional_del_negocio(sesion, identidad.negocio_id, profesional_id)
 
     futuras = await _citas_futuras(sesion, identidad.negocio_id, [profesional.id])
@@ -188,6 +192,7 @@ async def asignar_servicios(
     asignación a medias.
     """
     sesion, identidad = sesion_negocio
+    exigir_dueno(identidad)
     profesional = await _profesional_del_negocio(sesion, identidad.negocio_id, profesional_id)
 
     if servicios:

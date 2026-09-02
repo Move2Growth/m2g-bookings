@@ -25,7 +25,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from agenda.modelos.catalogo import Service, ServiceCategory
 from agenda.modelos.marketplace import Zone
-from agenda.modelos.negocio import Business, BusinessCategory, BusinessHours, BusinessMedia, Location
+from agenda.modelos.negocio import (
+    Business,
+    BusinessCategory,
+    BusinessHours,
+    BusinessMedia,
+    Location,
+)
 from agenda.modelos.reviews import BusinessRatingStats
 
 
@@ -92,9 +98,7 @@ async def componer(
             numero_reviews=total,
             desde_centavos=precios.get(negocio_id),
             categorias=categorias.get(negocio_id, []),
-            abierto_ahora=esta_abierto(
-                horarios.get(negocio_id, []), zona_horaria, ahora=ahora
-            ),
+            abierto_ahora=esta_abierto(horarios.get(negocio_id, []), zona_horaria, ahora=ahora),
         )
     return tarjetas
 
@@ -217,11 +221,7 @@ async def _horarios(
     sesion: AsyncSession, negocios: list[uuid.UUID]
 ) -> dict[uuid.UUID, list[tuple[int, time, time]]]:
     filas = (
-        (
-            await sesion.execute(
-                select(BusinessHours).where(BusinessHours.business_id.in_(negocios))
-            )
-        )
+        (await sesion.execute(select(BusinessHours).where(BusinessHours.business_id.in_(negocios))))
         .scalars()
         .all()
     )

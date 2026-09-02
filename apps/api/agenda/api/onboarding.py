@@ -22,7 +22,13 @@ from pydantic import BaseModel, Field
 from sqlalchemy import func, select, text
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
-from agenda.api.dependencias import Identidad, SesionNegocio, SesionPlataforma, identidad_actual
+from agenda.api.dependencias import (
+    Identidad,
+    SesionNegocio,
+    SesionPlataforma,
+    exigir_dueno,
+    identidad_actual,
+)
 from agenda.errores import FaltaMinimoParaPublicar, NoAutorizado
 from agenda.modelos.base import nuevo_id
 from agenda.modelos.catalogo import Service, ServiceCategory
@@ -254,6 +260,7 @@ async def poner_horario(
     sería la peor sorpresa posible un lunes por la mañana.
     """
     sesion, identidad = sesion_negocio
+    exigir_dueno(identidad)
 
     anteriores = (
         (
@@ -283,6 +290,7 @@ async def poner_horario(
 @router.post("/negocio/servicios", status_code=201, summary="Añadir un servicio (SRV-1)")
 async def crear_servicio(alta: AltaDeServicio, sesion_negocio: SesionNegocio) -> uuid.UUID:
     sesion, identidad = sesion_negocio
+    exigir_dueno(identidad)
 
     categoria = (
         await sesion.execute(select(ServiceCategory).where(ServiceCategory.slug == alta.categoria))
@@ -314,6 +322,7 @@ async def crear_profesional(alta: AltaDeProfesional, sesion_negocio: SesionNegoc
     al salón que espere a que su equipo tenga tiempo.
     """
     sesion, identidad = sesion_negocio
+    exigir_dueno(identidad)
 
     profesional = StaffProfile(business_id=identidad.negocio_id, display_name=alta.nombre)
     sesion.add(profesional)
@@ -356,6 +365,7 @@ async def publicar(sesion_negocio: SesionNegocio) -> NegocioCreado:
     cerrada es una puerta que la gente aporrea.
     """
     sesion, identidad = sesion_negocio
+    exigir_dueno(identidad)
 
     estado = await _estado_del_checklist(sesion, identidad.negocio_id)
     if not estado.listo_para_publicar:

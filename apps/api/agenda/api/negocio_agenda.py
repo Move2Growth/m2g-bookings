@@ -29,7 +29,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from agenda.api.dependencias import SesionNegocio
+from agenda.api.dependencias import SesionNegocio, exigir_dueno
 from agenda.errores import DatoInvalido, NoExiste, SlotNoDisponible
 from agenda.modelos.equipo import StaffProfile
 from agenda.modelos.marketplace import Holiday
@@ -156,6 +156,8 @@ async def cambiar_ajustes(
     hecha y el hueco está apartado. Lo que cambia es lo que se ofrece a partir de ahora.
     """
     sesion, identidad = sesion_negocio
+    # Los ajustes de agenda son configuración del salón, no de una persona (STF-3).
+    exigir_dueno(identidad)
     fila = await _ajustes_del_negocio(sesion, identidad.negocio_id)
 
     for campo, columna in (

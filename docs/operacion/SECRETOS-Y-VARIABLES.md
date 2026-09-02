@@ -28,6 +28,7 @@
 | `DATABASE_URL` | Conexión a PostgreSQL 16 con PostGIS. El usuario de la aplicación **no es dueño de las tablas y no tiene `BYPASSRLS`** (ADR-0002) | variable | `.env` |
 | `DATABASE_URL_MIGRACIONES` | Conexión con el rol dueño, usada **solo** por Alembic para migrar y crear extensiones | secreto | `.env` |
 | `REDIS_URL` | Caché de horarios y transporte de los trabajos de arq (ADR-0008) | variable | `.env` |
+| `DATABASE_URL_ADMIN` | Conexión de la **consola interna** con el rol `agenda_admin`. Es una tercera conexión y no un `SET ROLE`: con una sola, un fallo de autorización en un endpoint del panel correría con los permisos del equipo interno. El rol tampoco tiene `BYPASSRLS`: accede por políticas propias | secreto | `.env` / SOPS |
 | `DATABASE_URL_TRABAJOS` | Conexión de los trabajos en segundo plano, con el rol auditado `agenda_admin`. El planificador necesita **enumerar** negocios antes de saber en cuál trabajar, y sin tenant fijado el rol de la API no ve ninguno; el trabajo concreto sí corre con el negocio fijado | secreto | `.env` / SOPS |
 | `AGENDA_BUZON_NOTIFICACIONES` | Archivo donde el proveedor de desarrollo escribe los mensajes (OTP, recordatorios) mientras no hay canal real | variable | `.env` |
 | `SECRET_KEY` | Firma de los tokens de acceso. Rotarla invalida todas las sesiones | secreto | `.env` / SOPS |
@@ -35,6 +36,11 @@
 | `ZONA_HORARIA_DEFECTO` | Zona IANA que se propone al dar de alta un negocio. Default `America/Panama` (ADR-0003) | variable | `.env` |
 | `MONEDA_DEFECTO` | Código de moneda de los importes. Default `USD`; el símbolo que se pinta es `$` (D12) | variable | `.env` |
 | `URL_PUBLICA_WEB` | Base de las URL absolutas del sitemap, los enlaces de las notificaciones y los enlaces profundos | variable | `.env` |
+| `URL_BASE_MEDIA` | Prefijo de las URL de fotos de negocio y de reseña. **Vacía por defecto**: entonces la clave guardada se sirve tal cual, que hoy es una ruta de la web (`/fotos/spa.webp`) o una URL absoluta. Cuando exista almacenamiento de objetos se rellena aquí y no se toca ni una fila | variable | `.env` |
+| `ACCESO_ADMIN_MINUTOS` | Duración del token de acceso de la consola interna. Más corta que la de un cliente a propósito (default 30) | variable | `.env` |
+| `REFRESCO_ADMIN_HORAS` | Duración del refresco de la consola interna (default 8) | variable | `.env` |
+| `CONSOLA_EMAIL_INICIAL` | Correo de la **primera cuenta** de la consola, que crea `python -m agenda.consola_alta`. Sin valor en el repositorio | variable | `.env` |
+| `CONSOLA_PASSWORD_INICIAL` | Contraseña de esa primera cuenta. Si se deja vacía, el comando **genera una al azar y la enseña una sola vez** junto con la URI `otpauth://` del segundo factor. Ni la contraseña ni el secreto del 2FA se vuelven a mostrar | secreto | `.env` / Bitwarden |
 
 ### Mensajería y notificaciones
 
