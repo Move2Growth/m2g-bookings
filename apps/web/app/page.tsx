@@ -227,15 +227,19 @@ export default function Portada() {
 
         {/* El único bloque de color de la página, y es para el otro público. Se usa una vez. */}
         <section className="seccion seccion--holgada seccion--tinta">
-          <div className="contenedor" style={{ maxWidth: '46rem' }}>
+          <div className="contenedor">
             <h2>Tu agenda, gratis</h2>
-            <p style={{ marginTop: 'var(--espacio-4)', fontSize: 'var(--tipografia-tamano-mayor)' }}>
+            <p className="medida" style={{ marginTop: 'var(--espacio-4)', fontSize: 'var(--tipografia-tamano-mayor)' }}>
               Sin tarjeta para registrarte, sin mensualidad y sin comisión por cita. Tardas menos
               de diez minutos en dejarlo funcionando desde el teléfono.
             </p>
             <ul
               className="lista-filete"
-              style={{ marginTop: 'var(--espacio-5)', borderTop: '1px solid rgba(255,255,255,.18)' }}
+              style={{
+                marginTop: 'var(--espacio-5)',
+                borderTop: '1px solid rgba(255,255,255,.18)',
+                maxWidth: '46rem',
+              }}
             >
               {[
                 ['Se acabó apuntar citas en el WhatsApp', 'La agenda de todo tu equipo en una pantalla.'],
@@ -280,9 +284,9 @@ export default function Portada() {
 
         {/* Preguntas con `details`: acordeón nativo, accesible y sin una línea de JavaScript. */}
         <section className="seccion seccion--arena">
-          <div className="contenedor" style={{ maxWidth: '46rem' }}>
+          <div className="contenedor">
             <h2>Preguntas</h2>
-            <div style={{ marginTop: 'var(--espacio-5)' }}>
+            <div style={{ marginTop: 'var(--espacio-5)', maxWidth: '46rem' }}>
               {PREGUNTAS.map(({ p, r }) => (
                 <details key={p} className="pregunta">
                   <summary>{p}</summary>
