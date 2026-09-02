@@ -26,6 +26,9 @@ class Ajustes(BaseSettings):
     secret_key: str = "desarrollo-no-usar-en-produccion"
     nivel_log: str = "info"
     url_publica_web: str = "http://localhost:3000"
+    # Orígenes que pueden llamar a esta API desde un navegador, separados por comas. Explícitos
+    # y no `*`: con credenciales, un comodín regala las sesiones de todo el mundo.
+    origenes_permitidos: str = "http://localhost:3000,http://localhost:3100"
 
     # Panamá no tiene horario de verano, pero el instante se guarda en UTC igual: el modelo
     # tiene que aguantar España después (ADR-0003).

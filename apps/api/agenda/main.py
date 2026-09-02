@@ -9,6 +9,7 @@ escapan los teléfonos (ADR-0012).
 from __future__ import annotations
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from agenda.ajustes import obtener_ajustes
@@ -40,6 +41,19 @@ async def manejar_error_de_dominio(_: Request, error: ErrorDeDominio) -> JSONRes
     """
     return JSONResponse(status_code=error.estado_http, content=error.como_respuesta())
 
+
+# El panel del negocio corre en el navegador y habla con esta API desde otro origen. La lista
+# es **explícita y sale de configuración**: un `*` aquí, combinado con credenciales, es la
+# forma más rápida de regalar las sesiones de todo el mundo.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[o.strip() for o in ajustes.origenes_permitidos.split(",") if o.strip()],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE"],
+    # `Idempotency-Key` tiene que estar o el reintento de la app se convierte en una petición
+    # sin clave, que es exactamente la que crea la segunda cita.
+    allow_headers=["Authorization", "Content-Type", "Idempotency-Key"],
+)
 
 app.include_router(acceso.router)
 app.include_router(publico.router)
