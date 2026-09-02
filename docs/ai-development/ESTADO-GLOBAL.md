@@ -12,7 +12,11 @@
 
 **🟢 Segundo hito del día:** ⚙️ **El motor de disponibilidad está construido y en verde.** El núcleo es puro —no toca base de datos, no mira el reloj— y lleva **69 pruebas** que fijan los casos que rompen este tipo de motor: la rejilla marca comienzos y no duraciones, el buffer posterior tiene que caber antes del cierre pero el anterior no bloquea el primer hueco del día, el multi-servicio necesita un bloque continuo, el spa que cierra a las 00:30 ofrece huecos después de medianoche, y el mismo código resuelve bien el cambio de hora de Madrid aunque Panamá no lo tenga. Con ellas van la **máquina de estados de la reserva** y el **ranking con rating bayesiano**, cada uno con las reglas del brief fijadas en pruebas. **Lo que falta del motor es lo que solo se puede probar contra un PostgreSQL real**: la carrera por el mismo slot, el aislamiento entre negocios y la idempotencia.
 
-**Fase actual:** **Fase 0 · Diseño, en curso.** Cerrada la ronda de ADR, están redactados descubrimiento, contratos de API, modelo de datos, motor de disponibilidad y plan de sprints; **faltan** `fase-1-decisiones.md`, `fase-2-requisitos-y-mvp.md` y `fase-4-diagramas-sistema.md`. **La Fase 0 termina cuando Luis la aprueba**, no cuando el equipo la dé por buena.
+**🟢 Tercer hito del día:** 🚀 **La Fase 1 funciona de punta a punta y la Fase 2 tiene marketplace.** Un dueño entra con su teléfono, crea su negocio, le pone horario, servicios y equipo, y agenda una cita —todo desde el móvil y sin que nadie de M2G intervenga—. El esquema son **68 tablas** con la migración corriendo desde cero, el seed carga **cuatro salones de Ciudad de Panamá con 96 citas**, y la web sirve el marketplace en servidor con búsqueda por texto y por zona. **107 pruebas en verde**, catorce de ellas contra un PostgreSQL real.
+
+**Lo que se puede enseñar hoy, levantando `make arriba`:** la portada del marketplace con los tres salones publicados y el cuarto invisible por estar en borrador; el perfil de un salón con sus servicios y las horas libres del día que elijas —con los agujeros exactos donde hay citas y donde está el almuerzo del barbero—; el panel del negocio con la agenda del día; y el alta completa de un salón nuevo, incluida la negativa a publicarlo mientras le falte la foto.
+
+**Fase actual:** **Fase 1 construida, Fase 2 a medias.** La Fase 0 está entera —catorce ADR, modelo de datos, contratos, flujos, design system, trazabilidad de los 83 requisitos y diagramas— y **sigue pendiente de que Luis la apruebe**, que es su criterio de hecho. La Fase 1 está construida y probada; lo que le falta para darla por cerrada es que un salón real la use un día entero, y el canal de WhatsApp de verdad. De la Fase 2 están el marketplace, la búsqueda con ranking y el perfil indexable; faltan reviews, favoritos, mapa y la reserva desde el lado del cliente.
 
 ---
 
@@ -22,7 +26,8 @@
 
 | Cuándo hace falta | Pregunta | Qué pasa mientras tanto |
 |---|---|---|
-| **Antes de cerrar la Fase 0** | **¿Luis aprueba flujos, design system, modelo de datos y contratos?** | La Fase 1 no arranca. El criterio de «hecho» de la Fase 0 es literalmente su aprobación |
+| **Ahora** | **¿Luis aprueba lo construido?** Flujos, design system, modelo de datos, contratos **y las dos fases ya levantadas** | Se sigue construyendo, pero **la Fase 0 no se cierra sin su aprobación**: ese es literalmente su criterio de hecho |
+| **Ahora** | **Probarlo a mano**: `make arriba`, entrar en el panel con el teléfono del dueño del seed y mirar la portada a 390 px | Está verificado con peticiones reales y con el HTML servido, pero **nadie lo ha usado como lo usaría un salón** |
 | **Antes de dar por verificado el registro de un usuario** | **Credenciales de Meta WhatsApp Cloud API** (número, identificador de la cuenta y token) | El OTP y los avisos se construyen y se prueban contra el proveedor de desarrollo, que escribe el código en el log (ADR-0006, ADR-0007). **El canal real queda marcado como no verificado** |
 | **Antes de la Fase 2** | **¿Mapbox o Google Maps?** (D8) — tiene coste y hay que confirmarlo | La distancia la resuelve PostGIS sin proveedor. El geocoding vive detrás de `GeocodingProvider` con implementación local (ADR-0005): la búsqueda por zona no espera a esto, el mapa interactivo sí |
 | **Antes de la Fase 4** | **¿Qué pasarela?** (D5, por defecto Yappy más tarjetas) | El motor de planes se construye contra `PaymentProvider` con implementación de desarrollo (ADR-0010). **No se enciende ningún cobro real sin OK explícito de Luis** |
@@ -35,14 +40,14 @@
 
 | Agente | Estado | Fase en que entra | Subagente |
 |---|---|---|---|
-| Arquitecto / Coordinador | 🟡 en curso — 14 ADR y `constitution.md` escritos; documentos de fase en redacción | Transversal (diseño + coordinación) | `agenda-arquitecto` |
+| Arquitecto / Coordinador | 🟢 al día — Fase 0 entera escrita: 14 ADR, constitución, modelo de datos, contratos, trazabilidad y diagramas | Transversal (diseño + coordinación) | `agenda-arquitecto` |
 | Ingeniería de Software | ⚪ sin arrancar | Transversal (especifica antes de construir) | `agenda-ingenieria-software` |
-| DevOps / Infraestructura | ⚪ sin arrancar | Fase 1, bloque 1.a (entorno local, **no despliegue**) | `agenda-devops` |
-| Backend | ⚪ sin arrancar | Fase 1, bloque 1.a en adelante | `agenda-backend` |
-| Frontend Web | ⚪ sin arrancar | Fase 1, bloque 1.e en adelante | `agenda-frontend-web` |
-| Mockuper | ⚪ sin arrancar | Fase 0 (por delante del frontend) | `agenda-mockuper` |
+| DevOps / Infraestructura | 🟢 al día — entorno local de un comando, base de pruebas aparte, cuatro roles de base de datos | Fase 1, bloque 1.a (entorno local, **no despliegue**) | `agenda-devops` |
+| Backend | 🟡 en curso — identidad, alta de negocio, agenda, disponibilidad, búsqueda y notificaciones | Fase 1, bloque 1.a en adelante | `agenda-backend` |
+| Frontend Web | 🟡 en curso — marketplace en servidor, perfil con horas libres, acceso y panel | Fase 1, bloque 1.e en adelante | `agenda-frontend-web` |
+| Mockuper | 🟢 al día — design system y flujos escritos; los mockups navegables no hicieron falta al construirse la web directamente | Fase 0 (por delante del frontend) | `agenda-mockuper` |
 | Móvil | ⚪ sin arrancar — **aplazado a la Fase 5** | Fase 5 (fuera de este encargo) | `agenda-movil` |
-| Testing | ⚪ sin arrancar | Fase 1, bloque 1.a en adelante | `agenda-testing` |
+| Testing | 🟢 al día — 107 pruebas, 14 contra Postgres real; el corredor falla si no hay base | Fase 1, bloque 1.a en adelante | `agenda-testing` |
 | Seguridad y Cumplimiento | ⚪ sin arrancar | Transversal (acompaña a todos) | `agenda-seguridad-compliance` |
 | QA / Validador | ⚪ sin arrancar | Transversal (cierra cada tarea) | `agenda-qa-validador` |
 | Orquestador | ⚪ sin arrancar | Transversal (paraleliza bajo demanda) | `agenda-orquestador` |
@@ -90,7 +95,8 @@
 | Lote | Tareas | Zona | Estado | Riesgo de merge |
 |---|---|---|---|---|
 | Fase 0 · documentación | Modelo de datos · plan de fases y preguntas abiertas · flujos y design system · método de trabajo | `docs/arquitectura`, `docs/diseno`, `docs/ai-development` | ✅ cerrado y commiteado | Ninguno: zonas disjuntas, un archivo por agente |
-| Fase 0 · esquema | Migración inicial, modelos y seed | `apps/api/agenda/modelos`, `apps/api/migraciones`, `apps/api/agenda/semilla.py` | 🟡 en curso | **Zona serializada**: nadie más toca `apps/api/migraciones` hasta que cierre |
+| Fase 0 · esquema | Migración inicial, modelos y seed | `apps/api/agenda/modelos`, `apps/api/migraciones`, `apps/api/agenda/semilla.py` | ✅ cerrado | — |
+| Fase 1 · notificaciones | Cola idempotente, proveedores y worker | `apps/api/agenda/notificaciones`, `apps/api/agenda/trabajos` | ✅ cerrado | — |
 
 > **Zonas serializadas de este proyecto** —nunca dos agentes a la vez, ni con worktree—: `apps/api/migraciones`, `apps/api/disponibilidad`, `packages/tokens`, `docs/arquitectura/adr/`, y este mismo archivo.
 
