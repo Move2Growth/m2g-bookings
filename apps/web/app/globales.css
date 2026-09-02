@@ -620,3 +620,40 @@ button, input, select, textarea { font: inherit; color: inherit; }
   background: var(--color-arena);
 }
 .agenda__fila--esqueleto .agenda__cuerpo { height: 2.5rem; }
+
+/* ── Prosa legal y documental ───────────────────────────────────────────────── */
+
+/* Medida de línea corta y aire entre bloques: son textos que la gente lee de verdad cuando algo
+   le preocupa, y a 65 caracteres se leen y a 120 no. */
+.prosa { max-width: 62ch; margin-top: var(--espacio-6); }
+.prosa h2 {
+  font-size: var(--tipografia-tamano-titulo-3);
+  margin-top: var(--espacio-6);
+  margin-bottom: var(--espacio-3);
+}
+.prosa p { margin-bottom: var(--espacio-3); }
+.prosa .tabla-plan td { text-align: left; white-space: normal; }
+
+.lista-puntos { display: grid; gap: var(--espacio-2); margin-bottom: var(--espacio-3); }
+.lista-puntos li { padding-left: var(--espacio-4); position: relative; }
+.lista-puntos li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.65em;
+  width: 8px;
+  height: 1px;
+  background: var(--color-tinta-tenue);
+}
+
+/* Los enlaces del pie son destinos, no prosa: se tocan con el pulgar y necesitan altura. Los
+   enlaces dentro de un párrafo se quedan como están, que ahí la regla de 44 px no aplica y
+   además romperían la línea. */
+footer nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+}
+
+/* El logotipo es el enlace a inicio y se toca mucho: el símbolo mide 22 px, el área no. */
+header a:has(> span) { min-height: var(--espacio-toque-minimo); display: inline-flex; align-items: center; }
