@@ -67,18 +67,24 @@ El back-office de M2G (`/api/v1/admin/…`) es Fase 3 y usa su propio rol de bas
 
 ---
 
-## 5. Disponibilidad y reservas — Fase 1
+## 5. Disponibilidad y reservas
 
 Es el corazón. El diseño está en [`fase-3-motor-disponibilidad.md`](fase-3-motor-disponibilidad.md).
 
-| Método y ruta | Qué hace | Requisito |
-|---|---|---|
-| `GET /publico/negocios/{slug}/disponibilidad` | Huecos para uno o varios servicios en un **rango de fechas**, con profesional concreto o «cualquiera». Devuelve slots con el profesional asociado y la zona horaria del negocio. **Nunca promete: informa** | AGD-1, STF-5 |
-| `POST /mi/reservas` | Crea la reserva. **Transaccional**; acepta `Idempotency-Key`; devuelve `409 SLOT_NO_DISPONIBLE` si el hueco se acaba de ocupar | RSV-1, AGD-4 |
-| `GET /mi/reservas` · `GET /mi/reservas/{id}` | Historial y detalle. Incluye `.ics` para añadir al calendario | RSV-7 |
-| `POST /mi/reservas/{id}/cancelar` | Cancela hasta la ventana configurada (default 2 h); después, solo el negocio | RSV-4 |
-| `POST /mi/reservas/{id}/reprogramar` | Libera el hueco viejo y ocupa el nuevo **en la misma transacción**; si el nuevo falla, no se libera el viejo | RSV-3 |
-| `GET /negocio/agenda` | Vista de día o semana por profesional. Una petición por rango, no una por día | AGD-2 |
+**Qué entra en cada fase, y por qué no es lo mismo.** El criterio de «hecho» de la Fase 1 es que
+**el salón** opere su agenda desde el móvil; el de la Fase 2, que **el cliente** encuentre y
+reserve solo. Por eso el motor y la agenda del negocio son Fase 1, y **las rutas `/mi/…` con las
+que reserva un cliente son Fase 2**, aunque se apoyen en el mismo motor. En la Fase 1 las citas
+las mete el negocio.
+
+| Método y ruta | Fase | Qué hace | Requisito |
+|---|---|---|---|
+| `GET /publico/negocios/{slug}/disponibilidad` | **1** | Huecos para uno o varios servicios en un **rango de fechas**, con profesional concreto o «cualquiera». Devuelve slots con el profesional asociado y la zona horaria del negocio. **Nunca promete: informa.** Público desde el primer día, así que **nace con límite de peticiones**: es una consulta cara y una puerta abierta al raspado | AGD-1, STF-5 |
+| `GET /negocio/agenda` | **1** | Vista de día o semana por profesional. Una petición por rango, no una por día | AGD-2 |
+| `POST /mi/reservas` | **2** | Crea la reserva. **Transaccional**; acepta `Idempotency-Key`; devuelve `409 SLOT_NO_DISPONIBLE` si el hueco se acaba de ocupar | RSV-1, AGD-4 |
+| `GET /mi/reservas` · `GET /mi/reservas/{id}` | **2** | Historial y detalle. Incluye `.ics` para añadir al calendario | RSV-7 |
+| `POST /mi/reservas/{id}/cancelar` | **2** | Cancela hasta la ventana configurada (default 2 h); después, solo el negocio | RSV-4 |
+| `POST /mi/reservas/{id}/reprogramar` | **2** | Libera el hueco viejo y ocupa el nuevo **en la misma transacción**; si el nuevo falla, no se libera el viejo | RSV-3 |
 | `POST /negocio/reservas` | **Reserva manual** (walk-in o teléfono), con cliente registrado o «cliente rápido» de nombre y teléfono | AGD-2 |
 | `PATCH /negocio/reservas/{id}` | Mover, reprogramar, cambiar servicio | AGD-2 |
 | `POST /negocio/reservas/{id}/estado` | `confirmada`, `completada`, `no_show`, `cancelada_negocio`. Cada cambio deja evento | RSV-3, RSV-5 |
@@ -106,6 +112,28 @@ Es el corazón. El diseño está en [`fase-3-motor-disponibilidad.md`](fase-3-mo
 
 ---
 
-## 7. Lo que la API **no** hace en la Fase 1
+## 7. Cuatro puntos donde este documento y el plan de fases podrían leerse distinto
+
+Salieron al cruzar los requisitos del brief con el plan, y se dejan resueltos por escrito para
+que nadie construya la lectura equivocada:
+
+1. **La reserva del cliente es Fase 2, no Fase 1.** Ya está corregido arriba: en la Fase 1 la
+   cita la crea el negocio con `POST /negocio/reservas`. El motor sí es Fase 1 entero.
+2. **El límite de peticiones no llega después: llega con el primer endpoint público.** La
+   disponibilidad y la búsqueda son públicas, caras y raspables. Dejarlas sin límite «hasta el
+   sprint del endurecimiento» es abrir la puerta y anotar que hay que cerrarla.
+3. **El estado `suspendido` de un negocio (ONB-6) existe en el modelo desde la Fase 1, pero
+   nadie puede suspender hasta la Fase 3**, que es cuando hay back-office. No es una
+   contradicción: el dato tiene que existir desde el principio; la acción no.
+4. **El «¿cómo te fue?» (REV-6) es Fase 2, no Fase 1.** En la Fase 1 no hay reviews, así que ese
+   aviso llevaría a una pantalla que no existe. El recordatorio de la cita sí es Fase 1.
+
+Y una precisión sobre MKT-3: en la Fase 2 los pesos del ranking se ajustan **cambiando una fila
+de `ranking_weights`**; el panel para hacerlo sin tocar la base es Fase 3. La promesa del brief
+—«ajustable sin desplegar»— se cumple desde la Fase 2; lo que llega después es la comodidad.
+
+---
+
+## 8. Lo que la API **no** hace en la Fase 1
 
 Para que quede claro qué se echará en falta a propósito: no hay endpoints de ads (Fase 4), ni de back-office (Fase 3), ni de cobro real (ADR-0010: la interfaz existe, la pasarela la decide Luis en D5), ni de lista de espera, depósitos, multi-sede o recursos físicos, que son v2.
