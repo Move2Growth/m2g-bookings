@@ -46,6 +46,9 @@ export type Perfil = NegocioEnLista & {
   fotos?: { id: string; url: string; texto_alternativo: string | null; clase: string }[]
   atributos?: { slug: string; nombre: string; grupo: string }[]
   horario?: { dia: number; abre: string; cierra: string }[]
+  /** Si tiene WhatsApp configurado. **Nunca llega el número**: solo si existe el botón, y el
+   *  salto lo resuelve el servidor. */
+  tiene_whatsapp?: boolean
 }
 
 export type ResenaPublica = {

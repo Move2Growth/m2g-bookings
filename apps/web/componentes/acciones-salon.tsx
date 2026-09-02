@@ -16,10 +16,12 @@ export function AccionesDeSalon({
   negocioId,
   slug,
   nombre,
+  tieneWhatsapp,
 }: {
   negocioId: string
   slug: string
   nombre: string
+  tieneWhatsapp?: boolean
 }) {
   const [guardado, setGuardado] = useState(false)
   const [ocupado, setOcupado] = useState(false)
@@ -110,6 +112,20 @@ export function AccionesDeSalon({
       <button type="button" className="boton boton--secundario" onClick={compartir}>
         {copiado ? 'Enlace copiado' : 'Compartir'}
       </button>
+
+      {tieneWhatsapp && (
+        /* El enlace apunta a **nuestro** dominio y el servidor redirige. El número del salón
+           nunca llega al navegador: si viajara en la ficha, un script se lleva la base entera
+           de negocios de Panamá en una tarde. */
+        <a
+          className="boton boton--secundario"
+          href={`${API}/api/v1/publico/negocios/${slug}/chat`}
+          rel="nofollow noreferrer"
+          target="_blank"
+        >
+          Escribir por WhatsApp
+        </a>
+      )}
     </div>
   )
 }

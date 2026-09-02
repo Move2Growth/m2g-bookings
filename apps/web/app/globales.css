@@ -1627,3 +1627,21 @@ textarea.entrada { resize: vertical; min-height: 7rem; line-height: var(--tipogr
 .peso__valor { font-weight: var(--tipografia-pesos-fuerte); }
 .peso input[type='range'] { width: 100%; accent-color: var(--color-acento); height: var(--espacio-toque-minimo); }
 .peso__explicacion { font-size: var(--tipografia-tamano-menor); color: var(--color-tinta-suave); }
+
+/* Las estrellas son botones de verdad, no un div con onClick: funcionan con teclado y un
+   lector de pantalla anuncia cuál está elegida. */
+.estrellas { display: flex; gap: var(--espacio-1); }
+.estrella {
+  min-width: var(--espacio-toque-minimo);
+  min-height: var(--espacio-toque-minimo);
+  border: none;
+  background: transparent;
+  color: var(--color-abre);
+  font-size: var(--tipografia-tamano-titulo-2);
+  line-height: 1;
+  cursor: pointer;
+  transition: transform var(--movimiento-rapido) var(--movimiento-curva-empuje);
+}
+.estrella:active { transform: scale(0.85); }
+
+.cita__acciones { display: flex; flex-wrap: wrap; gap: var(--espacio-2); }

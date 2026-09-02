@@ -2,7 +2,9 @@
 
 import Link from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Error as BloqueDeError, Esqueleto, Vacio } from '@/componentes/estados'
+import { Hoja } from '@/componentes/hoja'
 import { Iconos } from '@/componentes/pestanas'
 import { conSesion, leerSesion, type Sesion } from '@/lib/sesion'
 
@@ -27,6 +29,10 @@ type Cita = {
   servicios: { nombre: string; duracion_minutos: number; precio_centavos: number | null }[]
   total_centavos: number
   se_puede_cancelar: boolean
+  /** Si todavía está dentro de la ventana para opinar. Lo decide el servidor: cada salón pone
+   *  la suya y un reloj mal puesto en el teléfono daría permiso donde no lo hay. */
+  se_puede_resenar?: boolean
+  ya_resenada?: boolean
 }
 
 const ETIQUETA: Record<string, string> = {
@@ -39,7 +45,10 @@ const ETIQUETA: Record<string, string> = {
 }
 
 export default function MisCitas() {
+  const router = useRouter()
   const [sesion, setSesion] = useState<Sesion | null>(null)
+  const [resenando, setResenando] = useState<Cita | null>(null)
+  const [repitiendo, setRepitiendo] = useState<string | null>(null)
   const [citas, setCitas] = useState<Cita[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [cancelando, setCancelando] = useState<string | null>(null)
@@ -72,6 +81,36 @@ export default function MisCitas() {
       setError(fallo instanceof Error ? fallo.message : 'No se pudo cancelar.')
     } finally {
       setCancelando(null)
+    }
+  }
+
+  /**
+   * Reservar otra vez lo mismo.
+   *
+   * Pregunta primero al servidor si el servicio y la profesional siguen existiendo, porque un
+   * salón cambia su carta y mandar a alguien a reservar un servicio que ya no está es peor que
+   * no ofrecer el atajo.
+   */
+  async function repetir(cita: Cita) {
+    if (!sesion) return
+    setRepitiendo(cita.id)
+    try {
+      const plan = await conSesion<{
+        negocio_slug: string
+        servicios: { id: string; sigue_disponible: boolean }[]
+        se_puede_repetir: boolean
+      }>(`/api/v1/mi/reservas/${cita.id}/repetir`, { token: sesion.acceso })
+      const servicio = plan.servicios.find((s) => s.sigue_disponible)
+      router.push(
+        plan.se_puede_repetir && servicio
+          ? `/${plan.negocio_slug}?servicio=${servicio.id}`
+          : `/${plan.negocio_slug}`,
+      )
+    } catch {
+      // Si el atajo falla, la ficha del salón sigue siendo el sitio correcto al que ir.
+      router.push(`/${cita.negocio_slug}`)
+    } finally {
+      setRepitiendo(null)
     }
   }
 
@@ -108,8 +147,128 @@ export default function MisCitas() {
       {proximas.length > 0 && (
         <Grupo titulo="Próximas" citas={proximas} onCancelar={cancelar} cancelando={cancelando} />
       )}
-      {pasadas.length > 0 && <Grupo titulo="Anteriores" citas={pasadas} />}
+      {pasadas.length > 0 && (
+        <Grupo
+          titulo="Anteriores"
+          citas={pasadas}
+          onRepetir={repetir}
+          repitiendo={repitiendo}
+          onResenar={setResenando}
+        />
+      )}
+
+      {resenando && sesion && (
+        <FormularioDeResena
+          cita={resenando}
+          sesion={sesion}
+          onCerrar={() => setResenando(null)}
+          onGuardado={() => {
+            setResenando(null)
+            void cargar(sesion)
+          }}
+        />
+      )}
     </div>
+  )
+}
+
+/**
+ * Dejar una reseña.
+ *
+ * La nota es obligatoria y el texto no: la mayoría de la gente puntúa y no escribe, y exigir
+ * un texto no consigue textos, consigue que no se puntúe.
+ *
+ * Las estrellas son botones de verdad, no un `div` con `onClick`: así funcionan con teclado y
+ * un lector de pantalla anuncia cuál está elegida.
+ */
+function FormularioDeResena({
+  cita,
+  sesion,
+  onCerrar,
+  onGuardado,
+}: {
+  cita: Cita
+  sesion: Sesion
+  onCerrar: () => void
+  onGuardado: () => void
+}) {
+  const [nota, setNota] = useState(0)
+  const [texto, setTexto] = useState('')
+  const [enviando, setEnviando] = useState(false)
+  const [fallo, setFallo] = useState<string | null>(null)
+
+  return (
+    <Hoja titulo={`¿Qué tal en ${cita.negocio}?`} onCerrar={onCerrar}>
+      <form
+        className="formulario"
+        onSubmit={async (evento) => {
+          evento.preventDefault()
+          setEnviando(true)
+          setFallo(null)
+          try {
+            await conSesion(`/api/v1/mi/reservas/${cita.id}/review`, {
+              metodo: 'POST',
+              token: sesion.acceso,
+              cuerpo: { rating: nota, texto: texto.trim() || null },
+            })
+            onGuardado()
+          } catch (error) {
+            setFallo(error instanceof Error ? error.message : 'No se pudo mandar tu reseña.')
+            setEnviando(false)
+          }
+        }}
+      >
+        <fieldset className="grupo">
+          <legend className="campo-etiqueta">Tu nota</legend>
+          <div className="estrellas">
+            {[1, 2, 3, 4, 5].map((n) => (
+              <button
+                key={n}
+                type="button"
+                className="estrella"
+                aria-pressed={nota === n}
+                aria-label={`${n} de 5`}
+                onClick={() => setNota(n)}
+              >
+                <span aria-hidden="true">{n <= nota ? '★' : '☆'}</span>
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        <label className="campo">
+          <span>Cuéntalo si quieres (opcional)</span>
+          <textarea
+            className="entrada"
+            rows={4}
+            value={texto}
+            onChange={(e) => setTexto(e.target.value)}
+            placeholder="Lo que le dirías a una amiga que te pregunta por este sitio."
+            maxLength={2000}
+          />
+        </label>
+
+        <p className="tenue" style={{ fontSize: 'var(--tipografia-tamano-menor)' }}>
+          Sale con tu nombre de pila y la inicial del apellido. El salón puede responderte una
+          vez, en público.
+        </p>
+
+        {fallo && (
+          <p role="alert" className="aviso aviso--error">
+            {fallo}
+          </p>
+        )}
+
+        <div className="hoja__pie">
+          <button type="button" className="boton boton--llano" onClick={onCerrar}>
+            Ahora no
+          </button>
+          <button type="submit" className="boton boton--cierra" disabled={nota === 0 || enviando}>
+            {enviando ? 'Mandando…' : 'Mandar reseña'}
+          </button>
+        </div>
+      </form>
+    </Hoja>
   )
 }
 
@@ -118,11 +277,17 @@ function Grupo({
   citas,
   onCancelar,
   cancelando,
+  onRepetir,
+  repitiendo,
+  onResenar,
 }: {
   titulo: string
   citas: Cita[]
   onCancelar?: (cita: Cita) => void
   cancelando?: string | null
+  onRepetir?: (cita: Cita) => void
+  repitiendo?: string | null
+  onResenar?: (cita: Cita) => void
 }) {
   return (
     <section style={{ marginTop: 'var(--espacio-6)' }}>
@@ -169,6 +334,28 @@ function Grupo({
                   </button>
                 </p>
               )}
+              {onRepetir && (
+                <p className="cita__acciones">
+                  <button
+                    type="button"
+                    className="boton boton--secundario"
+                    disabled={repitiendo === cita.id}
+                    onClick={() => onRepetir(cita)}
+                  >
+                    {repitiendo === cita.id ? 'Un momento…' : 'Reservar otra vez'}
+                  </button>
+                  {onResenar && cita.estado === 'completada' && !cita.ya_resenada && (
+                    <button
+                      type="button"
+                      className="boton boton--primario"
+                      onClick={() => onResenar(cita)}
+                    >
+                      Dejar reseña
+                    </button>
+                  )}
+                </p>
+              )}
+
               {onCancelar && !cita.se_puede_cancelar && (
                 /* Fuera de la ventana no se esconde el botón sin más: se explica, porque si
                    no, la persona cree que la aplicación está rota. */

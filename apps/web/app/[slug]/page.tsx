@@ -196,7 +196,12 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
                 {perfil.direccion && <span className="apagado">{perfil.direccion}</span>}
               </p>
             </div>
-            <AccionesDeSalon negocioId={perfil.id} slug={perfil.slug} nombre={perfil.nombre} />
+            <AccionesDeSalon
+              negocioId={perfil.id}
+              slug={perfil.slug}
+              nombre={perfil.nombre}
+              tieneWhatsapp={perfil.tiene_whatsapp}
+            />
           </div>
 
           {perfil.descripcion && <p className="medida identidad__texto">{perfil.descripcion}</p>}

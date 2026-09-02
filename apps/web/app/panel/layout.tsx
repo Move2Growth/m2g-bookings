@@ -24,6 +24,7 @@ const PESTANAS_DUENO = [
   { href: '/panel/equipo', texto: 'Equipo', icono: Iconos.equipo },
   { href: '/panel/horario', texto: 'Horario', icono: Iconos.horario },
   { href: '/panel/clientes', texto: 'Clientas', icono: Iconos.clientes },
+  { href: '/panel/resenas', texto: 'Reseñas', icono: Iconos.moderacion },
   { href: '/panel/ficha', texto: 'Ficha', icono: Iconos.ficha },
 ]
 
