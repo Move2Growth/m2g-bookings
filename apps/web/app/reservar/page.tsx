@@ -28,6 +28,7 @@ function Contenido() {
 
   const [sesion, setSesion] = useState(() => leerSesion())
   const [telefono, setTelefono] = useState('+507')
+  const [nombreCliente, setNombreCliente] = useState('')
   const [codigo, setCodigo] = useState('')
   const [pista, setPista] = useState<string | null>(null)
   const [paso, setPaso] = useState<'telefono' | 'codigo'>('telefono')
@@ -103,6 +104,7 @@ function Contenido() {
           servicios: [servicio],
           profesional_id: profesional,
           inicio,
+          nombre: nombreCliente || undefined,
         },
       })
       router.push('/mis-reservas?nueva=1')
@@ -186,6 +188,17 @@ function Contenido() {
             Para reservar necesitamos tu teléfono. Te mandamos un código y listo — no hay
             contraseña que recordar.
           </p>
+          <label style={{ display: 'grid', gap: 'var(--espacio-2)' }}>
+            <span style={{ fontWeight: 'var(--tipografia-pesos-medio)' }}>Tu nombre</span>
+            <input
+              type="text"
+              autoComplete="name"
+              value={nombreCliente}
+              onChange={(e) => setNombreCliente(e.target.value)}
+              placeholder="Como quieres que te llamen en el salón"
+              style={campo}
+            />
+          </label>
           <label style={{ display: 'grid', gap: 'var(--espacio-2)' }}>
             <span style={{ fontWeight: 'var(--tipografia-pesos-medio)' }}>Tu teléfono</span>
             <input

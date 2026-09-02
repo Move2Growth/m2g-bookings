@@ -65,6 +65,11 @@ class PeticionDeReserva(BaseModel):
     inicio: datetime
     profesional_id: uuid.UUID
     nota: str | None = None
+    #: Cómo quiere que la llamen. Se pide **la primera vez que reserva** y no antes: registrarse
+    #: es verificar un teléfono, y pedir el nombre en ese momento sería un formulario de más
+    #: entre la persona y su cita. Sin esto, el salón ve «Cliente» en su agenda, que no le sirve
+    #: para saludar a nadie.
+    nombre: str | None = None
 
 
 @router.get("/reservas", summary="Mis reservas (RSV-7)")
@@ -109,6 +114,10 @@ async def reservar(
     if usuario is None or usuario.phone_verified_at is None:
         raise TelefonoNoVerificado()
 
+    if peticion.nombre and not usuario.full_name:
+        usuario.full_name = peticion.nombre.strip()[:120]
+        await sesion.flush()
+
     negocio = (
         await sesion.execute(
             select(Business).where(
@@ -140,7 +149,7 @@ async def reservar(
         ficha = BusinessClient(
             business_id=negocio.id,
             user_id=usuario.id,
-            display_name=usuario.full_name or "Cliente",
+            display_name=usuario.full_name or "Cliente sin nombre",
             phone_e164=usuario.phone_e164,
             source="marketplace",
         )
