@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from agenda.ajustes import obtener_ajustes
-from agenda.api import acceso, negocio, publico
+from agenda.api import acceso, negocio, onboarding, publico
 from agenda.errores import ErrorDeDominio
 
 ajustes = obtener_ajustes()
@@ -57,6 +57,7 @@ app.add_middleware(
 
 app.include_router(acceso.router)
 app.include_router(publico.router)
+app.include_router(onboarding.router)
 app.include_router(negocio.router)
 
 

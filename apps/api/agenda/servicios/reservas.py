@@ -43,6 +43,18 @@ from agenda.modelos.reservas import Booking, BookingEvent, BookingItem, StaffOcc
 #: previsto y taparlo lo escondería.
 EXCLUSION_VIOLADA = "23P01"
 
+#: Cómo se llama en el historial cada llegada a un estado. Las dos cancelaciones comparten
+#: nombre de evento —el detalle de quién canceló ya viaja en `actor_kind` y en `from_status`—
+#: para que el historial se lea como una historia y no como un volcado de la máquina.
+_TIPO_DE_EVENTO = {
+    EstadoReserva.CONFIRMADA: "confirmada",
+    EstadoReserva.COMPLETADA: "completada",
+    EstadoReserva.NO_SHOW: "no_show",
+    EstadoReserva.CANCELADA_CLIENTE: "cancelada",
+    EstadoReserva.CANCELADA_NEGOCIO: "cancelada",
+    EstadoReserva.PENDIENTE: "creada",
+}
+
 
 def _es_solape(error: IntegrityError) -> bool:
     codigo = getattr(getattr(error, "orig", None), "sqlstate", None)
@@ -194,7 +206,10 @@ async def cambiar_estado(
         BookingEvent(
             business_id=reserva.business_id,
             booking_id=reserva.id,
-            type="cambio_de_estado",
+            # El tipo de evento **nombra lo que pasó**, no la mecánica: «completada», no
+            # «cambio_de_estado». Es lo que después se lee en el historial de la cita y en
+            # soporte, y ahí «cambio_de_estado x3» no cuenta nada.
+            type=_TIPO_DE_EVENTO[nuevo],
             from_status=anterior.value,
             to_status=nuevo.value,
             actor_kind=actor.value,
