@@ -28,7 +28,13 @@ class Ajustes(BaseSettings):
     url_publica_web: str = "http://localhost:3000"
     # Orígenes que pueden llamar a esta API desde un navegador, separados por comas. Explícitos
     # y no `*`: con credenciales, un comodín regala las sesiones de todo el mundo.
-    origenes_permitidos: str = "http://localhost:3000,http://localhost:3100"
+    # `localhost` y `127.0.0.1` **no son el mismo origen** para el navegador, y entrar por uno
+    # u otro es cuestión de qué escribió la persona en la barra. Faltando uno, la pantalla
+    # carga pero ninguna petición sale, que es de los fallos más desconcertantes que hay.
+    origenes_permitidos: str = (
+        "http://localhost:3000,http://localhost:3100,"
+        "http://127.0.0.1:3000,http://127.0.0.1:3100"
+    )
 
     # Panamá no tiene horario de verano, pero el instante se guarda en UTC igual: el modelo
     # tiene que aguantar España después (ADR-0003).

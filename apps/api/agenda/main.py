@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from agenda.ajustes import obtener_ajustes
-from agenda.api import acceso, negocio, onboarding, publico
+from agenda.api import acceso, cliente, negocio, onboarding, publico
 from agenda.errores import ErrorDeDominio
 
 ajustes = obtener_ajustes()
@@ -59,6 +59,7 @@ app.include_router(acceso.router)
 app.include_router(publico.router)
 app.include_router(onboarding.router)
 app.include_router(negocio.router)
+app.include_router(cliente.router)
 
 
 @app.get("/salud", tags=["operación"], summary="Comprueba que el proceso responde")

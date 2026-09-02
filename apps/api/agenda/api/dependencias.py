@@ -39,14 +39,30 @@ async def sesion_publica() -> AsyncIterator[AsyncSession]:
         yield sesion
 
 
-async def sesion_de_plataforma() -> AsyncIterator[AsyncSession]:
-    """Para lo que ocurre **antes de tener sesión**: pedir un código, canjearlo, refrescar.
+async def sesion_de_plataforma(
+    authorization: Annotated[str | None, Header()] = None,
+) -> AsyncIterator[AsyncSession]:
+    """Para lo que no pertenece a ningún salón: entrar, refrescar y **«mis reservas»**.
 
-    Usa el rol de la aplicación pero sin negocio fijado, porque lo que toca son tablas de la
-    plataforma —personas, códigos, sesiones—, que no pertenecen a ningún salón. Y no puede
-    exigir autenticación por el motivo evidente: es justo lo que se está intentando conseguir.
+    Usa el rol de la aplicación sin negocio fijado, porque lo que toca son tablas de la
+    plataforma. No exige autenticación —pedir un código es justo lo que hace quien todavía no
+    la tiene—, pero **si el token viene, declara quién pregunta** en `app.current_user_id`.
+
+    Esa declaración es lo que permite que una persona vea sus citas en todos los salones donde
+    ha estado sin aflojar el aislamiento: la política que la usa es de **solo lectura y solo de
+    lo suyo**. Escribir en la agenda de un salón sigue exigiendo el negocio fijado.
     """
     async with crear_sesion() as sesion, sesion.begin():
+        if authorization:
+            try:
+                datos = _leer_token(authorization)
+            except NoAutorizado:
+                datos = None
+            if datos:
+                await sesion.execute(
+                    text("SELECT set_config('app.current_user_id', :usuario, true)"),
+                    {"usuario": datos["sub"]},
+                )
         yield sesion
 
 

@@ -55,7 +55,10 @@ export default function Entrar() {
       const datos = await respuesta.json()
       if (!respuesta.ok) throw new Error(datos?.error?.mensaje ?? 'Ese código no es válido.')
       guardarSesion(datos)
-      router.push('/panel')
+      // Quien tiene negocio va a su agenda; quien no, a sus citas. La misma cuenta puede ser
+      // las dos cosas (ONB-3), y en ese caso manda el modo negocio, que es el que trae el
+      // token con el salón activo.
+      router.push(datos.negocio_activo ? '/panel' : '/mis-reservas')
     } catch (fallo) {
       setError(fallo instanceof Error ? fallo.message : 'Ese código no es válido.')
     } finally {

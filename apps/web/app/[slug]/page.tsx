@@ -254,24 +254,40 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
                 gap: 'var(--espacio-2)',
               }}
             >
-              {slots.map((slot) => (
-                <li key={slot.inicio}>
-                  <span
-                    className="cifras"
-                    style={{
-                      display: 'grid',
-                      placeItems: 'center',
-                      minHeight: 'var(--espacio-toque-minimo)',
-                      padding: 'var(--espacio-2)',
-                      background: 'var(--color-superficie)',
-                      border: '1px solid var(--color-borde)',
-                      borderRadius: 'var(--radio-normal)',
-                    }}
-                  >
-                    {hora.format(new Date(slot.inicio))}
-                  </span>
-                </li>
-              ))}
+              {slots.map((slot) => {
+                const destino = new URLSearchParams({
+                  negocio: perfil.slug,
+                  servicio: servicio.id,
+                  profesional: slot.profesional_id ?? '',
+                  inicio: slot.inicio,
+                  nombre: servicio.nombre,
+                  zona,
+                })
+                return (
+                  <li key={slot.inicio}>
+                    {/* El hueco es un enlace y no un botón: tiene su propia URL, se puede
+                        abrir en otra pestaña y sobrevive a que se recargue la página. Y
+                        tocarlo **no aparta nada**: se compite por él al confirmar. */}
+                    <Link
+                      href={`/reservar?${destino}`}
+                      className="cifras"
+                      style={{
+                        display: 'grid',
+                        placeItems: 'center',
+                        minHeight: 'var(--espacio-toque-minimo)',
+                        padding: 'var(--espacio-2)',
+                        background: 'var(--color-superficie)',
+                        border: '1px solid var(--color-borde-fuerte)',
+                        borderRadius: 'var(--radio-normal)',
+                        textDecoration: 'none',
+                        color: 'inherit',
+                      }}
+                    >
+                      {hora.format(new Date(slot.inicio))}
+                    </Link>
+                  </li>
+                )
+              })}
             </ul>
           )}
 
@@ -282,8 +298,8 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
               fontSize: 'var(--tipografia-tamano-menor)',
             }}
           >
-            Reservar desde aquí llega en la siguiente fase: hoy el salón apunta las citas desde
-            su panel. Mirar una hora no la aparta.
+            Toca una hora para reservarla. Mirarla no la aparta: se confirma en la pantalla
+            siguiente.
           </p>
         </section>
       )}

@@ -97,25 +97,10 @@ export default function Panel() {
   }, [sesion, dia, cargar])
 
   if (sesion && !sesion.negocio_activo) {
-    return (
-      <main className="contenido">
-        <h1 style={{ fontSize: 'var(--tipografia-tamano-titulo-2)' }}>Falta elegir el negocio</h1>
-        <p style={{ color: 'var(--color-texto-suave)', marginTop: 'var(--espacio-3)' }}>
-          Tu cuenta entró como cliente. Para ver una agenda hay que cambiar a modo negocio, y
-          eso emite otro token —no es un parámetro de la pantalla—. El selector de negocio
-          entra en la siguiente tanda.
-        </p>
-        <button
-          onClick={() => {
-            borrarSesion()
-            router.push('/entrar')
-          }}
-          style={{ ...boton, marginTop: 'var(--espacio-5)' }}
-        >
-          Salir
-        </button>
-      </main>
-    )
+    // No es un error: es una cuenta de clienta mirando la puerta del personal. Se la manda a
+    // lo suyo en vez de enseñarle un mensaje de permisos que no le dice nada.
+    router.replace('/mis-reservas')
+    return <main className="contenido">Llevándote a tus citas…</main>
   }
 
   const fecha = new Intl.DateTimeFormat('es-PA', {

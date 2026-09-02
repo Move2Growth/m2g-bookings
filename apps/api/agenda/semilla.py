@@ -32,7 +32,13 @@ from agenda.modelos.clientes import BusinessClient
 from agenda.modelos.equipo import StaffHours, StaffProfile, StaffService
 from agenda.modelos.identidad import Membership, User
 from agenda.modelos.marketplace import Zone
-from agenda.modelos.negocio import Business, BusinessHours, BusinessSettings, Location
+from agenda.modelos.negocio import (
+    Business,
+    BusinessCategory,
+    BusinessHours,
+    BusinessSettings,
+    Location,
+)
 from agenda.modelos.reservas import Booking, BookingItem, StaffOccupancy
 
 PANAMA = ZoneInfo("America/Panama")
@@ -81,6 +87,7 @@ def _hora(h: int, m: int = 0) -> time:
 NEGOCIOS = [
     {
         "slug": "barberia-el-cangrejo",
+        "telefono_dueno": "+50760000001",
         "nombre": "Barbería El Cangrejo",
         "categoria": "barberia",
         "zona": "el-cangrejo",
@@ -113,6 +120,7 @@ NEGOCIOS = [
     },
     {
         "slug": "salon-obarrio",
+        "telefono_dueno": "+50760000002",
         "nombre": "Salón Obarrio",
         "categoria": "peluqueria",
         "zona": "obarrio",
@@ -153,6 +161,7 @@ NEGOCIOS = [
     },
     {
         "slug": "spa-costa-del-este",
+        "telefono_dueno": "+50760000003",
         "nombre": "Spa Costa del Este",
         "categoria": "spa-masajes",
         "zona": "costa-del-este",
@@ -185,6 +194,7 @@ NEGOCIOS = [
     },
     {
         "slug": "unas-por-vanessa",
+        "telefono_dueno": "+50760000004",
         "nombre": "Uñas por Vanessa",
         "categoria": "unas",
         "zona": "san-francisco",
@@ -205,6 +215,228 @@ NEGOCIOS = [
                 "horario": [(d, _hora(10), _hora(18)) for d in (L, M, X, J, V, S)],
                 "almuerzo": (_hora(13), _hora(14)),
             }
+        ],
+    },
+    {
+        "slug": "peluqueria-dona-elvia",
+        "telefono_dueno": "+50760000005",
+        "nombre": "Peluquería Doña Elvia",
+        "categoria": "peluqueria",
+        "zona": "san-francisco",
+        "direccion": "Calle 68, San Francisco",
+        "punto": (-79.5091, 9.0021),
+        "estado": "publicado",
+        # **Unipersonal y de barrio.** Es el negocio más común del país y el que más manda en
+        # el diseño: una sola persona, sin recepción, contestando el teléfono con las manos
+        # llenas de tinte.
+        "horario": [(d, _hora(8), _hora(17)) for d in (M, X, J, V, S)],
+        "servicios": [
+            ("Corte de dama", 45, 1500, 0, 10),
+            ("Tinte completo", 120, 4500, 0, 15),
+            ("Secado y planchado", 40, 1200, 0, 5),
+            ("Tratamiento capilar", 60, 2000, 0, 10),
+        ],
+        "equipo": [
+            {
+                "nombre": "Elvia Cedeño",
+                "horario": [(d, _hora(8), _hora(17)) for d in (M, X, J, V, S)],
+                "almuerzo": (_hora(12), _hora(13)),
+            }
+        ],
+    },
+    {
+        "slug": "barberia-san-francisco",
+        "telefono_dueno": "+50760000006",
+        "nombre": "Barbería San Francisco",
+        "categoria": "barberia",
+        "zona": "san-francisco",
+        "direccion": "Vía Israel, San Francisco",
+        "punto": (-79.5008, 9.0043),
+        "estado": "publicado",
+        # Unipersonal que abre tarde y cierra tarde: el caso que rompe cualquier motor que
+        # asuma jornada de oficina.
+        "horario": [(d, _hora(12), _hora(21)) for d in (M, X, J, V, S)],
+        "servicios": [
+            ("Corte fade", 40, 1500, 0, 10),
+            ("Corte + barba", 55, 2000, 0, 10),
+            ("Diseño de cejas", 15, 600, 0, 5),
+        ],
+        "equipo": [
+            {
+                "nombre": "Aníbal Rodríguez",
+                "horario": [(d, _hora(12), _hora(21)) for d in (M, X, J, V, S)],
+                "almuerzo": None,
+            }
+        ],
+    },
+    {
+        "slug": "estudio-de-cejas-bella-vista",
+        "telefono_dueno": "+50760000007",
+        "nombre": "Estudio de Cejas Bella Vista",
+        "categoria": "pestanas-cejas",
+        "zona": "bella-vista",
+        "direccion": "Calle 42, Bella Vista",
+        "punto": (-79.5265, 8.9843),
+        "estado": "publicado",
+        "horario": [(d, _hora(10), _hora(19)) for d in (M, X, J, V, S)],
+        "servicios": [
+            ("Diseño y depilación de cejas", 30, 1800, 0, 5),
+            ("Laminado de cejas", 60, 4000, 0, 10),
+            ("Extensiones de pestañas clásicas", 120, 6500, 5, 15),
+            ("Retoque de pestañas", 75, 4000, 5, 10),
+        ],
+        "equipo": [
+            {
+                "nombre": "Katherine Sánchez",
+                "horario": [(d, _hora(10), _hora(19)) for d in (M, X, J, V, S)],
+                "almuerzo": (_hora(14), _hora(15)),
+            },
+            {
+                "nombre": "Génesis Batista",
+                "horario": [(d, _hora(10), _hora(16)) for d in (X, J, V)],
+                "almuerzo": None,
+            },
+        ],
+    },
+    {
+        "slug": "nails-and-lashes-obarrio",
+        "telefono_dueno": "+50760000008",
+        "nombre": "Nails & Lashes Obarrio",
+        "categoria": "unas",
+        "zona": "obarrio",
+        "direccion": "Calle 50, Obarrio",
+        "punto": (-79.5192, 8.9861),
+        "estado": "publicado",
+        "horario": [(d, _hora(9), _hora(20)) for d in (L, M, X, J, V, S)],
+        "servicios": [
+            ("Manicura tradicional", 45, 1500, 0, 10),
+            ("Manicura semipermanente", 75, 2800, 0, 10),
+            ("Uñas acrílicas", 150, 5500, 0, 15),
+            ("Pedicura spa", 60, 3200, 0, 10),
+            ("Extensiones de pestañas", 120, 7000, 5, 15),
+        ],
+        "equipo": [
+            {
+                "nombre": "Yulissa Caballero",
+                "horario": [(d, _hora(9), _hora(20)) for d in (L, M, X, J, V, S)],
+                "almuerzo": (_hora(13), _hora(14)),
+            },
+            {
+                "nombre": "Rosangela Díaz",
+                "horario": [(d, _hora(13), _hora(20)) for d in (L, M, X, J, V, S)],
+                "almuerzo": None,
+            },
+            {
+                "nombre": "Keyla Montenegro",
+                "horario": [(d, _hora(9), _hora(15)) for d in (M, X, J, V)],
+                "almuerzo": None,
+            },
+        ],
+    },
+    {
+        "slug": "spa-urbano-el-cangrejo",
+        "telefono_dueno": "+50760000009",
+        "nombre": "Spa Urbano El Cangrejo",
+        "categoria": "spa-masajes",
+        "zona": "el-cangrejo",
+        "direccion": "Vía Argentina con Calle Arturo Motta",
+        "punto": (-79.5324, 8.9887),
+        "estado": "publicado",
+        "horario": [(d, _hora(11), _hora(21)) for d in (M, X, J, V, S)],
+        "servicios": [
+            ("Masaje de espalda", 45, 3500, 10, 15),
+            ("Masaje completo", 90, 6500, 10, 15),
+            ("Ritual de piedras calientes", 120, 9000, 10, 20),
+            ("Limpieza facial", 60, 4500, 5, 15),
+        ],
+        "equipo": [
+            {
+                "nombre": "Lorena Justavino",
+                "horario": [(d, _hora(11), _hora(21)) for d in (M, X, J, V, S)],
+                "almuerzo": (_hora(16), _hora(17)),
+            },
+            {
+                "nombre": "Ariel Mendoza",
+                "horario": [(d, _hora(11), _hora(17)) for d in (M, X, J, V)],
+                "almuerzo": None,
+            },
+            {
+                "nombre": "Sheila Prado",
+                "horario": [(d, _hora(15), _hora(21)) for d in (J, V, S)],
+                "almuerzo": None,
+            },
+        ],
+    },
+    {
+        "slug": "maquillaje-por-karla",
+        "telefono_dueno": "+50760000010",
+        "nombre": "Maquillaje por Karla",
+        "categoria": "maquillaje",
+        "zona": "costa-del-este",
+        "direccion": "Ave. La Rotonda, Costa del Este",
+        "punto": (-79.4702, 9.0106),
+        "estado": "publicado",
+        # Unipersonal con servicios largos y pocos huecos al día: el caso donde la agenda se
+        # llena con dos citas y hay que ver que ya no cabe una tercera.
+        "horario": [(d, _hora(7), _hora(19)) for d in (J, V, S)],
+        "servicios": [
+            ("Maquillaje social", 60, 5000, 15, 15),
+            ("Maquillaje de novia con prueba", 180, 25000, 15, 30),
+            ("Peinado y maquillaje", 120, 9000, 15, 20),
+        ],
+        "equipo": [
+            {
+                "nombre": "Karla Him",
+                "horario": [(d, _hora(7), _hora(19)) for d in (J, V, S)],
+                "almuerzo": None,
+            }
+        ],
+    },
+    {
+        "slug": "estetica-integral-obarrio",
+        "telefono_dueno": "+50760000011",
+        "nombre": "Estética Integral Obarrio",
+        "categoria": "estetica",
+        "zona": "obarrio",
+        "direccion": "Calle 55 Este, Obarrio",
+        "punto": (-79.5231, 8.9819),
+        "estado": "publicado",
+        # Jornada partida y equipo de cuatro: el negocio grande, el que menos abunda y el que
+        # más estresa la agenda.
+        "horario": [(d, _hora(9), _hora(13)) for d in (L, M, X, J, V)]
+        + [(d, _hora(14), _hora(19)) for d in (L, M, X, J, V)]
+        + [(S, _hora(9), _hora(14))],
+        "servicios": [
+            ("Depilación láser axilas", 30, 4000, 5, 10),
+            ("Depilación láser piernas", 60, 9000, 5, 15),
+            ("Radiofrecuencia facial", 45, 6000, 5, 10),
+            ("Masaje reductor", 60, 5000, 5, 15),
+            ("Limpieza facial profunda", 75, 5500, 5, 15),
+        ],
+        "equipo": [
+            {
+                "nombre": "Dra. Marisol Tejeira",
+                "horario": [(d, _hora(9), _hora(13)) for d in (L, M, X, J, V)]
+                + [(d, _hora(14), _hora(19)) for d in (L, M, X, J, V)],
+                "almuerzo": None,
+            },
+            {
+                "nombre": "Odalis Barría",
+                "horario": [(d, _hora(9), _hora(13)) for d in (L, M, X, J, V)]
+                + [(S, _hora(9), _hora(14))],
+                "almuerzo": None,
+            },
+            {
+                "nombre": "Jorge Icaza",
+                "horario": [(d, _hora(14), _hora(19)) for d in (M, X, J, V)],
+                "almuerzo": None,
+            },
+            {
+                "nombre": "Nitzia Gómez",
+                "horario": [(d, _hora(9), _hora(13)) for d in (X, J, V)]
+                + [(S, _hora(9), _hora(14))],
+                "almuerzo": None,
+            },
         ],
     },
 ]
@@ -239,7 +471,8 @@ async def _limpiar(sesion: AsyncSession) -> None:
         text(
             "TRUNCATE bookings, booking_items, booking_events, staff_occupancy, "
             "business_clients, staff_services, staff_hours, staff_profiles, services, "
-            "business_hours, business_settings, locations, memberships, businesses, users, zones, "
+            "business_hours, business_settings, business_categories, locations, memberships, "
+            "businesses, users, zones, "
             "service_categories RESTART IDENTITY CASCADE"
         )
     )
@@ -294,7 +527,9 @@ async def _negocio(
 ) -> None:
     dueno = User(
         full_name=f"Dueño de {definicion['nombre']}",
-        phone_e164=f"+5076999{abs(hash(definicion['slug'])) % 10000:04d}",
+        # Fijo y escrito en la definición: `hash()` de Python cambia en cada proceso, así que
+        # las credenciales de la demo cambiarían en cada carga y no habría forma de anotarlas.
+        phone_e164=definicion["telefono_dueno"],
         phone_verified_at=datetime.now(UTC),
     )
     sesion.add(dueno)
@@ -331,6 +566,15 @@ async def _negocio(
         )
     )
     sesion.add(BusinessSettings(business_id=negocio.id))
+    # La categoría del negocio es lo que hace que salga al filtrar por «barbería» en el
+    # marketplace. Sin esta fila el negocio existe pero es invisible para media búsqueda.
+    sesion.add(
+        BusinessCategory(
+            business_id=negocio.id,
+            service_category_id=categorias[definicion["categoria"]].id,
+            is_primary=True,
+        )
+    )
     for weekday, abre, cierra in definicion["horario"]:
         sesion.add(
             BusinessHours(business_id=negocio.id, weekday=weekday, opens_at=abre, closes_at=cierra)
