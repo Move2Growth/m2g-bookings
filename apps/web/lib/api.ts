@@ -124,6 +124,8 @@ async function pedir<T>(ruta: string, opciones: Opciones = {}): Promise<T> {
 }
 
 export type ResultadoDeBusqueda = {
+  /** El identificador del negocio, que es con lo que se guarda en favoritos. */
+  negocio_id?: string
   slug: string
   nombre: string
   direccion: string | null

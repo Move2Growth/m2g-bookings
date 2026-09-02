@@ -17,6 +17,9 @@ import { API, leerSesion } from '@/lib/sesion'
  */
 
 export type SalonEnLista = {
+  /** El identificador con el que se guarda en favoritos. El slug identifica la página; el id
+   *  identifica el negocio, y son cosas distintas: un slug puede cambiar. */
+  negocio_id?: string
   slug: string
   nombre: string
   direccion: string | null
@@ -39,7 +42,7 @@ export function FichaSalon({
 }: {
   salon: SalonEnLista
   guardado?: boolean
-  onGuardar?: (slug: string, ahora: boolean) => void
+  onGuardar?: (negocioId: string, ahora: boolean) => void
 }) {
   return (
     <li className="salon">
@@ -115,7 +118,13 @@ export function FichaSalon({
         </span>
       </Link>
 
-      {onGuardar && <BotonGuardar slug={salon.slug} guardado={Boolean(guardado)} onGuardar={onGuardar} />}
+      {onGuardar && salon.negocio_id && (
+        <BotonGuardar
+          negocioId={salon.negocio_id}
+          guardado={Boolean(guardado)}
+          onGuardar={onGuardar}
+        />
+      )}
     </li>
   )
 }
@@ -128,13 +137,13 @@ export function FichaSalon({
  * otra vez, que es justo lo que hay que evitar.
  */
 function BotonGuardar({
-  slug,
+  negocioId,
   guardado,
   onGuardar,
 }: {
-  slug: string
+  negocioId: string
   guardado: boolean
-  onGuardar: (slug: string, ahora: boolean) => void
+  onGuardar: (negocioId: string, ahora: boolean) => void
 }) {
   const [activo, setActivo] = useState(guardado)
   const [ocupado, setOcupado] = useState(false)
@@ -149,16 +158,19 @@ function BotonGuardar({
     setActivo(siguiente)
     setOcupado(true)
     try {
-      const respuesta = await fetch(`${API}/api/v1/mi/favoritos${siguiente ? '' : `/${slug}`}`, {
-        method: siguiente ? 'POST' : 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sesion.acceso}`,
+      const respuesta = await fetch(
+        `${API}/api/v1/mi/favoritos${siguiente ? '' : `/${negocioId}`}`,
+        {
+          method: siguiente ? 'POST' : 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${sesion.acceso}`,
+          },
+          body: siguiente ? JSON.stringify({ negocio_id: negocioId }) : undefined,
         },
-        body: siguiente ? JSON.stringify({ slug }) : undefined,
-      })
+      )
       if (!respuesta.ok) throw new Error('no')
-      onGuardar(slug, siguiente)
+      onGuardar(negocioId, siguiente)
     } catch {
       setActivo(!siguiente)
     } finally {

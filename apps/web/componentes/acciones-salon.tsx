@@ -12,7 +12,15 @@ import { API, leerSesion } from '@/lib/sesion'
  *
  * Guardar sin sesión no da un error: lleva a entrar y vuelve a esta misma ficha.
  */
-export function AccionesDeSalon({ slug, nombre }: { slug: string; nombre: string }) {
+export function AccionesDeSalon({
+  negocioId,
+  slug,
+  nombre,
+}: {
+  negocioId: string
+  slug: string
+  nombre: string
+}) {
   const [guardado, setGuardado] = useState(false)
   const [ocupado, setOcupado] = useState(false)
   const [copiado, setCopiado] = useState(false)
@@ -22,9 +30,11 @@ export function AccionesDeSalon({ slug, nombre }: { slug: string; nombre: string
     if (!sesion) return
     fetch(`${API}/api/v1/mi/favoritos`, { headers: { Authorization: `Bearer ${sesion.acceso}` } })
       .then((r) => (r.ok ? r.json() : []))
-      .then((lista: { slug: string }[]) => setGuardado(lista.some((f) => f.slug === slug)))
+      .then((lista: { negocio_id: string }[]) =>
+        setGuardado(lista.some((f) => f.negocio_id === negocioId)),
+      )
       .catch(() => {})
-  }, [slug])
+  }, [negocioId])
 
   async function alternarGuardado() {
     const sesion = leerSesion()
@@ -37,14 +47,14 @@ export function AccionesDeSalon({ slug, nombre }: { slug: string; nombre: string
     setOcupado(true)
     try {
       const respuesta = await fetch(
-        `${API}/api/v1/mi/favoritos${siguiente ? '' : `/${slug}`}`,
+        `${API}/api/v1/mi/favoritos${siguiente ? '' : `/${negocioId}`}`,
         {
           method: siguiente ? 'POST' : 'DELETE',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${sesion.acceso}`,
           },
-          body: siguiente ? JSON.stringify({ slug }) : undefined,
+          body: siguiente ? JSON.stringify({ negocio_id: negocioId }) : undefined,
         },
       )
       if (!respuesta.ok) throw new Error('no')

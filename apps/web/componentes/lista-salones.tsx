@@ -23,8 +23,8 @@ export function ListaSalones({ salones }: { salones: SalonEnLista[] }) {
       setGuardados(new Set())
       return
     }
-    conSesion<{ slug: string }[]>('/api/v1/mi/favoritos', { token: sesion.acceso })
-      .then((lista) => setGuardados(new Set(lista.map((f) => f.slug))))
+    conSesion<{ negocio_id: string }[]>('/api/v1/mi/favoritos', { token: sesion.acceso })
+      .then((lista) => setGuardados(new Set(lista.map((f) => f.negocio_id))))
       // Que fallen los guardados no puede tumbar la lista: se queda sin corazones marcados.
       .catch(() => setGuardados(new Set()))
   }, [])
@@ -35,12 +35,12 @@ export function ListaSalones({ salones }: { salones: SalonEnLista[] }) {
         <FichaSalon
           key={s.slug}
           salon={s}
-          guardado={guardados?.has(s.slug)}
-          onGuardar={(slug, ahora) =>
+          guardado={s.negocio_id ? guardados?.has(s.negocio_id) : false}
+          onGuardar={(negocioId, ahora) =>
             setGuardados((previos) => {
               const siguiente = new Set(previos ?? [])
-              if (ahora) siguiente.add(slug)
-              else siguiente.delete(slug)
+              if (ahora) siguiente.add(negocioId)
+              else siguiente.delete(negocioId)
               return siguiente
             })
           }

@@ -85,6 +85,10 @@ export default function Agenda() {
 
   return (
     <div className="contenedor">
+        {/* El título va oculto y no impreso: la barra de días de debajo ya dice de qué va la
+            pantalla, pero sin un h1 quien navega con lector de pantalla no sabe dónde está. */}
+        <h1 className="oculto-visualmente">Agenda del salón</h1>
+
         {/* Una sola barra de contexto. Cada barra fija que se añade es una cita menos en
             pantalla, y en un teléfono eso se nota enseguida. */}
         <nav aria-label="Cambiar de día" className="dias">

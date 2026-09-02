@@ -70,8 +70,9 @@ export default function Favoritos() {
               key={s.slug}
               salon={s}
               guardado
-              onGuardar={(slug, ahora) => {
-                if (!ahora) setSalones((previos) => (previos ?? []).filter((x) => x.slug !== slug))
+              onGuardar={(negocioId, ahora) => {
+                if (!ahora)
+                  setSalones((previos) => (previos ?? []).filter((x) => x.negocio_id !== negocioId))
               }}
             />
           ))}

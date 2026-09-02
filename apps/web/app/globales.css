@@ -1539,3 +1539,91 @@ textarea.entrada { resize: vertical; min-height: 7rem; line-height: var(--tipogr
   border-left: 3px solid var(--color-borde-fuerte);
   font-size: var(--tipografia-tamano-menor);
 }
+
+/* ── Consola de M2G ────────────────────────────────────────────────────────── */
+
+/* La consola se distingue del panel de un salón desde el primer vistazo: aquí se suspenden
+   negocios de personas reales y no puede parecer la misma pantalla. */
+.marca-consola {
+  font-family: var(--tipografia-familia-display);
+  font-weight: var(--tipografia-pesos-display);
+  font-stretch: var(--tipografia-ancho-rotulo);
+  letter-spacing: 0.04em;
+  color: var(--color-tinta);
+  text-decoration: none;
+}
+.app--consola .app__barra { background: var(--color-tinta); color: var(--color-papel); }
+.app--consola .marca-consola,
+.app--consola .app__contexto { color: var(--color-papel); }
+.app--consola .app__barra .boton--llano { color: var(--color-papel); }
+
+.acceso-consola { min-height: 100dvh; display: grid; place-items: center; padding: var(--espacio-5); }
+.acceso-consola__caja {
+  width: min(24rem, 100%);
+  padding: var(--espacio-6);
+  background: var(--color-lienzo);
+  border: 2px solid var(--color-tinta);
+}
+
+.estado--consola-publicado { background: var(--color-exito-suave); color: var(--color-exito); }
+.estado--consola-borrador { background: var(--color-aviso-suave); color: var(--color-aviso); }
+.estado--consola-suspendido { background: var(--color-peligro-suave); color: var(--color-peligro); }
+.estado--consola-publicado,
+.estado--consola-borrador,
+.estado--consola-suspendido {
+  display: inline-block;
+  padding: 1px var(--espacio-2);
+  border-radius: var(--radio-control);
+  font-size: var(--tipografia-tamano-micro);
+  font-weight: var(--tipografia-pesos-medio);
+}
+
+.reportes { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--espacio-4); }
+.reporte { padding: var(--espacio-4); background: var(--color-lienzo); border: 1px solid var(--color-borde); }
+.reporte__cabeza { display: flex; flex-wrap: wrap; gap: var(--espacio-3); align-items: baseline; }
+.reporte__texto { margin-top: var(--espacio-2); }
+
+.cifras-clave {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px;
+  background: var(--color-borde);
+  border: 1px solid var(--color-borde);
+  margin-bottom: var(--espacio-5);
+}
+.cifra-clave { padding: var(--espacio-4); background: var(--color-lienzo); display: grid; gap: var(--espacio-1); }
+.cifra-clave__valor { line-height: 1; }
+.cifra-clave__titulo { font-size: var(--tipografia-tamano-menor); color: var(--color-tinta-suave); }
+
+/* Una serie dibujada con divs. Una librería de gráficas son cientos de kilobytes para pintar
+   treinta barras, y esto también se abre desde un teléfono. */
+.serie {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 120px;
+  margin-top: var(--espacio-4);
+  padding: 0;
+  list-style: none;
+}
+.serie__barra { flex: 1; height: 100%; display: flex; align-items: flex-end; min-width: 3px; }
+.serie__barra > span {
+  width: 100%;
+  min-height: 2px;
+  background: var(--color-acento);
+  transition: height var(--movimiento-normal) var(--movimiento-curva);
+}
+.serie__barra:hover > span { background: var(--color-abre); }
+
+.peso { display: grid; gap: var(--espacio-2); }
+.peso__etiqueta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--espacio-3);
+  font-weight: var(--tipografia-pesos-medio);
+  font-size: var(--tipografia-tamano-menor);
+}
+.peso__valor { font-weight: var(--tipografia-pesos-fuerte); }
+.peso input[type='range'] { width: 100%; accent-color: var(--color-acento); height: var(--espacio-toque-minimo); }
+.peso__explicacion { font-size: var(--tipografia-tamano-menor); color: var(--color-tinta-suave); }
