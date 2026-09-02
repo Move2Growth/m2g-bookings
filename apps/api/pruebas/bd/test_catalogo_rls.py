@@ -16,9 +16,21 @@ from sqlalchemy import text
 
 pytestmark = pytest.mark.bd
 
-#: Tablas que llevan `business_id` como **referencia** y no como marca de propiedad, si las
-#: hubiera. Vaciar esta lista es lo correcto; cada excepción hay que justificarla aquí mismo.
-EXCEPCIONES: set[str] = set()
+#: Tablas que llevan `business_id` como **referencia a un negocio** y no como marca de
+#: propiedad. Son de la plataforma, no de ningún salón, y aislarlas por negocio sería un error:
+#: dejaría a cada persona sin ver lo suyo.
+#:
+#: Cada excepción se justifica aquí mismo y se contrasta con la columna «RLS» del modelo de
+#: datos. La lista tiene que quedarse corta: si crece, lo que está pasando es que alguien la usa
+#: para silenciar la prueba en vez de escribir la política.
+EXCEPCIONES: set[str] = {
+    # Los negocios que una persona guardó (MKT-5). La fila es del cliente, no del salón: si se
+    # aislara por negocio, nadie vería su propia lista de favoritos.
+    "favorites",
+    # Qué avisos quiere recibir cada persona (NTF-3). Mismo caso: la preferencia es de quien la
+    # configura, y el `business_id` solo dice a qué negocio se refiere.
+    "notification_preferences",
+}
 
 
 async def test_toda_tabla_con_business_id_tiene_seguridad_por_fila(sesion):

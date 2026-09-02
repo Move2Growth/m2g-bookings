@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+import sys
 import uuid
 from collections.abc import AsyncIterator, Iterator
 
@@ -48,8 +49,11 @@ def migraciones_aplicadas() -> Iterator[None]:
     encargo, no un detalle: si solo se probaran de forma incremental, el día que alguien monte
     el entorno nuevo descubriría que la primera migración nunca funcionó sola.
     """
+    # Se llama a Alembic con **este mismo intérprete**, no con el `alembic` del PATH: si el
+    # entorno virtual no está activado, el del sistema no tiene ni las dependencias ni los
+    # modelos, y el fallo que sale no se parece en nada al problema real.
     resultado = subprocess.run(
-        ["alembic", "upgrade", "head"],
+        [sys.executable, "-m", "alembic", "upgrade", "head"],
         env={**os.environ, "DATABASE_URL_MIGRACIONES": URL_DUENO},
         capture_output=True,
         text=True,
