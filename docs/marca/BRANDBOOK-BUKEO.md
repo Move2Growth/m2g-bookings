@@ -159,24 +159,78 @@ de 16 px: por debajo, iOS hace zoom al enfocar y descuadra la pantalla sin que n
 
 ## 07 · UI y aplicaciones
 
-**La regla de forma, y se cumple entera:** superficies y bloques de color a canto vivo,
-controles a 4 px, y **nada con forma de píldora**. Nada de todo redondeado.
+> Este apartado era prosa —«canto vivo», «sin sombras decorativas», «listas con filete»— y por
+> eso el código pudo alejarse durante semanas sin que saltara nada: **un párrafo no se puede
+> contrastar con una pantalla**. Ahora dice piezas, medidas y números que se comprueban.
 
-**El filo.** La línea de 6 px en naranja que corta la página entre bloques. Es lo que en un
-rótulo es el canto de la chapa: separa sin dibujar una caja alrededor de nada.
+### La regla de la forma
 
-**Sin sombras decorativas.** La sombra se reserva para lo que de verdad flota: un menú, una hoja
-modal. Lo demás se separa con bloque de color, filo o aire.
+**Con canto se toca. Sin canto se lee.** (ADR-0017)
 
-**El foco no es del color de marca.** El anillo va en tinta noche sobre fondo claro y en cal
-dentro de los bloques oscuros. En azul se quedaba en 2:1 justo encima del bloque azul y del
-botón naranja, que son los dos sitios donde más se pulsa.
+| Pieza | Canto | Qué significa |
+|---|---|---|
+| Botón que abre o cierra | 4 px | La acción principal de la pantalla |
+| Botón secundario, ficha de filtro, chapa de hora | 3 px | Se toca, no manda |
+| Botón llano | 2 px, mordida de 10 px | Se toca y casi no pesa |
+| Sello de estado, fila de lista, panel | 0 | **No se toca**: se lee |
 
-**Densidad.** Listas con filete entre filas en vez de una tarjeta por elemento: en un teléfono
-caben tres salones más por pantalla, y lo que se compara en una lista son los nombres.
+El canto es un zócalo macizo **dentro** de la caja, dibujado con `currentColor` y al que le
+faltan los últimos **14 px** por la derecha. Esa mordida es la muesca calada del icono, tumbada:
+es lo que hace que un control de Bukeo se reconozca con el texto tapado.
 
-**Movimiento.** Contenido a propósito, porque esto se usa en 3G: transiciones de 140 a 220 ms en
-lo que se toca y nada que se mueva solo. Todo se apaga con `prefers-reduced-motion`.
+Al pasar por encima el canto crece a 6 px, la chapa se levanta. Al pulsar se lo traga y el
+contenido baja 2 px. **La altura total no cambia**: 48 px en reposo, al pulsar y apagado.
+
+### Lo que separa
+
+Color, filo o aire. **Nunca un filete que no llegue a 3:1.** El filete de `--color-borde` medía
+1,29:1 y se retiró de toda la hoja de estilos: donde de verdad separa se usa
+`--color-borde-fuerte` (3,88:1), y donde dibujaba una caja alrededor de algo, desaparece. Una
+caja con filete es una tarjeta, y aquí no hay tarjetas.
+
+El **filo** es la barra de 6 px que corta la página entre bloques y marca lo elegido. En naranja
+cuando separa secciones; en tinta cuando marca una ficha o una pestaña.
+
+### Las piezas, y dónde vive cada una
+
+| Pieza | Dónde | Regla propia |
+|---|---|---|
+| **El rótulo** | Ficha de salón sin foto, celda de categoría, sello de la lista | Nombre entero a tamaño de cartel, trama del oficio como máscara y par de color. **El par vive en el elemento que lleva el texto**, no en el rótulo (ADR-0018) |
+| **La fila de salón** | Buscador y guardados | Es una fila, no una tarjeta. Termina en la próxima hora libre, en chapa con canto |
+| **La rejilla de horas** | Ficha de salón | Dentro de un bloque azul a sangre: elegir la hora es lo que cierra |
+| **La barra del armazón** | Panel y consola | Tinta con filo naranja y el nombre en ancho de rótulo |
+| **La barra de pestañas** | Panel, consola, área de la clienta | Abajo en el teléfono, donde llega el pulgar; fila bajo la cabecera en escritorio. La activa se marca con filo, no con relleno |
+| **Los iconos** | Toda la navegación | Dibujados aquí, no de librería. Remate a escuadra y ángulo vivo como el wordmark, trazo de 2 sobre caja de 24 en coordenadas enteras |
+
+### Los tres anchos, y dónde se gasta cada uno
+
+- **Rótulo, 112 %:** titulares, nombre del salón, nombre de la categoría, contexto de la barra.
+- **Texto, 100 %:** cuerpo e interfaz.
+- **Cifra, 125 %:** **todas** las horas, duraciones y precios. Este producto es horas y precios:
+  el ancho de cifra estaba declarado y sin gastar, y ese era el gesto propio que faltaba.
+- **Estrecho, 87 %:** la segunda línea de una fila, las etiquetas en versalita y los datos que
+  acompañan sin competir.
+
+### Movimiento
+
+Tres gestos y ninguno más: **entra** (lo nuevo sube dos píxeles), **escalonado** (una lista entra
+fila a fila, cortado a las diez) y **hoja** (sube desde abajo, que es de donde viene el pulgar).
+El canto es el cuarto y no cuenta: es el propio control respondiendo. La única animación en
+bucle es el brillo del esqueleto, cuyo trabajo es justamente decir «esto sigue pasando». Todo se
+apaga con `prefers-reduced-motion`.
+
+### Cómo se comprueba que esto se cumple
+
+Tres medidas, y las tres se pueden repetir:
+
+1. **Contraste en las páginas de verdad**, con el color calculado y el fondo real:
+   `node scripts/verificar-contraste-en-pantalla.mjs`. Recorre veintidós pantallas, **incluidas
+   las que hay detrás del acceso**, y sale con error si algo baja de AA. Si no puede entrar, no
+   da el visto bueno: lo cuenta como fallo.
+2. **Reparto de color por superficie**, con el script de
+   [`docs/marca/revision-2/medicion-del-color.md`](../marca/revision-2/medicion-del-color.md).
+3. **Filetes por debajo de 3:1**: tienen que ser cero. `grep -c "var(--color-borde)"` sobre
+   `globales.css`.
 
 **Dónde vive esto en el código:** [`packages/tokens/tokens.json`](../../packages/tokens/tokens.json)
 son los valores y `apps/web/app/globales.css` la capa de componentes. En esa capa no hay ni un
