@@ -1,28 +1,53 @@
 /**
- * El wordmark de Bukeo y su ícono.
+ * El wordmark de Bukeo.
  *
- * El símbolo es **el hueco**: un bloque sólido con una muesca abierta. Es literalmente lo que
- * vende el producto, la hora que sí está libre, y funciona a 16 px porque son dos formas
- * geométricas y nada más.
+ * Está dibujado a trazo, con las letras construidas como geometría y no como tipografía: así el
+ * logotipo no depende de que una fuente cargue, se pinta con `currentColor` y funciona igual en
+ * tinta sobre cal, en cal sobre tinta y sobre un bloque de color.
  *
- * Se dibuja con `currentColor` para que herede el color del contexto: sobre papel es tinta,
- * sobre una sección oscura es papel, y no hacen falta tres archivos de logo.
+ * Un solo archivo y ninguna versión invertida. Una versión invertida a mano es una versión que
+ * alguien acaba usando en el sitio equivocado.
  */
 
-export function Icono({ alto = 24 }: { alto?: number }) {
+export function Marca({ alto = 26 }: { alto?: number }) {
   return (
     <svg
-      viewBox="0 0 24 24"
+      viewBox="0 0 304 96"
       height={alto}
-      width={alto}
       role="img"
       aria-label="Bukeo"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+      stroke="currentColor"
+      strokeWidth={13}
+      strokeLinecap="square"
+      strokeLinejoin="miter"
+      style={{ width: 'auto', display: 'block' }}
     >
-      {/* Un solo trazado con regla par-impar: el hueco queda **calado**, no pintado del color
-          del fondo. Es lo que hace que el símbolo funcione igual sobre papel, sobre tinta y
-          sobre una foto, con un solo archivo y sin versiones invertidas. */}
+      <path d="M20 16 V80" />
+      <path d="M20 16 H36 A16 16 0 0 1 36 48 H20" />
+      <path d="M20 48 H36 A16 16 0 0 1 36 80 H20" />
+      <path d="M78 16 V64 A16 16 0 0 0 110 64 V16" />
+      <path d="M136 16 V80" />
+      <path d="M168 16 L136 48" />
+      <path d="M136 48 L168 80" />
+      <path d="M194 16 V80" />
+      <path d="M194 16 H224" />
+      <path d="M194 48 H218" />
+      <path d="M194 80 H224" />
+      <ellipse cx="264" cy="48" rx="20" ry="32" />
+    </svg>
+  )
+}
+
+/**
+ * El símbolo para cuando no cabe el wordmark: favicon, avatar, sello. Es **el hueco**, que es
+ * literalmente lo que vende el producto, la hora que sí está libre en una jornada llena. Va
+ * calado con regla par-impar y no pintado del color del fondo, para que se sostenga sobre
+ * cualquier cosa.
+ */
+export function Icono({ alto = 24 }: { alto?: number }) {
+  return (
+    <svg viewBox="0 0 24 24" height={alto} width={alto} role="img" aria-label="Bukeo" fill="none">
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -30,33 +55,5 @@ export function Icono({ alto = 24 }: { alto?: number }) {
         fill="currentColor"
       />
     </svg>
-  )
-}
-
-export function Marca({ alto = 22 }: { alto?: number }) {
-  return (
-    <span
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '0.45em',
-        // Hereda el color del contexto: sobre papel es tinta y sobre una sección oscura es
-        // papel, sin necesidad de un segundo logotipo.
-        color: 'currentColor',
-      }}
-    >
-      <Icono alto={alto} />
-      <span
-        style={{
-          fontFamily: 'var(--tipografia-familia-display)',
-          fontWeight: 'var(--tipografia-pesos-display)',
-          fontSize: `${alto * 0.95}px`,
-          letterSpacing: '-0.03em',
-          lineHeight: 1,
-        }}
-      >
-        bukeo
-      </span>
-    </span>
   )
 }

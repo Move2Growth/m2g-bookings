@@ -19,6 +19,10 @@ export type Sesion = {
   refresco: string
   usuario_id: string
   negocio_activo: string | null
+  /** El nombre del salón activo. No lo devuelve el token: se guarda al cambiar de contexto,
+   *  porque un panel que no dice en qué salón estás es un panel en el que se apunta una cita
+   *  en la agenda equivocada. */
+  negocio_nombre?: string | null
 }
 
 export function guardarSesion(sesion: Sesion): void {

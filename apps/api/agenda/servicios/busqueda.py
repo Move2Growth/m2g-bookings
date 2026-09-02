@@ -124,6 +124,7 @@ async def buscar(
 
     pesos = await _pesos_vigentes(sesion)
     senales = await _senales(sesion, [fila.id for fila in filas])
+    desde = await _precio_desde(sesion, [fila.id for fila in filas])
 
     resultados: list[Resultado] = []
     for fila in filas:
@@ -154,14 +155,14 @@ async def buscar(
                 rating=float(precalculadas.rating_bayesian)
                 if precalculadas and precalculadas.rating_bayesian
                 else None,
-                desde_centavos=None,
+                desde_centavos=desde.get(fila.id),
                 puntuacion=puntuacion,
             )
         )
 
     resultados.sort(key=lambda r: r.puntuacion.total if r.puntuacion else 0, reverse=True)
-    desde = (pagina - 1) * POR_PAGINA
-    return resultados[desde : desde + POR_PAGINA]
+    primero = (pagina - 1) * POR_PAGINA
+    return resultados[primero : primero + POR_PAGINA]
 
 
 def _punto(longitud: float, latitud: float):
@@ -235,3 +236,26 @@ async def _senales(
         .all()
     )
     return {fila.business_id: fila for fila in filas}
+
+
+async def _precio_desde(
+    sesion: AsyncSession, negocios: list[uuid.UUID]
+) -> dict[uuid.UUID, int | None]:
+    """El precio más bajo de cada negocio, en una consulta para todos.
+
+    Una lista de salones sin precio obliga a entrar en cada ficha para descartarla, que es
+    justo lo que hace que la gente vuelva a WhatsApp. Va en centavos, como todo lo demás:
+    formatear es cosa de quien pinta.
+    """
+    if not negocios:
+        return {}
+    filas = await sesion.execute(
+        select(Service.business_id, func.min(Service.price_minor))
+        .where(
+            Service.business_id.in_(negocios),
+            Service.active.is_(True),
+            Service.price_minor.is_not(None),
+        )
+        .group_by(Service.business_id)
+    )
+    return {negocio: precio for negocio, precio in filas.all()}

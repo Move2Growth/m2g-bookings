@@ -111,9 +111,7 @@ async def encolar_recordatorios_de_negocio(
                 usuario_id=reserva.client_user_id,
             )
             if not decision.hay_que_mandar:
-                registro.info(
-                    "recordatorio de %s no encolado (%s)", reserva.id, decision.motivo
-                )
+                registro.info("recordatorio de %s no encolado (%s)", reserva.id, decision.motivo)
                 continue
 
             creada = await encolar(

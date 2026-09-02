@@ -174,7 +174,7 @@ function Grupo({
               key={cita.id}
               className="panel"
             >
-              <p className="cifras" style={{ fontWeight: 'var(--tipografia-pesos-fuerte)', textTransform: 'capitalize' }}>
+              <p className="cifras primera-mayuscula" style={{ fontWeight: 'var(--tipografia-pesos-fuerte)' }}>
                 {cuando}
               </p>
               <p style={{ marginTop: 'var(--espacio-1)' }}>

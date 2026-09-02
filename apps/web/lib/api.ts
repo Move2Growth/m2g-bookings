@@ -100,6 +100,7 @@ export type ResultadoDeBusqueda = {
   zona: string | null
   distancia_metros: number | null
   rating: number | null
+  servicios_desde_centavos: number | null
   patrocinado: boolean
 }
 

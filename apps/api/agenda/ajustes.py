@@ -32,8 +32,7 @@ class Ajustes(BaseSettings):
     # u otro es cuestión de qué escribió la persona en la barra. Faltando uno, la pantalla
     # carga pero ninguna petición sale, que es de los fallos más desconcertantes que hay.
     origenes_permitidos: str = (
-        "http://localhost:3000,http://localhost:3100,"
-        "http://127.0.0.1:3000,http://127.0.0.1:3100"
+        "http://localhost:3000,http://localhost:3100," "http://127.0.0.1:3000,http://127.0.0.1:3100"
     )
 
     # Panamá no tiene horario de verano, pero el instante se guarda en UTC igual: el modelo

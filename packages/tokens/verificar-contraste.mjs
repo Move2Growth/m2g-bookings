@@ -51,6 +51,12 @@ for (const [modo, p] of [["claro", claro], ["oscuro", oscuro]]) {
     // deja de existir para quien la necesita.
     [`anillo de foco sobre papel (${modo})`, p.foco, p.papel, 3],
     [`borde fuerte sobre papel (${modo})`, p["borde-fuerte"], p.papel, 3],
+    // El naranja **abre** y por eso siempre es fondo con tinta encima. No se comprueba como
+    // color de texto sobre claro a propósito: ahí no llega, y esa es justo la razón de que la
+    // regla de marca diga que nunca lo sea.
+    [`texto sobre el naranja que abre (${modo})`, p["abre-texto"], p.abre, 4.5],
+    [`texto sobre el naranja al pasar (${modo})`, p["abre-texto"], p["abre-hover"], 4.5],
+    [`texto del acento sobre el acento al pasar (${modo})`, p["acento-texto"], p["acento-hover"], 4.5],
   );
 }
 

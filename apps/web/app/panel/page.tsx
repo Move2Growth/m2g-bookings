@@ -105,6 +105,11 @@ export default function Panel() {
         <Link href="/" aria-label="Bukeo, inicio">
           <Marca alto={20} />
         </Link>
+        {sesion?.negocio_nombre && (
+          <span className="panel-app__salon" title={sesion.negocio_nombre}>
+            {sesion.negocio_nombre}
+          </span>
+        )}
         <button
           className="boton boton--llano"
           onClick={() => {
@@ -124,7 +129,7 @@ export default function Panel() {
             ←
           </button>
           <div>
-            <strong style={{ textTransform: 'capitalize' }}>
+            <strong className="primera-mayuscula">
               {dia === 0 ? 'Hoy, ' : ''}
               {fecha.format(inicioDelDia(dia))}
             </strong>

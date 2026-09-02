@@ -2,7 +2,7 @@
 
 > **La marca no se eligió a ojo.** Tres direcciones independientes compitieron con prototipos
 > comparables y tres críticos con lentes distintas intentaron tumbarlas. Este documento cuenta
-> qué pasó, qué se llevó cada una y por qué lo que se construyó no es ninguna de las tres.
+> qué pasó, qué se llevó cada una y por qué se construyó la **dirección B**.
 
 ---
 
@@ -35,11 +35,11 @@ Los tres prototipos están en [`propuestas/`](propuestas/) y se abren en el nave
 proceso: es la señal de que la primera versión de cualquiera de las tres habría salido con
 defectos que nadie mira cuando solo hay una propuesta.
 
-| | Tells y vetos | Negocio y verdad |
-|---|---|---|
-| **A** | Rechazada: declaró un contraste de 16,4:1 que en realidad era 15,28:1 | Aceptable con condiciones: la única que sigue siendo verdad con cero salones |
-| **B** | Aceptable con condiciones: la única sin un solo número inventado | Rechazada: el único salón que enseñaba iba etiquetado como patrocinado |
-| **C** | Rechazada: cifras inventadas en portada y 47 etiquetas en versalita | Rechazada: «418 salones publicados» en un producto con cero usuarios |
+| | Tells y vetos | Accesibilidad y 3G | Negocio y verdad |
+|---|---|---|---|
+| **A** | Rechazada: declaró un contraste de 16,4:1 que en realidad era 15,28:1 | Rechazada: dibuja su estructura con 23 filetes a 1,31:1 | Aceptable con condiciones: la única que sigue siendo verdad con cero salones |
+| **B** | Aceptable con condiciones: la única sin un solo número inventado | **Aceptable con condiciones**: 3 fallos en 50, y dos ornamentales | Rechazada: el único salón que enseñaba iba etiquetado como patrocinado |
+| **C** | Rechazada: cifras inventadas en portada y 47 etiquetas en versalita | Rechazada: 9 `div role="button"` sin JavaScript y 169 nodos por debajo de 14 px | Rechazada: «418 salones publicados» en un producto con cero usuarios |
 
 **El hallazgo estructural lo dio el crítico de tells, y no era de ninguna dirección: era del
 encargo.** Las tres cumplieron al pie de la letra todo lo que se les prohibió por escrito, y las
@@ -50,15 +50,25 @@ rotulada «Barbería en El Cangrejo».
 
 ## 3. Qué se construyó
 
-**Base: la dirección A.** Es la única que aguanta la prueba que importa hoy, que es funcionar
-con el marketplace vacío: no hay ni una cifra de escala, la ficha se presenta como demostración
-y con tres salones la página sigue siendo verdad palabra por palabra. Y su lenguaje, papel y
-tinta con canto vivo, es el que encaja con los vetos de la casa.
+**La dirección B, «bloque de color panameño». La eligió Luis**, y coincide con la única de las
+tres que el crítico de accesibilidad dio por aceptable. Esa coincidencia no es casualidad: la
+razón por la que gusta y la razón por la que pasa la auditoría son la misma. **El color es la
+estructura.** No hay filetes finos que distinguir ni retícula que adivinar; hay un rectángulo
+azul, un rectángulo naranja y bordes negros de 2 px. Cuando el sol de mediodía aplasta el rango
+de contraste de un teléfono, lo primero que desaparece son las diferencias pequeñas, y aquí no
+hay ninguna que perder.
 
-**De la B se toma la frase que desmonta el escepticismo** y que ninguna otra encontró: *«Sin
-comisión por reserva. Ni ahora, ni cuando tengas la agenda llena.»* El miedo de la dueña de un
-salón no es pagar hoy, es que le cobren cuando funcione. También se toma su disciplina de medir
-en vez de declarar.
+Su lenguaje es el del **rótulo de un local**, no el de un panel de control: tipografía ancha
+haciendo de imagen y secciones planas a sangre.
+
+**De la B se toma también la frase que desmonta el escepticismo** y que ninguna otra encontró:
+*«Sin comisión por reserva. Ni ahora, ni cuando tengas la agenda llena.»* El miedo de la dueña
+de un salón no es pagar hoy, es que le cobren cuando funcione.
+
+**De la A se toma su honestidad con el marketplace vacío**, que era su mejor argumento y el
+fallo por el que a B la rechazó el crítico de negocio: en el producto **no hay ni una cifra de
+escala inventada, y el único salón que se enseña no va etiquetado como patrocinado**. Con tres
+salones publicados la página sigue siendo verdad palabra por palabra.
 
 **De la C se toma su mejor argumento de venta, que no era una sección sino una pantalla**: la
 agenda del salón. En vez de contarla, el producto la enseña; es lo primero que ve un dueño al
@@ -69,21 +79,38 @@ no de banco: manos trabajando, luz de mediodía, oficio. Solo dos categorías ll
 solo hay dos fotos buenas; las otras seis son celdas tipográficas, que es más honesto que una
 imagen genérica y además pesa cero en 3G.
 
-## 4. Dos desvíos deliberados respecto de la A
+## 4. Las cinco condiciones de la auditoría, aplicadas
 
-**El acento no es el achiote de la A, es fucsia.** El acento aquí tiene un trabajo concreto:
-marcar lo accionable, sobre todo la hora reservable. La fotografía de este producto está llena
-de tonos de piel, cabello y madera, es decir, de naranjas y rojos: un acento en esa misma
-familia compite con las fotos y desaparece encima de ellas. Un fucsia profundo se separa de todo
-eso, se lee sobre papel y sobre foto, y no se confunde con ningún estado del sistema.
+La accesibilidad no aprobó la B a secas: la aprobó con cinco condiciones. Están las cinco en el
+producto, no en el prototipo:
 
-**La tipografía es Outfit para titulares y Geist para interfaz**, en vez del par de la A. Outfit
-tiene carácter geométrico a tamaño de cartel sin caer en ninguna de las vetadas, y Geist trae
-cifras tabulares de verdad, que en una agenda no es un detalle: son las columnas de horas.
+1. **El anillo de foco ya no es azul.** Va en tinta noche sobre claro y en cal dentro de los
+   bloques oscuros. En azul se quedaba en 2,07:1 encima del bloque azul y del botón naranja.
+2. **Lo que se toca no se delimita con un filete de 1,15:1.** Fichas de filtro y controles pasan
+   a borde fuerte, que es el mínimo de 3:1 que pide AA para un elemento de interfaz.
+3. **44 px de alto en todo lo pulsable**, enlaces del pie y logotipo incluidos. Lo único que
+   queda por debajo son los enlaces dentro de un párrafo, que es la excepción que la propia
+   norma contempla.
+4. **Las fotos se sirven con `srcset` y carga diferida**, que lo resuelve `next/image` sin
+   escribir una línea. Solo la de portada se carga con prioridad, porque es la que mide el LCP.
+5. **El buscador lleva etiqueta visible** y todos los campos van a 16 px. Un marcador de
+   posición desaparece al escribir y deja el campo sin nombre justo cuando hay que corregir.
 
-## 5. Lo que queda anotado
+## 5. Un desvío deliberado: la tipografía
+
+La B llegó con dos familias. El producto va con **una sola, Archivo Variable, y tres anchos**:
+112 % para rótulo, 100 % para texto y 125 % para cifras. El contraste que en la propuesta daba
+el salto de familia lo da aquí el eje de anchura, y sale **una petición de red en vez de dos**,
+que en 3G es la diferencia que el propio crítico midió entre 5 s y 11 s de carga.
+
+## 6. Lo que queda anotado
 
 - El proceso adversarial **funcionó y hay que repetirlo** cuando toque la app: dos de los tres
   autores corrigieron su propia propuesta después de leer la crítica del otro.
 - **Los prototipos se quedan en el repositorio.** No son basura: son el registro de qué se
   descartó y por qué, y la próxima discusión de identidad empieza ahí y no de cero.
+- **El crítico de accesibilidad y el director coincidieron sin hablarse.** Cuando la lente
+  estética y la medida técnica apuntan a la misma propuesta, la decisión está más asentada que
+  cuando solo apunta una.
+- **De C queda pendiente su perfil de carga**, que era el mejor de los tres por más del doble.
+  Está anotado en el tablero, no aquí.

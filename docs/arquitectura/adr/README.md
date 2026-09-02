@@ -42,3 +42,4 @@
 | [0013](0013-design-system-propio-mobile-first.md) | Design system propio, mobile-first, con tokens | aceptada | Se diseña a 390 px primero; modo claro por defecto; tokens como fuente única |
 | [0014](0014-entorno-local-migraciones-y-seed.md) | Entorno local de un comando, migraciones desde cero y seed real | aceptada | Lo que hay que dejar impecable para que el despliegue de Luis no adivine nada |
 | [0015](0015-la-marca-es-bukeo.md) | La marca es Bukeo | aceptada | Supera el «por definir» de D1. La identidad vive en el brandbook y se implementa en los tokens |
+| [0016](0016-la-direccion-visual-es-el-bloque-de-color.md) | La dirección visual es el bloque de color | aceptada | El color es la estructura. El naranja abre y el azul cierra, y nunca compiten en el mismo botón |

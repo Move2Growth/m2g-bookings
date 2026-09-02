@@ -132,7 +132,7 @@ function Contenido() {
         </div>
         <div>
           <dt style={etiqueta}>Cuándo</dt>
-          <dd style={{ ...valor, textTransform: 'capitalize' }} className="cifras">
+          <dd style={valor} className="cifras primera-mayuscula">
             {cuando}
           </dd>
         </div>
@@ -149,7 +149,7 @@ function Contenido() {
 
       {sesion ? (
         <>
-          <button onClick={confirmar} disabled={enviando} className="boton boton--primario boton--ancho">
+          <button onClick={confirmar} disabled={enviando} className="boton boton--cierra boton--ancho">
             {enviando ? 'Un momento…' : 'Confirmar la cita'}
           </button>
           <p
@@ -214,7 +214,11 @@ function Contenido() {
               )}
             </label>
           )}
-          <button type="submit" disabled={enviando} className="boton boton--primario boton--ancho">
+          <button
+            type="submit"
+            disabled={enviando}
+            className={`boton boton--ancho ${paso === 'telefono' ? 'boton--primario' : 'boton--cierra'}`}
+          >
             {enviando ? 'Un momento…' : paso === 'telefono' ? 'Mandarme el código' : 'Verificar'}
           </button>
         </form>

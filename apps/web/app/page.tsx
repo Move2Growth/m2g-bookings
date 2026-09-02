@@ -17,15 +17,18 @@ import { Pie } from '@/componentes/pie'
 // Solo dos categorías llevan foto, y son fotos de verdad. Poner una imagen genérica de banco
 // en las ocho es peor que no ponerla: se nota que no es el salón de nadie. Las demás son celdas
 // tipográficas, que además pesan cero en una red de 3G.
+// Cada categoría es un bloque de color plano, no una tarjeta. El ritmo lo pone el color y las
+// dos fotos que existen de verdad; una imagen genérica de banco en las ocho se nota más que no
+// ponerla, y además pesa en 3G.
 const CATEGORIAS = [
-  { nombre: 'Barbería', slug: 'barberia', foto: null },
-  { nombre: 'Peluquería', slug: 'peluqueria', foto: null },
-  { nombre: 'Uñas', slug: 'unas', foto: '/fotos/unas.webp' },
-  { nombre: 'Pestañas y cejas', slug: 'pestanas-cejas', foto: null },
-  { nombre: 'Maquillaje', slug: 'maquillaje', foto: null },
-  { nombre: 'Depilación', slug: 'depilacion', foto: null },
-  { nombre: 'Spa y masajes', slug: 'spa-masajes', foto: '/fotos/spa.webp' },
-  { nombre: 'Estética', slug: 'estetica', foto: null },
+  { nombre: 'Barbería', slug: 'barberia', tono: 'tinta', foto: null },
+  { nombre: 'Peluquería', slug: 'peluqueria', tono: 'azul', foto: null },
+  { nombre: 'Uñas', slug: 'unas', tono: 'foto', foto: '/fotos/unas.webp' },
+  { nombre: 'Pestañas y cejas', slug: 'pestanas-cejas', tono: 'naranja', foto: null },
+  { nombre: 'Maquillaje', slug: 'maquillaje', tono: 'azul', foto: null },
+  { nombre: 'Depilación', slug: 'depilacion', tono: 'cal', foto: null },
+  { nombre: 'Spa y masajes', slug: 'spa-masajes', tono: 'foto', foto: '/fotos/spa.webp' },
+  { nombre: 'Estética', slug: 'estetica', tono: 'tinta', foto: null },
 ]
 
 const ZONAS = [
@@ -94,7 +97,8 @@ export default function Portada() {
                 method="get"
                 action="/buscar"
                 style={{
-                  display: 'flex',
+                  display: 'grid',
+                  gridTemplateColumns: 'minmax(0, 1fr) auto',
                   gap: 'var(--espacio-2)',
                   marginTop: 'var(--espacio-5)',
                   maxWidth: '30rem',
@@ -102,15 +106,23 @@ export default function Portada() {
               >
                 {/* `minWidth: 0` no es cosmético: sin él el ancho intrínseco del campo impide
                     que encoja y la fila se sale de los 390 px. */}
-                <label className="campo" style={{ flex: 1, minWidth: 0 }}>
-                  <span className="oculto-visualmente">Qué buscas</span>
-                  <input
-                    className="entrada"
-                    type="search"
-                    name="texto"
-                    placeholder="Corte, balayage, uñas…"
-                  />
+                {/* La etiqueta se ve. Un marcador de posición desaparece al escribir y deja el
+                    campo sin nombre justo cuando hay que corregir lo escrito. */}
+                <label
+                  htmlFor="buscar-texto"
+                  className="etiqueta"
+                  style={{ gridColumn: '1 / -1', marginBottom: 'calc(var(--espacio-2) * -1)' }}
+                >
+                  Qué te quieres hacer
                 </label>
+                <input
+                  id="buscar-texto"
+                  className="entrada"
+                  type="search"
+                  name="texto"
+                  placeholder="Corte, balayage, uñas…"
+                  style={{ minWidth: 0 }}
+                />
                 <button type="submit" className="boton boton--primario">
                   Buscar
                 </button>
@@ -137,12 +149,12 @@ export default function Portada() {
 
         {/* Categorías. Rejilla con celdas de distinto peso: cuatro llevan foto y cuatro no, y
             eso ya da ritmo sin inventarse decoración. */}
-        <section className="seccion seccion--arena">
+        <section className="seccion filo">
           <div className="contenedor">
             <h2>Qué te vas a hacer hoy</h2>
             <ul className="categorias" style={{ marginTop: 'var(--espacio-5)' }}>
               {CATEGORIAS.map((c) => (
-                <li key={c.slug} className={c.foto ? 'categoria categoria--foto' : 'categoria'}>
+                <li key={c.slug} className={`categoria categoria--${c.tono}`}>
                   <Link href={`/buscar?categoria=${c.slug}`}>
                     {c.foto && (
                       <Image
@@ -162,19 +174,19 @@ export default function Portada() {
         </section>
 
         {/* La diferencia del producto, enseñada con el producto: una rejilla de horas real. */}
-        <section className="seccion">
+        <section className="seccion seccion--holgada seccion--azul">
           <div className="contenedor hero" style={{ alignItems: 'center' }}>
             <div>
               <p className="etiqueta">Lo que nos separa del WhatsApp</p>
               <h2 style={{ marginTop: 'var(--espacio-2)' }}>Horas que existen, no solicitudes</h2>
-              <p className="apagado medida" style={{ marginTop: 'var(--espacio-4)' }}>
+              <p className="medida" style={{ marginTop: 'var(--espacio-4)', opacity: 0.92 }}>
                 Cada hora que ves sale de cruzar el horario del salón con el de tu profesional y
                 restarle lo que ya está ocupado. Si aparece, es tuya al confirmar. Y si alguien
                 se adelanta por segundos, te lo decimos en el momento en vez de al día siguiente.
               </p>
             </div>
 
-            <div className="panel" aria-hidden="true">
+            <div className="panel panel--sobre-color" aria-hidden="true">
               <p className="tenue">Jueves 3 de septiembre</p>
               <p style={{ fontWeight: 'var(--tipografia-pesos-medio)', marginTop: 'var(--espacio-1)' }}>
                 Corte + barba, 45 min
@@ -194,13 +206,13 @@ export default function Portada() {
         </section>
 
         {/* Cómo funciona. Ritmo vertical numerado, no tres tarjetas iguales en fila. */}
-        <section className="seccion seccion--arena">
+        <section className="seccion">
           <div className="contenedor">
             <h2>Reservar lleva un minuto</h2>
             <ol className="pasos">
               {PASOS.map((paso, i) => (
                 <li key={paso.titulo}>
-                  <span className="pasos__numero cifras">{i + 1}</span>
+                  <span className="pasos__numero cifra-grande">{i + 1}</span>
                   <div>
                     <h3>{paso.titulo}</h3>
                     <p className="apagado" style={{ marginTop: 'var(--espacio-2)' }}>
@@ -251,7 +263,7 @@ export default function Portada() {
         </section>
 
         {/* Índice de zonas: enlaces internos de verdad, que es lo que indexa Google. */}
-        <section className="seccion">
+        <section className="seccion filo">
           <div className="contenedor">
             <h2>Busca por tu zona</h2>
             <ul className="tira" style={{ marginTop: 'var(--espacio-4)' }}>

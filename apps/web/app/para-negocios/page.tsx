@@ -91,16 +91,16 @@ export default function ParaNegocios() {
 
         {/* Dónde está el dinero, dicho antes de que lo pregunten. Es la sección que decide si
             alguien se registra o cierra la pestaña. */}
-        <section className="seccion seccion--arena">
-          <div className="contenedor" style={{ maxWidth: '46rem' }}>
+        <section className="seccion seccion--arena filo">
+          <div className="contenedor">
             <h2>Dónde está el truco</h2>
-            <p className="apagado" style={{ marginTop: 'var(--espacio-4)' }}>
+            <p className="apagado medida" style={{ marginTop: 'var(--espacio-4)' }}>
               En ningún sitio, y por eso conviene explicarlo. Bukeo gana cuando un salón quiere
               más clientas y compra aparecer primero en su categoría y su zona durante unos días.
               Es opcional, va siempre marcado como patrocinado, nunca esconde a los salones que
               no pagan y no toca la nota de nadie. Si nunca compras visibilidad, nunca pagas nada.
             </p>
-            <p className="tenue" style={{ marginTop: 'var(--espacio-3)' }}>
+            <p className="tenue medida" style={{ marginTop: 'var(--espacio-3)' }}>
               El precio de esa visibilidad depende de la zona y de los días, y lo verás antes de
               comprarla. Todavía no está a la venta: primero tiene que haber clientas buscando.
             </p>
@@ -119,7 +119,7 @@ export default function ParaNegocios() {
           </div>
         </section>
 
-        <section className="seccion">
+        <section className="seccion filo">
           <div className="contenedor">
             <h2>Qué te quita de encima</h2>
             <div className="rejilla rejilla--2" style={{ marginTop: 'var(--espacio-5)' }}>
@@ -135,10 +135,10 @@ export default function ParaNegocios() {
           </div>
         </section>
 
-        <section className="seccion seccion--holgada seccion--tinta">
-          <div className="contenedor" style={{ maxWidth: '42rem' }}>
+        <section className="seccion seccion--holgada seccion--tinta filo">
+          <div className="contenedor">
             <h2>Lo que hace falta para publicar</h2>
-            <p style={{ marginTop: 'var(--espacio-4)', fontSize: 'var(--tipografia-tamano-mayor)' }}>
+            <p className="medida" style={{ marginTop: 'var(--espacio-4)', fontSize: 'var(--tipografia-tamano-mayor)' }}>
               Un servicio, tu horario, dónde estás y una foto. Nada más. Mientras tanto tu salón
               existe en borrador y no lo ve nadie.
             </p>

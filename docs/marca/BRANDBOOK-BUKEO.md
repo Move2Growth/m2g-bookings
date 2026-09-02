@@ -1,4 +1,4 @@
-# Bukeo · Brand Book — Estado: en proceso
+# Bukeo · Brand Book — Estado: completado
 
 > **Identidad de marca · Vol. 01 · 2026 · Ciudad de Panamá**
 >
@@ -57,9 +57,12 @@ Seis referencias, y ninguna es una app:
 
 ## 03 · Logo suite
 
-**El wordmark es `bukeo` en minúsculas**, en Outfit con peso de display y el interletrado
-cerrado. Minúsculas porque la marca no grita: es la herramienta de trabajo de alguien, no una
-promesa de lujo.
+**El wordmark es `BUKEO` en versales dibujadas a trazo**: cinco letras construidas con líneas
+del mismo grosor, remate a escuadra y esquinas en ángulo vivo. No es una fuente rotulada, es un
+trazado; por eso a 16 px sigue siendo el mismo dibujo y no se convierte en una mancha.
+
+Versales y no minúsculas: el lenguaje de esta marca es el del **rótulo pintado de un local**,
+no el de una aplicación. Un rótulo se lee desde la acera.
 
 | Versión | Cuándo |
 |---|---|
@@ -91,40 +94,59 @@ de agua discreta en material impreso.
 
 ## 05 · Color
 
-Tinta cálida sobre papel frío y **un solo acento**, que aparece poco y manda cuando aparece.
+**El color es la estructura.** Aquí no hay retícula dibujada ni tarjetas: lo que separa una
+sección de otra es un bloque de color a sangre y un filo grueso. Cal, tinta, azul y naranja.
 
 | Nombre | Hex | Para qué | Proporción |
 |---|---|---|---|
-| **Papel** | `#F7F6F4` | Fondo de toda la web | 46 % |
-| **Lienzo** | `#FFFFFF` | Superficies: fichas, filas, formularios | 26 % |
-| **Tinta** | `#171310` | Texto principal y bloque de marca | 14 % |
-| **Arena** | `#EFEDE9` | Secciones alternas, estados apagados | 8 % |
-| **Tinta suave** | `#585149` | Texto secundario | 4 % |
-| **Fucsia Bukeo** | `#B5124F` | **Solo lo accionable**: acción principal, hora reservable, enlace | 2 % |
+| **Cal** | `#F2F3EF` | Fondo de toda la web | 44 % |
+| **Lienzo** | `#FFFFFF` | Superficies: filas, formularios, rejilla de horas | 20 % |
+| **Tinta noche** | `#0D1526` | Texto principal y bloques oscuros a sangre | 16 % |
+| **Arena** | `#E7E9E2` | Secciones alternas | 8 % |
+| **Azul chiva** | `#1636C7` | Bloque de sección y lo que **cierra** | 6 % |
+| **Tinta suave** | `#4A5163` | Texto secundario | 4 % |
+| **Naranja mango** | `#FF7A1F` | Lo que **abre** y el filo de bloque | 2 % |
 
-**La regla del acento:** si algo va en fucsia, se puede tocar. Un titular en fucsia enseña a la
-gente que el color no significa nada, y a partir de ahí el botón deja de verse.
+### La regla que no se rompe
+
+**Hay dos colores saturados y cada uno tiene un trabajo.**
+
+- **El naranja abre.** Empieza algo: buscar, crear el salón, publicar. Y es el filo que corta
+  la página entre bloques.
+- **El azul cierra.** Remata: elegir la hora, confirmar la cita. Y es el bloque de sección.
+
+**Nunca compiten en el mismo botón.** Si en una pantalla hay dos acciones saturadas, una de las
+dos está mal clasificada.
+
+**El naranja nunca es color de texto.** Sobre cal se queda en 2,4:1, muy por debajo de AA. Vive
+siempre como fondo con tinta noche encima, y esa es la razón de la regla, no una preferencia.
 
 **Estados de una reserva.** Cinco, con el mismo color en la web, el panel y la app: pendiente
 (ámbar), confirmada (verde), completada (azul apagado), no vino (gris) y cancelada (rojo). Un
 estado que se lee distinto en cada superficie es un estado que nadie aprende.
 
-**Contraste.** Las 35 combinaciones que el producto usa de verdad están medidas con la fórmula
+**Contraste.** Las 41 combinaciones que el producto usa de verdad están medidas con la fórmula
 WCAG y **todas cumplen AA**, en claro y en oscuro. Lo comprueba un script que falla el proceso
 si alguien retoca un color «solo un poco»:
 [`packages/tokens/verificar-contraste.mjs`](../../packages/tokens/verificar-contraste.mjs).
 
 ## 06 · Tipografía
 
-**Dos voces y ninguna más.**
+**Una sola familia, tres anchos.** Archivo Variable, con el eje de anchura (`wdth`) haciendo el
+trabajo que en otros sistemas hacen dos o tres fuentes distintas:
 
-| | Familia | Trabajo |
+| Ancho | Valor | Trabajo |
 |---|---|---|
-| **Display** | Outfit Variable | Titulares y wordmark. Geométrica, de carácter a tamaño grande |
-| **Texto** | Geist | Interfaz, cuerpo y **todas las cifras**, con tabulares de verdad |
+| **Rótulo** | 112 % | Titulares y wordmark. Ancho, plantado, de rótulo de local |
+| **Texto** | 100 % | Interfaz y cuerpo |
+| **Cifra** | 125 % | Horas, duraciones y precios, con tabulares |
 
-Las dos van **autoalojadas**. Enlazar a Google Fonts sería una dependencia de un tercero, un
-problema de política de seguridad de contenido y una petición más en una red de 3G.
+Una familia y no dos porque **es una sola petición de red**, y porque el contraste entre un
+titular y el cuerpo lo da aquí el ancho, no un salto de familia que a 390 px nadie percibe como
+intencionado.
+
+Va **autoalojada**. Enlazar a Google Fonts sería una dependencia de un tercero, un problema de
+política de seguridad de contenido y una petición más en una red de 3G.
 
 **Vetadas:** Inter, Fraunces, Bricolage y General Sans.
 
@@ -137,11 +159,18 @@ de 16 px: por debajo, iOS hace zoom al enfocar y descuadra la pantalla sin que n
 
 ## 07 · UI y aplicaciones
 
-**La regla de forma, y se cumple entera:** superficies a canto vivo con filete de 1 px,
-controles a 4 px, y píldora solo en fichas de filtro y avatares. Nada de todo redondeado.
+**La regla de forma, y se cumple entera:** superficies y bloques de color a canto vivo,
+controles a 4 px, y **nada con forma de píldora**. Nada de todo redondeado.
+
+**El filo.** La línea de 6 px en naranja que corta la página entre bloques. Es lo que en un
+rótulo es el canto de la chapa: separa sin dibujar una caja alrededor de nada.
 
 **Sin sombras decorativas.** La sombra se reserva para lo que de verdad flota: un menú, una hoja
-modal. Lo demás se separa con filete o con aire.
+modal. Lo demás se separa con bloque de color, filo o aire.
+
+**El foco no es del color de marca.** El anillo va en tinta noche sobre fondo claro y en cal
+dentro de los bloques oscuros. En azul se quedaba en 2:1 justo encima del bloque azul y del
+botón naranja, que son los dos sitios donde más se pulsa.
 
 **Densidad.** Listas con filete entre filas en vez de una tarjeta por elemento: en un teléfono
 caben tres salones más por pantalla, y lo que se compara en una lista son los nombres.

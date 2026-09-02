@@ -88,6 +88,9 @@ class ResultadoDeBusqueda(BaseModel):
     zona: str | None
     distancia_metros: int | None
     rating: float | None
+    #: El más barato de sus servicios activos. Sin esto hay que entrar en cada ficha para
+    #: descartarla, y eso es exactamente lo que devuelve a la gente al WhatsApp.
+    servicios_desde_centavos: int | None = None
     patrocinado: bool = Field(
         default=False,
         description="Si es un resultado pagado. Va etiquetado en pantalla, sin excepción",
@@ -136,6 +139,7 @@ async def buscar(
             zona=r.zona,
             distancia_metros=int(r.distancia_metros) if r.distancia_metros is not None else None,
             rating=r.rating,
+            servicios_desde_centavos=r.desde_centavos,
             patrocinado=r.patrocinado,
         )
         for r in resultados

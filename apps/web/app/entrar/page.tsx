@@ -78,7 +78,7 @@ export default function Entrar() {
           body: JSON.stringify({ negocio_id: negocios[0].id }),
         }).then((r) => (r.ok ? r.json() : null))
         if (conNegocio) {
-          guardarSesion(conNegocio)
+          guardarSesion({ ...conNegocio, negocio_nombre: negocios[0].nombre })
           router.push('/panel')
           return
         }
@@ -154,7 +154,7 @@ export default function Entrar() {
                         body: JSON.stringify({ negocio_id: n.id }),
                       }).then((r) => (r.ok ? r.json() : null))
                       if (conNegocio) {
-                        guardarSesion(conNegocio)
+                        guardarSesion({ ...conNegocio, negocio_nombre: n.nombre })
                         router.push('/panel')
                       }
                     }}
@@ -229,7 +229,11 @@ export default function Entrar() {
               </p>
             )}
 
-            <button type="submit" disabled={enviando} className="boton boton--primario boton--ancho">
+            <button
+              type="submit"
+              disabled={enviando}
+              className={`boton boton--ancho ${paso === 'telefono' ? 'boton--primario' : 'boton--cierra'}`}
+            >
               {enviando ? 'Un momento…' : paso === 'telefono' ? 'Mandarme el código' : 'Entrar'}
             </button>
           </form>

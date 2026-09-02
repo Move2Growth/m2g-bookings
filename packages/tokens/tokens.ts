@@ -2,98 +2,114 @@
 
 export const tokens = {
   "_marca": [
-    "Bukeo — tokens de marca. Fuente única: de aquí salen las variables CSS de la web y el",
-    "módulo TypeScript de la app. Ningún color, medida, radio o tamaño de letra se escribe",
-    "suelto en un componente.",
-    "El brandbook que explica el porqué de cada decisión vive en docs/marca/BRANDBOOK-BUKEO.md.",
-    "Modo claro por defecto; el oscuro está definido desde el principio para que encenderlo no",
-    "sea un rediseño."
+    "Bukeo — tokens de marca, dirección «bloque de color panameño» (elegida por Luis).",
+    "El color es la estructura, no la decoración: las secciones son bloques planos a sangre y la",
+    "tipografía hace de imagen. Lenguaje de rótulo de local, no de panel de control.",
+    "",
+    "LA REGLA QUE NO SE ROMPE, y es lo que separa esta dirección de un arcoíris: hay dos colores",
+    "saturados y cada uno tiene un trabajo. El NARANJA ABRE (empieza algo: buscar, crear, publicar)",
+    "y el AZUL CIERRA (remata: elegir hora, confirmar la cita). Nunca compiten en el mismo botón.",
+    "",
+    "Y una consecuencia técnica del naranja: sobre claro no llega a 4,5:1, así que NUNCA es color",
+    "de texto. Es color de fondo, y encima lleva tinta. El verificador de contraste lo comprueba.",
+    "",
+    "El porqué de cada decisión está en docs/marca/BRANDBOOK-BUKEO.md."
   ],
   "color": {
     "claro": {
-      "_nota": "Tinta cálida sobre papel frío, y un solo acento. Ni negro puro ni blanco puro: matan la profundidad.",
-      "papel": "#F7F6F4",
+      "papel": "#F2F3EF",
       "lienzo": "#FFFFFF",
-      "arena": "#EFEDE9",
-      "borde": "#DCD8D2",
-      "borde-fuerte": "#8A857D",
-      "tinta": "#171310",
-      "tinta-suave": "#585149",
-      "tinta-tenue": "#726A61",
-      "acento": "#B5124F",
-      "acento-hover": "#94063E",
-      "acento-suave": "#FBE7EE",
-      "acento-texto": "#FFFFFF",
-      "exito": "#1B6B41",
-      "exito-suave": "#E4F0E8",
-      "aviso": "#8A5A06",
-      "aviso-suave": "#FBEFD8",
-      "peligro": "#A11B1B",
-      "peligro-suave": "#FBE9E7",
-      "foco": "#B5124F",
-      "velo": "rgba(23, 19, 16, 0.48)"
+      "arena": "#E7E9E2",
+      "borde": "#D5D8D0",
+      "borde-fuerte": "#7E837A",
+      "tinta": "#0D1526",
+      "tinta-suave": "#4A5163",
+      "tinta-tenue": "#5F6678",
+      "acento": "#1636C7",
+      "acento-hover": "#0F27A0",
+      "acento-suave": "#E4E9FC",
+      "acento-texto": "#F2F3EF",
+      "abre": "#FF7A1F",
+      "abre-hover": "#E86A11",
+      "abre-suave": "#FFEDDF",
+      "abre-texto": "#0D1526",
+      "exito": "#15683C",
+      "exito-suave": "#E1EFE7",
+      "aviso": "#8A5406",
+      "aviso-suave": "#FBEDD6",
+      "peligro": "#A3161B",
+      "peligro-suave": "#FAE7E7",
+      "foco": "#1636C7",
+      "velo": "rgba(13, 21, 38, 0.52)"
     },
     "oscuro": {
-      "papel": "#131110",
-      "lienzo": "#1C1918",
-      "arena": "#242020",
-      "borde": "#332E2C",
-      "borde-fuerte": "#7A736D",
-      "tinta": "#F5F2EF",
-      "tinta-suave": "#B5ACA4",
-      "tinta-tenue": "#8A827A",
-      "acento": "#FF6B9D",
-      "acento-hover": "#FF89B1",
-      "acento-suave": "#38141F",
-      "acento-texto": "#1C0A11",
-      "exito": "#5FBB84",
-      "exito-suave": "#16281D",
-      "aviso": "#D9A441",
-      "aviso-suave": "#2C2210",
-      "peligro": "#F08080",
-      "peligro-suave": "#331817",
-      "foco": "#FF6B9D",
-      "velo": "rgba(0, 0, 0, 0.62)"
+      "papel": "#0D1526",
+      "lienzo": "#141D31",
+      "arena": "#1B2740",
+      "borde": "#2A3752",
+      "borde-fuerte": "#78829A",
+      "tinta": "#F2F3EF",
+      "tinta-suave": "#A8B3C9",
+      "tinta-tenue": "#8B96AD",
+      "acento": "#8FA8FF",
+      "acento-hover": "#AEC0FF",
+      "acento-suave": "#1B2A57",
+      "acento-texto": "#0A1224",
+      "abre": "#FF9247",
+      "abre-hover": "#FFA968",
+      "abre-suave": "#3A2313",
+      "abre-texto": "#0D1526",
+      "exito": "#5EBB86",
+      "exito-suave": "#132A1E",
+      "aviso": "#DBA646",
+      "aviso-suave": "#2E2411",
+      "peligro": "#F08A8A",
+      "peligro-suave": "#331A1B",
+      "foco": "#8FA8FF",
+      "velo": "rgba(0, 0, 0, 0.64)"
     }
   },
   "estado-reserva": {
-    "_nota": "Los cinco estados de una cita. El mismo color en la web, el panel y la app: un estado que se lee distinto en cada sitio es un estado que nadie aprende.",
+    "_nota": "Los cinco estados de una cita, iguales en la web, el panel y la app. Ninguno usa el azul ni el naranja de marca: un estado no es una acción, y confundirlos hace que la gente toque lo que no debe.",
     "pendiente": {
-      "fondo": "#FBEFD8",
-      "texto": "#6B4405",
-      "borde": "#D9A441"
+      "fondo": "#FBEDD6",
+      "texto": "#6B4105",
+      "borde": "#DBA646"
     },
     "confirmada": {
-      "fondo": "#E4F0E8",
-      "texto": "#14522F",
-      "borde": "#5A9C74"
+      "fondo": "#E1EFE7",
+      "texto": "#0F4E2D",
+      "borde": "#5A9C77"
     },
     "completada": {
-      "fondo": "#EAEEF3",
-      "texto": "#2A4560",
-      "borde": "#7D9BB8"
+      "fondo": "#E6E9EF",
+      "texto": "#2C3A52",
+      "borde": "#7C89A3"
     },
     "no_show": {
-      "fondo": "#EFEDE9",
-      "texto": "#585149",
-      "borde": "#B9B2A8"
+      "fondo": "#E7E9E2",
+      "texto": "#4A5163",
+      "borde": "#AEB3A8"
     },
     "cancelada": {
-      "fondo": "#FBE9E7",
-      "texto": "#8A1616",
-      "borde": "#D69C97"
+      "fondo": "#FAE7E7",
+      "texto": "#8A1216",
+      "borde": "#D49A9A"
     }
   },
   "tipografia": {
-    "_nota": "Outfit para titulares y marca; Geist para interfaz y cifras. Vetadas: Inter, Fraunces, Bricolage y General Sans. Ambas autoalojadas, nunca enlazadas a un tercero.",
-    "familia-display": "'Outfit Variable', 'Outfit', system-ui, sans-serif",
-    "familia": "'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif",
+    "_nota": "Archivo, una sola familia variable en tres anchuras: 125 para cifras grandes, 112 para titulares de rótulo y 100 para texto. Un solo archivo que baja bien en 3G. Vetadas: Inter, Fraunces, Bricolage y General Sans.",
+    "familia-display": "'Archivo Variable', 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+    "familia": "'Archivo Variable', 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif",
     "cifras-tabulares": "tabular-nums",
+    "ancho-rotulo": "112%",
+    "ancho-cifra": "125%",
+    "ancho-texto": "100%",
     "pesos": {
       "normal": 400,
       "medio": 500,
       "fuerte": 600,
-      "display": 700
+      "display": 800
     },
     "tamano": {
       "micro": "0.75rem",
@@ -104,13 +120,13 @@ export const tokens = {
       "titulo-3": "1.5rem",
       "titulo-2": "2rem",
       "titulo-1": "2.75rem",
-      "cartel": "4rem"
+      "cartel": "4.25rem"
     },
     "interlineado": {
-      "apretado": 1.08,
-      "titulo": 1.2,
-      "normal": 1.55,
-      "suelto": 1.7
+      "apretado": 0.94,
+      "titulo": 1.08,
+      "normal": 1.5,
+      "suelto": 1.65
     },
     "espaciado": {
       "titular": "-0.02em",
@@ -128,36 +144,36 @@ export const tokens = {
     "6": "2rem",
     "7": "3rem",
     "8": "4rem",
-    "9": "6rem",
-    "_nota": "Escala de 4 px. El objetivo táctil mínimo es 44 px; en la agenda, la fila entera es el objetivo.",
+    "9": "6.5rem",
+    "_nota": "Escala de 4 px. Objetivo táctil mínimo de 44 px; en la agenda, la fila entera es el objetivo.",
     "toque-minimo": "44px"
   },
   "radio": {
-    "_nota": "Regla de forma, y se cumple entera: superficies a canto vivo con filete de 1 px, controles a 4 px, y píldora solo en fichas de filtro y avatares. Nada de todo redondeado.",
+    "_nota": "Una sola escala de radio en todo el producto: 4 px en cualquier cosa que se toque y 0 en superficies y bloques de color. La pildora se retira con la direccion B: en un lenguaje de rotulo de local no hay nada redondeado salvo el avatar.",
     "superficie": "0",
     "control": "4px",
     "pildora": "999px"
   },
   "sombra": {
-    "_nota": "Solo donde comunican elevación real. La sombra se tiñe del fondo; nunca negro puro sobre claro.",
+    "_nota": "Casi ninguna. En una dirección de bloques planos, la sombra rompe el plano; lo que separa es el cambio de color.",
     "ninguna": "none",
-    "menu": "0 2px 10px rgba(23, 19, 16, 0.10)",
-    "hoja": "0 -2px 24px rgba(23, 19, 16, 0.16)",
-    "elevada": "0 1px 2px rgba(23, 19, 16, 0.06), 0 8px 24px rgba(23, 19, 16, 0.08)"
+    "menu": "0 2px 10px rgba(13, 21, 38, 0.16)",
+    "hoja": "0 -2px 24px rgba(13, 21, 38, 0.22)",
+    "elevada": "0 1px 2px rgba(13, 21, 38, 0.08)"
   },
   "pantalla": {
     "_nota": "Se diseña a 390 px primero y se ensancha después.",
     "movil": "390px",
     "tableta": "768px",
     "escritorio": "1024px",
-    "ancho": "1280px"
+    "ancho": "1160px"
   },
   "movimiento": {
-    "_nota": "Contenido a propósito: esto se usa en 3G. Toda animación se apaga con prefers-reduced-motion.",
-    "rapido": "140ms",
-    "normal": "220ms",
-    "lento": "420ms",
-    "curva": "cubic-bezier(0.16, 1, 0.3, 1)"
+    "_nota": "Contenido a propósito: esto se usa en 3G. Todo se apaga con prefers-reduced-motion.",
+    "rapido": "120ms",
+    "normal": "200ms",
+    "lento": "380ms",
+    "curva": "cubic-bezier(0.2, 0, 0.2, 1)"
   }
 } as const;
 

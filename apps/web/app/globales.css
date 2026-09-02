@@ -1,5 +1,5 @@
 /*
- * Bukeo — capa base y componentes.
+ * Bukeo, capa base y componentes. Dirección «bloque de color panameño».
  *
  * Aquí no hay ni un color ni una medida escritos a mano: todo sale de `@agenda/tokens`, que es
  * la implementación del brandbook. Si en este archivo aparece un hexadecimal, es un error.
@@ -39,13 +39,28 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Los titulares son rótulo: misma familia, más peso y más ancho. Es lo que hace que la
+   tipografía funcione como imagen sin meter una segunda fuente en la descarga. */
 h1, h2, h3, h4 {
   margin: 0;
   font-family: var(--tipografia-familia-display);
   font-weight: var(--tipografia-pesos-display);
+  font-stretch: var(--tipografia-ancho-rotulo);
   line-height: var(--tipografia-interlineado-titulo);
   letter-spacing: var(--tipografia-espaciado-titular);
+  text-transform: none;
   text-wrap: balance;
+}
+
+h1 { line-height: var(--tipografia-interlineado-apretado); }
+
+/* Las cifras van más anchas todavía: una hora y un precio tienen que poder leerse de reojo. */
+.cifras { font-variant-numeric: var(--tipografia-cifras-tabulares); }
+.cifra-grande {
+  font-stretch: var(--tipografia-ancho-cifra);
+  font-weight: var(--tipografia-pesos-display);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+  line-height: 1;
 }
 
 h1 { font-size: var(--tipografia-tamano-titulo-1); line-height: var(--tipografia-interlineado-apretado); }
@@ -66,12 +81,20 @@ a {
 button, input, select, textarea { font: inherit; color: inherit; }
 
 /* Foco visible siempre. Sin esto, quien navega con teclado deja de saber dónde está, y eso no
-   se arregla más adelante: se nota el primer día y no lo reporta nadie. */
+   se arregla más adelante: se nota el primer día y no lo reporta nadie.
+   El anillo va en tinta, no en el azul de marca: el azul sobre el bloque azul y sobre el botón
+   naranja se queda en 2:1, y un anillo que no se ve es no tener anillo. */
 :focus-visible {
-  outline: 2px solid var(--color-foco);
+  outline: 3px solid var(--color-tinta);
   outline-offset: 2px;
   border-radius: var(--radio-control);
 }
+/* Dentro de los bloques oscuros se invierte, que es donde la tinta deja de verse. */
+.seccion--tinta :focus-visible,
+.seccion--azul :focus-visible,
+.categoria--tinta a:focus-visible,
+.categoria--azul a:focus-visible,
+.categoria--foto a:focus-visible { outline-color: var(--color-papel); }
 
 ::selection {
   background: var(--color-acento-suave);
@@ -92,6 +115,22 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .seccion--arena { background: var(--color-arena); }
 .seccion--tinta { background: var(--color-tinta); color: var(--color-papel); }
 .seccion--tinta h1, .seccion--tinta h2, .seccion--tinta h3 { color: var(--color-papel); }
+.seccion--tinta a { color: var(--color-papel); }
+
+/* Bloque azul a sangre. En esta dirección el color no decora: separa una sección de la
+   siguiente sin necesidad de filetes ni de sombras. */
+.seccion--azul { background: var(--color-acento); color: var(--color-acento-texto); }
+.seccion--azul h1, .seccion--azul h2, .seccion--azul h3 { color: var(--color-acento-texto); }
+.seccion--azul a { color: var(--color-acento-texto); }
+
+/* Bloque naranja. Se usa poco y para abrir: la sección que pide dar el paso. */
+.seccion--naranja { background: var(--color-abre); color: var(--color-abre-texto); }
+.seccion--naranja h1, .seccion--naranja h2, .seccion--naranja h3 { color: var(--color-abre-texto); }
+.seccion--naranja a { color: var(--color-abre-texto); }
+
+/* Filo de bloque: la línea gruesa de color que corta la página como el canto de un rótulo. */
+.filo { border-top: 6px solid var(--color-abre); }
+.filo--azul { border-top-color: var(--color-acento); }
 
 /* Cifras tabulares: en una agenda las columnas de horas tienen que alinearse o no se leen de
    un vistazo. */
@@ -138,10 +177,20 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .boton[disabled] { opacity: 0.55; cursor: not-allowed; }
 
 .boton--primario {
+  /* El naranja **abre**: empieza algo. Y siempre lleva tinta encima, porque sobre claro no
+     llega a 4,5:1 y por eso nunca es color de texto. */
+  background: var(--color-abre);
+  color: var(--color-abre-texto);
+}
+.boton--primario:hover { background: var(--color-abre-hover); }
+
+/* El azul **cierra**: remata lo que ya se eligió, elegir hora y confirmar la cita. Nunca
+   compite con el naranja dentro del mismo botón ni dentro de la misma decisión. */
+.boton--cierra {
   background: var(--color-acento);
   color: var(--color-acento-texto);
 }
-.boton--primario:hover { background: var(--color-acento-hover); }
+.boton--cierra:hover { background: var(--color-acento-hover); }
 
 .boton--secundario {
   background: transparent;
@@ -175,6 +224,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 
 .panel--plano { background: transparent; }
+/* Un panel dentro de un bloque de color: se queda en lienzo para que las cifras se lean. Es la
+   excepción que confirma la regla de no mezclar dos saturados. */
+.panel--sobre-color { background: var(--color-lienzo); color: var(--color-tinta); border: none; }
 .panel--elevado { box-shadow: var(--sombra-elevada); }
 
 /* Lista con filetes entre filas en vez de una tarjeta por elemento: menos ruido y más densidad
@@ -233,14 +285,15 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* ── Fichas de filtro ───────────────────────────────────────────────────────── */
 
-/* Píldora solo aquí y en avatares. Es la única excepción de la regla de forma. */
+/* Canto vivo también aquí: la píldora venía de la dirección anterior y en un lenguaje de
+   rótulo desentona. Una sola regla de forma en todo el producto. */
 .ficha {
   display: inline-flex;
   align-items: center;
   min-height: var(--espacio-toque-minimo);
   padding-inline: var(--espacio-3);
-  border: 1px solid var(--color-borde);
-  border-radius: var(--radio-pildora);
+  border: 1px solid var(--color-borde-fuerte);
+  border-radius: var(--radio-control);
   background: var(--color-lienzo);
   color: var(--color-tinta);
   font-size: var(--tipografia-tamano-menor);
@@ -300,7 +353,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
   text-decoration: none;
   font-variant-numeric: var(--tipografia-cifras-tabulares);
 }
-.hora:hover { background: var(--color-acento-suave); border-color: var(--color-acento); }
+.hora:hover {
+  background: var(--color-acento);
+  border-color: var(--color-acento);
+  color: var(--color-acento-texto);
+}
 
 /* ── Rejilla genérica ───────────────────────────────────────────────────────── */
 
@@ -355,11 +412,16 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 
 .etiqueta {
-  font-size: var(--tipografia-tamano-micro);
+  font-size: var(--tipografia-tamano-menor);
   text-transform: uppercase;
   letter-spacing: var(--tipografia-espaciado-etiqueta);
-  color: var(--color-tinta-tenue);
+  font-weight: var(--tipografia-pesos-medio);
+  color: var(--color-tinta-suave);
 }
+/* Sobre un bloque de color el cintillo hereda el color del bloque; en tenue no se leería. */
+.seccion--azul .etiqueta,
+.seccion--tinta .etiqueta,
+.seccion--naranja .etiqueta { color: inherit; opacity: 0.88; }
 
 .categorias {
   display: grid;
@@ -369,22 +431,29 @@ button, input, select, textarea { font: inherit; color: inherit; }
 @media (min-width: 768px) {
   .categorias { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
+/* Bloques de color planos, no tarjetas. Todas miden lo mismo: con dos alturas distintas la
+   fila se rompe y parece un fallo de maquetación en vez de un ritmo. El ritmo lo pone el
+   color. */
 .categoria a {
   display: flex;
   align-items: flex-end;
-  /* Todas las celdas miden lo mismo. Con dos alturas distintas la fila se rompe y parece un
-     fallo de maquetación en vez de un ritmo. El ritmo lo pone la foto, no el tamaño. */
   min-height: 132px;
   padding: var(--espacio-3);
-  background: var(--color-lienzo);
-  border: 1px solid var(--color-borde);
-  color: var(--color-tinta);
   text-decoration: none;
-  font-weight: var(--tipografia-pesos-medio);
+  font-weight: var(--tipografia-pesos-display);
+  font-stretch: var(--tipografia-ancho-rotulo);
+  font-size: var(--tipografia-tamano-titulo-4);
 }
-.categoria a:hover { border-color: var(--color-tinta); }
-/* Las celdas con foto pesan el doble: es lo que da ritmo a la rejilla sin decorarla. */
-.categoria--foto a { position: relative; overflow: hidden; }
+.categoria a:hover { filter: brightness(0.94); }
+.categoria--tinta a { background: var(--color-tinta); color: var(--color-papel); }
+.categoria--azul a { background: var(--color-acento); color: var(--color-acento-texto); }
+.categoria--naranja a { background: var(--color-abre); color: var(--color-abre-texto); }
+.categoria--cal a {
+  background: var(--color-lienzo);
+  color: var(--color-tinta);
+  border: 1px solid var(--color-borde);
+}
+.categoria--foto a { position: relative; overflow: hidden; color: var(--color-papel); }
 .categoria--foto img {
   position: absolute;
   inset: 0;
@@ -415,11 +484,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
   border-top: 1px solid var(--color-borde);
 }
 .pasos__numero {
-  font-family: var(--tipografia-familia-display);
-  font-size: var(--tipografia-tamano-titulo-2);
-  font-weight: var(--tipografia-pesos-display);
-  color: var(--color-acento);
-  line-height: 1;
+  font-size: var(--tipografia-tamano-titulo-1);
+  color: var(--color-abre);
+  min-width: 2ch;
 }
 
 .pregunta {
@@ -529,6 +596,20 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* ── Perfil del salón ───────────────────────────────────────────────────────── */
 
+/* El pie de un resultado: el precio a la izquierda y la distancia detrás. El precio en cifra,
+   que es el dato por el que se descarta un salón sin llegar a abrirlo. */
+.resultado__pie {
+  display: flex;
+  align-items: baseline;
+  gap: var(--espacio-3);
+  margin-top: var(--espacio-2);
+}
+.resultado__precio { font-weight: var(--tipografia-pesos-fuerte); }
+
+/* «jueves, 3 de septiembre», no «Jueves, 3 De Septiembre». `capitalize` pone en mayúscula cada
+   palabra y en español eso es una falta, no un estilo. */
+.primera-mayuscula::first-letter { text-transform: uppercase; }
+
 .lista-servicios { margin-top: var(--espacio-4); border-top: 1px solid var(--color-borde); }
 .servicio {
   display: flex;
@@ -553,6 +634,16 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* ── Panel del salón ────────────────────────────────────────────────────────── */
 
 .panel-app { min-height: 100dvh; background: var(--color-papel); }
+/* En qué salón estás. Se recorta antes que empujar al botón de salir fuera de la pantalla. */
+.panel-app__salon {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--tipografia-pesos-medio);
+  color: var(--color-tinta-suave);
+}
 .panel-app__barra {
   display: flex;
   align-items: center;
@@ -572,7 +663,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   margin-block: var(--espacio-4);
   padding: var(--espacio-2);
   background: var(--color-lienzo);
-  border: 1px solid var(--color-borde);
+  border: 1px solid var(--color-borde-fuerte);
   text-align: center;
 }
 .dias__flecha {
@@ -652,8 +743,14 @@ button, input, select, textarea { font: inherit; color: inherit; }
 footer nav a {
   display: inline-flex;
   align-items: center;
-  min-height: 40px;
+  min-height: var(--espacio-toque-minimo);
 }
 
-/* El logotipo es el enlace a inicio y se toca mucho: el símbolo mide 22 px, el área no. */
-header a:has(> span) { min-height: var(--espacio-toque-minimo); display: inline-flex; align-items: center; }
+/* El logotipo es el enlace a inicio y se toca mucho: el rótulo mide 22 px de alto, el área no.
+   Se busca por el dibujo y no por la posición, porque el rótulo también aparece fuera de la
+   cabecera —en la pantalla de acceso, por ejemplo— y ahí la regla anterior no llegaba. */
+a:has(> svg) {
+  min-height: var(--espacio-toque-minimo);
+  display: inline-flex;
+  align-items: center;
+}

@@ -26,16 +26,19 @@ async function captura(nombre) {
 
 console.log('1. abre el marketplace y busca «uñas»')
 await pagina.goto(`${WEB}/`, { waitUntil: 'networkidle' })
-await pagina.fill('input[name="q"]', 'uñas')
+await pagina.fill('input[name="texto"]', 'uñas')
 await pagina.click('button[type="submit"]')
 await pagina.waitForLoadState('networkidle')
 await captura('1-busqueda')
 console.log('   resultados:', await pagina.locator('main ul li h2').allTextContents())
 
 console.log('2. entra en el primer salón')
+// La espera mira el destino, no «que no sea la portada»: viniendo de /buscar esa condición ya
+// se cumplía antes de pulsar y la prueba seguía en la página anterior sin enterarse.
+const destino = await pagina.locator('main ul li a.resultado').first().getAttribute('href')
 await Promise.all([
-  pagina.waitForURL((u) => !u.pathname.match(/^\/$/), { timeout: 15000 }),
-  pagina.locator('main ul li a').first().click(),
+  pagina.waitForURL((u) => u.pathname === destino, { timeout: 15000 }),
+  pagina.locator('main ul li a.resultado').first().click(),
 ])
 await pagina.waitForLoadState('networkidle')
 const salon = await pagina.locator('h1').first().textContent()

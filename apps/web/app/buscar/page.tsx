@@ -178,11 +178,18 @@ export default async function Buscar({ searchParams }: Props) {
                   <p className="apagado">
                     {[negocio.zona, negocio.direccion].filter(Boolean).join(' · ')}
                   </p>
-                  {negocio.distancia_metros !== null && (
-                    <p className="tenue cifras">
-                      A {(negocio.distancia_metros / 1000).toFixed(1)} km
-                    </p>
-                  )}
+                  <p className="resultado__pie">
+                    {typeof negocio.servicios_desde_centavos === 'number' && (
+                      <span className="resultado__precio cifras">
+                        Desde ${(negocio.servicios_desde_centavos / 100).toFixed(2)}
+                      </span>
+                    )}
+                    {typeof negocio.distancia_metros === 'number' && (
+                      <span className="tenue cifras">
+                        A {(negocio.distancia_metros / 1000).toFixed(1)} km
+                      </span>
+                    )}
+                  </p>
                 </Link>
               </li>
             ))}

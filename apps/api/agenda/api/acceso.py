@@ -91,9 +91,7 @@ async def verificar(
 
 
 @router.post("/refrescar", summary="Rota el refresco (ADR-0006)")
-async def refrescar(
-    peticion: PeticionRefresco, sesion: SesionPlataforma
-) -> RespuestaCredenciales:
+async def refrescar(peticion: PeticionRefresco, sesion: SesionPlataforma) -> RespuestaCredenciales:
     """Presentar un refresco ya usado cierra la familia entera: es la firma de un token robado."""
     credenciales = await servicio_identidad.refrescar(sesion, refresco=peticion.refresco)
     return RespuestaCredenciales(**credenciales.__dict__)

@@ -94,19 +94,16 @@ async def mis_negocios(
     lista y no un valor.
     """
     filas = (
-        (
-            await sesion.execute(
-                select(Membership, Business)
-                .join(Business, Business.id == Membership.business_id)
-                .where(
-                    Membership.user_id == identidad.usuario_id,
-                    Membership.status == "activa",
-                )
-                .order_by(Business.display_name)
+        await sesion.execute(
+            select(Membership, Business)
+            .join(Business, Business.id == Membership.business_id)
+            .where(
+                Membership.user_id == identidad.usuario_id,
+                Membership.status == "activa",
             )
+            .order_by(Business.display_name)
         )
-        .all()
-    )
+    ).all()
     return [
         NegocioDeLaPersona(
             id=negocio.id, nombre=negocio.display_name, slug=negocio.slug, rol=membresia.role
