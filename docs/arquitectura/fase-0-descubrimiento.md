@@ -427,6 +427,21 @@ mirando resultados reales.
 
 ---
 
+### 3.4 Tres decisiones de política que salieron al escribir el modelo de datos
+
+No son técnicas: son de política de la empresa, y el equipo no debería elegirlas por su cuenta
+aunque técnicamente pueda implementar cualquiera de las tres. Salieron al decidir **qué se borra
+y qué se conserva** cuando alguien cierra su cuenta, que es un requisito de la Ley 81 y también
+de Apple para publicar la app.
+
+| # | Qué hay que decidir | **Lo que se hace mientras tanto** | Por qué no lo decide el equipo |
+|---|---|---|---|
+| **P14** | Qué pasa con **el texto de una opinión cuando su autor borra la cuenta**: si desaparece con él o se queda con el nombre borrado | **Se conserva el texto con el autor anonimizado.** Un negocio que reunió cuarenta opiniones no puede perderlas porque un cliente se dé de baja, y quien las lee tampoco | Es el equilibrio entre el derecho de supresión de una persona y el interés legítimo del negocio y de los demás clientes. Tiene que quedar escrito en la política de opiniones **antes** de que haya una sola opinión publicada |
+| **P15** | **Cuánto tiempo se guarda el registro de auditoría** de las acciones internas: quién entró en qué negocio, quién forzó una cancelación, quién suplantó a quién | **Se guarda sin borrar**, y se anota como deuda | Sin un plazo, la tabla crece para siempre. Con un plazo demasiado corto, se pierde la única prueba de qué hizo el equipo interno el día que alguien reclame |
+| **P16** | **Cuánto hay que conservar las facturas y los recibos** en Panamá | **Se conservan indefinidamente** y no se borran nunca por error | Es un plazo fiscal, no una decisión de producto: lo dice la asesoría, y equivocarse hacia abajo es un problema con la DGI |
+
+---
+
 ## 4. Resumen: qué bloquea y desde cuándo
 
 | Pregunta | ¿Bloquea la Fase 0? | ¿Bloquea la Fase 1? | ¿Bloquea la Fase 2? | Primer momento en que bloquea de verdad |
