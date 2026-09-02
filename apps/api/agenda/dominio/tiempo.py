@@ -27,7 +27,9 @@ class Intervalo:
         if self.inicio.tzinfo is None or self.fin.tzinfo is None:
             raise ValueError("Un Intervalo necesita instantes con huso horario, no fechas ingenuas")
         if self.fin < self.inicio:
-            raise ValueError(f"Intervalo al revés: {self.inicio.isoformat()} → {self.fin.isoformat()}")
+            raise ValueError(
+                f"Intervalo al revés: {self.inicio.isoformat()} → {self.fin.isoformat()}"
+            )
 
     @property
     def duracion(self) -> timedelta:

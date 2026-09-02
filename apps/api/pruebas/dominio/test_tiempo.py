@@ -26,7 +26,10 @@ def i(desde: int, hasta: int) -> Intervalo:
 def como_horas(intervalos) -> list[tuple[int, int]]:
     base = datetime(2026, 9, 1, tzinfo=UTC)
     return [
-        (int((x.inicio - base).total_seconds() // 3600), int((x.fin - base).total_seconds() // 3600))
+        (
+            int((x.inicio - base).total_seconds() // 3600),
+            int((x.fin - base).total_seconds() // 3600),
+        )
         for x in intervalos
     ]
 
@@ -54,7 +57,10 @@ def test_normalizar_funde_los_tramos_contiguos():
 
 
 def test_normalizar_ordena_funde_y_tira_los_vacios():
-    assert como_horas(normalizar([i(14, 19), i(9, 11), i(10, 12), i(15, 15)])) == [(9, 12), (14, 19)]
+    assert como_horas(normalizar([i(14, 19), i(9, 11), i(10, 12), i(15, 15)])) == [
+        (9, 12),
+        (14, 19),
+    ]
 
 
 def test_intersecar_es_el_horario_comun():
@@ -84,4 +90,3 @@ def test_restar_recorta_por_los_extremos():
 
 def test_restar_puede_dejar_el_dia_entero_fuera():
     assert restar([i(9, 19)], [i(0, 24)]) == []
-

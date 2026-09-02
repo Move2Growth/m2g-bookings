@@ -1,0 +1,17 @@
+{
+  "name": "@agenda/api-types",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./tipos.ts",
+  "exports": {
+    ".": "./tipos.ts",
+    "./openapi": "./openapi.json"
+  },
+  "scripts": {
+    "generar": "openapi-typescript openapi.json --output tipos.ts --alphabetize"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.4.4"
+  }
+}

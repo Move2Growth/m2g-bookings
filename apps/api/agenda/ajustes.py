@@ -34,9 +34,7 @@ class Ajustes(BaseSettings):
     moneda_defecto: str = "USD"
 
     database_url: str = "postgresql+asyncpg://agenda_app:agenda@localhost:5433/agenda"
-    database_url_migraciones: str = (
-        "postgresql+psycopg://agenda_owner:agenda@localhost:5433/agenda"
-    )
+    database_url_migraciones: str = "postgresql+psycopg://agenda_owner:agenda@localhost:5433/agenda"
     redis_url: str = "redis://localhost:6380/0"
 
     whatsapp_token: str = ""

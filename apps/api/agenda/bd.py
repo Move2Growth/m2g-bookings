@@ -46,13 +46,12 @@ async def sesion_de_negocio(negocio_id: str) -> AsyncIterator[AsyncSession]:
     Los trabajos son justamente donde más fácil se cuela una consulta sin tenant: no tienen
     sesión de usuario de la que heredarlo, así que hay que fijarlo a mano (ADR-0008).
     """
-    async with crear_sesion() as sesion:
-        async with sesion.begin():
-            await sesion.execute(
-                text("SELECT set_config('app.current_business_id', :negocio, true)"),
-                {"negocio": str(negocio_id)},
-            )
-            yield sesion
+    async with crear_sesion() as sesion, sesion.begin():
+        await sesion.execute(
+            text("SELECT set_config('app.current_business_id', :negocio, true)"),
+            {"negocio": str(negocio_id)},
+        )
+        yield sesion
 
 
 @asynccontextmanager
@@ -64,6 +63,5 @@ async def sesion_sin_tenant() -> AsyncIterator[AsyncSession]:
     las tablas globales y las vistas públicas del marketplace, que solo exponen columnas
     publicables — nunca teléfonos ni datos de clientes.
     """
-    async with crear_sesion() as sesion:
-        async with sesion.begin():
-            yield sesion
+    async with crear_sesion() as sesion, sesion.begin():
+        yield sesion

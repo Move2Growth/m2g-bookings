@@ -131,9 +131,7 @@ def test_sin_buffer_el_ultimo_hueco_llega_hasta_el_cierre():
 
 def test_el_buffer_anterior_no_bloquea_el_primer_hueco_del_dia():
     """A primera hora no hay cliente anterior del que separarse."""
-    con_preparacion = Servicio(
-        duracion=timedelta(minutes=30), buffer_antes=timedelta(minutes=20)
-    )
+    con_preparacion = Servicio(duracion=timedelta(minutes=30), buffer_antes=timedelta(minutes=20))
     slots = calcular(servicios=[con_preparacion], profesionales=[profesional()])
 
     assert horas_locales(slots)[0] == "09:00"

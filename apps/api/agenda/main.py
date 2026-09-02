@@ -8,10 +8,11 @@ escapan los teléfonos (ADR-0012).
 
 from __future__ import annotations
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from agenda.ajustes import obtener_ajustes
+from agenda.errores import ErrorDeDominio
 
 ajustes = obtener_ajustes()
 
@@ -26,6 +27,17 @@ app = FastAPI(
     openapi_url="/api/v1/openapi.json",
     docs_url="/docs",
 )
+
+
+@app.exception_handler(ErrorDeDominio)
+async def manejar_error_de_dominio(_: Request, error: ErrorDeDominio) -> JSONResponse:
+    """Un solo sitio traduce los errores de dominio a HTTP.
+
+    Sin esto, cada endpoint acabaría inventándose su propio formato y el cliente tendría que
+    saber cuál es cuál. El código viaja estable; el mensaje se puede reescribir cuando haga
+    falta sin romper a nadie.
+    """
+    return JSONResponse(status_code=error.estado_http, content=error.como_respuesta())
 
 
 @app.get("/salud", tags=["operación"], summary="Comprueba que el proceso responde")
