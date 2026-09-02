@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { parDeRotulo, Rotulo } from '@/componentes/rotulo'
 import Link from 'next/link'
 import { Cabecera } from '@/componentes/cabecera'
 import { Pie } from '@/componentes/pie'
@@ -17,18 +18,19 @@ import { Pie } from '@/componentes/pie'
 // Solo dos categorías llevan foto, y son fotos de verdad. Poner una imagen genérica de banco
 // en las ocho es peor que no ponerla: se nota que no es el salón de nadie. Las demás son celdas
 // tipográficas, que además pesan cero en una red de 3G.
-// Cada categoría es un bloque de color plano, no una tarjeta. El ritmo lo pone el color y las
-// dos fotos que existen de verdad; una imagen genérica de banco en las ocho se nota más que no
-// ponerla, y además pesa en 3G.
+// Cada categoría es un rótulo con la trama de su oficio detrás: el peine, la uña, el agua, la
+// ceja, la brocha. No es un parche por no tener fotos, es la misma pieza que presenta a un
+// salón, y por eso la portada y el buscador hablan el mismo idioma. Las dos fotos que existen
+// de verdad se quedan donde están, porque cuando hay foto la foto manda.
 const CATEGORIAS = [
-  { nombre: 'Barbería', slug: 'barberia', tono: 'tinta', foto: null },
-  { nombre: 'Peluquería', slug: 'peluqueria', tono: 'azul', foto: null },
-  { nombre: 'Uñas', slug: 'unas', tono: 'foto', foto: '/fotos/unas.webp' },
-  { nombre: 'Pestañas y cejas', slug: 'pestanas-cejas', tono: 'naranja', foto: null },
-  { nombre: 'Maquillaje', slug: 'maquillaje', tono: 'azul', foto: null },
-  { nombre: 'Depilación', slug: 'depilacion', tono: 'cal', foto: null },
-  { nombre: 'Spa y masajes', slug: 'spa-masajes', tono: 'foto', foto: '/fotos/spa.webp' },
-  { nombre: 'Estética', slug: 'estetica', tono: 'tinta', foto: null },
+  { nombre: 'Barbería', slug: 'barberia', foto: null },
+  { nombre: 'Peluquería', slug: 'peluqueria', foto: null },
+  { nombre: 'Uñas', slug: 'unas', foto: '/fotos/unas.webp' },
+  { nombre: 'Pestañas y cejas', slug: 'pestanas-cejas', foto: null },
+  { nombre: 'Maquillaje', slug: 'maquillaje', foto: null },
+  { nombre: 'Depilación', slug: 'depilacion', foto: null },
+  { nombre: 'Spa y masajes', slug: 'spa-masajes', foto: '/fotos/spa.webp' },
+  { nombre: 'Estética', slug: 'estetica', foto: null },
 ]
 
 const ZONAS = [
@@ -153,9 +155,22 @@ export default function Portada() {
           <div className="contenedor">
             <h2>Qué te vas a hacer hoy</h2>
             <ul className="categorias" style={{ marginTop: 'var(--espacio-5)' }}>
-              {CATEGORIAS.map((c) => (
-                <li key={c.slug} className={`categoria categoria--${c.tono}`}>
-                  <Link href={`/buscar?categoria=${c.slug}`}>
+              {CATEGORIAS.map((c, i) => (
+                <li key={c.slug} className={c.foto ? 'categoria categoria--foto' : 'categoria'}>
+                  <Link
+                    href={`/buscar?categoria=${c.slug}`}
+                    style={
+                      c.foto
+                        ? undefined
+                        : {
+                            background: parDeRotulo(i).fondo,
+                            color: parDeRotulo(i).tinta,
+                          }
+                    }
+                  >
+                    {!c.foto && (
+                      <Rotulo nombre={c.nombre} categoria={c.slug} indice={i} talla="fondo" />
+                    )}
                     {c.foto && (
                       <Image
                         src={c.foto}

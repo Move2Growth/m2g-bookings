@@ -304,10 +304,12 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* ── Superficies ────────────────────────────────────────────────────────────── */
 
-/* Canto vivo y filete de 1 px, no tarjeta con sombra. La regla de forma del brandbook. */
+/* Sin caja. Una caja con filete es una tarjeta, y el brandbook dice que lo que separa es
+   color, filo o aire. El panel se distingue por su fondo y por el filo de arriba; el filete de
+   1 px que llevaba medía 1,29:1, peor que los 1,31:1 por los que se descartó la dirección A. */
 .panel {
   background: var(--color-lienzo);
-  border: 1px solid var(--color-borde);
+  border-top: 2px solid var(--color-tinta);
   border-radius: var(--radio-superficie);
   padding: var(--espacio-4);
 }
@@ -320,7 +322,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* Lista con filetes entre filas en vez de una tarjeta por elemento: menos ruido y más densidad
    real en un teléfono. */
-.lista-filete > li + li { border-top: 1px solid var(--color-borde); }
+.lista-filete > li + li { border-top: 1px solid var(--color-borde-fuerte); }
 
 /* ── Formularios ────────────────────────────────────────────────────────────── */
 
@@ -413,7 +415,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   position: relative;
   aspect-ratio: 16 / 10;
   overflow: hidden;
-  border: 1px solid var(--color-borde);
+  border: 1px solid var(--color-borde-fuerte);
   background: var(--color-arena);
 }
 @media (min-width: 900px) {
@@ -451,24 +453,31 @@ button, input, select, textarea { font: inherit; color: inherit; }
    fila se rompe y parece un fallo de maquetación en vez de un ritmo. El ritmo lo pone el
    color. */
 .categoria a {
-  display: flex;
-  align-items: flex-end;
+  position: relative;
+  display: grid;
   min-height: 132px;
-  padding: var(--espacio-3);
   text-decoration: none;
+  overflow: hidden;
+}
+/* El rótulo llena la celda: el nombre de la categoría ya es el texto de la pieza, así que no se
+   escribe dos veces. */
+.categoria a > .rotulo { position: absolute; inset: 0; }
+.categoria a > span:not(.rotulo) { position: relative; align-self: end; padding: var(--espacio-3); }
+.categoria--foto a > span:not(.rotulo) {
   font-weight: var(--tipografia-pesos-display);
   font-stretch: var(--tipografia-ancho-rotulo);
   font-size: var(--tipografia-tamano-titulo-4);
 }
-.categoria a:hover { filter: brightness(0.94); }
-.categoria--tinta a { background: var(--color-tinta); color: var(--color-papel); }
-.categoria--azul a { background: var(--color-acento); color: var(--color-acento-texto); }
-.categoria--naranja a { background: var(--color-abre); color: var(--color-abre-texto); }
-.categoria--cal a {
-  background: var(--color-lienzo);
-  color: var(--color-tinta);
-  border: 1px solid var(--color-borde);
+/* El nombre va siempre encima, con el peso de rótulo, y sobre la trama se lee porque la trama
+   es la propia tinta del bloque al 24 %. */
+.categoria a > span:not(.rotulo) {
+  font-weight: var(--tipografia-pesos-display);
+  font-stretch: var(--tipografia-ancho-rotulo);
+  font-size: var(--tipografia-tamano-titulo-4);
 }
+/* La talla de fondo no lleva alto propio: lo pone la celda. */
+.rotulo--fondo { min-height: 0; background: transparent; --rotulo-trama-talla: 40px; }
+.categoria a:hover { filter: brightness(0.94); }
 .categoria--foto a { position: relative; overflow: hidden; color: var(--color-papel); }
 .categoria--foto img {
   position: absolute;
@@ -497,7 +506,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   gap: var(--espacio-4);
   align-items: start;
   padding-top: var(--espacio-4);
-  border-top: 1px solid var(--color-borde);
+  border-top: 1px solid var(--color-borde-fuerte);
 }
 /* El número de paso es un **bloque naranja con tinta encima**, no una cifra naranja.
    Era 2,34:1 sobre cal, que incumple la regla del propio brandbook: el naranja nunca es color
@@ -522,7 +531,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .pasos p { max-width: 68ch; }
 
 .pregunta {
-  border-bottom: 1px solid var(--color-borde);
+  border-bottom: 1px solid var(--color-borde-fuerte);
 }
 .pregunta summary {
   padding: var(--espacio-4) 0;
@@ -557,7 +566,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .tabla-plan th,
 .tabla-plan td {
   padding: var(--espacio-3) 0;
-  border-top: 1px solid var(--color-borde);
+  border-top: 1px solid var(--color-borde-fuerte);
   font-weight: var(--tipografia-pesos-normal);
   vertical-align: baseline;
 }
@@ -637,7 +646,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
    palabra y en español eso es una falta, no un estilo. */
 .primera-mayuscula::first-letter { text-transform: uppercase; }
 
-.lista-servicios { margin-top: var(--espacio-4); border-top: 1px solid var(--color-borde); }
+.lista-servicios { margin-top: var(--espacio-4); border-top: 1px solid var(--color-borde-fuerte); }
 .servicio {
   display: flex;
   justify-content: space-between;
@@ -645,7 +654,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   gap: var(--espacio-4);
   min-height: var(--espacio-toque-minimo);
   padding: var(--espacio-3) var(--espacio-2);
-  border-bottom: 1px solid var(--color-borde);
+  border-bottom: 1px solid var(--color-borde-fuerte);
   color: inherit;
   text-decoration: none;
 }
@@ -679,7 +688,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   min-height: 60px;
   padding-inline: var(--espacio-4);
   background: var(--color-lienzo);
-  border-bottom: 1px solid var(--color-borde);
+  border-bottom: 1px solid var(--color-borde-fuerte);
 }
 
 .dias {
@@ -707,7 +716,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 .agenda__fila--cancelada_cliente,
 
-.agenda__fila--esqueleto { border-left-color: var(--color-borde); }
+.agenda__fila--esqueleto { border-left-color: var(--color-arena); }
 .agenda__fila--esqueleto .agenda__hora,
 .agenda__fila--esqueleto .agenda__cuerpo {
   display: block;
@@ -782,7 +791,7 @@ a:has(> svg) {
   min-height: 56px;
   padding-inline: var(--espacio-4);
   background: var(--color-lienzo);
-  border-bottom: 1px solid var(--color-borde);
+  border-bottom: 1px solid var(--color-borde-fuerte);
   position: sticky;
   top: 0;
   z-index: 20;
@@ -865,7 +874,7 @@ a:has(> svg) {
     position: sticky;
     inset: 56px auto auto 0;
     border-top: none;
-    border-bottom: 1px solid var(--color-borde);
+    border-bottom: 1px solid var(--color-borde-fuerte);
   }
   .pestanas__lista {
     max-width: var(--medida-contenedor, 72rem);
@@ -1018,8 +1027,8 @@ a:has(> svg) {
   /* Filete grueso a la izquierda en vez de tarjeta con sombra: en una lista larga marca el
      principio de cada cita sin dibujar una caja por elemento. */
   border-left: 4px solid var(--color-acento);
-  border-block: 1px solid var(--color-borde);
-  border-right: 1px solid var(--color-borde);
+  border-block: 1px solid var(--color-borde-fuerte);
+  border-right: 1px solid var(--color-borde-fuerte);
 }
 .cita__cuando {
   font-weight: var(--tipografia-pesos-fuerte);
@@ -1050,7 +1059,7 @@ a:has(> svg) {
 .salon {
   position: relative;
   background: var(--color-lienzo);
-  border: 1px solid var(--color-borde);
+  border: 1px solid var(--color-borde-fuerte);
   transition: border-color var(--movimiento-rapido) var(--movimiento-curva),
               transform var(--movimiento-rapido) var(--movimiento-curva);
 }
@@ -1238,7 +1247,7 @@ a:has(> svg) {
   gap: var(--espacio-3);
   padding-block: var(--espacio-3);
   background: var(--color-lienzo);
-  border-top: 1px solid var(--color-borde);
+  border-top: 1px solid var(--color-borde-fuerte);
 }
 
 /* ── Listas del panel ──────────────────────────────────────────────────────── */
@@ -1254,7 +1263,7 @@ a:has(> svg) {
 
 .filas { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--color-tinta); }
 .filas--apagadas { border-top-color: var(--color-borde-fuerte); opacity: 0.72; }
-.fila { border-bottom: 1px solid var(--color-borde); }
+.fila { border-bottom: 1px solid var(--color-borde-fuerte); }
 /* La fila entera es el objetivo táctil, no un lápiz de 24 px al final. Con una mano y de pie,
    apuntar a un icono pequeño es lo que hace que se toque el de al lado. */
 .fila__boton {
@@ -1481,7 +1490,7 @@ textarea.entrada { resize: vertical; min-height: 7rem; line-height: var(--tipogr
 .resumen-notas__barra > span { display: block; height: 100%; background: var(--color-acento); }
 
 .resenas { list-style: none; margin: var(--espacio-5) 0 0; padding: 0; display: grid; gap: var(--espacio-4); }
-.resena { padding-top: var(--espacio-4); border-top: 1px solid var(--color-borde); }
+.resena { padding-top: var(--espacio-4); border-top: 1px solid var(--color-borde-fuerte); }
 .resena__cabeza { display: flex; flex-wrap: wrap; gap: var(--espacio-3); align-items: baseline; }
 .resena__autor { font-weight: var(--tipografia-pesos-medio); }
 .resena__texto { margin-top: var(--espacio-2); }
@@ -1534,7 +1543,11 @@ textarea.entrada { resize: vertical; min-height: 7rem; line-height: var(--tipogr
 }
 
 .reportes { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--espacio-4); }
-.reporte { padding: var(--espacio-4); background: var(--color-lienzo); border: 1px solid var(--color-borde); }
+.reporte {
+  padding: var(--espacio-4);
+  background: var(--color-lienzo);
+  border-top: 2px solid var(--color-tinta);
+}
 .reporte__cabeza { display: flex; flex-wrap: wrap; gap: var(--espacio-3); align-items: baseline; }
 .reporte__texto { margin-top: var(--espacio-2); }
 
@@ -1544,8 +1557,8 @@ textarea.entrada { resize: vertical; min-height: 7rem; line-height: var(--tipogr
      un teléfono estrecho y la rejilla empuja el documento a lo ancho. */
   grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
   gap: 1px;
-  background: var(--color-borde);
-  border: 1px solid var(--color-borde);
+  background: var(--color-borde-fuerte);
+  border: 1px solid var(--color-borde-fuerte);
   margin-bottom: var(--espacio-5);
 }
 .cifra-clave { padding: var(--espacio-4); background: var(--color-lienzo); display: grid; gap: var(--espacio-1); }
@@ -1614,7 +1627,7 @@ textarea.entrada { resize: vertical; min-height: 7rem; line-height: var(--tipogr
 
 .fotos { display: flex; flex-wrap: wrap; gap: var(--espacio-3); list-style: none; margin: 0; padding: 0; }
 .foto { position: relative; width: 148px; }
-.foto img { width: 100%; height: 104px; object-fit: cover; display: block; border: 1px solid var(--color-borde); }
+.foto img { width: 100%; height: 104px; object-fit: cover; display: block; border: 1px solid var(--color-borde-fuerte); }
 .foto__portada {
   position: absolute;
   bottom: 0;

@@ -33,7 +33,7 @@ const OFICIO: Record<string, string> = {
 }
 
 /** Los cuatro pares de la paleta. El orden es el del ritmo, no el de la importancia. */
-const PARES = [
+export const PARES = [
   { fondo: 'var(--color-acento)', tinta: 'var(--color-acento-texto)' },
   { fondo: 'var(--color-tinta)', tinta: 'var(--color-papel)' },
   { fondo: 'var(--color-abre)', tinta: 'var(--color-abre-texto)' },
@@ -54,6 +54,18 @@ function talla(nombre: string) {
   return 'rotulo--corta'
 }
 
+/**
+ * El par de colores que le toca a una posición.
+ *
+ * Se exporta porque hay un caso en el que el color tiene que estar **en el propio elemento** y
+ * no en el rótulo: cuando el nombre se escribe encima. Si el color vive en un hermano, el texto
+ * queda sin fondo real, y eso no es solo un problema de verificación: es que basta con que el
+ * rótulo no cargue para que el nombre desaparezca.
+ */
+export function parDeRotulo(indice: number) {
+  return PARES[indice % PARES.length]
+}
+
 export function Rotulo({
   nombre,
   categoria,
@@ -66,7 +78,7 @@ export function Rotulo({
   categoria?: string | null
   /** Posición en la lista: es lo que reparte los colores para que la rejilla tenga ritmo. */
   indice?: number
-  talla?: 'cartel' | 'sello'
+  talla?: 'cartel' | 'sello' | 'fondo'
   className?: string
 }) {
   const par = PARES[indice % PARES.length]
@@ -80,7 +92,12 @@ export function Rotulo({
       // repetirlo para un lector de pantalla es ruido.
       aria-hidden="true"
     >
-      <span className="rotulo__texto">{variante === 'sello' ? nombre.trim().charAt(0) : nombre}</span>
+      {/* La talla «fondo» solo pinta color y trama: se usa donde el nombre ya está escrito
+          encima, como en las celdas de categoría de la portada. Meter ahí el texto del rótulo
+          lo escribiría dos veces y a un tamaño que no cabe en 132 px de alto. */}
+      {variante !== 'fondo' && (
+        <span className="rotulo__texto">{variante === 'sello' ? nombre.trim().charAt(0) : nombre}</span>
+      )}
     </span>
   )
 }
