@@ -118,24 +118,14 @@ function Contenido() {
   }
 
   return (
-    <main className="contenido" style={{ maxWidth: '28rem' }}>
+    <main className="contenedor seccion" style={{ maxWidth: '30rem' }}>
       <p style={{ marginBottom: 'var(--espacio-4)' }}>
         <Link href={`/${negocio}`}>← Volver a elegir hora</Link>
       </p>
 
       <h1 style={{ fontSize: 'var(--tipografia-tamano-titulo-2)' }}>Confirmar tu cita</h1>
 
-      <dl
-        style={{
-          margin: 'var(--espacio-5) 0',
-          padding: 'var(--espacio-4)',
-          background: 'var(--color-superficie)',
-          border: '1px solid var(--color-borde)',
-          borderRadius: 'var(--radio-grande)',
-          display: 'grid',
-          gap: 'var(--espacio-3)',
-        }}
-      >
+      <dl className="panel" style={{ margin: 'var(--espacio-5) 0', display: 'grid', gap: 'var(--espacio-3)' }}>
         <div>
           <dt style={etiqueta}>Servicio</dt>
           <dd style={valor}>{nombre || 'El servicio elegido'}</dd>
@@ -149,16 +139,7 @@ function Contenido() {
       </dl>
 
       {error && (
-        <p
-          role="alert"
-          style={{
-            background: 'var(--color-peligro-suave)',
-            color: 'var(--color-peligro)',
-            padding: 'var(--espacio-3)',
-            borderRadius: 'var(--radio-normal)',
-            marginBottom: 'var(--espacio-4)',
-          }}
-        >
+        <p role="alert" className="aviso aviso--error" style={{ marginBottom: 'var(--espacio-4)' }}>
           {error}{' '}
           <Link href={`/${negocio}`} style={{ color: 'inherit' }}>
             Elegir otra hora
@@ -168,7 +149,7 @@ function Contenido() {
 
       {sesion ? (
         <>
-          <button onClick={confirmar} disabled={enviando} style={boton}>
+          <button onClick={confirmar} disabled={enviando} className="boton boton--primario boton--ancho">
             {enviando ? 'Un momento…' : 'Confirmar la cita'}
           </button>
           <p
@@ -196,7 +177,7 @@ function Contenido() {
               value={nombreCliente}
               onChange={(e) => setNombreCliente(e.target.value)}
               placeholder="Como quieres que te llamen en el salón"
-              style={campo}
+              className="entrada"
             />
           </label>
           <label style={{ display: 'grid', gap: 'var(--espacio-2)' }}>
@@ -209,8 +190,7 @@ function Contenido() {
               onChange={(e) => setTelefono(e.target.value)}
               disabled={paso === 'codigo'}
               required
-              className="cifras"
-              style={campo}
+              className="entrada cifras"
             />
           </label>
           {paso === 'codigo' && (
@@ -225,8 +205,7 @@ function Contenido() {
                 onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ''))}
                 required
                 autoFocus
-                className="cifras"
-                style={{ ...campo, letterSpacing: '0.4em' }}
+                className="entrada entrada--codigo"
               />
               {pista && (
                 <span style={{ color: 'var(--color-texto-tenue)', fontSize: 'var(--tipografia-tamano-menor)' }}>
@@ -235,7 +214,7 @@ function Contenido() {
               )}
             </label>
           )}
-          <button type="submit" disabled={enviando} style={boton}>
+          <button type="submit" disabled={enviando} className="boton boton--primario boton--ancho">
             {enviando ? 'Un momento…' : paso === 'telefono' ? 'Mandarme el código' : 'Verificar'}
           </button>
         </form>
@@ -261,27 +240,4 @@ const valor: React.CSSProperties = {
   margin: 0,
   fontWeight: 'var(--tipografia-pesos-medio)',
   fontSize: 'var(--tipografia-tamano-mayor)',
-}
-const campo: React.CSSProperties = {
-  fontSize: 'var(--tipografia-tamano-cuerpo)',
-  fontFamily: 'inherit',
-  minHeight: 'var(--espacio-toque-minimo)',
-  padding: 'var(--espacio-3)',
-  border: '1px solid var(--color-borde-fuerte)',
-  borderRadius: 'var(--radio-normal)',
-  background: 'var(--color-superficie)',
-  color: 'var(--color-texto)',
-}
-const boton: React.CSSProperties = {
-  minHeight: 'var(--espacio-toque-minimo)',
-  padding: 'var(--espacio-3) var(--espacio-4)',
-  border: 'none',
-  borderRadius: 'var(--radio-normal)',
-  background: 'var(--color-acento)',
-  color: 'var(--color-acento-texto)',
-  fontSize: 'var(--tipografia-tamano-cuerpo)',
-  fontWeight: 'var(--tipografia-pesos-medio)',
-  fontFamily: 'inherit',
-  cursor: 'pointer',
-  width: '100%',
 }

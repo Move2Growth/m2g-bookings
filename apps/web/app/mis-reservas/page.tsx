@@ -85,7 +85,7 @@ function Contenido() {
   const pasadas = citas.filter((c) => !['pendiente', 'confirmada'].includes(c.estado))
 
   return (
-    <main className="contenido">
+    <main className="contenedor seccion">
       <header
         style={{
           display: 'flex',
@@ -118,30 +118,13 @@ function Contenido() {
       {cargando && <p style={{ color: 'var(--color-texto-suave)' }}>Cargando tus citas…</p>}
 
       {error && (
-        <p
-          role="alert"
-          style={{
-            background: 'var(--color-peligro-suave)',
-            color: 'var(--color-peligro)',
-            padding: 'var(--espacio-3)',
-            borderRadius: 'var(--radio-normal)',
-            marginBottom: 'var(--espacio-4)',
-          }}
-        >
+        <p role="alert" className="aviso aviso--error" style={{ marginBottom: 'var(--espacio-4)' }}>
           {error}
         </p>
       )}
 
       {!cargando && citas.length === 0 && (
-        <p
-          style={{
-            background: 'var(--color-superficie)',
-            border: '1px solid var(--color-borde)',
-            borderRadius: 'var(--radio-grande)',
-            padding: 'var(--espacio-4)',
-            color: 'var(--color-texto-suave)',
-          }}
-        >
+        <p className="panel apagado">
           Todavía no tienes citas. <Link href="/">Busca un salón</Link> y reserva en un minuto.
         </p>
       )}
@@ -189,12 +172,7 @@ function Grupo({
           return (
             <li
               key={cita.id}
-              style={{
-                background: 'var(--color-superficie)',
-                border: '1px solid var(--color-borde)',
-                borderRadius: 'var(--radio-grande)',
-                padding: 'var(--espacio-4)',
-              }}
+              className="panel"
             >
               <p className="cifras" style={{ fontWeight: 'var(--tipografia-pesos-fuerte)', textTransform: 'capitalize' }}>
                 {cuando}
@@ -227,17 +205,8 @@ function Grupo({
               {onCancelar && cita.se_puede_cancelar && (
                 <button
                   onClick={() => onCancelar(cita)}
-                  style={{
-                    marginTop: 'var(--espacio-3)',
-                    minHeight: 'var(--espacio-toque-minimo)',
-                    padding: '0 var(--espacio-3)',
-                    border: '1px solid var(--color-borde-fuerte)',
-                    borderRadius: 'var(--radio-normal)',
-                    background: 'transparent',
-                    color: 'var(--color-peligro)',
-                    fontFamily: 'inherit',
-                    cursor: 'pointer',
-                  }}
+                  className="boton boton--peligro"
+                  style={{ marginTop: 'var(--espacio-3)' }}
                 >
                   Cancelar
                 </button>
@@ -265,7 +234,7 @@ function Grupo({
 
 export default function MisReservas() {
   return (
-    <Suspense fallback={<main className="contenido">Cargando…</main>}>
+    <Suspense fallback={<main className="contenedor seccion">Cargando…</main>}>
       <Contenido />
     </Suspense>
   )

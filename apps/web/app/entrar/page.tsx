@@ -16,7 +16,8 @@ import { API, guardarSesion } from '@/lib/sesion'
  */
 export default function Entrar() {
   const router = useRouter()
-  const [paso, setPaso] = useState<'telefono' | 'codigo'>('telefono')
+  const [paso, setPaso] = useState<'telefono' | 'codigo' | 'negocio'>('telefono')
+  const [negocios, setNegocios] = useState<{ id: string; nombre: string; rol: string }[]>([])
   const [telefono, setTelefono] = useState('+507')
   const [codigo, setCodigo] = useState('')
   const [pista, setPista] = useState<string | null>(null)
@@ -59,7 +60,37 @@ export default function Entrar() {
       const datos = await respuesta.json()
       if (!respuesta.ok) throw new Error(datos?.error?.mensaje ?? 'Ese código no es válido.')
       guardarSesion(datos)
-      router.push(datos.negocio_activo ? '/panel' : '/mis-reservas')
+
+      // El token recién emitido todavía no lleva negocio, así que aquí se pregunta en cuáles
+      // trabaja esta persona. Con uno solo se cambia de contexto sin preguntar nada: hacerle
+      // elegir entre una única opción es una pantalla que no informa de nada. Con varios, se
+      // elige; sin ninguno, es una clienta y va a sus citas.
+      const negocios = await fetch(`${API}/api/v1/mi/negocios`, {
+        headers: { Authorization: `Bearer ${datos.acceso}` },
+      })
+        .then((r) => (r.ok ? r.json() : []))
+        .catch(() => [])
+
+      if (negocios.length === 1) {
+        const conNegocio = await fetch(`${API}/api/v1/auth/modo-negocio`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${datos.acceso}` },
+          body: JSON.stringify({ negocio_id: negocios[0].id }),
+        }).then((r) => (r.ok ? r.json() : null))
+        if (conNegocio) {
+          guardarSesion(conNegocio)
+          router.push('/panel')
+          return
+        }
+      }
+
+      if (negocios.length > 1) {
+        setNegocios(negocios)
+        setPaso('negocio')
+        return
+      }
+
+      router.push('/mis-reservas')
     } catch (fallo) {
       setError(fallo instanceof Error ? fallo.message : 'Ese código no es válido.')
     } finally {
@@ -95,14 +126,48 @@ export default function Entrar() {
           </Link>
 
           <h2 style={{ marginTop: 'var(--espacio-5)' }}>
-            {paso === 'telefono' ? 'Entra con tu teléfono' : 'Escribe tu código'}
+            {paso === 'telefono' && 'Entra con tu teléfono'}
+            {paso === 'codigo' && 'Escribe tu código'}
+            {paso === 'negocio' && 'Con qué salón entras'}
           </h2>
           <p className="apagado" style={{ marginTop: 'var(--espacio-2)' }}>
-            {paso === 'telefono'
-              ? 'Te mandamos un código por WhatsApp. No hay contraseña que recordar.'
-              : `Te llegó un código de 6 dígitos al ${telefono}.`}
+            {paso === 'telefono' && 'Te mandamos un código por WhatsApp. No hay contraseña que recordar.'}
+            {paso === 'codigo' && `Te llegó un código de 6 dígitos al ${telefono}.`}
+            {paso === 'negocio' && 'Trabajas en más de uno. Puedes cambiar cuando quieras.'}
           </p>
 
+          {paso === 'negocio' && (
+            <ul className="lista-filete" style={{ marginTop: 'var(--espacio-5)', borderTop: '1px solid var(--color-borde)' }}>
+              {negocios.map((n) => (
+                <li key={n.id} style={{ borderBottom: '1px solid var(--color-borde)' }}>
+                  <button
+                    className="boton boton--llano boton--ancho"
+                    style={{ justifyContent: 'space-between', paddingInline: 0 }}
+                    onClick={async () => {
+                      const guardada = JSON.parse(window.localStorage.getItem('agenda.sesion') ?? 'null')
+                      const conNegocio = await fetch(`${API}/api/v1/auth/modo-negocio`, {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          Authorization: `Bearer ${guardada.acceso}`,
+                        },
+                        body: JSON.stringify({ negocio_id: n.id }),
+                      }).then((r) => (r.ok ? r.json() : null))
+                      if (conNegocio) {
+                        guardarSesion(conNegocio)
+                        router.push('/panel')
+                      }
+                    }}
+                  >
+                    <span style={{ color: 'var(--color-tinta)' }}>{n.nombre}</span>
+                    <span className="tenue">{n.rol === 'dueno' ? 'Dueño' : 'Profesional'}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {paso !== 'negocio' && (
           <form
             onSubmit={paso === 'telefono' ? pedirCodigo : verificar}
             style={{ display: 'grid', gap: 'var(--espacio-4)', marginTop: 'var(--espacio-5)' }}
@@ -168,6 +233,7 @@ export default function Entrar() {
               {enviando ? 'Un momento…' : paso === 'telefono' ? 'Mandarme el código' : 'Entrar'}
             </button>
           </form>
+          )}
 
           <p className="tenue" style={{ marginTop: 'var(--espacio-5)' }}>
             Al entrar aceptas los <Link href="/legal/terminos">términos</Link> y la{' '}

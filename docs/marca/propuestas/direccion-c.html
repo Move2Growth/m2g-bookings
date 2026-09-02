@@ -340,7 +340,7 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
 }
 .hora{
   display:flex; align-items:center; justify-content:center;
-  min-height:46px; background:var(--papel);
+  min-height:46px; min-width:0; background:var(--papel);
   font-family:var(--mono); font-size:14px; font-weight:500;
   font-variant-numeric:tabular-nums lining-nums;
   color:var(--bermellon); cursor:pointer;
@@ -526,7 +526,7 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
 .paleta .prop{ font-weight:500; font-size:15px; }
 .paleta .uso{ color:var(--grafito); font-size:13px; }
 .barra-prop{ display:flex; height:14px; border:1px solid var(--filete); margin-top:14px; }
-.barra-prop i{ display:block; height:100%; border-right:1px solid var(--papel); }
+.barra-prop i{ display:block; height:100%; border-right:1px solid var(--filete); }
 .barra-prop i:last-child{ border-right:0; }
 
 .tipo{ padding-top:26px; }
@@ -537,11 +537,31 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
   font-variant-numeric:tabular-nums lining-nums; margin-top:10px;
   padding-top:10px; border-top:1px solid var(--filete);
 }
+.tipo-abc{
+  margin-top:10px; padding-top:10px; border-top:1px solid var(--filete);
+  font-size:13px; line-height:1.6; color:var(--grafito); word-spacing:.04em;
+}
+.tipo-abc.mono{
+  font-family:var(--mono); font-variant-numeric:tabular-nums lining-nums;
+  letter-spacing:.02em;
+}
 .tipo-escala{ margin-top:12px; width:100%; border-collapse:collapse; }
 .tipo-escala{ table-layout:fixed; }
 .tipo-escala td{ padding:7px 0; border-bottom:1px solid var(--filete); font-size:14px; width:48%; }
 .tipo-escala td.der{ text-align:right; font-family:var(--mono); font-size:12px; color:var(--grafito); font-variant-numeric:tabular-nums; }
 .tipo-escala tr:last-child td{ border-bottom:0; }
+
+/* ---- Por debajo de 390 px: la barra se aprieta ------------------------- */
+
+@media (max-width:389px){
+  .menu{ gap:10px; }
+  .menu a{ font-size:13px; }
+  .menu a.entrar{ padding:6px 9px; }
+  .logo svg{ height:19px; }
+}
+@media (max-width:359px){
+  .menu a[href="#ficha"]{ display:none; }
+}
 
 /* ---- Paleta apilada por debajo de 768 px -------------------------------- */
 
@@ -553,7 +573,7 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
     padding:13px 0; border-bottom:1px solid var(--filete);
   }
   .paleta tr:last-child{ border-bottom:0; }
-  .paleta td{ display:block; padding:0; border-bottom:0; }
+  .paleta td{ display:block; padding:0; border-bottom:0; min-width:0; overflow-wrap:anywhere; }
   .paleta td.muestra{ width:auto; grid-column:1; grid-row:1 / span 2; padding-right:12px; }
   .paleta td:nth-child(2){ grid-column:2; grid-row:1; font-weight:500; }
   .paleta td.hex{ grid-column:2; grid-row:2; color:var(--grafito); }
@@ -604,7 +624,7 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
   .portada .bajada{ font-size:17px; }
   .seccion-cabeza h2{ font-size:30px; }
   .ledger li{ grid-template-columns:150px minmax(0,1fr) minmax(0,340px); }
-  .rejilla{ grid-template-columns:repeat(11,1fr); }
+  .rejilla{ grid-template-columns:repeat(8,1fr); }
   .agenda-zona{ gap:0 56px; }
 }
 
@@ -948,9 +968,11 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
       <div class="bloque">
         <div class="bloque-titulo">
           <h4>Horas libres, miércoles 3 de septiembre</h4>
-          <span class="cota">9 de 22</span>
+          <span class="cota">10 de 24</span>
         </div>
         <div class="rejilla" role="group" aria-label="Horas disponibles para Corte clásico el miércoles 3 de septiembre">
+          <button type="button" class="hora ocupada" disabled aria-label="08:00 ocupada">08:00</button>
+          <button type="button" class="hora" aria-pressed="false">08:30</button>
           <button type="button" class="hora" aria-pressed="false">09:00</button>
           <button type="button" class="hora ocupada" disabled aria-label="09:30 ocupada">09:30</button>
           <button type="button" class="hora ocupada" disabled aria-label="10:00 ocupada">10:00</button>
@@ -1058,7 +1080,7 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
                 <div class="cita-reloj"><b>11:45</b><s>12:30</s></div>
                 <p class="cita-nombre">Yamileth Sánchez</p>
                 <span class="estado">Canceló ella</span>
-                <p class="cita-servicio">Afeitado a navaja · anoche 21:14</p>
+                <p class="cita-servicio">Afeitado a navaja, 45 min</p>
                 <span class="cita-importe">B/. 0.00</span>
               </div>
             </li>
@@ -1085,7 +1107,7 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
                 <div class="cita-reloj"><b>14:00</b><s>14:30</s></div>
                 <p class="cita-nombre">Maribel Quintero</p>
                 <span class="estado estado--espera">Pendiente</span>
-                <p class="cita-servicio">Corte infantil, 30 min · pide confirmar</p>
+                <p class="cita-servicio">Corte infantil, 30 min</p>
                 <span class="cita-importe">B/. 9.00</span>
               </div>
             </li>
@@ -1118,7 +1140,7 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
         </div>
         <ul class="notas">
           <li><p><strong style="color:var(--tinta);font-weight:500">La fila entera se toca.</strong> Cada cita mide 60 px de alto y el objetivo táctil es la fila completa, no un icono de 24 px pegado al borde. Se usa con una mano y con prisa, muchas veces con tijeras en la otra.</p></li>
-          <li><p><strong style="color:var(--tinta);font-weight:500">El bermellón aparece una sola vez.</strong> Marca lo único que se puede hacer ahora mismo, que es cubrir el hueco de las 11:45. Si el color estuviera en cinco sitios, no señalaría ninguno.</p></li>
+          <li><p><strong style="color:var(--tinta);font-weight:500">El bermellón aparece una sola vez.</strong> Marca lo único que se puede hacer ahora mismo: Yamileth canceló anoche a las 21:14 y esos 45 minutos son el único hueco por cubrir del día. Si el color estuviera en cinco sitios, no señalaría ninguno.</p></li>
           <li><p><strong style="color:var(--tinta);font-weight:500">Hora de inicio y hora de fin, en cifras tabulares.</strong> 09:55 y 11:45 ocupan exactamente el mismo ancho, así que la columna de horas cae recta y el ojo la recorre sin releer.</p></li>
           <li><p><strong style="color:var(--tinta);font-weight:500">El estado se lee escrito, no pintado.</strong> Ninguno de los cinco estados depende del color. A contraluz, en un local con ventana a la calle, la palabra sigue ahí y el color se habría perdido.</p></li>
           <li><p><strong style="color:var(--tinta);font-weight:500">La franja de arriba responde antes de bajar.</strong> Cuántas citas, cuánto entra hoy y qué queda libre son las tres preguntas que se hacen 40 veces al día. Están resueltas en 34 px de alto.</p></li>
@@ -1281,17 +1303,20 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
         <div class="tipo-muestra">
           <p class="grande">Bukeo. Barbería Don Ramiro</p>
           <p class="mono-grande">08:30 09:55 11:45 B/. 18.00</p>
+          <p class="tipo-abc">ABCDEFGHIJKLMNÑOPQRSTUVWXYZ<br>abcdefghijklmnñopqrstuvwxyz áéíóúü</p>
+          <p class="tipo-abc mono">0123456789 · B/. % min km : ,</p>
         </div>
 
         <div>
           <table class="tipo-escala">
             <tbody>
-              <tr><td>Titular de portada</td><td class="der">Plex Sans 600 · 56 px · tracking -3.5 %</td></tr>
+              <tr><td>Titular de portada</td><td class="der">Plex Sans 600 · 56 px / 1.08</td></tr>
               <tr><td>Título de sección</td><td class="der">Plex Sans 600 · 30 px / 1.15</td></tr>
               <tr><td>Nombre del cliente en la agenda</td><td class="der">Plex Sans 500 · 15 px / 1.5</td></tr>
               <tr><td>Texto corrido</td><td class="der">Plex Sans 400 · 15 px / 1.5</td></tr>
               <tr><td>Toda hora, precio y duración</td><td class="der">Plex Mono 500 · tabular-nums</td></tr>
-              <tr><td>Rótulo de columna y de estado</td><td class="der">Plex Mono 500 · 10 px · tracking +10 %</td></tr>
+              <tr><td>Rótulo de columna y de estado</td><td class="der">Plex Mono 500 · 10 px, caja alta</td></tr>
+              <tr><td>Espaciado de letra</td><td class="der">-3.5 % en titulares · +10 % en mono</td></tr>
             </tbody>
           </table>
           <p class="parrafo" style="margin-top:14px">Se elige IBM Plex porque trae cifras tabulares reales dibujadas en el archivo, no simuladas al vuelo, y esa es la única forma de que una columna de horas de 14 px caiga recta en la agenda en vez de bailar entre las 9 y las 11. Es una familia sola en dos anchos, la Sans para leer y la Mono para todo lo que sea una cifra, así que un teléfono en 3G en Panamá descarga un sistema tipográfico y no dos.</p>

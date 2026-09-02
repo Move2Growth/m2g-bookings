@@ -28,7 +28,7 @@ from agenda.errores import (
     TelefonoNoVerificado,
 )
 from agenda.modelos.clientes import BusinessClient
-from agenda.modelos.identidad import User
+from agenda.modelos.identidad import Membership, User
 from agenda.modelos.negocio import Business
 from agenda.modelos.reservas import Booking, BookingItem
 from agenda.servicios import reservas as servicio_reservas
@@ -59,6 +59,15 @@ class MiCita(BaseModel):
     se_puede_cancelar: bool
 
 
+class NegocioDeLaPersona(BaseModel):
+    """Un salón en el que esta persona trabaja, con el papel que tiene en él."""
+
+    id: uuid.UUID
+    nombre: str
+    slug: str
+    rol: str
+
+
 class PeticionDeReserva(BaseModel):
     negocio_slug: str
     servicios: list[uuid.UUID] = Field(min_length=1)
@@ -70,6 +79,40 @@ class PeticionDeReserva(BaseModel):
     #: entre la persona y su cita. Sin esto, el salón ve «Cliente» en su agenda, que no le sirve
     #: para saludar a nadie.
     nombre: str | None = None
+
+
+@router.get("/negocios", summary="En qué salones trabajo (ONB-3)")
+async def mis_negocios(
+    sesion: SesionPlataforma,
+    identidad: Annotated[Identidad, Depends(identidad_actual)],
+) -> list[NegocioDeLaPersona]:
+    """Los salones donde esta persona tiene un papel activo.
+
+    Existe por una razón muy concreta: sin esto, quien tiene un salón entra y aterriza en la
+    pantalla de clienta, porque el token recién emitido todavía no lleva negocio. Una misma
+    cuenta puede ser clienta y trabajar en dos sitios (ONB-3), así que la respuesta es una
+    lista y no un valor.
+    """
+    filas = (
+        (
+            await sesion.execute(
+                select(Membership, Business)
+                .join(Business, Business.id == Membership.business_id)
+                .where(
+                    Membership.user_id == identidad.usuario_id,
+                    Membership.status == "activa",
+                )
+                .order_by(Business.display_name)
+            )
+        )
+        .all()
+    )
+    return [
+        NegocioDeLaPersona(
+            id=negocio.id, nombre=negocio.display_name, slug=negocio.slug, rol=membresia.role
+        )
+        for membresia, negocio in filas
+    ]
 
 
 @router.get("/reservas", summary="Mis reservas (RSV-7)")

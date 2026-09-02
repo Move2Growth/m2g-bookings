@@ -549,3 +549,74 @@ button, input, select, textarea { font: inherit; color: inherit; }
   box-shadow: inset 3px 0 0 var(--color-acento);
 }
 .servicio strong { font-weight: var(--tipografia-pesos-medio); }
+
+/* ── Panel del salón ────────────────────────────────────────────────────────── */
+
+.panel-app { min-height: 100dvh; background: var(--color-papel); }
+.panel-app__barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-4);
+  min-height: 60px;
+  padding-inline: var(--espacio-4);
+  background: var(--color-lienzo);
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.dias {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-2);
+  margin-block: var(--espacio-4);
+  padding: var(--espacio-2);
+  background: var(--color-lienzo);
+  border: 1px solid var(--color-borde);
+  text-align: center;
+}
+.dias__flecha {
+  min-width: var(--espacio-toque-minimo);
+  min-height: var(--espacio-toque-minimo);
+  border: none;
+  background: transparent;
+  color: var(--color-tinta);
+  font-size: var(--tipografia-tamano-mayor);
+  cursor: pointer;
+  border-radius: var(--radio-control);
+}
+.dias__flecha:hover { background: var(--color-arena); }
+
+.agenda { border-top: 1px solid var(--color-borde); }
+.agenda__fila {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: var(--espacio-3);
+  align-items: start;
+  min-height: 76px;
+  padding: var(--espacio-3);
+  background: var(--color-lienzo);
+  border-bottom: 1px solid var(--color-borde);
+  /* La barra de estado va a la izquierda y no como punto de color: se lee de reojo, cabe en
+     una fila estrecha y no depende de distinguir dos tonos parecidos. */
+  border-left: 3px solid var(--color-borde);
+}
+.agenda__fila--confirmada { border-left-color: var(--estado-reserva-confirmada-borde); }
+.agenda__fila--pendiente { border-left-color: var(--estado-reserva-pendiente-borde); }
+.agenda__fila--completada { border-left-color: var(--estado-reserva-completada-borde); }
+.agenda__fila--no_show { border-left-color: var(--estado-reserva-no_show-borde); }
+.agenda__fila--cancelada_cliente,
+.agenda__fila--cancelada_negocio {
+  border-left-color: var(--estado-reserva-cancelada-borde);
+  opacity: 0.68;
+}
+.agenda__hora { display: grid; gap: 2px; }
+
+.agenda__fila--esqueleto { border-left-color: var(--color-borde); }
+.agenda__fila--esqueleto .agenda__hora,
+.agenda__fila--esqueleto .agenda__cuerpo {
+  display: block;
+  height: 1rem;
+  background: var(--color-arena);
+}
+.agenda__fila--esqueleto .agenda__cuerpo { height: 2.5rem; }
