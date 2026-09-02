@@ -30,15 +30,15 @@ await pagina.fill('input[name="texto"]', 'uñas')
 await pagina.click('button[type="submit"]')
 await pagina.waitForLoadState('networkidle')
 await captura('1-busqueda')
-console.log('   resultados:', await pagina.locator('.salon__nombre').allTextContents())
+console.log('   resultados:', await pagina.locator('.resultado__nombre').allTextContents())
 
 console.log('2. entra en el primer salón')
 // La espera mira el destino, no «que no sea la portada»: viniendo de /buscar esa condición ya
 // se cumplía antes de pulsar y la prueba seguía en la página anterior sin enterarse.
-const destino = await pagina.locator('a.salon__enlace').first().getAttribute('href')
+const destino = await pagina.locator('a.resultado').first().getAttribute('href')
 await Promise.all([
   pagina.waitForURL((u) => u.pathname === destino, { timeout: 15000 }),
-  pagina.locator('a.salon__enlace').first().click(),
+  pagina.locator('a.resultado').first().click(),
 ])
 await pagina.waitForLoadState('networkidle')
 const salon = await pagina.locator('h1').first().textContent()
