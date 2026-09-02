@@ -447,9 +447,9 @@ Va aquí y **también al tablero**, porque nada pendiente vive solo en prosa.
 
 | Deuda | Por qué importa | Estado |
 |---|---|---|
-| Faltan `--color-exito-suave` y `--color-aviso-suave` | Los banners de éxito y aviso usan hoy sustitutos de otra familia; existe el equivalente de peligro | sin iniciar |
-| No hay token de anillo de foco | El anillo se describe aquí en prosa; debería ser `--foco-anillo` para no reinventarlo por componente | sin iniciar |
-| No hay token de opacidad de velo de la hoja modal | Misma razón | sin iniciar |
+| ~~Faltan `--color-exito-suave` y `--color-aviso-suave`~~ | Los banners de éxito y aviso ya no usan sustitutos de otra familia | **resuelto**: ambos existen, y el script de contraste verifica el texto sobre su fondo |
+| ~~No hay token de anillo de foco~~ | Sin él, cada componente se inventaba el suyo y la navegación con teclado dependía de la suerte | **resuelto**: es **`--color-foco`** (no `--foco-anillo`, para que viva con el resto de la paleta), y el script comprueba que cumple 3:1 sobre la superficie en claro y en oscuro |
+| ~~No hay token de opacidad de velo de la hoja modal~~ | Misma razón | **resuelto**: es `--color-velo` |
 | `--color-superficie-elevada` es idéntico a `--color-superficie` en claro | Correcto por diseño —la elevación la da la sombra— pero conviene dejarlo escrito para que nadie lo «arregle» | resuelto aquí |
 | El modo oscuro está definido y sin construir | Es Fase 1 solo en tokens, por ADR-0013 | fuera de alcance de la Fase 1 |
 | Inventario de componentes de Fase 2 | Este catálogo cubre la Fase 1; mapa, filtros y reviews necesitan su vuelta | sin iniciar |
