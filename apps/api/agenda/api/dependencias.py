@@ -18,7 +18,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from agenda.ajustes import obtener_ajustes
-from agenda.bd import crear_sesion
+from agenda.bd import crear_sesion, crear_sesion_publica
 from agenda.errores import NoAutorizado
 
 ajustes = obtener_ajustes()
@@ -27,13 +27,15 @@ ALGORITMO = "HS256"
 
 
 async def sesion_publica() -> AsyncIterator[AsyncSession]:
-    """Para las rutas públicas: **sin negocio fijado**.
+    """Para las rutas públicas: **otro rol de base de datos**, no otro parámetro.
 
-    Sin `app.current_business_id`, las políticas de seguridad por fila no dejan ver nada de las
-    tablas aisladas. Lo que se sirve desde aquí son catálogos globales y las vistas publicables
-    del marketplace, que no llevan teléfonos ni datos de clientes (ADR-0002).
+    El marketplace cruza todos los negocios, así que no puede llevar tenant fijado; y sin
+    tenant, las políticas del rol de la API no devuelven ni una fila. Por eso lo público se
+    sirve con `agenda_publico`, que tiene sus propias políticas: **solo lectura y solo sobre lo
+    publicable**. Las reservas y las fichas de cliente le están cerradas en la base, no en el
+    código, así que un endpoint público mal escrito no puede llegar a ellas ni queriendo.
     """
-    async with crear_sesion() as sesion, sesion.begin():
+    async with crear_sesion_publica() as sesion, sesion.begin():
         yield sesion
 
 

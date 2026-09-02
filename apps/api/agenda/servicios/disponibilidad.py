@@ -99,7 +99,7 @@ async def calcular(
             profesional_id=str(staff.id),
             horario=horarios.get(staff.id, {}).get("trabajo", []),
             ocupacion=ocupacion.get(staff.id, []),
-            ausencias=horarios.get(staff.id, {}).get("ausencias", []),
+            descansos=horarios.get(staff.id, {}).get("descansos", []),
             activo=staff.active,
         )
         for staff in candidatos.values()
@@ -256,11 +256,11 @@ async def _horarios_de_profesionales(
     )
 
     resultado: dict[uuid.UUID, dict[str, list]] = {
-        staff_id: {"trabajo": [], "ausencias": []} for staff_id in staff_ids
+        staff_id: {"trabajo": [], "descansos": []} for staff_id in staff_ids
     }
     for fila in filas:
         regla = ReglaHoraria(fila.weekday, fila.starts_at, fila.ends_at)
-        clave = "ausencias" if fila.kind in CLASES_DE_AUSENCIA else "trabajo"
+        clave = "descansos" if fila.kind in CLASES_DE_AUSENCIA else "trabajo"
         resultado[fila.staff_id][clave].append(regla)
     return resultado
 

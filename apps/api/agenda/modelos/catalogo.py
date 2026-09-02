@@ -91,7 +91,8 @@ class Service(IdMixin, TenantMixin, MarcasDeTiempoMixin, Base):
     __table_args__ = (
         CheckConstraint("duration_min > 0", name="ck_services_duracion_positiva"),
         CheckConstraint(
-            "buffer_before_min >= 0 AND buffer_after_min >= 0", name="ck_services_buffers_no_negativos"
+            "buffer_before_min >= 0 AND buffer_after_min >= 0",
+            name="ck_services_buffers_no_negativos",
         ),
         CheckConstraint(
             "price_kind IN ('fijo','desde','consultar')", name="ck_services_price_kind_valido"

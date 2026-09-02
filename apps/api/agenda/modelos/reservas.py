@@ -46,9 +46,7 @@ from agenda.modelos.comunes import CreadoEnMixin, MarcasDeTiempoMixin
 ESTADOS_RESERVA: tuple[str, ...] = tuple(e.value for e in EstadoReserva)
 
 #: Los estados que **ocupan agenda**, en el orden en que los escribe la restricción.
-ESTADOS_QUE_OCUPAN: tuple[str, ...] = tuple(
-    e.value for e in EstadoReserva if e in ESTADOS_ACTIVOS
-)
+ESTADOS_QUE_OCUPAN: tuple[str, ...] = tuple(e.value for e in EstadoReserva if e in ESTADOS_ACTIVOS)
 
 
 def _lista_sql(valores: tuple[str, ...]) -> str:
@@ -86,9 +84,7 @@ class Booking(IdMixin, TenantMixin, MarcasDeTiempoMixin, Base):
     client_user_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
-    status: Mapped[str] = mapped_column(
-        Text, nullable=False, server_default=text("'pendiente'")
-    )
+    status: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("'pendiente'"))
     starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)  # UTC
     ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)  # UTC
     total_duration_min: Mapped[int] = mapped_column(SmallInteger, nullable=False)

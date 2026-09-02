@@ -100,12 +100,24 @@ class Slot:
 
 @dataclass(frozen=True)
 class AgendaProfesional:
-    """Todo lo que hay que saber de un profesional para calcular sus huecos."""
+    """Todo lo que hay que saber de un profesional para calcular sus huecos.
+
+    Lo que le quita horas a la jornada viene en dos formas distintas, y no se pueden mezclar:
+
+    * **`descansos`** son reglas **semanales** en hora local —el almuerzo de todos los días—, y
+      hay que convertirlas a instantes igual que la jornada.
+    * **`ausencias`** son tramos **concretos** ya en UTC: unas vacaciones, una tarde de médico.
+
+    Tenerlas separadas por tipo evita el error que parece imposible y no lo es: pasar una regla
+    semanal donde se espera un intervalo. El programa falla en la primera petición real, pero
+    solo si alguien la hace; con dos campos, no llega a compilarse mal.
+    """
 
     profesional_id: str
     horario: Sequence[ReglaHoraria]
     ocupacion: Sequence[Intervalo] = field(default_factory=tuple)
     ausencias: Sequence[Intervalo] = field(default_factory=tuple)
+    descansos: Sequence[ReglaHoraria] = field(default_factory=tuple)
     activo: bool = True
 
 
@@ -229,10 +241,16 @@ def calcular_slots(
                 profesional.horario, zona=zona_negocio, desde=ventana.inicio, hasta=ventana.fin
             ),
         )
-        # Las ausencias (vacaciones, día libre) recortan la jornada: durante ellas el
-        # profesional no existe para la agenda. La ocupación se trata aparte, comprobando cada
-        # candidato, porque ahí sí importan los buffers y una ausencia no los tiene.
-        jornada = restar(jornada, profesional.ausencias)
+        # Los descansos son reglas semanales y hay que materializarlos igual que la jornada:
+        # «de 13:00 a 14:00 todos los días» solo se convierte en horas concretas al saber de
+        # qué días se habla y en qué huso.
+        descansos = materializar(
+            profesional.descansos, zona=zona_negocio, desde=ventana.inicio, hasta=ventana.fin
+        )
+        # Descansos y ausencias recortan la jornada: durante ellos el profesional no existe
+        # para la agenda. La ocupación se trata aparte, comprobando cada candidato, porque ahí
+        # sí importan los buffers y un descanso no los tiene.
+        jornada = restar(jornada, [*descansos, *profesional.ausencias])
         ocupacion = normalizar(profesional.ocupacion)
 
         for tramo in jornada:

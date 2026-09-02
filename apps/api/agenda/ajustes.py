@@ -35,6 +35,9 @@ class Ajustes(BaseSettings):
 
     database_url: str = "postgresql+asyncpg://agenda_api:agenda@localhost:5433/agenda"
     database_url_migraciones: str = "postgresql+psycopg://agenda_owner:agenda@localhost:5433/agenda"
+    # Rol de solo lectura del marketplace. Es otra conexión, no un `SET ROLE`: un olvido con
+    # una sola conexión dejaría una consulta pública corriendo con permisos de negocio.
+    database_url_publico: str = "postgresql+asyncpg://agenda_publico:agenda@localhost:5433/agenda"
     redis_url: str = "redis://localhost:6380/0"
 
     whatsapp_token: str = ""

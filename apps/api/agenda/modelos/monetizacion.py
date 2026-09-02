@@ -220,9 +220,7 @@ class AdInventory(IdMixin, Base):
     period_start: Mapped[date] = mapped_column(Date, nullable=False)
     period_end: Mapped[date] = mapped_column(Date, nullable=False)
     slots_total: Mapped[int] = mapped_column(SmallInteger, nullable=False)
-    slots_taken: Mapped[int] = mapped_column(
-        SmallInteger, nullable=False, server_default=text("0")
-    )
+    slots_taken: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default=text("0"))
 
     __table_args__ = (
         UniqueConstraint(
@@ -462,7 +460,9 @@ class Payment(IdMixin, MarcasDeTiempoMixin, Base):
 
     __table_args__ = (
         UniqueConstraint("idempotency_key", name="uq_payments_idempotency_key"),
-        CheckConstraint("payer_kind IN ('negocio','cliente')", name="ck_payments_payer_kind_valido"),
+        CheckConstraint(
+            "payer_kind IN ('negocio','cliente')", name="ck_payments_payer_kind_valido"
+        ),
         CheckConstraint(
             "purpose IN ('suscripcion','ads','deposito_reserva','servicio')",
             name="ck_payments_purpose_valido",

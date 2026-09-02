@@ -237,9 +237,7 @@ class AdminUser(IdMixin, MarcasDeTiempoMixin, Base):
     totp_secret: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)  # cifrado en reposo
     # 2FA obligatorio, no opcional: la columna existe para poder auditar que está activo,
     # no para poder apagarlo.
-    totp_enabled: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default=text("true")
-    )
+    totp_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("true"))
     role: Mapped[str] = mapped_column(Text, nullable=False)
     status: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("'activo'"))
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

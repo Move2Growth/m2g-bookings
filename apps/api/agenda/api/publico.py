@@ -21,6 +21,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 
 from agenda.api.dependencias import SesionPublica
+from agenda.bd import sesion_de_negocio
 from agenda.errores import NegocioNoPublicado
 from agenda.modelos.negocio import Business
 from agenda.servicios import disponibilidad as servicio_disponibilidad
@@ -75,15 +76,25 @@ async def disponibilidad(
     if hasta - desde > VENTANA_MAXIMA:
         hasta = desde + VENTANA_MAXIMA
 
-    resultado = await servicio_disponibilidad.calcular(
-        sesion,
-        negocio_id=negocio.id,
-        servicios_ids=list(servicios),
-        desde=desde,
-        hasta=hasta,
-        ahora=datetime.now(UTC),
-        profesional_id=profesional,
-    )
+    # El cálculo necesita horarios, asignaciones de servicios y ocupación, y **nada de eso es
+    # público**: el rol del marketplace no los ve, y está bien que no los vea. Así que el hueco
+    # se calcula con una sesión **fijada a este negocio concreto**, el que la persona está
+    # mirando. La seguridad por fila hace el resto: desde esa sesión no existe ningún otro
+    # negocio, aunque el código de esta función quisiera.
+    #
+    # La alternativa —abrirle esas tablas al rol público— dejaría los horarios y la ocupación
+    # de los 5.000 negocios accesibles desde cualquier consulta pública mal escrita, y eso sí
+    # es una puerta que luego no se cierra.
+    async with sesion_de_negocio(str(negocio.id)) as sesion_negocio:
+        resultado = await servicio_disponibilidad.calcular(
+            sesion_negocio,
+            negocio_id=negocio.id,
+            servicios_ids=list(servicios),
+            desde=desde,
+            hasta=hasta,
+            ahora=datetime.now(UTC),
+            profesional_id=profesional,
+        )
 
     return RespuestaDisponibilidad(
         zona=resultado.zona,

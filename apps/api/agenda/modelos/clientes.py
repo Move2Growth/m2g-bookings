@@ -76,9 +76,7 @@ class BusinessClient(IdMixin, TenantMixin, MarcasDeTiempoMixin, Base):
     cancel_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
     blocked: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
     blocked_reason: Mapped[str | None] = mapped_column(Text)
-    source: Mapped[str] = mapped_column(
-        Text, nullable=False, server_default=text("'marketplace'")
-    )
+    source: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("'marketplace'"))
     first_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     last_booking_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 

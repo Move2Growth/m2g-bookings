@@ -69,9 +69,7 @@ class Zone(IdMixin, Base):
     )
     # Cacheado para no generar páginas categoría × zona vacías: miles de páginas sin contenido
     # son baja calidad y Google penaliza el dominio entero, no solo esas páginas.
-    businesses_count: Mapped[int] = mapped_column(
-        Integer, nullable=False, server_default=text("0")
-    )
+    businesses_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("true"))
 
     __table_args__ = (

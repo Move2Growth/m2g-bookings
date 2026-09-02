@@ -37,6 +37,26 @@ motor = create_async_engine(
 
 crear_sesion = async_sessionmaker(motor, class_=AsyncSession, expire_on_commit=False)
 
+# El marketplace **no puede usar el rol de la API**. Sus consultas cruzan todos los negocios y
+# por tanto no llevan tenant fijado, y sin tenant las políticas de `agenda_api` no devuelven ni
+# una fila. El rol `agenda_publico` tiene sus propias políticas: solo lectura y solo sobre lo
+# publicable —negocios publicados, sus servicios activos, su equipo visible y sus reseñas—,
+# nunca reservas ni fichas de cliente.
+#
+# Son dos conexiones distintas a propósito. Con una sola y un `SET ROLE` por petición, un
+# olvido dejaría una consulta pública corriendo con permisos de negocio, y ese olvido no falla:
+# devuelve de más.
+motor_publico = create_async_engine(
+    _ajustes.database_url_publico,
+    pool_pre_ping=True,
+    pool_size=10,
+    max_overflow=10,
+)
+
+crear_sesion_publica = async_sessionmaker(
+    motor_publico, class_=AsyncSession, expire_on_commit=False
+)
+
 
 @asynccontextmanager
 async def sesion_de_negocio(negocio_id: str) -> AsyncIterator[AsyncSession]:

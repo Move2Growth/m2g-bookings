@@ -131,7 +131,12 @@ class Location(IdMixin, TenantMixin, MarcasDeTiempoMixin, Base):
         ),
         # Índice único parcial: hoy hay **exactamente una sede por negocio** (NEG-5).
         # Quitar esta línea es toda la migración de estructura que necesita multi-sede.
-        Index("uq_locations_una_principal", "business_id", unique=True, postgresql_where=text("is_primary")),
+        Index(
+            "uq_locations_una_principal",
+            "business_id",
+            unique=True,
+            postgresql_where=text("is_primary"),
+        ),
         Index("ix_locations_zone_id", "zone_id"),
         Index("ix_locations_geo_gist", "geo", postgresql_using="gist"),
     )
