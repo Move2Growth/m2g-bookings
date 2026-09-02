@@ -43,3 +43,5 @@
 | [0014](0014-entorno-local-migraciones-y-seed.md) | Entorno local de un comando, migraciones desde cero y seed real | aceptada | Lo que hay que dejar impecable para que el despliegue de Luis no adivine nada |
 | [0015](0015-la-marca-es-bukeo.md) | La marca es Bukeo | aceptada | Supera el «por definir» de D1. La identidad vive en el brandbook y se implementa en los tokens |
 | [0016](0016-la-direccion-visual-es-el-bloque-de-color.md) | La dirección visual es el bloque de color | aceptada | El color es la estructura. El naranja abre y el azul cierra, y nunca compiten en el mismo botón |
+| [0017](0017-el-canto-la-mordida-y-la-regla-de-la-forma.md) | El canto, la mordida y la regla de la forma | aceptada | Lo que se toca lleva zócalo, y le faltan 14 px: la muesca del icono. La jerarquía se mide en píxeles de canto, no en grises |
+| [0018](0018-donde-no-hay-foto-va-un-rotulo.md) | Donde no hay foto va un rótulo | aceptada | El nombre entero hace de imagen y la trama dice el oficio. No es un hueco tapado: es la forma por defecto de presentar un salón |
