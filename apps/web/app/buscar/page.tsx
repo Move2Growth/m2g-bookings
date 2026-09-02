@@ -81,16 +81,21 @@ export default async function Buscar({ searchParams }: Props) {
     <>
       <Cabecera />
 
-      <main className="seccion">
-        <div className="contenedor">
-          <h1 style={{ fontSize: 'var(--tipografia-tamano-titulo-2)' }}>
-            {nombreZona ? `Salones en ${nombreZona}` : 'Salones y barberías en Ciudad de Panamá'}
-          </h1>
+      <main>
+        {/* El encabezado es el rótulo del local: bloque de tinta a sangre con el nombre grande
+            y el buscador dentro. Hasta ahora el color solo vivía en las dos páginas de
+            marketing y el producto era blanco con rayas grises. */}
+        <div className="cabecera-buscar">
+          <div className="contenedor">
+            <h1>{nombreZona ? `Salones en ${nombreZona}` : 'Salones y barberías en Ciudad de Panamá'}</h1>
 
-          <Suspense fallback={<div style={{ height: 132 }} />}>
-            <Buscador />
-          </Suspense>
+            <Suspense fallback={<div style={{ height: 132 }} />}>
+              <Buscador />
+            </Suspense>
+          </div>
+        </div>
 
+        <div className="contenedor seccion seccion--arena-suelta">
           <p className="tenue buscador__cuantos" aria-live="polite">
             {fallo
               ? ''

@@ -1,24 +1,27 @@
 'use client'
 
 import Link from 'next/link'
-import { FotoDeSalon } from '@/componentes/foto'
 import { useState } from 'react'
+import { FotoDeSalon } from '@/componentes/foto'
+import { Rotulo } from '@/componentes/rotulo'
 import { API, leerSesion } from '@/lib/sesion'
 
 /**
  * Un salón en una lista.
  *
- * La misma pieza en el buscador y en los guardados: si fueran dos, la del buscador acabaría
- * con el precio y la otra no, sin que nadie lo decidiera.
+ * **Es una fila, no una tarjeta.** En un lenguaje de bloques de color, una caja con filete de
+ * 1 px es lo contrario de lo que dice el brandbook, y el filete que se usaba se quedaba en
+ * 1,44:1 sobre lienzo: exactamente el defecto por el que se descartó la dirección A.
  *
- * Qué lleva y por qué: **foto, nombre, nota, precio desde y próxima hora libre**. Son los
- * cuatro datos con los que se descarta un salón sin abrirlo, y descartar rápido es lo que hace
- * que una lista se recorra entera en vez de abandonarse en el tercero.
+ * La fila entera es el objetivo táctil, y al tocarla aparece un filo de 6 px que empuja el
+ * contenido. Cero relleno de color al pasar por encima.
+ *
+ * Termina en lo único que de verdad decide: **la próxima hora libre**. Es el dato que convierte
+ * una lista en algo que se puede tocar, y por eso ocupa una chapa con su canto y no una línea
+ * de texto más.
  */
 
 export type SalonEnLista = {
-  /** El identificador con el que se guarda en favoritos. El slug identifica la página; el id
-   *  identifica el negocio, y son cosas distintas: un slug puede cambiar. */
   negocio_id?: string
   slug: string
   nombre: string
@@ -35,86 +38,85 @@ export type SalonEnLista = {
   patrocinado: boolean
 }
 
+const HORA = new Intl.DateTimeFormat('es-PA', {
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+  timeZone: 'America/Panama',
+})
+
 export function FichaSalon({
   salon,
+  indice = 0,
   guardado,
   onGuardar,
 }: {
   salon: SalonEnLista
+  indice?: number
   guardado?: boolean
   onGuardar?: (negocioId: string, ahora: boolean) => void
 }) {
+  const cerrado = salon.abierto_ahora === false && !salon.proxima_hora
+  const clases = [
+    'resultado',
+    salon.patrocinado ? 'resultado--destacado' : '',
+    cerrado ? 'resultado--cerrado' : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+
   return (
-    <li className="salon">
-      <Link href={`/${salon.slug}`} className="salon__enlace">
-        <span className="salon__foto">
+    <li className="resultado-fila">
+      <Link href={`/${salon.slug}`} className={clases}>
+        <span className="resultado__sello">
           {salon.foto_portada ? (
-            <FotoDeSalon
-              src={salon.foto_portada}
-              ancho={480}
-              alto={480}
-              sizes="(min-width: 900px) 220px, 40vw"
-            />
+            <FotoDeSalon src={salon.foto_portada} ancho={128} alto={128} sizes="64px" />
           ) : (
-            /* Sin foto no se pone una imagen de relleno: se pone la inicial del salón sobre
-               color plano. Una foto genérica de banco engaña sobre cómo es el sitio. */
-            <span className="salon__inicial" aria-hidden="true">
-              {salon.nombre.trim().charAt(0)}
-            </span>
+            <Rotulo
+              nombre={salon.nombre}
+              categoria={salon.categorias?.[0]}
+              indice={indice}
+              talla="sello"
+            />
           )}
         </span>
 
-        <span className="salon__cuerpo">
+        <span className="resultado__nombre">
           {salon.patrocinado && (
             /* Un patrocinado va etiquetado siempre y encima del nombre, donde se lee antes de
                decidir. Es la regla MKT-4 y no admite matices. */
             <span className="etiqueta">Patrocinado</span>
           )}
-          <span className="salon__nombre">{salon.nombre}</span>
-
-          <span className="salon__meta">
-            {typeof salon.rating === 'number' && (
-              <span className="salon__nota cifras">
-                <span aria-hidden="true">★</span> {salon.rating.toFixed(1)}
-                {salon.numero_reviews ? (
-                  <span className="tenue"> ({salon.numero_reviews})</span>
-                ) : null}
-                <span className="oculto-visualmente">
-                  de nota, sobre 5{salon.numero_reviews ? `, con ${salon.numero_reviews} reseñas` : ''}
-                </span>
-              </span>
-            )}
-            {salon.zona && <span className="tenue">{salon.zona}</span>}
-            {typeof salon.distancia_metros === 'number' && (
-              <span className="tenue cifras">a {(salon.distancia_metros / 1000).toFixed(1)} km</span>
-            )}
-          </span>
-
-          {salon.categorias && salon.categorias.length > 0 && (
-            <span className="salon__categorias">{salon.categorias.slice(0, 3).join(' · ')}</span>
-          )}
-
-          <span className="salon__pie">
-            {typeof salon.servicios_desde_centavos === 'number' && (
-              <span className="salon__precio cifras">
-                Desde ${(salon.servicios_desde_centavos / 100).toFixed(2)}
-              </span>
-            )}
-            {salon.proxima_hora ? (
-              <span className="salon__hora cifras">
-                Libre hoy a las{' '}
-                {new Intl.DateTimeFormat('es-PA', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: false,
-                  timeZone: 'America/Panama',
-                }).format(new Date(salon.proxima_hora))}
-              </span>
-            ) : salon.abierto_ahora === false ? (
-              <span className="tenue">Cerrado ahora</span>
-            ) : null}
-          </span>
+          {salon.nombre}
         </span>
+
+        <span className="resultado__meta">
+          {typeof salon.rating === 'number' && (
+            <>
+              <span aria-hidden="true">★</span> {salon.rating.toFixed(1)}
+              {salon.numero_reviews ? ` (${salon.numero_reviews})` : ''}
+              <span className="oculto-visualmente">
+                de nota sobre 5{salon.numero_reviews ? `, con ${salon.numero_reviews} reseñas` : ''}
+              </span>
+              {' · '}
+            </>
+          )}
+          {[salon.zona, salon.categorias?.[0]].filter(Boolean).join(' · ')}
+          {typeof salon.servicios_desde_centavos === 'number' && (
+            <> {' · '}desde ${(salon.servicios_desde_centavos / 100).toFixed(2)}</>
+          )}
+        </span>
+
+        {salon.proxima_hora ? (
+          <span className="resultado__hora">
+            <b>{HORA.format(new Date(salon.proxima_hora))}</b>
+            <small>libre hoy</small>
+          </span>
+        ) : (
+          <span className="resultado__hora resultado__hora--sin">
+            <small>{cerrado ? 'cerrado' : 'ver horas'}</small>
+          </span>
+        )}
       </Link>
 
       {onGuardar && salon.negocio_id && (
@@ -180,7 +182,7 @@ function BotonGuardar({
   return (
     <button
       type="button"
-      className="salon__guardar"
+      className="resultado__guardar"
       onClick={alternar}
       disabled={ocupado}
       aria-pressed={activo}

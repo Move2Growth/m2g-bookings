@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { AccionesDeSalon } from '@/componentes/acciones-salon'
 import { Cabecera } from '@/componentes/cabecera'
 import { FotoDeSalon } from '@/componentes/foto'
+import { Rotulo } from '@/componentes/rotulo'
 import { PestanasClienteSiHaySesion } from '@/componentes/pestanas-cliente'
 import { Pie } from '@/componentes/pie'
 import {
@@ -185,9 +186,10 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
             ))}
           </div>
         ) : (
-          <div className="galeria galeria--vacia" aria-hidden="true">
-            <span>{perfil.nombre.trim().charAt(0)}</span>
-          </div>
+          /* Sin foto no hay hueco tapado: hay rótulo. El nombre entero hace de imagen y la
+             trama dice el oficio, que es lo que el brandbook llama «rótulo pintado de un
+             local» y hasta ahora no existía en ninguna pantalla. */
+          <Rotulo nombre={perfil.nombre} categoria={perfil.categorias?.[0]} talla="cartel" />
         )}
 
         <div className="contenedor">
@@ -262,7 +264,7 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
           </section>
 
           {servicio && (
-            <section className="bloque-panel" id="horas">
+            <section className="bloque-horas" id="horas">
               <h2>Horas libres para {servicio.nombre}</h2>
 
               <nav aria-label="Elegir día" className="tira" style={{ margin: 'var(--espacio-4) 0' }}>
@@ -337,7 +339,7 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
             </section>
           )}
 
-          <section className="bloque-panel">
+          <section className="bloque-panel bloque-panel--arena">
             <h2>Lo que dicen las clientas</h2>
             {!resenas || resenas.resumen.total === 0 ? (
               <p className="apagado medida" style={{ marginTop: 'var(--espacio-3)' }}>

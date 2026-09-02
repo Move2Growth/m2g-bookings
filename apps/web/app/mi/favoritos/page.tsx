@@ -64,11 +64,12 @@ export default function Favoritos() {
       )}
 
       {salones && salones.length > 0 && (
-        <ul className="salones escalona" style={{ marginTop: 'var(--espacio-5)' }}>
-          {salones.map((s) => (
+        <ul className="resultados escalona" style={{ marginTop: 'var(--espacio-5)' }}>
+          {salones.map((s, i) => (
             <FichaSalon
               key={s.slug}
               salon={s}
+              indice={i}
               guardado
               onGuardar={(negocioId, ahora) => {
                 if (!ahora)

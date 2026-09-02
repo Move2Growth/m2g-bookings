@@ -30,11 +30,12 @@ export function ListaSalones({ salones }: { salones: SalonEnLista[] }) {
   }, [])
 
   return (
-    <ul className="salones escalona">
-      {salones.map((s) => (
+    <ul className="resultados escalona">
+      {salones.map((s, i) => (
         <FichaSalon
           key={s.slug}
           salon={s}
+          indice={i}
           guardado={s.negocio_id ? guardados?.has(s.negocio_id) : false}
           onGuardar={(negocioId, ahora) =>
             setGuardados((previos) => {

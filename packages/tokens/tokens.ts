@@ -132,7 +132,8 @@ export const tokens = {
       "titular": "-0.02em",
       "normal": "0",
       "etiqueta": "0.08em"
-    }
+    },
+    "ancho-estrecho": "87%"
   },
   "espacio": {
     "0": "0",
@@ -178,6 +179,23 @@ export const tokens = {
     "curva-salida": "cubic-bezier(0.4, 0, 1, 1)",
     "curva-empuje": "cubic-bezier(0.34, 1.3, 0.64, 1)",
     "escalonado": "34ms"
+  },
+  "canto": {
+    "_nota": "El zocalo macizo que llevan dentro las cosas que se tocan. Su grosor ES la jerarquia: 4 px la accion que abre o cierra, 3 px la secundaria, 2 px la de texto, 0 lo que no se toca. Al pasar por encima crece a 6 px, la chapa se levanta, y al pulsar se lo traga. La mordida es lo que le falta por la derecha: la muesca calada del icono de la marca.",
+    "principal": "4px",
+    "secundario": "3px",
+    "menor": "2px",
+    "alzado": "6px",
+    "mordida": "14px"
+  },
+  "filo": {
+    "_nota": "La barra maciza que dice «estas aqui» o «esto esta elegido». Misma medida que el filo de bloque del brandbook y distinto color a proposito: el naranja se reserva para cortar la pagina entre bloques, o dejaria de significar «abre».",
+    "grosor": "6px"
+  },
+  "foco": {
+    "_nota": "No es del color de marca (ADR-0016): tinta sobre claro y cal dentro de bloques oscuros, resuelto con una variable y no con una lista de selectores.",
+    "grosor": "3px",
+    "separacion": "2px"
   }
 } as const;
 

@@ -46,6 +46,7 @@ export type Perfil = NegocioEnLista & {
   /** Rutas o URL de las fotos, la portada primero. Son cadenas y no objetos: la API compone
    *  la URL a partir de la clave guardada, y el texto alternativo todavía no viaja. */
   fotos?: string[]
+  categorias?: string[]
   atributos?: { slug: string; nombre: string; grupo: string }[]
   horario?: { dia: number; abre: string; cierra: string }[]
   /** Si tiene WhatsApp configurado. **Nunca llega el número**: solo si existe el botón, y el

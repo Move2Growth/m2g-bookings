@@ -10,6 +10,38 @@
  */
 @import '@agenda/tokens/css';
 
+/* Registrar la variable del canto es lo que permite **animarla**. Sin esto el zócalo salta de
+   un grosor a otro en vez de moverse, y el gesto de la chapa que se levanta no existe. */
+@property --canto {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+:root {
+  /* El anillo de foco no es del color de marca (ADR-0016). Una variable en vez de una lista de
+     selectores: cada superficie oscura la cambia una vez y todo lo de dentro hereda. */
+  --foco-anillo: var(--color-tinta);
+
+  /* Las dos tramas del producto. Gradientes de parada dura, o sea bandas planas y no
+     degradados, que es lo que el brandbook prohíbe. Pesan cero y no añaden una petición. */
+  --trama-pauta: repeating-linear-gradient(
+    to bottom,
+    transparent 0 calc(var(--espacio-toque-minimo) - 1px),
+    var(--color-borde-fuerte) calc(var(--espacio-toque-minimo) - 1px) var(--espacio-toque-minimo)
+  );
+  --trama-rayado: repeating-linear-gradient(
+    135deg,
+    transparent 0 5px,
+    color-mix(in srgb, var(--color-tinta) 14%, transparent) 5px 7px
+  );
+}
+
+.seccion--azul,
+.seccion--tinta,
+.resultado--destacado,
+.app--consola .app__barra { --foco-anillo: var(--color-papel); }
+
 /* ── Reset acotado ──────────────────────────────────────────────────────────── */
 
 *,
@@ -161,65 +193,114 @@ button, input, select, textarea { font: inherit; color: inherit; }
   white-space: nowrap;
 }
 
-/* ── Botones ────────────────────────────────────────────────────────────────── */
+/* ── Botones ────────────────────────────────────────────────────────────────
+   El canto: un zócalo macizo dentro de la propia caja del control, dibujado con `currentColor`
+   y al que le faltan los últimos 14 px. Esa mordida es la muesca calada del icono de la marca,
+   tumbada, y es lo que hace que un control de este producto se reconozca sin leer el texto.
+
+   Va con `background-image` y no con `box-shadow` por tres razones que se notan: no se solapa
+   con el control de al lado, la altura total no cambia al pulsar, y **la misma declaración vale
+   para un `<button>` y para un `<input>`**, que no admite pseudoelementos. De ahí que el campo y
+   el botón se reconozcan como familia.
+
+   El grosor es la jerarquía: 4 px lo que abre o cierra, 3 px lo secundario, 2 px lo de texto,
+   0 lo que no se toca.
+   ────────────────────────────────────────────────────────────────────────── */
 
 .boton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--espacio-2);
-  min-height: var(--espacio-toque-minimo);
-  padding-inline: var(--espacio-4);
-  border: 1px solid transparent;
+  --canto: var(--canto-principal);
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--espacio-2);
+  /* La altura total NO cambia con el canto: 44 px de objetivo táctil más el canto. */
+  min-height: calc(var(--espacio-toque-minimo) + var(--canto-principal));
+  padding-inline: var(--espacio-5);
+  border: 0;
   border-radius: var(--radio-control);
-  font-weight: var(--tipografia-pesos-medio);
+  font-weight: var(--tipografia-pesos-fuerte);
+  font-stretch: var(--tipografia-ancho-texto);
   text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
-  transition: background var(--movimiento-rapido) var(--movimiento-curva),
-              border-color var(--movimiento-rapido) var(--movimiento-curva),
-              transform var(--movimiento-rapido) var(--movimiento-curva);
-}
 
-/* Empuje físico al pulsar. Es la diferencia entre una pantalla y algo que responde. */
-.boton:active { transform: translateY(1px); }
-.boton[disabled] { opacity: 0.55; cursor: not-allowed; }
+  /* el canto */
+  padding-bottom: var(--canto);
+  background-image: linear-gradient(
+    to right,
+    currentColor 0 calc(100% - var(--canto-mordida)),
+    transparent calc(100% - var(--canto-mordida))
+  );
+  background-repeat: no-repeat;
+  background-size: 100% var(--canto);
+  background-position: left bottom;
 
-.boton--primario {
-  /* El naranja **abre**: empieza algo. Y siempre lleva tinta encima, porque sobre claro no
-     llega a 4,5:1 y por eso nunca es color de texto. */
-  background: var(--color-abre);
-  color: var(--color-abre-texto);
+  transition:
+    --canto var(--movimiento-rapido) var(--movimiento-curva),
+    background-color var(--movimiento-rapido) var(--movimiento-curva),
+    border-color var(--movimiento-rapido) var(--movimiento-curva),
+    transform var(--movimiento-instante) var(--movimiento-curva);
 }
-.boton--primario:hover { background: var(--color-abre-hover); }
+.boton:hover  { --canto: var(--canto-alzado); }            /* la chapa se levanta */
+.boton:active { --canto: 0px; transform: translateY(2px); } /* y se hunde */
+.boton:focus-visible { outline: var(--foco-grosor) solid var(--foco-anillo); outline-offset: var(--foco-separacion); }
 
-/* El azul **cierra**: remata lo que ya se eligió, elegir hora y confirmar la cita. Nunca
-   compite con el naranja dentro del mismo botón ni dentro de la misma decisión. */
-.boton--cierra {
-  background: var(--color-acento);
-  color: var(--color-acento-texto);
-}
-.boton--cierra:hover { background: var(--color-acento-hover); }
+/* El naranja ABRE. Siempre con tinta encima: sobre claro no llega a AA y nunca es color de texto. */
+.boton--primario { background-color: var(--color-abre); color: var(--color-abre-texto); }
+.boton--primario:hover { background-color: var(--color-abre-hover); }
+
+/* El azul CIERRA. El canto sale en cal porque es currentColor: se lee como el papel que se ve
+   por debajo del bloque, que es el calado del icono. */
+.boton--cierra { background-color: var(--color-acento); color: var(--color-acento-texto); }
+.boton--cierra:hover { background-color: var(--color-acento-hover); }
 
 .boton--secundario {
-  background: transparent;
+  --canto: var(--canto-secundario);
+  background-color: var(--color-lienzo);
   color: var(--color-tinta);
-  border-color: var(--color-borde-fuerte);
+  box-shadow: inset 0 0 0 1px var(--color-borde-fuerte);
 }
-.boton--secundario:hover { background: var(--color-arena); }
+.boton--secundario:hover { --canto: 5px; box-shadow: inset 0 0 0 1px var(--color-tinta); background-color: var(--color-papel); }
+.boton--secundario:active { --canto: 0px; }
 
+/* El llano es solo el canto: un subrayado mordido, y sigue siendo de la misma familia. */
 .boton--llano {
-  background: transparent;
+  --canto: var(--canto-menor);
+  --canto-mordida: 10px;
+  background-color: transparent;
   color: var(--color-tinta-suave);
-  padding-inline: var(--espacio-3);
+  padding-inline: var(--espacio-2);
 }
-.boton--llano:hover { color: var(--color-tinta); }
+.boton--llano:hover { --canto: var(--canto-secundario); color: var(--color-tinta); }
+.boton--llano:active { --canto: 0px; }
 
+/* El destructivo es de línea, no un bloque rojo: un bloque rojo pesa lo mismo que el que abre y
+   acaba pulsándose por inercia. Lo que separa cancelar de mover es la distancia. */
 .boton--peligro {
-  background: transparent;
+  --canto: var(--canto-secundario);
+  background-color: var(--color-lienzo);
   color: var(--color-peligro);
-  border-color: var(--color-borde-fuerte);
+  box-shadow: inset 0 0 0 1px var(--color-peligro);
+}
+.boton--peligro:hover { --canto: 5px; background-color: var(--color-peligro-suave); }
+.boton--peligro:active { --canto: 0px; }
+
+/* Apagado: se apaga el dibujo del canto, no el hueco, para que nada se mueva de sitio. */
+.boton[disabled], .boton[aria-disabled="true"] {
+  background-size: 100% 0;
+  background-color: var(--color-arena);
+  color: var(--color-tinta-suave);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
 }
 .boton--ancho { width: 100%; }
+
+/* Dentro de un bloque de color no hay que hacer nada: el canto es currentColor y el anillo es
+   una variable. */
+.seccion--azul .boton--secundario,
+.seccion--tinta .boton--secundario {
+  background-color: transparent; color: inherit; box-shadow: inset 0 0 0 1px currentColor;
+}
+.seccion--azul .boton--secundario:hover,
+.seccion--tinta .boton--secundario:hover { background-color: color-mix(in srgb, var(--color-papel) 14%, transparent); }
 
 /* ── Superficies ────────────────────────────────────────────────────────────── */
 
@@ -243,19 +324,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* ── Formularios ────────────────────────────────────────────────────────────── */
 
-.campo {
-  display: grid;
-  gap: var(--espacio-2);
-}
 
 /* La etiqueta va ENCIMA del campo y existe siempre. El marcador de posición no es una
    etiqueta: desaparece justo cuando hace falta. */
 .campo > label,
 .campo > span:first-child,
-.campo-etiqueta {
-  font-weight: var(--tipografia-pesos-medio);
-  font-size: var(--tipografia-tamano-menor);
-}
 
 /* Un formulario es una columna de campos con el mismo aire entre ellos. Sin esto cada
    pantalla inventa su propio margen y ninguna coincide con la de al lado. */
@@ -271,29 +344,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
   margin: 0;
 }
 
-.entrada {
-  width: 100%;
-  min-height: var(--espacio-toque-minimo);
-  padding: var(--espacio-3);
-  background: var(--color-lienzo);
-  color: var(--color-tinta);
-  border: 1px solid var(--color-borde-fuerte);
-  border-radius: var(--radio-control);
-  font-size: var(--tipografia-tamano-cuerpo);
-}
-.entrada::placeholder { color: var(--color-tinta-tenue); }
-.entrada:disabled { background: var(--color-arena); color: var(--color-tinta-suave); }
 
-.entrada--codigo {
-  letter-spacing: 0.4em;
-  font-size: var(--tipografia-tamano-titulo-4);
-  font-variant-numeric: var(--tipografia-cifras-tabulares);
-}
 
-.campo-error {
-  color: var(--color-peligro);
-  font-size: var(--tipografia-tamano-menor);
-}
 
 /* ── Avisos ─────────────────────────────────────────────────────────────────── */
 
@@ -308,79 +360,18 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* ── Fichas de filtro ───────────────────────────────────────────────────────── */
 
-/* Canto vivo también aquí: la píldora venía de la dirección anterior y en un lenguaje de
-   rótulo desentona. Una sola regla de forma en todo el producto. */
-.ficha {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--espacio-toque-minimo);
-  padding-inline: var(--espacio-3);
-  border: 1px solid var(--color-borde-fuerte);
-  border-radius: var(--radio-control);
-  background: var(--color-lienzo);
-  color: var(--color-tinta);
-  font-size: var(--tipografia-tamano-menor);
-  text-decoration: none;
-  white-space: nowrap;
-}
-.ficha[aria-current] {
-  background: var(--color-tinta);
-  border-color: var(--color-tinta);
-  color: var(--color-papel);
-}
 
-.tira {
-  display: flex;
-  gap: var(--espacio-2);
-  overflow-x: auto;
-  padding-bottom: var(--espacio-2);
-  scrollbar-width: thin;
-}
-.tira > * { flex: 0 0 auto; }
 
 /* ── Estado de una reserva ──────────────────────────────────────────────────── */
 
-.estado {
-  display: inline-block;
-  padding: 2px var(--espacio-2);
-  border-radius: var(--radio-control);
-  font-size: var(--tipografia-tamano-micro);
-  font-weight: var(--tipografia-pesos-medio);
-}
-.estado--pendiente { background: var(--estado-reserva-pendiente-fondo); color: var(--estado-reserva-pendiente-texto); }
-.estado--confirmada { background: var(--estado-reserva-confirmada-fondo); color: var(--estado-reserva-confirmada-texto); }
-.estado--completada { background: var(--estado-reserva-completada-fondo); color: var(--estado-reserva-completada-texto); }
-.estado--no_show { background: var(--estado-reserva-no_show-fondo); color: var(--estado-reserva-no_show-texto); }
 .estado--cancelada_cliente,
-.estado--cancelada_negocio { background: var(--estado-reserva-cancelada-fondo); color: var(--estado-reserva-cancelada-texto); }
 
 /* ── Rejilla de horas ───────────────────────────────────────────────────────── */
 
-.horas {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--espacio-2);
-}
 @media (min-width: 768px) {
   .horas { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }
 
-.hora {
-  display: grid;
-  place-items: center;
-  min-height: var(--espacio-toque-minimo);
-  background: var(--color-lienzo);
-  border: 1px solid var(--color-borde-fuerte);
-  border-radius: var(--radio-control);
-  color: var(--color-tinta);
-  text-decoration: none;
-  font-variant-numeric: var(--tipografia-cifras-tabulares);
-}
-.hora:hover {
-  background: var(--color-acento);
-  border-color: var(--color-acento);
-  color: var(--color-acento-texto);
-}
 
 /* ── Rejilla genérica ───────────────────────────────────────────────────────── */
 
@@ -623,17 +614,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* Filas con filete y no tarjetas: en un teléfono caben tres salones más por pantalla, y en una
    lista lo que se compara son los nombres, no los bordes. */
-.resultados {
-  margin-top: var(--espacio-4);
-  border-top: 1px solid var(--color-borde);
-}
-.resultado {
-  display: block;
-  padding: var(--espacio-4) 0;
-  border-bottom: 1px solid var(--color-borde);
-  color: inherit;
-  text-decoration: none;
-}
 .resultado:hover { background: var(--color-arena); }
 .resultado h2 {
   font-size: var(--tipografia-tamano-titulo-4);
@@ -725,30 +705,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .dias__flecha:hover { background: var(--color-arena); }
 
-.agenda { border-top: 1px solid var(--color-borde); }
-.agenda__fila {
-  display: grid;
-  grid-template-columns: 4.5rem 1fr;
-  gap: var(--espacio-3);
-  align-items: start;
-  min-height: 76px;
-  padding: var(--espacio-3);
-  background: var(--color-lienzo);
-  border-bottom: 1px solid var(--color-borde);
-  /* La barra de estado va a la izquierda y no como punto de color: se lee de reojo, cabe en
-     una fila estrecha y no depende de distinguir dos tonos parecidos. */
-  border-left: 3px solid var(--color-borde);
-}
-.agenda__fila--confirmada { border-left-color: var(--estado-reserva-confirmada-borde); }
-.agenda__fila--pendiente { border-left-color: var(--estado-reserva-pendiente-borde); }
-.agenda__fila--completada { border-left-color: var(--estado-reserva-completada-borde); }
-.agenda__fila--no_show { border-left-color: var(--estado-reserva-no_show-borde); }
 .agenda__fila--cancelada_cliente,
-.agenda__fila--cancelada_negocio {
-  border-left-color: var(--estado-reserva-cancelada-borde);
-  opacity: 0.68;
-}
-.agenda__hora { display: grid; gap: 2px; }
 
 .agenda__fila--esqueleto { border-left-color: var(--color-borde); }
 .agenda__fila--esqueleto .agenda__hora,
@@ -848,14 +805,6 @@ a:has(> svg) {
 
 /* ── Pestañas ──────────────────────────────────────────────────────────────── */
 
-.pestanas {
-  position: fixed;
-  inset: auto 0 0 0;
-  z-index: 30;
-  background: var(--color-lienzo);
-  border-top: 2px solid var(--color-tinta);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
 .pestanas__lista {
   display: flex;
   margin: 0;
@@ -869,18 +818,6 @@ a:has(> svg) {
 .pestanas__lista::-webkit-scrollbar { display: none; }
 .pestanas__lista > li { flex: 1 0 auto; min-width: 72px; }
 
-.pestana {
-  position: relative;
-  display: grid;
-  justify-items: center;
-  gap: 2px;
-  padding: var(--espacio-2) var(--espacio-2) var(--espacio-3);
-  min-height: 60px;
-  color: var(--color-tinta-suave);
-  text-decoration: none;
-  font-size: var(--tipografia-tamano-micro);
-  transition: color var(--movimiento-rapido) var(--movimiento-curva);
-}
 .pestana__icono { position: relative; display: block; line-height: 0; }
 .pestana__texto { text-align: center; }
 .pestana:active .pestana__icono { transform: scale(0.9); }
@@ -951,7 +888,6 @@ a:has(> svg) {
 
 /* ── Estados: cargando, vacío, error ───────────────────────────────────────── */
 
-.esqueleto { display: grid; gap: var(--espacio-3); }
 .esqueleto__fila {
   background: var(--color-arena);
   /* El brillo recorre la fila una vez cada 1,4 s. Es la única animación en bucle del producto
@@ -970,14 +906,6 @@ a:has(> svg) {
   to { background-position: -40% 0; }
 }
 
-.vacio {
-  display: grid;
-  justify-items: start;
-  gap: var(--espacio-3);
-  padding: var(--espacio-6) var(--espacio-5);
-  background: var(--color-arena);
-  border-top: 3px solid var(--color-tinta);
-}
 .vacio__icono { color: var(--color-tinta-tenue); line-height: 0; }
 .vacio__titulo {
   font-family: var(--tipografia-familia-display);
@@ -1281,12 +1209,6 @@ a:has(> svg) {
 
 /* Una ficha pulsada es un filtro puesto. Se marca con el bloque de tinta, igual que el día
    elegido en la agenda, para que «seleccionado» signifique lo mismo en todo el producto. */
-.ficha[aria-pressed='true'],
-.ficha[aria-selected='true'] {
-  background: var(--color-tinta);
-  color: var(--color-papel);
-  border-color: var(--color-tinta);
-}
 .ficha--modo { cursor: pointer; font-family: inherit; }
 
 .tira--envuelve { flex-wrap: wrap; overflow: visible; }
@@ -1723,3 +1645,703 @@ textarea.entrada { resize: vertical; min-height: 7rem; line-height: var(--tipogr
   font-size: var(--tipografia-tamano-menor);
   color: var(--color-tinta-suave);
 }
+
+/* ══ El lenguaje de componentes de la revisión 2 ═══════════════════════════════
+   La propuesta completa, su porqué y sus estados están en
+   docs/marca/revision-2/lenguaje-de-componentes.{html,md}. Tres mecanismos y ningún color
+   nuevo: **el canto** (el zócalo macizo de lo que se toca), **la mordida** (los 14 px que le
+   faltan, que son la muesca del icono) y **la forma manda** (con canto se toca, sin canto se
+   lee). La jerarquía deja de medirse en grises y pasa a medirse en píxeles de canto.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.campo { display: grid; gap: var(--espacio-2); }
+
+/* La etiqueta va encima y existe siempre, en versales estrechas. */
+.campo-etiqueta {
+  font-size: var(--tipografia-tamano-micro);
+  font-weight: var(--tipografia-pesos-fuerte);
+  font-stretch: var(--tipografia-ancho-estrecho);
+  letter-spacing: var(--tipografia-espaciado-etiqueta);
+  text-transform: uppercase;
+}
+
+.entrada {
+  --canto: var(--canto-secundario);
+  width: 100%;
+  min-height: 48px;                              /* nunca por debajo de 16 px de letra: iOS hace zoom */
+  padding: var(--espacio-2) var(--espacio-3);
+  padding-bottom: calc(var(--espacio-2) + var(--canto));
+  background-color: var(--color-lienzo);
+  color: var(--color-tinta);
+  border: 1px solid var(--color-borde-fuerte);
+  border-radius: var(--radio-control);
+  font-size: var(--tipografia-tamano-cuerpo);
+  background-image: linear-gradient(
+    to right,
+    currentColor 0 calc(100% - var(--canto-mordida)),
+    transparent calc(100% - var(--canto-mordida))
+  );
+  background-repeat: no-repeat;
+  background-size: 100% var(--canto);
+  background-position: left bottom;
+  transition:
+    --canto var(--movimiento-rapido) var(--movimiento-curva),
+    border-color var(--movimiento-rapido) var(--movimiento-curva);
+}
+.entrada::placeholder { color: var(--color-tinta-tenue); }
+.entrada:hover { border-color: var(--color-tinta); }
+.entrada:focus-visible {
+  --canto: 5px;
+  border-color: var(--color-tinta);
+  outline: var(--foco-grosor) solid var(--foco-anillo);
+  outline-offset: var(--foco-separacion);
+}
+.entrada[aria-invalid="true"] { color: var(--color-peligro); border-color: var(--color-peligro); }
+.entrada:disabled {
+  --canto: 0px;
+  background-color: var(--color-arena);
+  color: var(--color-tinta-suave);
+  cursor: not-allowed;
+}
+
+/* El código que llega por SMS: cifras a 125 % y tabulares, para que el 1 no baile con el 8. */
+.entrada--codigo {
+  font-stretch: var(--tipografia-ancho-cifra);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+  font-size: var(--tipografia-tamano-titulo-4);
+  font-weight: var(--tipografia-pesos-fuerte);
+  letter-spacing: 0.5em;
+  text-indent: 0.25em;
+}
+.campo-ayuda { font-size: var(--tipografia-tamano-menor); color: var(--color-tinta-suave); }
+.campo-error { font-size: var(--tipografia-tamano-menor); color: var(--color-peligro); font-weight: var(--tipografia-pesos-medio); }
+
+.resultados { border-top: 1px solid var(--color-borde-fuerte); }
+
+.resultado {
+  position: relative;
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: var(--espacio-1) var(--espacio-3);
+  padding: var(--espacio-3) var(--espacio-3) var(--espacio-3) var(--espacio-4);
+  border-bottom: 1px solid var(--color-borde-fuerte);   /* 3,88:1, no 1,44:1 */
+  background: var(--color-lienzo);
+  text-decoration: none; color: inherit;
+  min-height: 88px;                                      /* la fila entera es el objetivo táctil */
+  align-items: center;
+  transition: background-color var(--movimiento-rapido) var(--movimiento-curva),
+              padding-left var(--movimiento-rapido) var(--movimiento-curva);
+}
+/* El filo aparece al tocar la fila y empuja el contenido. Cero relleno de color. */
+.resultado::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+  width: var(--filo-grosor); background: var(--color-tinta);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform var(--movimiento-rapido) var(--movimiento-curva);
+}
+.resultado:hover, .resultado:active { background: var(--color-papel); padding-left: calc(var(--espacio-4) + var(--filo-grosor)); }
+.resultado:hover::before, .resultado:active::before { transform: scaleX(1); }
+.resultado:focus-visible { outline: var(--foco-grosor) solid var(--foco-anillo); outline-offset: calc(var(--foco-separacion) * -1); }
+
+/* El sello del local: cuadrado y a canto vivo. Un negocio no es una persona, no lleva avatar
+   redondo. Y las iniciales pesan cero, que es lo que se ve en 3G antes de que baje la foto. */
+.resultado__sello {
+  width: 64px; height: 64px; display: grid; place-items: center; grid-row: span 2;
+  background: var(--color-tinta); color: var(--color-papel);
+  font-weight: var(--tipografia-pesos-display);
+  font-stretch: var(--tipografia-ancho-rotulo);
+  font-size: var(--tipografia-tamano-mayor);
+}
+.resultado__nombre { font-weight: var(--tipografia-pesos-fuerte); font-size: var(--tipografia-tamano-mayor); line-height: 1.2; }
+/* La anchura hace de jerarquía dentro de la misma línea: nombre a 100 %, barrio a 87 %. */
+.resultado__meta {
+  grid-column: 2;
+  font-size: var(--tipografia-tamano-menor);
+  font-stretch: var(--tipografia-ancho-estrecho);
+  color: var(--color-tinta-suave);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+}
+/* La fila termina en lo único que de verdad importa de un salón: la próxima hora libre. */
+.resultado__hora {
+  --canto: var(--canto-secundario);
+  grid-column: 3; grid-row: span 2;
+  display: grid; place-items: center;
+  min-width: 76px; min-height: var(--espacio-toque-minimo);
+  padding: var(--espacio-1) var(--espacio-2);
+  padding-bottom: calc(var(--espacio-1) + var(--canto));
+  background-color: var(--color-lienzo); color: var(--color-tinta);
+  box-shadow: inset 0 0 0 1px var(--color-borde-fuerte);
+  border-radius: var(--radio-control);
+  background-image: linear-gradient(to right, currentColor 0 calc(100% - 10px), transparent calc(100% - 10px));
+  background-repeat: no-repeat; background-size: 100% var(--canto); background-position: left bottom;
+}
+.resultado__hora b { font-stretch: var(--tipografia-ancho-cifra); font-variant-numeric: var(--tipografia-cifras-tabulares); font-size: var(--tipografia-tamano-mayor); font-weight: var(--tipografia-pesos-fuerte); line-height: 1.1; }
+.resultado__hora small { font-size: var(--tipografia-tamano-micro); font-stretch: var(--tipografia-ancho-estrecho); letter-spacing: var(--tipografia-espaciado-etiqueta); text-transform: uppercase; color: var(--color-tinta-suave); }
+
+/* El patrocinado no lleva letra pequeña: es un bloque de color dentro de la lista. */
+.resultado--destacado {
+  background: var(--color-tinta); color: var(--color-papel);
+  --foco-anillo: var(--color-papel);
+}
+.resultado--destacado .resultado__sello { background: var(--color-abre); color: var(--color-abre-texto); }
+.resultado--destacado .resultado__meta { color: color-mix(in srgb, var(--color-papel) 78%, var(--color-tinta)); }
+.resultado--destacado::before { background: var(--color-abre); }
+.resultado--destacado:hover { background: var(--color-tinta); }
+.resultado--destacado .resultado__hora { background-color: var(--color-papel); color: var(--color-tinta); box-shadow: none; }
+
+/* Cerrado hoy: el equivalente al apagado. Sin chapa de hora y con el rayado en el sello. */
+.resultado--cerrado { background: var(--color-papel); cursor: not-allowed; }
+.resultado--cerrado .resultado__nombre,
+.resultado--cerrado .resultado__meta { color: var(--color-tinta-suave); }
+.resultado--cerrado .resultado__sello { background: var(--color-arena); color: var(--color-tinta-suave); background-image: var(--trama-rayado); }
+.resultado--cerrado:hover::before { transform: scaleX(0); }
+
+.horas { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: var(--espacio-2); }
+
+.hora {
+  --canto: var(--canto-principal);
+  display: grid; place-items: center;
+  min-height: calc(52px + var(--canto-principal));
+  padding-bottom: var(--canto);
+  background-color: var(--color-lienzo);
+  color: var(--color-tinta);
+  box-shadow: inset 0 0 0 1px var(--color-borde-fuerte);
+  border: 0; border-radius: var(--radio-control);
+  font-size: var(--tipografia-tamano-mayor);
+  font-weight: var(--tipografia-pesos-fuerte);
+  font-stretch: var(--tipografia-ancho-cifra);           /* 125 %: las columnas cuadran */
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+  text-decoration: none; cursor: pointer;
+  background-image: linear-gradient(
+    to right,
+    currentColor 0 calc(100% - var(--canto-mordida)),
+    transparent calc(100% - var(--canto-mordida))
+  );
+  background-repeat: no-repeat;
+  background-size: 100% var(--canto);
+  background-position: left bottom;
+  transition:
+    --canto var(--movimiento-rapido) var(--movimiento-curva),
+    background-color var(--movimiento-rapido) var(--movimiento-curva),
+    box-shadow var(--movimiento-rapido) var(--movimiento-curva),
+    transform var(--movimiento-instante) var(--movimiento-curva);
+}
+.hora:hover { --canto: var(--canto-alzado); box-shadow: inset 0 0 0 1px var(--color-tinta); }
+.hora:active { --canto: 0px; transform: translateY(2px); }
+.hora:focus-visible { outline: var(--foco-grosor) solid var(--foco-anillo); outline-offset: var(--foco-separacion); }
+
+/* Elegida: el hueco se cerró. Sin canto y en azul, y sin moverse de sitio para que la rejilla
+   siga cuadrando. */
+.hora[aria-pressed="true"] {
+  background-size: 100% 0;
+  background-color: var(--color-acento);
+  color: var(--color-acento-texto);
+  box-shadow: none;
+}
+
+/* Ocupada: el rayado sustituye al canto. La misma capa de fondo, otro dibujo. */
+.hora--ocupada, .hora[aria-disabled="true"] {
+  background-color: var(--color-arena);
+  background-image: var(--trama-rayado);
+  background-size: auto;
+  background-repeat: repeat;
+  color: var(--color-tinta-suave);
+  box-shadow: none; cursor: not-allowed; transform: none;
+}
+.hora--ocupada:hover { box-shadow: none; }
+
+/* Pasada: existió y ya no. Doble clase a propósito, porque .hora--pasada a secas pierde contra
+   .hora[aria-disabled="true"] y la hora pasada saldría rayada como si estuviera ocupada. */
+.hora.hora--pasada {
+  background-size: 100% 0;
+  background-color: var(--color-papel);
+  background-image: none;
+  color: var(--color-tinta-tenue);
+  box-shadow: none; cursor: not-allowed; transform: none;
+}
+.hora.hora--pasada:hover { box-shadow: none; }
+
+.tira { display: flex; gap: var(--espacio-2); overflow-x: auto; padding-block: var(--espacio-1) var(--espacio-3); scrollbar-width: thin; }
+.tira > * { flex: 0 0 auto; }
+
+.ficha {
+  --canto: var(--canto-secundario);
+  position: relative;
+  display: inline-flex; align-items: center;
+  min-height: calc(var(--espacio-toque-minimo) + var(--canto-secundario));
+  padding: 0 var(--espacio-3);
+  padding-bottom: var(--canto);
+  background-color: var(--color-lienzo);
+  color: var(--color-tinta);
+  box-shadow: inset 0 0 0 1px var(--color-borde-fuerte);
+  border: 0; border-radius: var(--radio-control);
+  font-size: var(--tipografia-tamano-menor);
+  font-weight: var(--tipografia-pesos-medio);
+  white-space: nowrap; text-decoration: none; cursor: pointer;
+  background-image: linear-gradient(to right, currentColor 0 calc(100% - 10px), transparent calc(100% - 10px));
+  background-repeat: no-repeat; background-size: 100% var(--canto); background-position: left bottom;
+  transition: --canto var(--movimiento-rapido) var(--movimiento-curva),
+              background-color var(--movimiento-rapido) var(--movimiento-curva),
+              padding-left var(--movimiento-rapido) var(--movimiento-curva),
+              box-shadow var(--movimiento-rapido) var(--movimiento-curva),
+              transform var(--movimiento-instante) var(--movimiento-curva);
+}
+.ficha:hover { --canto: 5px; box-shadow: inset 0 0 0 1px var(--color-tinta); }
+.ficha:active { --canto: 0px; transform: translateY(2px); }
+.ficha:focus-visible { outline: var(--foco-grosor) solid var(--foco-anillo); outline-offset: var(--foco-separacion); }
+
+/* Elegida: hundida, con filo y en negrita. Ninguna de las tres señales es un relleno saturado. */
+.ficha[aria-pressed="true"], .ficha[aria-current] {
+  background-size: 100% 0;
+  background-color: var(--color-arena);
+  background-image: none;
+  box-shadow: inset 0 0 0 1px var(--color-tinta);
+  font-weight: var(--tipografia-pesos-fuerte);
+  padding-left: calc(var(--espacio-3) + var(--filo-grosor));
+  transform: translateY(2px);
+}
+.ficha[aria-pressed="true"]::before, .ficha[aria-current]::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+  width: var(--filo-grosor); background: var(--color-tinta);
+  border-radius: var(--radio-control) 0 0 var(--radio-control);
+}
+.ficha[disabled] {
+  background-size: 100% 0;
+  background-color: var(--color-arena); color: var(--color-tinta-suave);
+  box-shadow: inset 0 0 0 1px var(--color-borde-fuerte); cursor: not-allowed; transform: none;
+}
+
+.pestanas { display: flex; gap: var(--espacio-5); border-bottom: 1px solid var(--color-borde-fuerte); }
+.pestana {
+  position: relative;
+  background: none; border: 0;
+  padding: var(--espacio-3) 0 calc(var(--espacio-3) + var(--filo-grosor));
+  min-height: var(--espacio-toque-minimo);
+  color: var(--color-tinta-suave);
+  font-size: var(--tipografia-tamano-cuerpo);
+  font-weight: var(--tipografia-pesos-medio);
+  font-stretch: var(--tipografia-ancho-texto);
+  cursor: pointer;
+  transition: color var(--movimiento-rapido) var(--movimiento-curva);
+}
+/* Cada pestaña reserva de antemano el ancho que ocupará cuando esté activa y su letra pase de
+   100 % a 112 %. Sin esto, elegir una pestaña mueve las otras de sitio. Requiere data-texto. */
+.pestana::after {
+  content: attr(data-texto); display: block; height: 0; overflow: hidden;
+  font-stretch: var(--tipografia-ancho-rotulo);
+  font-weight: var(--tipografia-pesos-fuerte);
+  visibility: hidden; pointer-events: none;
+}
+.pestana:hover { color: var(--color-tinta); }
+.pestana:focus-visible { outline: var(--foco-grosor) solid var(--foco-anillo); outline-offset: calc(var(--foco-separacion) * -1); }
+.pestana[aria-selected="true"] {
+  color: var(--color-tinta);
+  font-weight: var(--tipografia-pesos-fuerte);
+  font-stretch: var(--tipografia-ancho-rotulo);
+}
+.pestana[aria-selected="true"]::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0;
+  height: var(--filo-grosor); background: var(--color-tinta);
+}
+.pestana[disabled] { color: var(--color-tinta-tenue); cursor: not-allowed; }
+
+/* Canto vivo (radio 0) porque no se toca. El color va en el filo macizo, que es lo único del
+   sello que se ve al sol, y el nombre va escrito: quien no distingue el ámbar del verde sigue
+   leyendo «pendiente». */
+.estado {
+  display: inline-flex; align-items: center;
+  padding: 3px var(--espacio-2);
+  border-left: var(--canto-principal) solid currentColor;
+  border-radius: var(--radio-superficie);
+  font-size: var(--tipografia-tamano-micro);
+  font-weight: var(--tipografia-pesos-fuerte);
+  font-stretch: var(--tipografia-ancho-estrecho);
+  letter-spacing: var(--tipografia-espaciado-etiqueta);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.estado--pendiente  { background: var(--estado-reserva-pendiente-fondo);  color: var(--estado-reserva-pendiente-texto); }
+.estado--confirmada { background: var(--estado-reserva-confirmada-fondo); color: var(--estado-reserva-confirmada-texto); }
+.estado--completada { background: var(--estado-reserva-completada-fondo); color: var(--estado-reserva-completada-texto); }
+.estado--no_show    { background: var(--estado-reserva-no_show-fondo);    color: var(--estado-reserva-no_show-texto); }
+.estado--cancelada_cliente,
+.estado--cancelada_negocio { background: var(--estado-reserva-cancelada-fondo); color: var(--estado-reserva-cancelada-texto); }
+
+/* La banda de la fila usa el color de TEXTO del estado, no el de borde: el token de borde se
+   queda entre 2,14:1 y 3,52:1 sobre lienzo y al sol desaparece. No cambia la paleta, cambia qué
+   token se consume. */
+.agenda { border-top: 1px solid var(--color-borde-fuerte); }
+.agenda__fila {
+  display: grid; grid-template-columns: 62px 1fr auto;
+  gap: var(--espacio-1) var(--espacio-3);
+  align-items: center; min-height: 64px; width: 100%;
+  padding: var(--espacio-2) var(--espacio-3);
+  border: 0;
+  border-bottom: 1px solid var(--color-borde-fuerte);
+  border-left: var(--filo-grosor) solid var(--color-borde-fuerte);
+  background: var(--color-lienzo);
+  text-align: left; cursor: pointer;
+}
+.agenda__fila:hover:not(.agenda__fila--bloqueo) { background: var(--color-papel); }
+.agenda__hora {
+  grid-row: span 2;
+  font-stretch: var(--tipografia-ancho-cifra);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+  font-weight: var(--tipografia-pesos-fuerte);
+  font-size: var(--tipografia-tamano-mayor); line-height: 1.1;
+}
+.agenda__hora small { display: block; font-size: var(--tipografia-tamano-micro); font-stretch: var(--tipografia-ancho-estrecho); color: var(--color-tinta-suave); font-weight: var(--tipografia-pesos-medio); }
+.agenda__quien { font-weight: var(--tipografia-pesos-fuerte); }
+.agenda__que { grid-column: 2; font-size: var(--tipografia-tamano-menor); font-stretch: var(--tipografia-ancho-estrecho); color: var(--color-tinta-suave); }
+
+.agenda__fila--pendiente  { border-left-color: var(--estado-reserva-pendiente-texto); }
+.agenda__fila--confirmada { border-left-color: var(--estado-reserva-confirmada-texto); }
+.agenda__fila--completada { border-left-color: var(--estado-reserva-completada-texto); }
+.agenda__fila--no_show    { border-left-color: var(--estado-reserva-no_show-texto); }
+.agenda__fila--cancelada_cliente,
+.agenda__fila--cancelada_negocio { border-left-color: var(--estado-reserva-cancelada-texto); background: var(--color-papel); }
+
+/* Un bloqueo no es una cita: no es un botón, lleva el rayado y no tiene sello. */
+.agenda__fila--bloqueo {
+  border-left-color: var(--color-borde-fuerte);
+  background-color: var(--color-arena);
+  background-image: var(--trama-rayado);
+  color: var(--color-tinta-suave);
+  cursor: default; min-height: 48px;
+}
+
+.trama-pauta  { background-color: var(--color-arena); background-image: var(--trama-pauta); }
+.trama-rayado { background-color: var(--color-arena); background-image: var(--trama-rayado); }
+
+/* El vacío no es un icono triste centrado: es el papel pautado del día, sin nada escrito, que es
+   justo lo que este producto sustituye. Y siempre lleva la acción que abre. */
+.vacio {
+  display: grid; place-items: center;
+  padding: var(--espacio-6) var(--espacio-4); text-align: center;
+  background-color: var(--color-arena);
+  background-image: var(--trama-pauta);
+  border-block: 1px solid var(--color-borde-fuerte);
+}
+/* El contenido va sobre un bloque de lienzo, como una nota puesta encima del papel pautado. Si el
+   texto se apoya directamente en la trama, una raya lo cruza y parece tachado. Comprobado. */
+.vacio__nota {
+  display: grid; gap: var(--espacio-3); justify-items: center;
+  background: var(--color-lienzo);
+  padding: var(--espacio-5) var(--espacio-4);
+  max-width: 38ch;
+  box-shadow: inset 0 0 0 1px var(--color-borde-fuerte);
+}
+.vacio strong {
+  display: block;
+  font-weight: var(--tipografia-pesos-display);
+  font-stretch: var(--tipografia-ancho-rotulo);
+  font-size: var(--tipografia-tamano-titulo-4);
+}
+.vacio p { max-width: 34ch; color: var(--color-tinta-suave); }
+
+/* Cargando: bloques macizos con un latido de opacidad. Nada de brillo que recorre la pantalla,
+   que es un degradado en movimiento y aquí no hay degradados. */
+.esqueleto { background-color: var(--color-arena); background-image: var(--trama-pauta); }
+/* `display: block` no es decoración: a un elemento en línea no le aplican ni el alto ni el ancho,
+   y el esqueleto se queda invisible. */
+.esqueleto__linea, .esqueleto__sello { display: block; background: var(--color-borde-fuerte); animation: latido 1400ms ease-in-out infinite; }
+.esqueleto__linea { height: 14px; }
+.esqueleto__sello { width: 64px; height: 64px; }
+@keyframes latido { 0%, 100% { opacity: .5 } 50% { opacity: .9 } }
+
+.rotulo { font-weight: var(--tipografia-pesos-display); font-stretch: var(--tipografia-ancho-rotulo); line-height: var(--tipografia-interlineado-apretado); letter-spacing: var(--tipografia-espaciado-titular); }
+.cifra  { font-stretch: var(--tipografia-ancho-cifra); font-variant-numeric: var(--tipografia-cifras-tabulares); font-weight: var(--tipografia-pesos-fuerte); }
+.estrecho { font-stretch: var(--tipografia-ancho-estrecho); }
+
+.etiqueta-versal {
+  display: inline-block;
+  font-size: var(--tipografia-tamano-micro);
+  font-weight: var(--tipografia-pesos-fuerte);
+  font-stretch: var(--tipografia-ancho-estrecho);
+  letter-spacing: var(--tipografia-espaciado-etiqueta);
+  text-transform: uppercase;
+}
+
+/* El titular ensancha con la pantalla: a 390 px va a 100 % para que quepan más caracteres por
+   línea, y desde 768 px se planta a 112 %. Va con media query porque font-stretch acepta un
+   porcentaje puro y no admite calc() con vw. */
+h1, h2, .titular-adaptativo { font-stretch: var(--tipografia-ancho-texto); }
+@media (min-width: 768px) { h1, h2, .titular-adaptativo { font-stretch: var(--tipografia-ancho-rotulo); } }
+
+/* ══ El rótulo: lo que se presenta cuando no hay fotografía ═══════════════════
+   Decisión de la revisión 2, en docs/marca/revision-2/auditoria-brandbook.md §2. No es un hueco
+   tapado: es la forma por defecto de presentar un salón. El nombre entero hace de imagen, la
+   trama dice el oficio y el par de color pone el ritmo.
+
+   Sale del apartado 03 del brandbook —«el lenguaje es el del rótulo pintado de un local, no el
+   de una aplicación»—, del moodboard y del apartado 06, que tenía la tipografía a tamaño de
+   cartel sin usar fuera de la portada.
+
+   Todo el sistema, con sus seis tramas, pesa 1.369 bytes comprimido: el 2,4 % de una sola
+   fotografía, y sin una petición de red más.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── El rótulo: lo que se pinta donde no hay foto ──────────────────────────────
+   No es un hueco tapado: es la forma por defecto de presentar un salón. El nombre hace de
+   imagen, la trama dice el oficio y el color pone el ritmo. */
+
+.rotulo {
+  position: relative;
+  display: grid;
+  align-content: end;
+  overflow: hidden;
+  background: var(--rotulo-fondo, var(--color-acento));
+  color: var(--rotulo-tinta, var(--color-acento-texto));
+  /* El filo del brandbook, aquí haciendo de canto de chapa del rótulo. */
+  border-top: 6px solid var(--color-abre);
+}
+
+/* La trama va detrás, en la propia tinta del bloque. Se pinta como máscara y no como imagen
+   de fondo: así un mismo archivo sirve sobre azul, sobre tinta y sobre naranja, que es la
+   misma idea del logotipo con `currentColor`. */
+.rotulo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: currentColor;
+  opacity: var(--rotulo-trama-fuerza, 0.24);
+  -webkit-mask-image: var(--rotulo-trama);
+  mask-image: var(--rotulo-trama);
+  -webkit-mask-size: var(--rotulo-trama-talla, 44px);
+  mask-size: var(--rotulo-trama-talla, 44px);
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+}
+
+.rotulo__texto {
+  position: relative;
+  padding: var(--espacio-3);
+  font-family: var(--tipografia-familia-display);
+  font-weight: var(--tipografia-pesos-display);
+  font-stretch: var(--tipografia-ancho-rotulo);
+  line-height: var(--tipografia-interlineado-apretado);
+  letter-spacing: var(--tipografia-espaciado-titular);
+  text-transform: uppercase;
+  /* Rompe solo si una palabra sola no cabe. Un rótulo pintado no parte «peluquería» por la
+     mitad: si no entra, se pinta más pequeño. */
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+/* Talla grande: la cabecera del perfil. No lleva proporción fija, porque un rótulo que
+   recorta el nombre del local no es un rótulo. */
+.rotulo--cartel { min-height: 34vw; --rotulo-trama-talla: 64px; }
+.rotulo--cartel .rotulo__texto {
+  padding: var(--espacio-5) var(--espacio-4) var(--espacio-4);
+  font-size: var(--rotulo-talla, var(--tipografia-tamano-titulo-2));
+}
+
+/* Las tres tallas, por letras de la palabra más larga del nombre. Así estrecha el letrero un
+   rotulista: manda el nombre, no el punto de ruptura. El servidor cuenta las letras en una
+   línea y pone la clase; no se calcula con `cqw` porque el ancho del rótulo depende del texto
+   y el cálculo se muerde la cola.
+   Los topes están medidos con Archivo a peso 800 y anchura 112 %, donde un glifo ocupa
+   0,81 em: la palabra más larga tiene que caber en 358 px, que es un teléfono de 390 menos
+   el aire. */
+.rotulo--larga { --rotulo-talla: clamp(1.375rem, 0.7rem + 3.4vw, 2.5rem); }   /* 10 letras o más */
+.rotulo--media { --rotulo-talla: clamp(1.625rem, 0.8rem + 4.2vw, var(--tipografia-tamano-titulo-1)); } /* 7 a 9 */
+.rotulo--corta { --rotulo-talla: clamp(2.25rem, 1rem + 6.4vw, var(--tipografia-tamano-cartel)); }      /* 6 o menos */
+
+@media (min-width: 900px) { .rotulo--cartel { min-height: 220px; } }
+
+/* Talla chica: la miniatura de una lista, 104 px. Ahí no cabe un nombre, caben las iniciales
+   de las dos primeras palabras. Es la misma regla del apartado 04 del brandbook: a 24 px el
+   wordmark, a 16 px solo el símbolo. */
+.rotulo--sello {
+  aspect-ratio: 1;
+  align-content: center;
+  justify-items: center;
+  --rotulo-trama-talla: 52px;
+}
+.rotulo--sello .rotulo__texto {
+  padding: 0;
+  font-size: var(--tipografia-tamano-titulo-2);
+  letter-spacing: 0.02em;
+}
+
+/* Van a trazo y no a relleno porque el brandbook manda «dibujado a trazo» en el logotipo y en
+   el símbolo, y porque a esta escala un relleno se convierte en mancha. */
+
+.oficio--barberia {   /* el peine */
+  --rotulo-trama: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' fill='none' stroke='%23000' stroke-width='2'%3E%3Cpath d='M2 12h36M9 12v10M20 12v10M31 12v10'/%3E%3Cpath d='M2 32h36M14 22v10M26 22v10'/%3E%3C/svg%3E");
+}
+.oficio--unas {       /* la uña con su lúnula */
+  --rotulo-trama: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' fill='none' stroke='%23000' stroke-width='2'%3E%3Cpath d='M12 32V16a8 8 0 0 1 16 0v16z'/%3E%3Cpath d='M13 21a7 5 0 0 1 14 0'/%3E%3C/svg%3E");
+}
+.oficio--spa {        /* el agua */
+  --rotulo-trama: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' fill='none' stroke='%23000' stroke-width='2'%3E%3Cpath d='M0 13c5-6 10 6 15 0s10-6 15 0 10 6 15 0'/%3E%3Cpath d='M-5 27c5-6 10 6 15 0s10-6 15 0 10 6 15 0'/%3E%3C/svg%3E");
+}
+.oficio--cejas {      /* el arco con sus pelos */
+  --rotulo-trama: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' fill='none' stroke='%23000' stroke-width='2'%3E%3Cpath d='M4 26a16 16 0 0 1 32 0'/%3E%3Cpath d='M8 22l-4-5M16 15l-2-6M24 15l2-6M32 22l4-5'/%3E%3C/svg%3E");
+}
+.oficio--maquillaje { /* la brocha */
+  --rotulo-trama: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' fill='none' stroke='%23000' stroke-width='2'%3E%3Cpath d='M20 2v18M13 20h14l-7 18z'/%3E%3Cpath d='M13 26h14'/%3E%3C/svg%3E");
+}
+.oficio--horas {      /* la retícula del horario: el oficio por defecto, y el símbolo dentro */
+  --rotulo-trama: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' fill='none' stroke='%23000' stroke-width='2'%3E%3Cpath d='M0 10h40M0 20h40M0 30h40M10 0v40M30 0v40'/%3E%3Crect x='10' y='20' width='20' height='10' fill='%23000'/%3E%3C/svg%3E");
+}
+
+.reticula {
+  position: relative;
+  background-color: var(--retic-fondo, var(--color-arena));
+  background-image:
+    repeating-linear-gradient(to right,
+      var(--retic-linea, var(--color-tinta)) 0 1px, transparent 1px var(--retic-col, 34px)),
+    repeating-linear-gradient(to bottom,
+      var(--retic-linea, var(--color-tinta)) 0 1px, transparent 1px var(--retic-fila, 22px));
+}
+
+/* Las casillas ocupadas: un día con cuatro citas puestas. Que se corten por el canto es lo
+   que hace un horario impreso de verdad, no un fallo de maquetación. */
+.reticula::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(var(--retic-ocupado, var(--color-tinta)) 0 0)  34px 22px / 33px 21px no-repeat,
+    linear-gradient(var(--retic-ocupado, var(--color-tinta)) 0 0) 102px 22px / 33px 21px no-repeat,
+    linear-gradient(var(--retic-ocupado, var(--color-tinta)) 0 0)  68px 66px / 33px 21px no-repeat,
+    linear-gradient(var(--retic-ocupado, var(--color-tinta)) 0 0) 170px 44px / 33px 21px no-repeat;
+  opacity: 0.9;
+}
+
+/* El hueco. Es el único rectángulo del color que abre en toda la pieza, y es el argumento de
+   venta del producto dibujado sin una palabra. */
+.reticula::after {
+  content: '';
+  position: absolute;
+  top: 44px;
+  inset-inline-start: 34px;
+  width: 33px;
+  height: 21px;
+  background: var(--color-abre);
+}
+
+.sello-persona {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--rotulo-fondo, var(--color-tinta));
+  color: var(--rotulo-tinta, var(--color-papel));
+  border-top: 3px solid var(--color-abre);
+  font-family: var(--tipografia-familia-display);
+  font-weight: var(--tipografia-pesos-display);
+  font-stretch: var(--tipografia-ancho-rotulo);
+  font-size: var(--tipografia-tamano-titulo-4);
+}
+.sello-persona::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: currentColor;
+  opacity: 0.26;
+  -webkit-mask-image: var(--rotulo-trama);
+  mask-image: var(--rotulo-trama);
+  -webkit-mask-size: 28px;
+  mask-size: 28px;
+}
+.sello-persona span { position: relative; }
+
+/* La fila lleva el corazón por encima: es una acción distinta de entrar en el salón, y meterla
+   dentro del enlace haría que guardar y abrir fueran el mismo gesto. */
+.resultado-fila { position: relative; }
+.resultado__sello { position: relative; overflow: hidden; }
+.resultado__sello > .rotulo,
+.resultado__sello > img { width: 100%; height: 100%; object-fit: cover; }
+.resultado__hora--sin { background-image: none; background-color: var(--color-papel); }
+.resultado__guardar {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  inset-inline-end: 0;
+  width: var(--espacio-toque-minimo);
+  height: var(--espacio-toque-minimo);
+  display: none;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--color-tinta-suave);
+  cursor: pointer;
+}
+.resultado__guardar[aria-pressed='true'] { color: var(--color-peligro); }
+/* En pantalla ancha hay sitio para el corazón sin quitarle nada a la hora libre. */
+@media (min-width: 900px) {
+  .resultado__guardar { display: grid; }
+  .resultado { padding-right: var(--espacio-7); }
+}
+
+/* ── El bloque de las horas ────────────────────────────────────────────────────
+   Elegir la hora es lo que **cierra**, y el azul es el color que cierra. Que la sección donde
+   de verdad se reserva sea un bloque a sangre es la regla del brandbook aplicada donde más se
+   mira: hasta ahora el color solo existía en las dos páginas de marketing.
+   ══════════════════════════════════════════════════════════════════════════ */
+.bloque-horas {
+  margin-inline: calc(var(--espacio-4) * -1);
+  padding: var(--espacio-6) var(--espacio-4);
+  background: var(--color-acento);
+  color: var(--color-acento-texto);
+  --foco-anillo: var(--color-papel);
+  border-top: var(--filo-grosor) solid var(--color-abre);
+}
+@media (min-width: 768px) {
+  .bloque-horas { margin-inline: calc(var(--espacio-6) * -1); padding-inline: var(--espacio-6); }
+}
+.bloque-horas h2 { color: var(--color-acento-texto); }
+.bloque-horas .tenue { color: color-mix(in srgb, var(--color-papel) 78%, transparent); }
+/* Dentro del bloque azul, la ficha del día y la hora se quedan en lienzo: son lo que se toca y
+   tienen que separarse del fondo, no fundirse con él. */
+.bloque-horas .aviso--info {
+  background: color-mix(in srgb, var(--color-papel) 16%, transparent);
+  color: var(--color-acento-texto);
+  border-left-color: var(--color-abre);
+}
+
+.bloque-panel--arena {
+  margin-inline: calc(var(--espacio-4) * -1);
+  padding: var(--espacio-6) var(--espacio-4);
+  background: var(--color-arena);
+}
+@media (min-width: 768px) {
+  .bloque-panel--arena { margin-inline: calc(var(--espacio-6) * -1); padding-inline: var(--espacio-6); }
+}
+
+/* ── El encabezado del marketplace ─────────────────────────────────────────────
+   Un bloque de tinta a sangre con el nombre a tamaño de rótulo y el buscador dentro. Es la
+   fachada del local: se lee desde la acera y separa «lo que busco» de «lo que hay», sin una
+   sola raya gris.
+   ══════════════════════════════════════════════════════════════════════════ */
+.cabecera-buscar {
+  background: var(--color-tinta);
+  color: var(--color-papel);
+  --foco-anillo: var(--color-papel);
+  padding-block: var(--espacio-6) var(--espacio-5);
+  border-bottom: var(--filo-grosor) solid var(--color-abre);
+}
+.cabecera-buscar h1 { color: var(--color-papel); }
+.cabecera-buscar .tenue { color: color-mix(in srgb, var(--color-papel) 78%, transparent); }
+/* Las fichas de modo sobre el bloque oscuro: filete propio en vez de lienzo, que sobre tinta
+   sería una fila de pastillas blancas. */
+.cabecera-buscar .ficha {
+  background-color: transparent;
+  color: var(--color-papel);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-papel) 46%, transparent);
+}
+.cabecera-buscar .ficha[aria-pressed='true'],
+.cabecera-buscar .ficha[aria-selected='true'] {
+  background-color: var(--color-papel);
+  color: var(--color-tinta);
+  box-shadow: none;
+}
+.cabecera-buscar .ficha[aria-pressed='true']::before,
+.cabecera-buscar .ficha[aria-selected='true']::before { background: var(--color-abre); }
+.cabecera-buscar .buscador__cuenta { background: var(--color-abre); color: var(--color-abre-texto); }
+
+.seccion--arena-suelta { background: transparent; }
