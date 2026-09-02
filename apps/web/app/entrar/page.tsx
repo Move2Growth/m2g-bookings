@@ -133,7 +133,7 @@ function Contenido() {
             comisión por cita.
           </p>
         </div>
-        <p className="tenue" style={{ opacity: 0.7 }}>
+        <p className="tenue">
           Ciudad de Panamá
         </p>
       </aside>

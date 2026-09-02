@@ -1,0 +1,1815 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bukeo · El lenguaje de componentes</title>
+<meta name="description" content="Revisión 2 de la capa de componentes de Bukeo: el canto, la mordida y la regla de la forma. Cada pieza en sus cinco estados, con contraste medido.">
+
+<!-- La fuente va autoalojada en producción (apps/web usa @fontsource-variable/archivo).
+     Aquí se intenta primero el archivo local del repositorio y, si el navegador lo bloquea
+     por abrirse con file://, cae a la copia de Google Fonts. En el producto NO se enlaza
+     a Google Fonts: es una dependencia de un tercero y una petición más en 3G. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+
+<style>
+@font-face{
+  font-family:'Archivo Variable';
+  font-style:normal;
+  font-display:swap;
+  font-weight:100 900;
+  font-stretch:62% 125%;
+  src:url('../../../apps/web/node_modules/@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2') format('woff2-variations');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;
+}
+</style>
+
+<style>
+/* ══════════════════════════════════════════════════════════════════════════════
+   1. LOS TOKENS. Copiados literalmente de packages/tokens/variables.css.
+      Ni un hexadecimal escrito a mano en todo el documento: lo que no sale de aquí
+      sale de color-mix() sobre estas mismas variables.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  color-scheme: light;
+  --color-papel: #F2F3EF;
+  --color-lienzo: #FFFFFF;
+  --color-arena: #E7E9E2;
+  --color-borde: #D5D8D0;
+  --color-borde-fuerte: #7E837A;
+  --color-tinta: #0D1526;
+  --color-tinta-suave: #4A5163;
+  --color-tinta-tenue: #5F6678;
+  --color-acento: #1636C7;
+  --color-acento-hover: #0F27A0;
+  --color-acento-suave: #E4E9FC;
+  --color-acento-texto: #F2F3EF;
+  --color-abre: #FF7A1F;
+  --color-abre-hover: #E86A11;
+  --color-abre-suave: #FFEDDF;
+  --color-abre-texto: #0D1526;
+  --color-exito: #15683C;
+  --color-exito-suave: #E1EFE7;
+  --color-aviso: #8A5406;
+  --color-aviso-suave: #FBEDD6;
+  --color-peligro: #A3161B;
+  --color-peligro-suave: #FAE7E7;
+  --color-foco: #1636C7;
+  --color-velo: rgba(13, 21, 38, 0.52);
+  --estado-reserva-pendiente-fondo: #FBEDD6;
+  --estado-reserva-pendiente-texto: #6B4105;
+  --estado-reserva-pendiente-borde: #DBA646;
+  --estado-reserva-confirmada-fondo: #E1EFE7;
+  --estado-reserva-confirmada-texto: #0F4E2D;
+  --estado-reserva-confirmada-borde: #5A9C77;
+  --estado-reserva-completada-fondo: #E6E9EF;
+  --estado-reserva-completada-texto: #2C3A52;
+  --estado-reserva-completada-borde: #7C89A3;
+  --estado-reserva-no_show-fondo: #E7E9E2;
+  --estado-reserva-no_show-texto: #4A5163;
+  --estado-reserva-no_show-borde: #AEB3A8;
+  --estado-reserva-cancelada-fondo: #FAE7E7;
+  --estado-reserva-cancelada-texto: #8A1216;
+  --estado-reserva-cancelada-borde: #D49A9A;
+  --tipografia-familia-display: 'Archivo Variable', 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --tipografia-familia: 'Archivo Variable', 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --tipografia-cifras-tabulares: tabular-nums;
+  --tipografia-ancho-rotulo: 112%;
+  --tipografia-ancho-cifra: 125%;
+  --tipografia-ancho-texto: 100%;
+  --tipografia-pesos-normal: 400;
+  --tipografia-pesos-medio: 500;
+  --tipografia-pesos-fuerte: 600;
+  --tipografia-pesos-display: 800;
+  --tipografia-tamano-micro: 0.75rem;
+  --tipografia-tamano-menor: 0.875rem;
+  --tipografia-tamano-cuerpo: 1rem;
+  --tipografia-tamano-mayor: 1.125rem;
+  --tipografia-tamano-titulo-4: 1.25rem;
+  --tipografia-tamano-titulo-3: 1.5rem;
+  --tipografia-tamano-titulo-2: 2rem;
+  --tipografia-tamano-titulo-1: 2.75rem;
+  --tipografia-tamano-cartel: 4.25rem;
+  --tipografia-interlineado-apretado: 0.94;
+  --tipografia-interlineado-titulo: 1.08;
+  --tipografia-interlineado-normal: 1.5;
+  --tipografia-interlineado-suelto: 1.65;
+  --tipografia-espaciado-titular: -0.02em;
+  --tipografia-espaciado-normal: 0;
+  --tipografia-espaciado-etiqueta: 0.08em;
+  --espacio-0: 0;
+  --espacio-1: 0.25rem;
+  --espacio-2: 0.5rem;
+  --espacio-3: 0.75rem;
+  --espacio-4: 1rem;
+  --espacio-5: 1.5rem;
+  --espacio-6: 2rem;
+  --espacio-7: 3rem;
+  --espacio-8: 4rem;
+  --espacio-9: 6.5rem;
+  --espacio-toque-minimo: 44px;
+  --radio-superficie: 0;
+  --radio-control: 4px;
+  --radio-pildora: 999px;
+  --sombra-ninguna: none;
+  --sombra-menu: 0 2px 10px rgba(13, 21, 38, 0.16);
+  --sombra-hoja: 0 -2px 24px rgba(13, 21, 38, 0.22);
+  --sombra-elevada: 0 1px 2px rgba(13, 21, 38, 0.08);
+  --pantalla-movil: 390px;
+  --pantalla-tableta: 768px;
+  --pantalla-escritorio: 1024px;
+  --pantalla-ancho: 1160px;
+  --movimiento-instante: 90ms;
+  --movimiento-rapido: 140ms;
+  --movimiento-normal: 220ms;
+  --movimiento-lento: 380ms;
+  --movimiento-curva: cubic-bezier(0.2, 0, 0.2, 1);
+  --movimiento-curva-salida: cubic-bezier(0.4, 0, 1, 1);
+  --movimiento-curva-empuje: cubic-bezier(0.34, 1.3, 0.64, 1);
+  --movimiento-escalonado: 34ms;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   2. LOS TOKENS QUE FALTAN. Cinco valores nuevos y ni un color nuevo.
+      Son la propuesta de esta revisión para packages/tokens/tokens.json.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* El canto: el zócalo macizo que llevan dentro las cosas que se tocan. Su grosor ES la
+     jerarquía: 4 px la acción principal, 3 px la secundaria, 2 px la de texto. */
+  --canto-principal: 4px;
+  --canto-secundario: 3px;
+  --canto-menor: 2px;
+  --canto-alzado: 6px;      /* al pasar por encima el canto crece: la chapa se levanta */
+  /* La mordida: lo que le falta al canto por la derecha. Es la muesca del icono de Bukeo. */
+  --canto-mordida: 14px;
+  /* El filo: la barra maciza de 6 px que dice «estás aquí». Misma medida que el filo de
+     bloque del brandbook, distinto color a propósito (ver el documento). */
+  --filo-grosor: 6px;
+  /* El anillo de foco. No es del color de marca: tinta sobre claro, cal sobre oscuro. */
+  --foco-grosor: 3px;
+  --foco-separacion: 2px;
+  --foco-anillo: var(--color-tinta);
+  --tipografia-ancho-estrecho: 87%;
+}
+
+/* Registrar la variable permite animarla. Sin esto el canto salta en vez de moverse. */
+@property --canto {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   3. LAS TRES REGLAS DEL LENGUAJE
+      a) EL CANTO. Todo lo que se toca lleva un zócalo macizo de currentColor dentro
+         de su propia caja. No es una sombra: es un bloque de color, y por eso no
+         incumple «sin sombras decorativas». Al pasar crece, al pulsar se lo traga.
+      b) LA MORDIDA. Al canto le falta el último tramo. Es la muesca calada del icono
+         y es lo que hace reconocible un control de Bukeo sin leer el texto.
+      c) LA FORMA MANDA. Radio 4 px y canto = se toca. Canto vivo y sin canto = se lee.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.canto {
+  padding-bottom: var(--canto);
+  background-image: linear-gradient(
+    to right,
+    currentColor 0 calc(100% - var(--canto-mordida)),
+    transparent calc(100% - var(--canto-mordida))
+  );
+  background-repeat: no-repeat;
+  background-size: 100% var(--canto);
+  background-position: left bottom;
+  transition:
+    --canto var(--movimiento-rapido) var(--movimiento-curva),
+    background-color var(--movimiento-rapido) var(--movimiento-curva),
+    border-color var(--movimiento-rapido) var(--movimiento-curva),
+    color var(--movimiento-rapido) var(--movimiento-curva),
+    transform var(--movimiento-instante) var(--movimiento-curva);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   4. LA PÁGINA DEL DOCUMENTO (andamiaje, no forma parte del sistema)
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--color-papel);
+  color: var(--color-tinta);
+  font-family: var(--tipografia-familia);
+  font-size: var(--tipografia-tamano-cuerpo);
+  line-height: var(--tipografia-interlineado-normal);
+  font-synthesis-weight: none;
+}
+h1, h2, h3, h4 { margin: 0; font-weight: var(--tipografia-pesos-display); font-stretch: var(--tipografia-ancho-rotulo); line-height: var(--tipografia-interlineado-titulo); letter-spacing: var(--tipografia-espaciado-titular); }
+h1 { font-size: clamp(2rem, 1.2rem + 3.4vw, var(--tipografia-tamano-titulo-1)); line-height: var(--tipografia-interlineado-apretado); }
+h2 { font-size: clamp(1.5rem, 1.18rem + 1.45vw, var(--tipografia-tamano-titulo-2)); }
+h3 { font-size: var(--tipografia-tamano-titulo-4); }
+h4 { font-size: var(--tipografia-tamano-cuerpo); }
+p { margin: 0; text-wrap: pretty; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+a { color: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; }
+
+:focus-visible { outline: var(--foco-grosor) solid var(--foco-anillo); outline-offset: var(--foco-separacion); }
+
+.doc { max-width: var(--pantalla-ancho); margin-inline: auto; padding-inline: clamp(16px, 4vw, 40px); }
+.doc-cabecera {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--color-papel);
+  border-bottom: var(--filo-grosor) solid var(--color-abre);
+}
+.doc-cabecera__fila { display: flex; align-items: center; justify-content: space-between; gap: var(--espacio-4); min-height: 64px; flex-wrap: wrap; }
+.doc-marca { display: inline-flex; align-items: center; gap: var(--espacio-3); font-weight: var(--tipografia-pesos-display); font-stretch: var(--tipografia-ancho-rotulo); letter-spacing: var(--tipografia-espaciado-etiqueta); text-transform: uppercase; font-size: var(--tipografia-tamano-menor); }
+.doc-indice { display: flex; flex-wrap: wrap; gap: var(--espacio-1) var(--espacio-4); font-size: var(--tipografia-tamano-menor); font-stretch: var(--tipografia-ancho-estrecho); }
+.doc-indice a { text-decoration: none; border-bottom: 2px solid transparent; padding-block: 2px; }
+.doc-indice a:hover { border-bottom-color: var(--color-tinta); }
+
+.seccion-doc { padding-block: var(--espacio-7); border-top: 1px solid var(--color-borde-fuerte); scroll-margin-top: 120px; }
+.seccion-doc:first-of-type { border-top: 0; }
+.seccion-doc__num {
+  display: inline-block; margin-bottom: var(--espacio-2);
+  font-size: var(--tipografia-tamano-micro); font-weight: var(--tipografia-pesos-fuerte);
+  font-stretch: var(--tipografia-ancho-estrecho); letter-spacing: var(--tipografia-espaciado-etiqueta);
+  text-transform: uppercase; color: var(--color-tinta-suave);
+}
+.entradilla { max-width: 62ch; margin-top: var(--espacio-3); color: var(--color-tinta-suave); }
+.entradilla + .entradilla { margin-top: var(--espacio-2); }
+.dato { font-weight: var(--tipografia-pesos-fuerte); color: var(--color-tinta); font-variant-numeric: var(--tipografia-cifras-tabulares); }
+
+/* La mesa donde se enseñan las piezas. Fondo lienzo para que se vea el canto y el filete. */
+.mesa {
+  margin-top: var(--espacio-5);
+  background: var(--color-lienzo);
+  border: 1px solid var(--color-borde-fuerte);
+  padding: var(--espacio-5);
+}
+.mesa--papel { background: var(--color-papel); }
+.mesa--azul { background: var(--color-acento); color: var(--color-acento-texto); border-color: var(--color-acento); --foco-anillo: var(--color-papel); }
+.mesa--tinta { background: var(--color-tinta); color: var(--color-papel); border-color: var(--color-tinta); --foco-anillo: var(--color-papel); }
+.mesa + .mesa { margin-top: var(--espacio-4); }
+.mesa__titulo {
+  font-size: var(--tipografia-tamano-micro); font-weight: var(--tipografia-pesos-fuerte);
+  font-stretch: var(--tipografia-ancho-estrecho); letter-spacing: var(--tipografia-espaciado-etiqueta);
+  text-transform: uppercase; margin-bottom: var(--espacio-4);
+}
+.mesa--azul .mesa__titulo, .mesa--tinta .mesa__titulo { color: inherit; }
+
+/* Rejilla de estados: cada muestra con su nombre debajo. */
+.estados { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: var(--espacio-5) var(--espacio-4); align-items: start; }
+.estados--ancho { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+.muestra { display: grid; gap: var(--espacio-2); justify-items: start; }
+.muestra__pie {
+  font-size: var(--tipografia-tamano-micro); font-stretch: var(--tipografia-ancho-estrecho);
+  letter-spacing: var(--tipografia-espaciado-etiqueta); text-transform: uppercase;
+  color: var(--color-tinta-suave); font-weight: var(--tipografia-pesos-fuerte);
+}
+.mesa--azul .muestra__pie, .mesa--tinta .muestra__pie { color: inherit; opacity: .82; }
+.fila-piezas { display: flex; flex-wrap: wrap; gap: var(--espacio-3); align-items: center; }
+
+.nota-medida {
+  margin-top: var(--espacio-4); padding-left: var(--espacio-3);
+  border-left: var(--filo-grosor) solid var(--color-abre);
+  font-size: var(--tipografia-tamano-menor); color: var(--color-tinta-suave); max-width: 68ch;
+}
+.mesa--azul .nota-medida, .mesa--tinta .nota-medida { color: inherit; border-left-color: var(--color-papel); }
+
+.tabla { width: 100%; border-collapse: collapse; margin-top: var(--espacio-4); font-size: var(--tipografia-tamano-menor); }
+.tabla th, .tabla td { text-align: left; padding: var(--espacio-2) var(--espacio-3); border-bottom: 1px solid var(--color-borde-fuerte); vertical-align: top; }
+.tabla th { font-stretch: var(--tipografia-ancho-estrecho); letter-spacing: var(--tipografia-espaciado-etiqueta); text-transform: uppercase; font-size: var(--tipografia-tamano-micro); }
+.tabla td:last-child, .tabla th:last-child { text-align: right; font-variant-numeric: var(--tipografia-cifras-tabulares); font-stretch: var(--tipografia-ancho-cifra); white-space: nowrap; }
+.marca-ok { color: var(--color-exito); font-weight: var(--tipografia-pesos-fuerte); }
+.marca-no { color: var(--color-peligro); font-weight: var(--tipografia-pesos-fuerte); }
+
+/* El marco de 390 px, que es donde vive esto de verdad. */
+.marco {
+  width: var(--pantalla-movil); max-width: 100%;
+  background: var(--color-papel);
+  border: 1px solid var(--color-borde-fuerte);
+}
+.marco__barra {
+  background: var(--color-tinta); color: var(--color-papel);
+  padding: var(--espacio-2) var(--espacio-4);
+  font-size: var(--tipografia-tamano-micro); font-stretch: var(--tipografia-ancho-estrecho);
+  letter-spacing: var(--tipografia-espaciado-etiqueta); text-transform: uppercase;
+  display: flex; justify-content: space-between; border-bottom: var(--filo-grosor) solid var(--color-abre);
+}
+.marco__cuerpo { padding: var(--espacio-4); }
+.par { display: grid; gap: var(--espacio-5); }
+/* Sin esto, un hijo de rejilla con un ancho fijo dentro (el marco de 390 px) desborda la
+   página en un teléfono. Es el fallo más repetido de CSS Grid. */
+.par > *, .mesa, .marco__cuerpo { min-width: 0; }
+@media (min-width: 900px) { .par { grid-template-columns: 1fr 1fr; align-items: start; } }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   5. DE DÓNDE SALE LA FORMA. El icono, el canto y la mordida.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.origen { display: grid; gap: var(--espacio-5); grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.origen__caja { display: grid; gap: var(--espacio-3); }
+.origen__dibujo { height: 128px; display: grid; place-items: center; background: var(--color-papel); border: 1px solid var(--color-borde-fuerte); }
+
+/* El icono: un bloque sólido con una muesca calada. Sin imagen, sin SVG: clip-path. */
+.icono-hueco {
+  width: 84px; height: 84px; background: var(--color-tinta);
+  clip-path: polygon(0 0, 100% 0, 100% 58%, 58% 58%, 58% 100%, 0 100%);
+}
+/* El canto: la misma idea, tumbada. Barra maciza a la que le falta el final. */
+.canto-solo { width: 132px; height: 40px; display: grid; align-content: end; }
+.canto-solo span {
+  display: block; height: var(--canto-principal); background: var(--color-tinta);
+  margin-right: var(--canto-mordida);
+}
+/* La mordida marcada en rojo para que se vea qué es lo que falta. */
+.canto-mordido { position: relative; width: 132px; height: 40px; display: grid; align-content: end; }
+.canto-mordido span { display: block; height: var(--canto-principal); background: var(--color-tinta); margin-right: var(--canto-mordida); }
+.canto-mordido::after {
+  content: ""; position: absolute; right: 0; bottom: 0;
+  width: var(--canto-mordida); height: var(--canto-principal);
+  background: repeating-linear-gradient(135deg, var(--color-peligro) 0 2px, transparent 2px 4px);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   6. EL BOTÓN
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.boton {
+  --canto: var(--canto-principal);
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--espacio-2);
+  /* La altura total NO cambia con el canto: el objetivo táctil de 44 px más el canto de 4.
+     Lo que se mueve es el contenido dentro de la caja, no la caja. */
+  min-height: calc(var(--espacio-toque-minimo) + var(--canto-principal));
+  padding-inline: var(--espacio-5);
+  border: 0;
+  border-radius: var(--radio-control);
+  font-weight: var(--tipografia-pesos-fuerte);
+  font-stretch: var(--tipografia-ancho-texto);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  /* el canto */
+  padding-bottom: var(--canto);
+  background-image: linear-gradient(to right, currentColor 0 calc(100% - var(--canto-mordida)), transparent calc(100% - var(--canto-mordida)));
+  background-repeat: no-repeat;
+  background-size: 100% var(--canto);
+  background-position: left bottom;
+  transition:
+    --canto var(--movimiento-rapido) var(--movimiento-curva),
+    background-color var(--movimiento-rapido) var(--movimiento-curva),
+    border-color var(--movimiento-rapido) var(--movimiento-curva),
+    transform var(--movimiento-instante) var(--movimiento-curva);
+}
+/* La chapa se levanta al pasar por encima: el canto crece y el rótulo sube. */
+.boton:hover, .boton.es-encima { --canto: var(--canto-alzado); }
+/* Y se hunde al pulsar: se traga el canto y baja. Es la respuesta física del rótulo. */
+.boton:active, .boton.es-pulsado { --canto: 0px; transform: translateY(2px); }
+.boton:focus-visible, .boton.es-foco { outline: var(--foco-grosor) solid var(--foco-anillo); outline-offset: var(--foco-separacion); }
+
+/* El naranja ABRE. Siempre con tinta encima, porque sobre claro no llega a AA. */
+.boton--primario { background-color: var(--color-abre); color: var(--color-abre-texto); }
+.boton--primario:hover, .boton--primario.es-encima { background-color: var(--color-abre-hover); }
+
+/* El azul CIERRA. El canto sale en cal porque el canto es currentColor y aquí el texto es cal:
+   se lee como el papel que se ve por debajo del bloque. */
+.boton--cierra { background-color: var(--color-acento); color: var(--color-acento-texto); }
+.boton--cierra:hover, .boton--cierra.es-encima { background-color: var(--color-acento-hover); }
+
+/* El secundario: sin color de marca, canto más fino. La jerarquía es el grosor del canto. */
+.boton--secundario {
+  --canto: var(--canto-secundario);
+  background-color: var(--color-lienzo);
+  color: var(--color-tinta);
+  box-shadow: inset 0 0 0 1px var(--color-borde-fuerte);
+}
+.boton--secundario:hover, .boton--secundario.es-encima { --canto: 5px; box-shadow: inset 0 0 0 1px var(--color-tinta); background-color: var(--color-papel); }
+.boton--secundario:active, .boton--secundario.es-pulsado { --canto: 0px; }
+
+/* El llano: solo el canto. Un subrayado mordido, y sigue siendo de la misma familia. */
+.boton--llano {
+  --canto: var(--canto-menor);
+  --canto-mordida: 10px;
+  background-color: transparent;
+  color: var(--color-tinta-suave);
+  padding-inline: var(--espacio-2);
+}
+.boton--llano:hover, .boton--llano.es-encima { --canto: var(--canto-secundario); color: var(--color-tinta); }
+.boton--llano:active, .boton--llano.es-pulsado { --canto: 0px; }
+
+/* El destructivo no es un botón rojo relleno: es un botón de línea con el canto en peligro.
+   Se separa de lo frecuente por posición, no por color de fondo. */
+.boton--peligro {
+  --canto: var(--canto-secundario);
+  background-color: var(--color-lienzo);
+  color: var(--color-peligro);
+  box-shadow: inset 0 0 0 1px var(--color-peligro);
+}
+.boton--peligro:hover, .boton--peligro.es-encima { --canto: 5px; background-color: var(--color-peligro-suave); }
+.boton--peligro:active, .boton--peligro.es-pulsado { --canto: 0px; }
+
+/* Apagado. Sin canto, porque el canto significa «esto se pulsa». Y con contraste de sobra:
+   un botón apagado que no se lee no informa de nada. */
+.boton[disabled], .boton.es-apagado {
+  background-size: 100% 0;
+  background-color: var(--color-arena);
+  color: var(--color-tinta-suave);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+.boton--ancho { width: 100%; }
+
+/* Dentro de un bloque de color el canto se invierte solo, porque es currentColor. */
+.mesa--azul .boton--secundario, .mesa--tinta .boton--secundario {
+  background-color: transparent; color: inherit; box-shadow: inset 0 0 0 1px currentColor;
+}
+.mesa--azul .boton--secundario:hover, .mesa--tinta .boton--secundario:hover { background-color: color-mix(in srgb, var(--color-papel) 14%, transparent); }
+.mesa--azul .boton--llano, .mesa--tinta .boton--llano { color: inherit; }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   7. EL CAMPO DE TEXTO
+      Mismo canto que el botón, con una diferencia de sentido: en el botón el canto es
+      la chapa levantada, y aquí es el renglón sobre el que se escribe. No se hunde:
+      engorda al enfocar.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.campo { display: grid; gap: var(--espacio-2); max-width: 22rem; }
+.campo-etiqueta {
+  font-size: var(--tipografia-tamano-micro); font-weight: var(--tipografia-pesos-fuerte);
+  font-stretch: var(--tipografia-ancho-estrecho); letter-spacing: var(--tipografia-espaciado-etiqueta);
+  text-transform: uppercase;
+}
+.entrada {
+  --canto: var(--canto-secundario);
+  width: 100%;
+  min-height: 48px;
+  padding: var(--espacio-2) var(--espacio-3);
+  padding-bottom: calc(var(--espacio-2) + var(--canto));
+  background-color: var(--color-lienzo);
+  color: var(--color-tinta);
+  border: 1px solid var(--color-borde-fuerte);
+  border-radius: var(--radio-control);
+  font-size: var(--tipografia-tamano-cuerpo);
+  background-image: linear-gradient(to right, currentColor 0 calc(100% - var(--canto-mordida)), transparent calc(100% - var(--canto-mordida)));
+  background-repeat: no-repeat;
+  background-size: 100% var(--canto);
+  background-position: left bottom;
+  transition:
+    --canto var(--movimiento-rapido) var(--movimiento-curva),
+    border-color var(--movimiento-rapido) var(--movimiento-curva);
+}
+.entrada::placeholder { color: var(--color-tinta-tenue); }
+.entrada:hover, .entrada.es-encima { border-color: var(--color-tinta); }
+.entrada:focus-visible, .entrada.es-foco {
+  --canto: 5px;
+  border-color: var(--color-tinta);
+  outline: var(--foco-grosor) solid var(--foco-anillo);
+  outline-offset: var(--foco-separacion);
+}
+.campo.es-error .entrada, .entrada[aria-invalid="true"] { color: var(--color-peligro); border-color: var(--color-peligro); }
+.entrada:disabled, .entrada.es-apagado {
+  --canto: 0px;
+  background-color: var(--color-arena);
+  color: var(--color-tinta-suave);
+  border-color: var(--color-borde-fuerte);
+  cursor: not-allowed;
+}
+/* El código de verificación: cifras a 125 % y tabulares. Seis huecos, no una caja de texto. */
+.entrada--codigo {
+  font-stretch: var(--tipografia-ancho-cifra);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+  font-size: var(--tipografia-tamano-titulo-4);
+  font-weight: var(--tipografia-pesos-fuerte);
+  letter-spacing: 0.5em;
+  text-indent: 0.25em;
+}
+.campo-ayuda { font-size: var(--tipografia-tamano-menor); color: var(--color-tinta-suave); }
+.campo-error { font-size: var(--tipografia-tamano-menor); color: var(--color-peligro); font-weight: var(--tipografia-pesos-medio); }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   8. LA FICHA DE SALÓN EN UNA LISTA
+      No es una caja: es una fila. Lo que separa es el filete de borde-fuerte, y lo
+      que dice «estoy aquí» es el filo macizo de la izquierda, no un fondo de color.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.resultados { border-top: 1px solid var(--color-borde-fuerte); }
+.resultado {
+  position: relative;
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: var(--espacio-1) var(--espacio-3);
+  padding: var(--espacio-3) var(--espacio-3) var(--espacio-3) var(--espacio-4);
+  border-bottom: 1px solid var(--color-borde-fuerte);
+  background: var(--color-lienzo);
+  text-decoration: none;
+  color: inherit;
+  min-height: 88px;
+  align-items: center;
+  transition: background-color var(--movimiento-rapido) var(--movimiento-curva),
+              padding-left var(--movimiento-rapido) var(--movimiento-curva);
+}
+/* El filo: aparece al tocar la fila y empuja el contenido. Cero relleno de color. */
+.resultado::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+  width: var(--filo-grosor); background: var(--color-tinta); transform: scaleX(0);
+  transform-origin: left; transition: transform var(--movimiento-rapido) var(--movimiento-curva);
+}
+.resultado:hover, .resultado.es-encima { background: var(--color-papel); padding-left: calc(var(--espacio-4) + var(--filo-grosor)); }
+.resultado:hover::before, .resultado.es-encima::before { transform: scaleX(1); }
+.resultado:focus-visible, .resultado.es-foco { outline: var(--foco-grosor) solid var(--foco-anillo); outline-offset: calc(var(--foco-separacion) * -1); }
+.resultado:active, .resultado.es-pulsado { background: var(--color-arena); padding-left: calc(var(--espacio-4) + var(--filo-grosor)); }
+.resultado:active::before, .resultado.es-pulsado::before { transform: scaleX(1); }
+
+/* El sello del local: cuadrado y a canto vivo. Un negocio no es una persona: no lleva
+   avatar redondo. Y las iniciales pesan cero, que es lo que se ve en 3G antes de la foto. */
+.resultado__sello {
+  width: 64px; height: 64px; display: grid; place-items: center;
+  background: var(--color-tinta); color: var(--color-papel);
+  font-weight: var(--tipografia-pesos-display); font-stretch: var(--tipografia-ancho-rotulo);
+  font-size: var(--tipografia-tamano-mayor); letter-spacing: 0.02em;
+  grid-row: span 2;
+}
+.resultado__nombre { font-weight: var(--tipografia-pesos-fuerte); font-size: var(--tipografia-tamano-mayor); line-height: 1.2; }
+/* La anchura hace de jerarquía dentro de la misma línea: el nombre a 100 % y el barrio a 87 %.
+   Mismo color, mismo tamaño, y aun así uno manda sobre el otro. */
+.resultado__meta {
+  grid-column: 2; font-size: var(--tipografia-tamano-menor); font-stretch: var(--tipografia-ancho-estrecho);
+  color: var(--color-tinta-suave); font-variant-numeric: var(--tipografia-cifras-tabulares);
+}
+.resultado__hora {
+  --canto: var(--canto-secundario);
+  grid-column: 3; grid-row: span 2;
+  display: grid; place-items: center; gap: 0;
+  min-width: 76px; min-height: var(--espacio-toque-minimo);
+  padding: var(--espacio-1) var(--espacio-2);
+  padding-bottom: calc(var(--espacio-1) + var(--canto));
+  background-color: var(--color-lienzo); color: var(--color-tinta);
+  box-shadow: inset 0 0 0 1px var(--color-borde-fuerte);
+  border-radius: var(--radio-control);
+  background-image: linear-gradient(to right, currentColor 0 calc(100% - 10px), transparent calc(100% - 10px));
+  background-repeat: no-repeat; background-size: 100% var(--canto); background-position: left bottom;
+}
+.resultado__hora b { font-stretch: var(--tipografia-ancho-cifra); font-variant-numeric: var(--tipografia-cifras-tabulares); font-size: var(--tipografia-tamano-mayor); font-weight: var(--tipografia-pesos-fuerte); line-height: 1.1; }
+.resultado__hora small { font-size: var(--tipografia-tamano-micro); font-stretch: var(--tipografia-ancho-estrecho); letter-spacing: var(--tipografia-espaciado-etiqueta); text-transform: uppercase; color: var(--color-tinta-suave); }
+
+/* El patrocinado no lleva letra pequeña: es un bloque de color dentro de la lista. */
+.resultado--destacado { background: var(--color-tinta); color: var(--color-papel); --foco-anillo: var(--color-papel); }
+.resultado--destacado .resultado__sello { background: var(--color-abre); color: var(--color-abre-texto); }
+.resultado--destacado .resultado__meta { color: color-mix(in srgb, var(--color-papel) 78%, var(--color-tinta)); }
+.resultado--destacado::before { background: var(--color-abre); }
+.resultado--destacado:hover, .resultado--destacado.es-encima { background: var(--color-tinta); }
+.resultado--destacado .resultado__hora { background-color: var(--color-papel); color: var(--color-tinta); box-shadow: none; }
+
+/* Cerrado hoy: el equivalente al apagado. Sin chapa de hora y con el rayado en el sello. */
+.resultado--cerrado { background: var(--color-papel); cursor: not-allowed; }
+.resultado--cerrado .resultado__nombre, .resultado--cerrado .resultado__meta { color: var(--color-tinta-suave); }
+.resultado--cerrado .resultado__sello { background: var(--color-arena); color: var(--color-tinta-suave); background-image: var(--trama-rayado); }
+.resultado--cerrado:hover::before { transform: scaleX(0); }
+.resultado__cerrado-txt { grid-column: 3; grid-row: span 2; font-size: var(--tipografia-tamano-menor); font-stretch: var(--tipografia-ancho-estrecho); color: var(--color-tinta-suave); text-align: right; }
+
+.etiqueta-versal {
+  display: inline-block;
+  font-size: var(--tipografia-tamano-micro); font-weight: var(--tipografia-pesos-fuerte);
+  font-stretch: var(--tipografia-ancho-estrecho); letter-spacing: var(--tipografia-espaciado-etiqueta);
+  text-transform: uppercase;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   9. LA HORA RESERVABLE. La pieza que se toca para reservar.
+      La hora libre lleva el canto mordido: hay hueco. Cuando la eliges, el hueco se
+      cierra, la chapa se hunde y se pone azul, que es el color que cierra.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.horas { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: var(--espacio-2); }
+.hora {
+  --canto: var(--canto-principal);
+  display: grid; place-items: center;
+  min-height: calc(52px + var(--canto-principal));
+  padding-bottom: var(--canto);
+  background-color: var(--color-lienzo);
+  color: var(--color-tinta);
+  box-shadow: inset 0 0 0 1px var(--color-borde-fuerte);
+  border: 0;
+  border-radius: var(--radio-control);
+  font-size: var(--tipografia-tamano-mayor);
+  font-weight: var(--tipografia-pesos-fuerte);
+  font-stretch: var(--tipografia-ancho-cifra);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+  text-decoration: none;
+  cursor: pointer;
+  background-image: linear-gradient(to right, currentColor 0 calc(100% - var(--canto-mordida)), transparent calc(100% - var(--canto-mordida)));
+  background-repeat: no-repeat;
+  background-size: 100% var(--canto);
+  background-position: left bottom;
+  transition:
+    --canto var(--movimiento-rapido) var(--movimiento-curva),
+    background-color var(--movimiento-rapido) var(--movimiento-curva),
+    box-shadow var(--movimiento-rapido) var(--movimiento-curva),
+    transform var(--movimiento-instante) var(--movimiento-curva);
+}
+.hora:hover, .hora.es-encima { --canto: var(--canto-alzado); box-shadow: inset 0 0 0 1px var(--color-tinta); }
+.hora:active, .hora.es-pulsado { --canto: 0px; transform: translateY(2px); }
+.hora:focus-visible, .hora.es-foco { outline: var(--foco-grosor) solid var(--foco-anillo); outline-offset: var(--foco-separacion); }
+/* Elegida: clavada. Se queda hundida y en azul, y ya no tiene mordida porque el hueco se ocupó. */
+.hora[aria-pressed="true"], .hora.es-elegida {
+  background-size: 100% 0;
+  background-color: var(--color-acento);
+  color: var(--color-acento-texto);
+  box-shadow: none;
+}
+/* Ocupada: no es un botón apagado, es un hueco que no existe. Sin canto y con el rayado. */
+.hora--ocupada, .hora[aria-disabled="true"] {
+  /* El rayado sustituye al canto: la misma capa de fondo, otro dibujo. Por eso una hora
+     ocupada no puede parecerse a una libre ni por accidente. */
+  background-color: var(--color-arena);
+  background-image: var(--trama-rayado);
+  background-size: auto;
+  background-repeat: repeat;
+  color: var(--color-tinta-suave);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+.hora--ocupada:hover { box-shadow: none; }
+/* Pasada: la hora existió y ya no. Sin canto, sin rayado y con el papel de fondo. */
+/* Doble clase a propósito: si aquí se escribe .hora--pasada a secas, pierde contra
+   .hora[aria-disabled="true"] y la hora pasada sale rayada como si estuviera ocupada. */
+.hora.hora--pasada {
+  background-size: 100% 0; background-color: var(--color-papel); background-image: none;
+  color: var(--color-tinta-tenue); box-shadow: none; cursor: not-allowed; transform: none;
+}
+.hora.hora--pasada:hover { box-shadow: none; }
+
+.franja-hora {
+  margin: var(--espacio-4) 0 var(--espacio-2);
+  font-size: var(--tipografia-tamano-micro); font-weight: var(--tipografia-pesos-fuerte);
+  font-stretch: var(--tipografia-ancho-estrecho); letter-spacing: var(--tipografia-espaciado-etiqueta);
+  text-transform: uppercase; color: var(--color-tinta-suave);
+}
+.franja-hora:first-child { margin-top: 0; }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   10. FICHA DE FILTRO Y PESTAÑA
+       Elegido no es «relleno de color»: es hundido, con filo y con la letra más ancha.
+       Tres señales, y ninguna depende de distinguir dos tonos al sol.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.tira { display: flex; gap: var(--espacio-2); overflow-x: auto; padding-block: var(--espacio-1) var(--espacio-3); scrollbar-width: thin; }
+.tira > * { flex: 0 0 auto; }
+
+.ficha {
+  --canto: var(--canto-secundario);
+  position: relative;
+  display: inline-flex; align-items: center;
+  min-height: calc(var(--espacio-toque-minimo) + var(--canto-secundario));
+  padding: 0 var(--espacio-3);
+  padding-bottom: var(--canto);
+  background-color: var(--color-lienzo);
+  color: var(--color-tinta);
+  box-shadow: inset 0 0 0 1px var(--color-borde-fuerte);
+  border: 0; border-radius: var(--radio-control);
+  font-size: var(--tipografia-tamano-menor);
+  font-weight: var(--tipografia-pesos-medio);
+  white-space: nowrap; text-decoration: none; cursor: pointer;
+  background-image: linear-gradient(to right, currentColor 0 calc(100% - 10px), transparent calc(100% - 10px));
+  background-repeat: no-repeat; background-size: 100% var(--canto); background-position: left bottom;
+  transition: --canto var(--movimiento-rapido) var(--movimiento-curva),
+              background-color var(--movimiento-rapido) var(--movimiento-curva),
+              padding-left var(--movimiento-rapido) var(--movimiento-curva),
+              box-shadow var(--movimiento-rapido) var(--movimiento-curva),
+              transform var(--movimiento-instante) var(--movimiento-curva);
+}
+.ficha:hover, .ficha.es-encima { --canto: 5px; box-shadow: inset 0 0 0 1px var(--color-tinta); }
+.ficha:active, .ficha.es-pulsado { --canto: 0px; transform: translateY(2px); }
+.ficha:focus-visible, .ficha.es-foco { outline: var(--foco-grosor) solid var(--foco-anillo); outline-offset: var(--foco-separacion); }
+.ficha[aria-pressed="true"], .ficha[aria-current], .ficha.es-elegida {
+  background-size: 100% 0;
+  background-color: var(--color-arena);
+  background-image: none;
+  box-shadow: inset 0 0 0 1px var(--color-tinta);
+  font-weight: var(--tipografia-pesos-fuerte);
+  padding-left: calc(var(--espacio-3) + var(--filo-grosor));
+  transform: translateY(2px);
+}
+.ficha[aria-pressed="true"]::before, .ficha[aria-current]::before, .ficha.es-elegida::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+  width: var(--filo-grosor); background: var(--color-tinta);
+  border-radius: var(--radio-control) 0 0 var(--radio-control);
+}
+.ficha[disabled], .ficha.es-apagado {
+  background-size: 100% 0; background-color: var(--color-arena); color: var(--color-tinta-suave);
+  box-shadow: inset 0 0 0 1px var(--color-borde-fuerte); cursor: not-allowed; transform: none;
+}
+
+.pestanas { display: flex; gap: var(--espacio-5); border-bottom: 1px solid var(--color-borde-fuerte); }
+.pestana {
+  position: relative;
+  background: none; border: 0; padding: var(--espacio-3) 0 calc(var(--espacio-3) + var(--filo-grosor));
+  color: var(--color-tinta-suave);
+  font-size: var(--tipografia-tamano-cuerpo);
+  font-weight: var(--tipografia-pesos-medio);
+  font-stretch: var(--tipografia-ancho-texto);
+  cursor: pointer;
+  min-height: var(--espacio-toque-minimo);
+  transition: color var(--movimiento-rapido) var(--movimiento-curva);
+}
+/* El truco que evita el salto: la pestaña reserva de antemano el ancho que ocupará cuando
+   esté activa y su letra pase de 100 % a 112 %. Sin esto, elegir una pestaña mueve las otras. */
+.pestana::after {
+  content: attr(data-texto); display: block; height: 0; overflow: hidden;
+  font-stretch: var(--tipografia-ancho-rotulo); font-weight: var(--tipografia-pesos-fuerte);
+  visibility: hidden; pointer-events: none;
+}
+.pestana:hover, .pestana.es-encima { color: var(--color-tinta); }
+.pestana:focus-visible, .pestana.es-foco { outline: var(--foco-grosor) solid var(--foco-anillo); outline-offset: calc(var(--foco-separacion) * -1); }
+.pestana[aria-selected="true"], .pestana.es-elegida {
+  color: var(--color-tinta);
+  font-weight: var(--tipografia-pesos-fuerte);
+  font-stretch: var(--tipografia-ancho-rotulo);
+}
+.pestana[aria-selected="true"]::before, .pestana.es-elegida::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0;
+  height: var(--filo-grosor); background: var(--color-tinta);
+}
+.pestana[disabled], .pestana.es-apagado { color: var(--color-tinta-tenue); cursor: not-allowed; }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   11. EL ESTADO DE UNA CITA. Un sello, no una pastilla de color.
+       Canto vivo (radio 0) porque no se toca. El color va en el filo macizo, que es lo
+       único del sello que se ve al sol, y el nombre del estado va escrito: quien no
+       distingue el ámbar del verde sigue leyendo «pendiente».
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.estado {
+  display: inline-flex; align-items: center;
+  padding: 3px var(--espacio-2) 3px var(--espacio-2);
+  border-left: var(--canto-principal) solid currentColor;
+  border-radius: var(--radio-superficie);
+  font-size: var(--tipografia-tamano-micro);
+  font-weight: var(--tipografia-pesos-fuerte);
+  font-stretch: var(--tipografia-ancho-estrecho);
+  letter-spacing: var(--tipografia-espaciado-etiqueta);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.estado--pendiente { background: var(--estado-reserva-pendiente-fondo); color: var(--estado-reserva-pendiente-texto); }
+.estado--confirmada { background: var(--estado-reserva-confirmada-fondo); color: var(--estado-reserva-confirmada-texto); }
+.estado--completada { background: var(--estado-reserva-completada-fondo); color: var(--estado-reserva-completada-texto); }
+.estado--no_show { background: var(--estado-reserva-no_show-fondo); color: var(--estado-reserva-no_show-texto); }
+.estado--cancelada_cliente, .estado--cancelada_negocio { background: var(--estado-reserva-cancelada-fondo); color: var(--estado-reserva-cancelada-texto); }
+
+/* La fila de la agenda: la banda de estado usa el color de TEXTO del estado, no el de borde.
+   El de borde se queda entre 2,14 y 2,36 sobre lienzo y al sol desaparece. */
+.agenda { border-top: 1px solid var(--color-borde-fuerte); }
+.agenda__fila {
+  display: grid; grid-template-columns: 62px 1fr auto; gap: var(--espacio-1) var(--espacio-3);
+  align-items: center; min-height: 64px;
+  padding: var(--espacio-2) var(--espacio-3);
+  border-bottom: 1px solid var(--color-borde-fuerte);
+  border-left: var(--filo-grosor) solid var(--color-borde-fuerte);
+  background: var(--color-lienzo);
+  text-align: left; width: 100%; border-top: 0; border-right: 0; cursor: pointer;
+}
+.agenda__fila:hover:not(.agenda__fila--bloqueo) { background: var(--color-papel); }
+.agenda__hora {
+  grid-row: span 2; font-stretch: var(--tipografia-ancho-cifra);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+  font-weight: var(--tipografia-pesos-fuerte); font-size: var(--tipografia-tamano-mayor); line-height: 1.1;
+}
+.agenda__hora small { display: block; font-size: var(--tipografia-tamano-micro); font-stretch: var(--tipografia-ancho-estrecho); color: var(--color-tinta-suave); font-weight: var(--tipografia-pesos-medio); }
+.agenda__quien { font-weight: var(--tipografia-pesos-fuerte); }
+.agenda__que { grid-column: 2; font-size: var(--tipografia-tamano-menor); font-stretch: var(--tipografia-ancho-estrecho); color: var(--color-tinta-suave); }
+.agenda__fila--pendiente { border-left-color: var(--estado-reserva-pendiente-texto); }
+.agenda__fila--confirmada { border-left-color: var(--estado-reserva-confirmada-texto); }
+.agenda__fila--completada { border-left-color: var(--estado-reserva-completada-texto); }
+.agenda__fila--no_show { border-left-color: var(--estado-reserva-no_show-texto); }
+.agenda__fila--cancelada_cliente { border-left-color: var(--estado-reserva-cancelada-texto); background: var(--color-papel); }
+.agenda__fila--bloqueo {
+  border-left-color: var(--color-borde-fuerte);
+  background-color: var(--color-arena); background-image: var(--trama-rayado);
+  color: var(--color-tinta-suave); cursor: default; min-height: 48px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   12. LAS DOS TRAMAS. Se dibujan con gradientes de parada dura: bandas planas, no
+       degradados. Pesan cero bytes y no hay ni una imagen de fondo en todo el sistema.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* El pautado: el papel rayado de la agenda. Cada franja mide un objetivo táctil (44 px). */
+  --trama-pauta: repeating-linear-gradient(
+    to bottom,
+    transparent 0 calc(var(--espacio-toque-minimo) - 1px),
+    var(--color-borde-fuerte) calc(var(--espacio-toque-minimo) - 1px) var(--espacio-toque-minimo)
+  );
+  /* El rayado: lo que está bloqueado o ya no se puede tomar. Tinta al 14 %, sin hexadecimales. */
+  --trama-rayado: repeating-linear-gradient(
+    135deg,
+    transparent 0 5px,
+    color-mix(in srgb, var(--color-tinta) 14%, transparent) 5px 7px
+  );
+}
+.trama-pauta { background-color: var(--color-arena); background-image: var(--trama-pauta); }
+.trama-rayado { background-color: var(--color-arena); background-image: var(--trama-rayado); }
+
+/* El vacío no es un icono triste centrado: es el papel pautado del día sin nada escrito. */
+.vacio {
+  display: grid; place-items: center; gap: var(--espacio-3);
+  padding: var(--espacio-6) var(--espacio-4); text-align: center;
+  background-color: var(--color-arena); background-image: var(--trama-pauta);
+  border-top: 1px solid var(--color-borde-fuerte); border-bottom: 1px solid var(--color-borde-fuerte);
+}
+/* El contenido va sobre un bloque de lienzo, como una nota puesta encima del papel pautado.
+   Si el texto se apoya directamente en la trama, una raya lo cruza y parece tachado. */
+.vacio__nota {
+  display: grid; gap: var(--espacio-3); justify-items: center;
+  background: var(--color-lienzo);
+  padding: var(--espacio-5) var(--espacio-4);
+  max-width: 38ch;
+  box-shadow: inset 0 0 0 1px var(--color-borde-fuerte);
+}
+.vacio p { max-width: 34ch; color: var(--color-tinta-suave); }
+.vacio strong { display: block; font-weight: var(--tipografia-pesos-display); font-stretch: var(--tipografia-ancho-rotulo); font-size: var(--tipografia-tamano-titulo-4); color: var(--color-tinta); }
+
+/* Cargando: bloques macizos sobre el pautado, con un latido lento. Nada de brillo que
+   recorre la pantalla, que es un degradado en movimiento y aquí no hay degradados. */
+.esqueleto { background-color: var(--color-arena); background-image: var(--trama-pauta); }
+.esqueleto__linea { display: block; height: 14px; background: var(--color-borde-fuerte); animation: latido 1400ms ease-in-out infinite; }
+.esqueleto__fila { display: grid; grid-template-columns: 64px 1fr; gap: var(--espacio-3); align-items: center; padding: var(--espacio-3); border-bottom: 1px solid var(--color-borde-fuerte); }
+.esqueleto__sello { display: block; width: 64px; height: 64px; background: var(--color-borde-fuerte); animation: latido 1400ms ease-in-out infinite; }
+@keyframes latido { 0%, 100% { opacity: .5 } 50% { opacity: .9 } }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   13. LA TIPOGRAFÍA: LOS CUATRO ANCHOS
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.rotulo { font-weight: var(--tipografia-pesos-display); font-stretch: var(--tipografia-ancho-rotulo); line-height: var(--tipografia-interlineado-apretado); letter-spacing: var(--tipografia-espaciado-titular); }
+.cifra { font-stretch: var(--tipografia-ancho-cifra); font-variant-numeric: var(--tipografia-cifras-tabulares); font-weight: var(--tipografia-pesos-fuerte); }
+.estrecho { font-stretch: var(--tipografia-ancho-estrecho); }
+
+.anchos { display: grid; gap: var(--espacio-4); }
+.ancho-muestra { display: grid; gap: var(--espacio-1); padding-bottom: var(--espacio-3); border-bottom: 1px solid var(--color-borde-fuerte); }
+.ancho-muestra__texto { font-size: var(--tipografia-tamano-titulo-4); line-height: 1.25; }
+.ancho-muestra__pie { font-size: var(--tipografia-tamano-micro); color: var(--color-tinta-suave); font-stretch: var(--tipografia-ancho-estrecho); letter-spacing: var(--tipografia-espaciado-etiqueta); text-transform: uppercase; }
+.regla-ancho { display: inline-block; background: var(--color-abre-suave); box-shadow: inset 0 -2px 0 var(--color-abre); }
+
+/* El titular ensancha con la pantalla: a 390 px va a 100 % para que quepan más caracteres
+   por línea, y en escritorio se planta a 112 %. El eje de anchura hace lo que otros hacen
+   con el tamaño, y aquí el tamaño ya está ocupado por clamp(). */
+.titular-adaptativo { font-stretch: var(--tipografia-ancho-texto); }
+@media (min-width: 768px) { .titular-adaptativo { font-stretch: var(--tipografia-ancho-rotulo); } }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   14. LO QUE HAY HOY, para poder comparar. Copiado de apps/web/app/globales.css.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.viejo-boton {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--espacio-2);
+  min-height: var(--espacio-toque-minimo); padding-inline: var(--espacio-4);
+  border: 1px solid transparent; border-radius: var(--radio-control);
+  font-weight: var(--tipografia-pesos-medio); text-decoration: none; cursor: pointer;
+}
+.viejo-boton--primario { background: var(--color-abre); color: var(--color-abre-texto); }
+.viejo-boton--cierra { background: var(--color-acento); color: var(--color-acento-texto); }
+.viejo-boton--secundario { background: transparent; color: var(--color-tinta); border-color: var(--color-borde-fuerte); }
+.viejo-entrada {
+  width: 100%; min-height: var(--espacio-toque-minimo); padding: var(--espacio-3);
+  background: var(--color-lienzo); color: var(--color-tinta);
+  border: 1px solid var(--color-borde-fuerte); border-radius: var(--radio-control);
+  font-size: var(--tipografia-tamano-cuerpo);
+}
+.viejo-hora {
+  display: grid; place-items: center; min-height: var(--espacio-toque-minimo);
+  background: var(--color-lienzo); border: 1px solid var(--color-borde-fuerte);
+  border-radius: var(--radio-control); color: var(--color-tinta);
+  font-variant-numeric: var(--tipografia-cifras-tabulares); cursor: pointer;
+}
+.viejo-ficha {
+  display: inline-flex; align-items: center; min-height: var(--espacio-toque-minimo);
+  padding-inline: var(--espacio-3); border: 1px solid var(--color-borde-fuerte);
+  border-radius: var(--radio-control); background: var(--color-lienzo); color: var(--color-tinta);
+  font-size: var(--tipografia-tamano-menor);
+}
+.viejo-ficha[aria-current] { background: var(--color-tinta); border-color: var(--color-tinta); color: var(--color-papel); }
+.viejo-estado { display: inline-block; padding: 2px var(--espacio-2); border-radius: var(--radio-control); font-size: var(--tipografia-tamano-micro); font-weight: var(--tipografia-pesos-medio); }
+.viejo-resultado { display: grid; gap: var(--espacio-1); padding: var(--espacio-4); border: 1px solid var(--color-borde); background: var(--color-lienzo); }
+.viejo-apagado { opacity: .55; }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   15. Nada se mueve para quien ha pedido que no se mueva.
+   ══════════════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 1ms !important; animation-duration: 1ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+
+<body>
+
+<header class="doc-cabecera">
+  <div class="doc doc-cabecera__fila">
+    <span class="doc-marca">
+      <span aria-hidden="true" style="width:16px;height:16px;background:var(--color-tinta);clip-path:polygon(0 0,100% 0,100% 58%,58% 58%,58% 100%,0 100%);display:inline-block"></span>
+      Bukeo · lenguaje de componentes · revisión 2
+    </span>
+    <nav class="doc-indice" aria-label="Secciones">
+      <a href="#origen">Origen</a>
+      <a href="#boton">Botón</a>
+      <a href="#campo">Campo</a>
+      <a href="#salon">Salón</a>
+      <a href="#hora">Hora</a>
+      <a href="#filtros">Filtros</a>
+      <a href="#estado">Estado</a>
+      <a href="#tramas">Tramas</a>
+      <a href="#tipografia">Tipografía</a>
+      <a href="#conjunto">Conjunto</a>
+      <a href="#antes">Antes y después</a>
+      <a href="#contraste">Contraste</a>
+    </nav>
+  </div>
+</header>
+
+<main class="doc">
+
+  <!-- ═══════════════════ PORTADA ═══════════════════ -->
+  <section class="seccion-doc">
+    <p class="seccion-doc__num">Revisión 2 · propuesta</p>
+    <h1 class="titular-adaptativo">El canto, la mordida<br>y la regla de la forma</h1>
+    <p class="entradilla">
+      El brandbook promete un lenguaje de rótulo de local panameño. Lo que hay construido hoy es
+      un botón rectangular de 4 px de radio, un campo con filete y unas rayas grises entre filas.
+      Eso no es una marca: es lo que sale de cualquier plantilla al quitarle el tema.
+    </p>
+    <p class="entradilla">
+      Esta propuesta no añade colores ni fuentes. Añade <strong>tres mecanismos de forma</strong> y
+      cinco valores nuevos a los tokens. Todo lo que se ve aquí se dibuja con las variables de
+      <span class="dato">packages/tokens/variables.css</span>, copiadas dentro de este archivo.
+    </p>
+
+    <div class="mesa">
+      <p class="mesa__titulo">Las tres reglas</p>
+      <div class="estados estados--ancho">
+        <div class="muestra">
+          <h3>1 · El canto</h3>
+          <p style="font-size:var(--tipografia-tamano-menor)">Todo lo que se toca lleva un zócalo macizo dentro de su propia caja, dibujado con <span class="dato">currentColor</span>. Al pasar por encima crece, al pulsar se lo traga y baja. El grosor es la jerarquía: 4 px principal, 3 px secundario, 2 px de texto.</p>
+        </div>
+        <div class="muestra">
+          <h3>2 · La mordida</h3>
+          <p style="font-size:var(--tipografia-tamano-menor)">Al canto le faltan los últimos 14 px. Es la muesca calada del icono de Bukeo, tumbada. Es lo que hace que un control de este producto se reconozca sin leer el texto ni ver el color.</p>
+        </div>
+        <div class="muestra">
+          <h3>3 · La forma manda</h3>
+          <p style="font-size:var(--tipografia-tamano-menor)">Radio 4 px y canto: <strong>se toca</strong>. Canto vivo y sin canto: <strong>se lee</strong>. El brandbook ya lo decía como regla de estilo. Aquí pasa a ser lo que significa la forma, y por eso un sello de estado no puede confundirse con un botón.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ 1 · ORIGEN ═══════════════════ -->
+  <section class="seccion-doc" id="origen">
+    <p class="seccion-doc__num">01 · de dónde sale la forma</p>
+    <h2>El icono es un bloque con un hueco. El canto también.</h2>
+    <p class="entradilla">
+      El símbolo de la marca es «el hueco»: un bloque sólido con una muesca calada, que es
+      literalmente lo que vende el producto. Ese dibujo no estaba en ningún componente. Ahora es el
+      canto: una barra maciza a la que le falta el final.
+    </p>
+
+    <div class="mesa mesa--papel">
+      <div class="origen">
+        <div class="origen__caja">
+          <div class="origen__dibujo"><span class="icono-hueco" aria-hidden="true"></span></div>
+          <p class="muestra__pie">El icono: bloque con muesca</p>
+        </div>
+        <div class="origen__caja">
+          <div class="origen__dibujo"><span class="canto-solo" aria-hidden="true"><span></span></span></div>
+          <p class="muestra__pie">El canto: la misma idea tumbada</p>
+        </div>
+        <div class="origen__caja">
+          <div class="origen__dibujo"><span class="canto-mordido" aria-hidden="true"><span></span></span></div>
+          <p class="muestra__pie">En rojo, lo que falta: la mordida</p>
+        </div>
+        <div class="origen__caja">
+          <div class="origen__dibujo" style="background:var(--color-lienzo)">
+            <button type="button" class="boton boton--primario">Publicar el salón</button>
+          </div>
+          <p class="muestra__pie">Y así queda en un botón</p>
+        </div>
+      </div>
+      <p class="nota-medida">
+        El canto no es una sombra: es un bloque de color plano dentro del propio control, con desenfoque cero.
+        Por eso no incumple el «sin sombras decorativas» del brandbook, que reserva la sombra para lo que de
+        verdad flota. Y como se dibuja con <span class="dato">currentColor</span>, se invierte solo dentro de un
+        bloque oscuro, igual que el logotipo.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ 2 · EL BOTÓN ═══════════════════ -->
+  <section class="seccion-doc" id="boton">
+    <p class="seccion-doc__num">02 · el botón</p>
+    <h2>Tres papeles, cinco estados, un solo mecanismo</h2>
+    <p class="entradilla">
+      El naranja abre y el azul cierra, y no compiten nunca en el mismo botón. Lo que los emparenta
+      no es el radio: es el canto. Pasa el ratón por encima y la chapa se levanta; púlsala y se hunde
+      hasta tragarse el canto. Ese movimiento de <span class="dato">4 px</span> es la firma.
+    </p>
+
+    <div class="mesa">
+      <p class="mesa__titulo">El que abre · naranja mango · tinta encima a 6,99:1</p>
+      <div class="estados">
+        <div class="muestra"><button type="button" class="boton boton--primario">Crear el salón</button><span class="muestra__pie">Reposo</span></div>
+        <div class="muestra"><button type="button" class="boton boton--primario es-encima">Crear el salón</button><span class="muestra__pie">Encima</span></div>
+        <div class="muestra"><button type="button" class="boton boton--primario es-pulsado">Crear el salón</button><span class="muestra__pie">Pulsado</span></div>
+        <div class="muestra"><button type="button" class="boton boton--primario es-foco">Crear el salón</button><span class="muestra__pie">Foco</span></div>
+        <div class="muestra"><button type="button" class="boton boton--primario" disabled>Crear el salón</button><span class="muestra__pie">Apagado</span></div>
+      </div>
+      <p class="nota-medida">
+        Apagado no es opacidad al 55 %: es <strong>quitar el canto</strong>. Si el canto significa «esto se pulsa»,
+        un botón sin canto ya dice que no se pulsa, y el texto se queda en arena con tinta suave a
+        <span class="dato">6,48:1</span>, que se lee al sol. Con opacidad se quedaba en 2,9:1 y no informaba de nada.
+      </p>
+    </div>
+
+    <div class="mesa">
+      <p class="mesa__titulo">El que cierra · azul chiva · cal encima a 7,90:1</p>
+      <div class="estados">
+        <div class="muestra"><button type="button" class="boton boton--cierra">Confirmar la cita</button><span class="muestra__pie">Reposo</span></div>
+        <div class="muestra"><button type="button" class="boton boton--cierra es-encima">Confirmar la cita</button><span class="muestra__pie">Encima</span></div>
+        <div class="muestra"><button type="button" class="boton boton--cierra es-pulsado">Confirmar la cita</button><span class="muestra__pie">Pulsado</span></div>
+        <div class="muestra"><button type="button" class="boton boton--cierra es-foco">Confirmar la cita</button><span class="muestra__pie">Foco</span></div>
+        <div class="muestra"><button type="button" class="boton boton--cierra" disabled>Confirmar la cita</button><span class="muestra__pie">Apagado</span></div>
+      </div>
+      <p class="nota-medida">
+        Aquí el canto sale en cal, no en tinta, y no es un capricho: el canto es <span class="dato">currentColor</span>,
+        y sobre azul el texto es cal. Medido, la cal sobre el azul da <span class="dato">7,90:1</span>; una tinta
+        se habría quedado en <span class="dato">2,07:1</span> y el canto habría desaparecido justo en el botón que más se pulsa.
+        Además se lee bien: el bloque azul deja ver el papel por debajo, que es exactamente el calado del icono.
+      </p>
+    </div>
+
+    <div class="mesa">
+      <p class="mesa__titulo">El secundario · y la escala de canto como jerarquía</p>
+      <div class="estados">
+        <div class="muestra"><button type="button" class="boton boton--secundario">Guardar borrador</button><span class="muestra__pie">Reposo</span></div>
+        <div class="muestra"><button type="button" class="boton boton--secundario es-encima">Guardar borrador</button><span class="muestra__pie">Encima</span></div>
+        <div class="muestra"><button type="button" class="boton boton--secundario es-pulsado">Guardar borrador</button><span class="muestra__pie">Pulsado</span></div>
+        <div class="muestra"><button type="button" class="boton boton--secundario es-foco">Guardar borrador</button><span class="muestra__pie">Foco</span></div>
+        <div class="muestra"><button type="button" class="boton boton--secundario" disabled>Guardar borrador</button><span class="muestra__pie">Apagado</span></div>
+      </div>
+      <div class="fila-piezas" style="margin-top:var(--espacio-5)">
+        <button type="button" class="boton boton--primario">Canto 4 px</button>
+        <button type="button" class="boton boton--secundario">Canto 3 px</button>
+        <button type="button" class="boton boton--llano">Canto 2 px</button>
+      </div>
+      <p class="nota-medida">
+        La importancia de una acción se mide en píxeles de canto. No hace falta inventar un color por
+        nivel ni recordar cuál de los seis grises tocaba: el sistema tiene un solo mando.
+      </p>
+    </div>
+
+    <div class="mesa">
+      <p class="mesa__titulo">El destructivo · separado de lo frecuente, y sin fondo rojo</p>
+      <div class="fila-piezas">
+        <button type="button" class="boton boton--peligro">Cancelar la cita</button>
+        <button type="button" class="boton boton--peligro es-encima">Cancelar la cita</button>
+        <button type="button" class="boton boton--peligro es-pulsado">Cancelar la cita</button>
+        <button type="button" class="boton boton--peligro es-foco">Cancelar la cita</button>
+        <button type="button" class="boton boton--peligro" disabled>Cancelar la cita</button>
+      </div>
+      <p class="nota-medida">
+        Rojo de línea y canto de peligro a <span class="dato">7,81:1</span>, no un bloque rojo. Un bloque rojo
+        pesa lo mismo que el botón que abre y acaba pulsándose por inercia. Lo que separa cancelar de mover
+        es la distancia, que es una regla de disposición y no de color.
+      </p>
+    </div>
+
+    <div class="mesa mesa--azul">
+      <p class="mesa__titulo">Dentro de un bloque de color no hay que hacer nada</p>
+      <div class="fila-piezas">
+        <button type="button" class="boton boton--primario">Buscar salón</button>
+        <button type="button" class="boton boton--secundario">Ver cómo funciona</button>
+        <button type="button" class="boton boton--llano">Ahora no</button>
+      </div>
+      <p class="nota-medida">
+        El canto y el anillo de foco se invierten solos: el canto porque es currentColor, y el anillo porque
+        <span class="dato">--foco-anillo</span> pasa a cal en las superficies oscuras. Es la regla del ADR-0016
+        convertida en una variable, en vez de una lista de selectores que alguien olvidará ampliar.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ 3 · EL CAMPO ═══════════════════ -->
+  <section class="seccion-doc" id="campo">
+    <p class="seccion-doc__num">03 · el campo de texto</p>
+    <h2>El mismo canto, con otro oficio: el renglón</h2>
+    <p class="entradilla">
+      En el botón el canto es la chapa levantada. En el campo es la línea sobre la que se escribe, y
+      por eso no se hunde: engorda al enfocar, de 3 a 5 px. Es la misma declaración de CSS en los dos
+      sitios, y esa es la razón de que se reconozcan como familia.
+    </p>
+
+    <div class="mesa">
+      <p class="mesa__titulo">Los cinco estados</p>
+      <div class="estados estados--ancho">
+        <div class="muestra" style="width:100%">
+          <div class="campo" style="width:100%">
+            <label class="campo-etiqueta" for="c1">Nombre del salón</label>
+            <input class="entrada" id="c1" type="text" placeholder="Salón Marisol">
+          </div>
+          <span class="muestra__pie">Reposo</span>
+        </div>
+        <div class="muestra" style="width:100%">
+          <div class="campo" style="width:100%">
+            <label class="campo-etiqueta" for="c2">Nombre del salón</label>
+            <input class="entrada es-encima" id="c2" type="text" value="Salón Marisol">
+          </div>
+          <span class="muestra__pie">Encima</span>
+        </div>
+        <div class="muestra" style="width:100%">
+          <div class="campo" style="width:100%">
+            <label class="campo-etiqueta" for="c3">Nombre del salón</label>
+            <input class="entrada es-foco" id="c3" type="text" value="Salón Marisol">
+          </div>
+          <span class="muestra__pie">Foco (canto de 5 px)</span>
+        </div>
+        <div class="muestra" style="width:100%">
+          <div class="campo es-error" style="width:100%">
+            <label class="campo-etiqueta" for="c4">Teléfono</label>
+            <input class="entrada" id="c4" type="tel" value="6000 00" aria-invalid="true" aria-describedby="c4e">
+            <p class="campo-error" id="c4e">Faltan dígitos. Un móvil de Panamá tiene 8.</p>
+          </div>
+          <span class="muestra__pie">Error</span>
+        </div>
+        <div class="muestra" style="width:100%">
+          <div class="campo" style="width:100%">
+            <label class="campo-etiqueta" for="c5">Teléfono de la cuenta</label>
+            <input class="entrada" id="c5" type="tel" value="+507 6412 8890" disabled>
+          </div>
+          <span class="muestra__pie">Apagado</span>
+        </div>
+      </div>
+      <p class="nota-medida">
+        La caja blanca sobre el papel cal solo se distingue <span class="dato">1,10:1</span>: no informa. Lo que
+        identifica el campo es el canto en tinta, a <span class="dato">18,22:1</span> sobre lienzo, muy por encima
+        del 3:1 que WCAG pide para el límite de un control. El filete fino de arriba y los lados queda en
+        <span class="dato">3,88:1</span> y hace de cajetín; el trabajo pesado lo hace el canto.
+      </p>
+    </div>
+
+    <div class="mesa">
+      <p class="mesa__titulo">El código que llega por SMS · cifras a 125 % y tabulares</p>
+      <div class="campo">
+        <label class="campo-etiqueta" for="c6">Código de 6 dígitos</label>
+        <input class="entrada entrada--codigo" id="c6" inputmode="numeric" autocomplete="one-time-code" value="418 302" aria-describedby="c6a">
+        <p class="campo-ayuda" id="c6a">Se lo mandamos al 6412 8890. Caduca en 10 minutos.</p>
+      </div>
+      <p class="nota-medida">
+        Aquí el eje de anchura se gana el sueldo: la cifra a 125 % con tabulares hace que los seis dígitos
+        ocupen exactamente lo mismo y que el 1 no baile respecto al 8 mientras se teclea.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ 4 · LA FICHA DE SALÓN ═══════════════════ -->
+  <section class="seccion-doc" id="salon">
+    <p class="seccion-doc__num">04 · la ficha de un salón en una lista</p>
+    <h2>No es una caja. Es una fila con un hueco al final.</h2>
+    <p class="entradilla">
+      En un lenguaje de bloques, una caja con filete de 1 px es exactamente lo contrario de lo que dice
+      el brandbook, y además el filete que se usa hoy se queda en <span class="dato">1,44:1</span>: al sol
+      no existe. La fila se separa con <span class="dato">borde-fuerte</span> a <span class="dato">3,88:1</span>,
+      se marca con el filo macizo de la izquierda y termina en lo único que de verdad importa de un salón:
+      la próxima hora libre.
+    </p>
+
+    <div class="mesa mesa--papel">
+      <p class="mesa__titulo">Cuatro filas y sus estados</p>
+      <ul class="resultados">
+        <li><a class="resultado" href="#salon">
+          <span class="resultado__sello" aria-hidden="true">SM</span>
+          <span class="resultado__nombre">Salón Marisol</span>
+          <span class="resultado__meta">Bella Vista · 4,8 (126) · desde $12</span>
+          <span class="resultado__hora"><b>11:30</b><small>hoy</small></span>
+        </a></li>
+        <li><a class="resultado es-encima" href="#salon">
+          <span class="resultado__sello" aria-hidden="true">BE</span>
+          <span class="resultado__nombre">Barbería El Cangrejo</span>
+          <span class="resultado__meta">El Cangrejo · 4,6 (89) · desde $10</span>
+          <span class="resultado__hora"><b>12:15</b><small>hoy</small></span>
+        </a></li>
+        <li><a class="resultado resultado--destacado" href="#salon">
+          <span class="resultado__sello" aria-hidden="true">NC</span>
+          <span class="resultado__nombre">Nails Casco <span class="etiqueta-versal" style="margin-left:8px;opacity:.9">Patrocinado</span></span>
+          <span class="resultado__meta">Casco Antiguo · 4,9 (212) · desde $18</span>
+          <span class="resultado__hora"><b>15:00</b><small>hoy</small></span>
+        </a></li>
+        <li><span class="resultado resultado--cerrado">
+          <span class="resultado__sello" aria-hidden="true">EV</span>
+          <span class="resultado__nombre">Estética Vía España</span>
+          <span class="resultado__meta">Vía España · 4,4 (57) · desde $15</span>
+          <span class="resultado__cerrado-txt">Cierra hoy<br>Abre mañana 9:00</span>
+        </span></li>
+      </ul>
+      <p class="nota-medida">
+        El patrocinado no se distingue por una etiqueta gris de 11 px: es un bloque tinta dentro de la lista,
+        con la palabra escrita y a <span class="dato">16,35:1</span>. Se ve desde el otro lado de la mesa, que es
+        justo lo que exige el criterio de «se distinguen sin leer la letra pequeña».
+      </p>
+    </div>
+
+    <div class="mesa">
+      <p class="mesa__titulo">La fila, estado a estado</p>
+      <ul class="resultados">
+        <li><a class="resultado" href="#salon"><span class="resultado__sello" aria-hidden="true">SM</span><span class="resultado__nombre">Reposo</span><span class="resultado__meta">Sin filo, fondo lienzo</span><span class="resultado__hora"><b>11:30</b><small>hoy</small></span></a></li>
+        <li><a class="resultado es-encima" href="#salon"><span class="resultado__sello" aria-hidden="true">SM</span><span class="resultado__nombre">Encima</span><span class="resultado__meta">Aparece el filo y empuja el contenido 6 px</span><span class="resultado__hora"><b>11:30</b><small>hoy</small></span></a></li>
+        <li><a class="resultado es-pulsado" href="#salon"><span class="resultado__sello" aria-hidden="true">SM</span><span class="resultado__nombre">Pulsada</span><span class="resultado__meta">Fondo arena, filo puesto</span><span class="resultado__hora"><b>11:30</b><small>hoy</small></span></a></li>
+        <li><a class="resultado es-foco" href="#salon"><span class="resultado__sello" aria-hidden="true">SM</span><span class="resultado__nombre">Foco</span><span class="resultado__meta">Anillo por dentro, para que no se coma el vecino</span><span class="resultado__hora"><b>11:30</b><small>hoy</small></span></a></li>
+        <li><span class="resultado resultado--cerrado"><span class="resultado__sello" aria-hidden="true">SM</span><span class="resultado__nombre">Cerrado</span><span class="resultado__meta">Sin chapa de hora y con el rayado</span><span class="resultado__cerrado-txt">Cierra hoy</span></span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ 5 · LA HORA ═══════════════════ -->
+  <section class="seccion-doc" id="hora">
+    <p class="seccion-doc__num">05 · la hora reservable</p>
+    <h2>La pieza más importante del producto</h2>
+    <p class="entradilla">
+      Es lo que se toca para reservar y es la esencia de la marca: la hora que sí existe. Una hora libre
+      es una chapa levantada con el canto mordido, que es tanto como decir «aquí hay hueco». Al elegirla,
+      el hueco se cierra: desaparece la mordida, la chapa se hunde y se pinta de azul, que es el color que
+      remata. Una hora ocupada no es un botón apagado: no es un botón.
+    </p>
+
+    <div class="mesa">
+      <p class="mesa__titulo">Los cinco estados</p>
+      <div class="horas" style="max-width:520px">
+        <button type="button" class="hora">09:00</button>
+        <button type="button" class="hora es-encima">09:30</button>
+        <button type="button" class="hora es-elegida">10:00</button>
+        <button type="button" class="hora es-foco">10:30</button>
+        <span class="hora hora--ocupada" aria-disabled="true">11:00</span>
+      </div>
+      <div class="estados" style="margin-top:var(--espacio-3);grid-template-columns:repeat(auto-fill,minmax(88px,1fr))">
+        <span class="muestra__pie">Libre</span>
+        <span class="muestra__pie">Encima</span>
+        <span class="muestra__pie">Elegida</span>
+        <span class="muestra__pie">Foco</span>
+        <span class="muestra__pie">Ocupada</span>
+      </div>
+      <p class="nota-medida">
+        La cifra va a <span class="dato">125 %</span> de anchura y con tabulares, para que las columnas cuadren
+        cuando la rejilla se llena. La elegida se queda 2 px por debajo de sus vecinas: en una rejilla, ese
+        desnivel se ve antes que el color.
+      </p>
+    </div>
+
+    <div class="par">
+      <div class="mesa">
+        <p class="mesa__titulo">Una tarde de verdad, medio llena · toca para elegir</p>
+        <p class="franja-hora">Mañana</p>
+        <div class="horas" data-grupo="horas">
+          <button type="button" class="hora" aria-pressed="false">09:00</button>
+          <span class="hora hora--pasada" aria-disabled="true">09:30</span>
+          <button type="button" class="hora" aria-pressed="false">10:00</button>
+          <span class="hora hora--ocupada" aria-disabled="true">10:30</span>
+          <button type="button" class="hora" aria-pressed="false">11:00</button>
+          <span class="hora hora--ocupada" aria-disabled="true">11:30</span>
+        </div>
+        <p class="franja-hora">Tarde</p>
+        <div class="horas" data-grupo="horas-tarde">
+          <span class="hora hora--ocupada" aria-disabled="true">14:00</span>
+          <button type="button" class="hora" aria-pressed="false">14:30</button>
+          <button type="button" class="hora" aria-pressed="true">15:00</button>
+          <span class="hora hora--ocupada" aria-disabled="true">15:30</span>
+          <button type="button" class="hora" aria-pressed="false">16:00</button>
+          <button type="button" class="hora" aria-pressed="false">16:30</button>
+        </div>
+        <p class="nota-medida">
+          Balayage de 3 h: a las 16:30 ya no cabe antes de cerrar, y el motor no lo ofrece. La rejilla no
+          enseña horas que luego dan error.
+        </p>
+      </div>
+      <div class="mesa">
+        <p class="mesa__titulo">Por qué la ocupada no es un botón apagado</p>
+        <div class="horas" style="max-width:300px">
+          <span class="hora hora--ocupada" aria-disabled="true">11:00</span>
+          <span class="hora hora--pasada" aria-disabled="true">09:30</span>
+          <button type="button" class="hora">12:00</button>
+        </div>
+        <div class="estados" style="margin-top:var(--espacio-3);grid-template-columns:repeat(3,minmax(88px,1fr));max-width:300px">
+          <span class="muestra__pie">Ocupada</span>
+          <span class="muestra__pie">Ya pasó</span>
+          <span class="muestra__pie">Libre</span>
+        </div>
+        <p class="nota-medida">
+          Tres cosas distintas que hoy se dibujan igual. La ocupada lleva el rayado porque hay alguien
+          dentro; la pasada solo se apaga sobre el papel, porque no hay nada que ver; la libre está
+          levantada. El texto se mantiene en <span class="dato">6,48:1</span> y <span class="dato">4,69:1</span>,
+          así que se siguen leyendo.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ 6 · FILTROS Y PESTAÑAS ═══════════════════ -->
+  <section class="seccion-doc" id="filtros">
+    <p class="seccion-doc__num">06 · la ficha de filtro y la pestaña activa</p>
+    <h2>Elegido no es «relleno de color»: es hundido, con filo y más ancho</h2>
+    <p class="entradilla">
+      Rellenar de azul lo elegido gasta el color que sirve para cerrar y obliga a distinguir dos tonos con
+      reflejo. Aquí lo elegido se hunde (pierde el canto), le crece un filo macizo de 6 px y la letra se
+      ensancha. Tres señales, y solo una es de color.
+    </p>
+
+    <div class="mesa">
+      <p class="mesa__titulo">Ficha de filtro · los cinco estados</p>
+      <div class="fila-piezas">
+        <button type="button" class="ficha">Cerca de mí</button>
+        <button type="button" class="ficha es-encima">Cerca de mí</button>
+        <button type="button" class="ficha es-elegida">Cerca de mí</button>
+        <button type="button" class="ficha es-foco">Cerca de mí</button>
+        <button type="button" class="ficha" disabled>Cerca de mí</button>
+      </div>
+      <div class="estados" style="margin-top:var(--espacio-3);grid-template-columns:repeat(auto-fill,minmax(130px,1fr))">
+        <span class="muestra__pie">Reposo</span><span class="muestra__pie">Encima</span><span class="muestra__pie">Elegida</span><span class="muestra__pie">Foco</span><span class="muestra__pie">Apagada</span>
+      </div>
+    </div>
+
+    <div class="mesa">
+      <p class="mesa__titulo">Cómo se ve una tira de filtros de verdad · toca para elegir</p>
+      <div class="tira" data-grupo="filtros">
+        <button type="button" class="ficha" aria-pressed="true">Cerca de mí</button>
+        <button type="button" class="ficha" aria-pressed="false">Abre ahora</button>
+        <button type="button" class="ficha" aria-pressed="false">Barbería</button>
+        <button type="button" class="ficha" aria-pressed="false">Uñas</button>
+        <button type="button" class="ficha" aria-pressed="false">Depilación</button>
+        <button type="button" class="ficha" aria-pressed="false">Hasta $20</button>
+      </div>
+      <p class="nota-medida">
+        Con seis fichas y una elegida se ve cuál es sin comparar colores: es la que está hundida y con el
+        filo puesto. Y funciona igual para quien no distingue el azul del gris.
+      </p>
+      <p class="nota-medida">
+        <strong>Por qué el filo va en tinta y no en naranja</strong>, que es la pregunta obvia: el filo
+        naranja de 6 px ya tiene un trabajo, cortar la página entre bloques, y es la única forma propia
+        que este producto tenía. Si el naranja significara además «seleccionado», dejaría de significar
+        «abre», que es la regla que el ADR-0016 declara innegociable. La forma se comparte, el color no.
+      </p>
+    </div>
+
+    <div class="mesa">
+      <p class="mesa__titulo">Pestañas · el ancho de la letra es el que dice dónde estás</p>
+      <div class="pestanas" role="tablist" data-grupo="pestanas">
+        <button type="button" class="pestana" role="tab" aria-selected="true" data-texto="Hoy">Hoy</button>
+        <button type="button" class="pestana" role="tab" aria-selected="false" data-texto="Semana">Semana</button>
+        <button type="button" class="pestana" role="tab" aria-selected="false" data-texto="Clientas">Clientas</button>
+        <button type="button" class="pestana" role="tab" aria-selected="false" data-texto="Equipo" disabled>Equipo</button>
+      </div>
+      <p class="nota-medida">
+        La activa pasa de anchura 100 % a 112 % y le crece el filo de 6 px. Para que las demás no se muevan,
+        cada pestaña reserva de antemano el ancho de su versión activa con un
+        <span class="dato">::after</span> invisible que repite el texto. Es el detalle que separa un sistema
+        pensado de una plantilla: la barra de pestañas no baila al cambiar de pestaña.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ 7 · EL ESTADO DE UNA CITA ═══════════════════ -->
+  <section class="seccion-doc" id="estado">
+    <p class="seccion-doc__num">07 · el estado de una cita</p>
+    <h2>Un sello, no una pastilla de colores</h2>
+    <p class="entradilla">
+      Los cinco estados van a canto vivo, sin radio, y eso ya dice que no se tocan. El color va en el filo
+      macizo de la izquierda y el nombre va escrito en versales estrechas: quien no distingue el ámbar del
+      verde sigue leyendo «pendiente». Es el sello del recibo, que es la referencia número cinco del
+      moodboard y no estaba en ningún sitio.
+    </p>
+
+    <div class="mesa">
+      <p class="mesa__titulo">Los cinco</p>
+      <div class="fila-piezas">
+        <span class="estado estado--pendiente">Pendiente</span>
+        <span class="estado estado--confirmada">Confirmada</span>
+        <span class="estado estado--completada">Atendida</span>
+        <span class="estado estado--no_show">No vino</span>
+        <span class="estado estado--cancelada_cliente">Cancelada</span>
+      </div>
+      <p class="nota-medida">
+        El texto sobre su propio fondo va de <span class="dato">6,48:1</span> a <span class="dato">9,41:1</span>,
+        todos AA. Lo que no cumple es el token de borde de cada estado, que sobre lienzo se queda entre
+        <span class="dato">2,14:1</span> y <span class="dato">3,52:1</span>: por eso el filo del sello y la banda
+        de la agenda usan el color de <strong>texto</strong> del estado y no el de borde. No cambia la paleta,
+        cambia qué token se consume.
+      </p>
+    </div>
+
+    <div class="mesa mesa--papel">
+      <p class="mesa__titulo">Y así se leen en la agenda medio llena</p>
+      <div class="agenda">
+        <button type="button" class="agenda__fila agenda__fila--confirmada">
+          <span class="agenda__hora">09:00<small>45 min</small></span>
+          <span class="agenda__quien">Yaritza Peña</span>
+          <span class="agenda__que">Corte + barba · $18 · Luis</span>
+          <span class="estado estado--confirmada">Confirmada</span>
+        </button>
+        <button type="button" class="agenda__fila agenda__fila--pendiente">
+          <span class="agenda__hora">10:00<small>3 h</small></span>
+          <span class="agenda__quien">Marisol Ceballos</span>
+          <span class="agenda__que">Balayage · desde $120 · Ana</span>
+          <span class="estado estado--pendiente">Pendiente</span>
+        </button>
+        <span class="agenda__fila agenda__fila--bloqueo">
+          <span class="agenda__hora">13:00<small>1 h</small></span>
+          <span class="agenda__quien">Almuerzo</span>
+          <span class="agenda__que">Bloqueo del negocio</span>
+        </span>
+        <button type="button" class="agenda__fila agenda__fila--completada">
+          <span class="agenda__hora">14:00<small>30 min</small></span>
+          <span class="agenda__quien">Kevin Arosemena</span>
+          <span class="agenda__que">Corte fade · $12 · Luis</span>
+          <span class="estado estado--completada">Atendida</span>
+        </button>
+        <button type="button" class="agenda__fila agenda__fila--no_show">
+          <span class="agenda__hora">15:00<small>45 min</small></span>
+          <span class="agenda__quien">Génesis Batista</span>
+          <span class="agenda__que">Manicura + esmaltado · $22 · Ana</span>
+          <span class="estado estado--no_show">No vino</span>
+        </button>
+        <button type="button" class="agenda__fila agenda__fila--cancelada_cliente">
+          <span class="agenda__hora">16:30<small>45 min</small></span>
+          <span class="agenda__quien">Ana Lucía Him</span>
+          <span class="agenda__que">Tinte raíz · $35 · Ana</span>
+          <span class="estado estado--cancelada_cliente">Cancelada</span>
+        </button>
+      </div>
+      <p class="nota-medida">
+        La banda de estado mide 6 px, el mismo filo de siempre, y la columna de horas va a 125 % con
+        tabulares: los dos puntos caen en la misma vertical en las seis filas. Un bloqueo no es una cita:
+        no es un botón, lleva el rayado y no tiene sello.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ 8 · LAS TRAMAS ═══════════════════ -->
+  <section class="seccion-doc" id="tramas">
+    <p class="seccion-doc__num">08 · la textura propia</p>
+    <h2>Dos tramas, cero bytes, ninguna imagen</h2>
+    <p class="entradilla">
+      Las dos se dibujan con gradientes de parada dura, que son bandas planas y no degradados. El pautado
+      es el papel rayado de la agenda, con una franja por cada objetivo táctil de 44 px. El rayado es lo que
+      está ocupado o bloqueado, en tinta al 14 % con <span class="dato">color-mix</span>, sin ni un
+      hexadecimal escrito a mano.
+    </p>
+
+    <div class="par">
+      <div class="mesa">
+        <p class="mesa__titulo">El pautado · el día sin nada escrito</p>
+        <div class="vacio">
+          <div class="vacio__nota">
+            <strong>Hoy no tienes citas</strong>
+            <p>Es martes y son las 9:14. Puedes apuntar a alguien que acabe de entrar por la puerta.</p>
+            <button type="button" class="boton boton--primario">Apuntar una cita</button>
+          </div>
+        </div>
+        <p class="nota-medida">
+          El vacío no es un dibujo triste centrado: es el papel de la agenda, que es lo que este producto
+          sustituye. Y siempre lleva la acción que abre, porque un día vacío es el mejor momento para
+          apuntar a alguien.
+        </p>
+      </div>
+      <div class="mesa">
+        <p class="mesa__titulo">Cargando · bloques macizos sobre el pautado</p>
+        <div class="esqueleto">
+          <div class="esqueleto__fila"><span class="esqueleto__sello"></span><div><span class="esqueleto__linea" style="width:62%"></span><span class="esqueleto__linea" style="width:40%;margin-top:8px;height:10px"></span></div></div>
+          <div class="esqueleto__fila"><span class="esqueleto__sello"></span><div><span class="esqueleto__linea" style="width:48%"></span><span class="esqueleto__linea" style="width:56%;margin-top:8px;height:10px"></span></div></div>
+          <div class="esqueleto__fila"><span class="esqueleto__sello"></span><div><span class="esqueleto__linea" style="width:70%"></span><span class="esqueleto__linea" style="width:34%;margin-top:8px;height:10px"></span></div></div>
+        </div>
+        <p class="nota-medida">
+          Un latido de opacidad de 1,4 s, no un brillo que recorre la pantalla: eso último es un degradado
+          en movimiento y aquí no hay degradados. Con <span class="dato">prefers-reduced-motion</span> se
+          queda quieto y sigue siendo legible.
+        </p>
+      </div>
+    </div>
+
+    <div class="mesa">
+      <p class="mesa__titulo">El rayado, donde aparece</p>
+      <div class="fila-piezas" style="align-items:stretch">
+        <span class="hora hora--ocupada" aria-disabled="true" style="min-width:92px">11:00</span>
+        <span class="trama-rayado" style="display:grid;place-items:center;min-width:180px;min-height:52px;color:var(--color-tinta-suave);font-size:var(--tipografia-tamano-menor)">Almuerzo · bloqueo</span>
+        <span class="trama-rayado" style="width:64px;height:64px"></span>
+      </div>
+      <p class="nota-medida">
+        La raya solo dice «aquí no se puede», nunca lleva información encima que dependa de ella. En el peor
+        caso medido, el texto que la cruza se queda en <span class="dato">4,85:1</span>, por encima de AA.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ 9 · TIPOGRAFÍA ═══════════════════ -->
+  <section class="seccion-doc" id="tipografia">
+    <p class="seccion-doc__num">09 · el detalle tipográfico que hoy no se usa</p>
+    <h2>El eje de anchura no es para los titulares. Es para caber.</h2>
+    <p class="entradilla">
+      Hoy Archivo Variable solo se aprovecha en una cosa: los titulares van a 112 %. El eje llega de 62 % a
+      125 %, y lo interesante está en el otro extremo. Propongo un cuarto ancho,
+      <span class="dato">87 %</span>, y tres usos que hoy no existen.
+    </p>
+
+    <div class="mesa">
+      <p class="mesa__titulo">Los cuatro anchos, una sola fuente, una sola petición de red</p>
+      <div class="anchos">
+        <div class="ancho-muestra">
+          <p class="ancho-muestra__texto estrecho">MIÉRCOLES 3 DE SEPTIEMBRE · BELLA VISTA</p>
+          <p class="ancho-muestra__pie">87 % · etiquetas, metadatos y rótulos de columna (propuesto)</p>
+        </div>
+        <div class="ancho-muestra">
+          <p class="ancho-muestra__texto">Corte + barba con Luis, 45 minutos</p>
+          <p class="ancho-muestra__pie">100 % · interfaz y cuerpo</p>
+        </div>
+        <div class="ancho-muestra">
+          <p class="ancho-muestra__texto rotulo">Tu agenda, gratis</p>
+          <p class="ancho-muestra__pie">112 % · titulares y pestaña activa</p>
+        </div>
+        <div class="ancho-muestra">
+          <p class="ancho-muestra__texto cifra">09:00 · 10:30 · 11:15 · $18,00 · 45 min</p>
+          <p class="ancho-muestra__pie">125 % · horas, precios y duraciones, con tabulares</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="par">
+      <div class="mesa">
+        <p class="mesa__titulo">Uso 1 · el ancho hace lo que otros hacen encogiendo la letra</p>
+        <p style="font-size:var(--tipografia-tamano-menor);margin-bottom:var(--espacio-2)"><span class="regla-ancho">MIÉRCOLES 3 DE SEPTIEMBRE</span></p>
+        <p style="font-size:var(--tipografia-tamano-menor)" class="estrecho"><span class="regla-ancho">MIÉRCOLES 3 DE SEPTIEMBRE</span></p>
+        <p class="nota-medida">
+          Arriba a 100 %, abajo a 87 %. Mismo tamaño de letra, misma legibilidad, y cabe en una línea de
+          390 px donde antes no cabía. La alternativa de todo el mundo es bajar el cuerpo a 11 px, y ahí
+          empiezan los problemas de verdad.
+        </p>
+      </div>
+      <div class="mesa">
+        <p class="mesa__titulo">Uso 2 · dos jerarquías en la misma línea, sin cambiar color ni tamaño</p>
+        <p style="font-size:var(--tipografia-tamano-mayor);font-weight:var(--tipografia-pesos-fuerte)">Salón Marisol</p>
+        <p class="estrecho" style="font-size:var(--tipografia-tamano-mayor);color:var(--color-tinta-suave)">Bella Vista · 4,8 (126)</p>
+        <p class="nota-medida">
+          El nombre a 100 % y el barrio a 87 %, con el mismo tamaño. La diferencia se percibe antes que un
+          cambio de gris, y no gasta ni un token de color.
+        </p>
+      </div>
+    </div>
+
+    <div class="mesa">
+      <p class="mesa__titulo">Uso 3 · el titular ensancha con la pantalla</p>
+      <p class="rotulo titular-adaptativo" style="font-size:clamp(1.75rem,1.1rem+3vw,2.75rem)">Tu agenda, gratis. Y el sitio donde te encuentran.</p>
+      <p class="nota-medida">
+        A 390 px va a 100 %, para que quepan más caracteres por línea y el titular no se parta en cinco
+        renglones. Desde 768 px se planta a 112 %. Estrecha la ventana y míralo cambiar: es el eje de
+        anchura resolviendo un problema de espacio, no decorando.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ 10 · EL CONJUNTO ═══════════════════ -->
+  <section class="seccion-doc" id="conjunto">
+    <p class="seccion-doc__num">10 · el conjunto</p>
+    <h2>Todo junto, a 390 px, que es donde vive esto</h2>
+    <p class="entradilla">
+      Las piezas sueltas siempre parecen bien. Lo que hay que mirar es si juntas siguen diciendo lo mismo.
+    </p>
+
+    <div class="par">
+      <div>
+        <div class="marco">
+          <div class="marco__barra"><span>Salón Marisol</span><span>Reservar</span></div>
+          <div class="marco__cuerpo">
+            <p class="etiqueta-versal" style="color:var(--color-tinta-suave)">Paso 2 de 3</p>
+            <h3 class="rotulo" style="font-size:var(--tipografia-tamano-titulo-3);margin-block:4px 12px">Elige la hora</h3>
+            <div class="tira" data-grupo="dias">
+              <button type="button" class="ficha" aria-pressed="true">Hoy 3</button>
+              <button type="button" class="ficha" aria-pressed="false">Jue 4</button>
+              <button type="button" class="ficha" aria-pressed="false">Vie 5</button>
+              <button type="button" class="ficha" aria-pressed="false">Sáb 6</button>
+            </div>
+            <p class="franja-hora">Mañana</p>
+            <div class="horas" data-grupo="horas-movil">
+              <button type="button" class="hora" aria-pressed="false">09:00</button>
+              <span class="hora hora--ocupada" aria-disabled="true">09:45</span>
+              <button type="button" class="hora" aria-pressed="false">10:30</button>
+            </div>
+            <p class="franja-hora">Tarde</p>
+            <div class="horas" data-grupo="horas-movil-t">
+              <button type="button" class="hora" aria-pressed="true">14:00</button>
+              <button type="button" class="hora" aria-pressed="false">14:45</button>
+              <span class="hora hora--ocupada" aria-disabled="true">15:30</span>
+            </div>
+            <div style="margin-top:var(--espacio-5);padding-top:var(--espacio-4);border-top:1px solid var(--color-borde-fuerte);display:grid;gap:var(--espacio-1)">
+              <p style="display:flex;justify-content:space-between;gap:var(--espacio-3);font-weight:var(--tipografia-pesos-fuerte)"><span>Corte + barba</span><span class="cifra">$18,00</span></p>
+              <p class="estrecho" style="display:flex;justify-content:space-between;gap:var(--espacio-3);color:var(--color-tinta-suave);font-size:var(--tipografia-tamano-menor)"><span>Hoy 3 de septiembre, 14:00 · con Luis</span><span class="cifra">45 min</span></p>
+            </div>
+            <button type="button" class="boton boton--cierra boton--ancho" style="margin-top:var(--espacio-4)">Confirmar la cita</button>
+            <button type="button" class="boton boton--llano" style="margin-top:var(--espacio-2)">Cambiar de servicio</button>
+          </div>
+        </div>
+        <p class="muestra__pie" style="margin-top:var(--espacio-2)">Reservar · 390 px</p>
+      </div>
+
+      <div>
+        <div class="marco">
+          <div class="marco__barra"><span>Salón Marisol</span><span>Miércoles 3</span></div>
+          <div class="marco__cuerpo" style="padding-inline:0">
+            <div style="padding-inline:var(--espacio-4)">
+              <div class="pestanas" data-grupo="pestanas-movil" style="margin-bottom:var(--espacio-3)">
+                <button type="button" class="pestana" aria-selected="true" data-texto="Hoy">Hoy</button>
+                <button type="button" class="pestana" aria-selected="false" data-texto="Semana">Semana</button>
+                <button type="button" class="pestana" aria-selected="false" data-texto="Clientas">Clientas</button>
+              </div>
+            </div>
+            <div class="agenda">
+              <button type="button" class="agenda__fila agenda__fila--confirmada">
+                <span class="agenda__hora">09:00<small>45 min</small></span>
+                <span class="agenda__quien">Yaritza Peña</span>
+                <span class="agenda__que">Corte + barba · $18</span>
+                <span class="estado estado--confirmada">Confirmada</span>
+              </button>
+              <button type="button" class="agenda__fila agenda__fila--pendiente">
+                <span class="agenda__hora">10:00<small>3 h</small></span>
+                <span class="agenda__quien">Marisol Ceballos</span>
+                <span class="agenda__que">Balayage · desde $120</span>
+                <span class="estado estado--pendiente">Pendiente</span>
+              </button>
+              <span class="agenda__fila agenda__fila--bloqueo">
+                <span class="agenda__hora">13:00<small>1 h</small></span>
+                <span class="agenda__quien">Almuerzo</span>
+                <span class="agenda__que">Bloqueo</span>
+              </span>
+              <button type="button" class="agenda__fila agenda__fila--no_show">
+                <span class="agenda__hora">15:00<small>45 min</small></span>
+                <span class="agenda__quien">Génesis Batista</span>
+                <span class="agenda__que">Manicura · $22</span>
+                <span class="estado estado--no_show">No vino</span>
+              </button>
+            </div>
+            <div style="padding:var(--espacio-4)">
+              <button type="button" class="boton boton--primario boton--ancho">Apuntar una cita</button>
+            </div>
+          </div>
+        </div>
+        <p class="muestra__pie" style="margin-top:var(--espacio-2)">Agenda del día · 390 px</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ 11 · ANTES Y DESPUÉS ═══════════════════ -->
+  <section class="seccion-doc" id="antes">
+    <p class="seccion-doc__num">11 · antes y después</p>
+    <h2>Lo mismo, con el lenguaje puesto</h2>
+    <p class="entradilla">
+      A la izquierda, lo que hay hoy en <span class="dato">apps/web/app/globales.css</span>, copiado tal cual.
+      A la derecha, lo mismo con las tres reglas. Los colores y los tokens son idénticos: lo único que cambia
+      es la forma.
+    </p>
+
+    <div class="par">
+      <div class="mesa">
+        <p class="mesa__titulo">Hoy</p>
+        <div class="fila-piezas" style="margin-bottom:var(--espacio-5)">
+          <button type="button" class="viejo-boton viejo-boton--primario">Crear el salón</button>
+          <button type="button" class="viejo-boton viejo-boton--cierra">Confirmar</button>
+          <button type="button" class="viejo-boton viejo-boton--secundario">Guardar</button>
+          <button type="button" class="viejo-boton viejo-boton--primario viejo-apagado">Apagado</button>
+        </div>
+        <input class="viejo-entrada" type="text" value="Salón Marisol" style="margin-bottom:var(--espacio-5)">
+        <div class="horas" style="max-width:320px;margin-bottom:var(--espacio-5)">
+          <span class="viejo-hora">09:00</span><span class="viejo-hora">09:30</span><span class="viejo-hora">10:00</span>
+        </div>
+        <div class="fila-piezas" style="margin-bottom:var(--espacio-5)">
+          <span class="viejo-ficha">Barbería</span>
+          <span class="viejo-ficha" aria-current="page">Uñas</span>
+        </div>
+        <div class="fila-piezas" style="margin-bottom:var(--espacio-5)">
+          <span class="viejo-estado" style="background:var(--estado-reserva-pendiente-fondo);color:var(--estado-reserva-pendiente-texto)">Pendiente</span>
+          <span class="viejo-estado" style="background:var(--estado-reserva-confirmada-fondo);color:var(--estado-reserva-confirmada-texto)">Confirmada</span>
+        </div>
+        <div class="viejo-resultado">
+          <strong>Salón Marisol</strong>
+          <span style="font-size:var(--tipografia-tamano-menor);color:var(--color-tinta-suave)">Bella Vista · 4,8 (126)</span>
+          <span style="font-size:var(--tipografia-tamano-menor)">Desde $12</span>
+        </div>
+      </div>
+
+      <div class="mesa">
+        <p class="mesa__titulo">Con el lenguaje puesto</p>
+        <div class="fila-piezas" style="margin-bottom:var(--espacio-5)">
+          <button type="button" class="boton boton--primario">Crear el salón</button>
+          <button type="button" class="boton boton--cierra">Confirmar</button>
+          <button type="button" class="boton boton--secundario">Guardar</button>
+          <button type="button" class="boton boton--primario" disabled>Apagado</button>
+        </div>
+        <input class="entrada" type="text" value="Salón Marisol" style="margin-bottom:var(--espacio-5)">
+        <div class="horas" style="max-width:320px;margin-bottom:var(--espacio-5)">
+          <button type="button" class="hora">09:00</button>
+          <button type="button" class="hora es-elegida">09:30</button>
+          <span class="hora hora--ocupada" aria-disabled="true">10:00</span>
+        </div>
+        <div class="fila-piezas" style="margin-bottom:var(--espacio-5)">
+          <button type="button" class="ficha">Barbería</button>
+          <button type="button" class="ficha es-elegida">Uñas</button>
+        </div>
+        <div class="fila-piezas" style="margin-bottom:var(--espacio-5)">
+          <span class="estado estado--pendiente">Pendiente</span>
+          <span class="estado estado--confirmada">Confirmada</span>
+        </div>
+        <ul class="resultados" style="border-top:0">
+          <li><a class="resultado" href="#antes">
+            <span class="resultado__sello" aria-hidden="true">SM</span>
+            <span class="resultado__nombre">Salón Marisol</span>
+            <span class="resultado__meta">Bella Vista · 4,8 (126) · desde $12</span>
+            <span class="resultado__hora"><b>11:30</b><small>hoy</small></span>
+          </a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ 12 · CONTRASTE ═══════════════════ -->
+  <section class="seccion-doc" id="contraste">
+    <p class="seccion-doc__num">12 · contraste medido</p>
+    <h2>Todo lo que se propone, con su número</h2>
+    <p class="entradilla">
+      Calculado con la fórmula WCAG 2.1, con el mismo código que usa
+      <span class="dato">packages/tokens/verificar-contraste.mjs</span>. AA pide 4,5:1 en texto normal, 3:1 en
+      texto grande y 3:1 en los límites de un control.
+    </p>
+
+    <table class="tabla">
+      <thead>
+        <tr><th>Qué</th><th>Sobre qué</th><th>Pide</th><th>Mide</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Canto en tinta (botón secundario, campo, hora)</td><td>Lienzo</td><td>3,0</td><td><span class="marca-ok">18,22</span></td></tr>
+        <tr><td>Canto en tinta</td><td>Papel cal</td><td>3,0</td><td><span class="marca-ok">16,35</span></td></tr>
+        <tr><td>Canto en tinta dentro del botón que abre</td><td>Naranja mango</td><td>3,0</td><td><span class="marca-ok">6,99</span></td></tr>
+        <tr><td>Canto en cal dentro del botón que cierra</td><td>Azul chiva</td><td>3,0</td><td><span class="marca-ok">7,90</span></td></tr>
+        <tr><td>Canto en tinta si se hubiera usado en el azul</td><td>Azul chiva</td><td>3,0</td><td><span class="marca-no">2,07</span></td></tr>
+        <tr><td>Texto tinta del botón que abre</td><td>Naranja mango</td><td>4,5</td><td><span class="marca-ok">6,99</span></td></tr>
+        <tr><td>Texto tinta del botón que abre, al pasar</td><td>Naranja al pasar</td><td>4,5</td><td><span class="marca-ok">5,64</span></td></tr>
+        <tr><td>Texto cal del botón que cierra</td><td>Azul chiva</td><td>4,5</td><td><span class="marca-ok">7,90</span></td></tr>
+        <tr><td>Texto del botón apagado (tinta suave)</td><td>Arena</td><td>4,5</td><td><span class="marca-ok">6,48</span></td></tr>
+        <tr><td>Filo del elegido y del hover (tinta)</td><td>Papel cal</td><td>3,0</td><td><span class="marca-ok">16,35</span></td></tr>
+        <tr><td>Filete de fila (borde fuerte)</td><td>Lienzo</td><td>3,0</td><td><span class="marca-ok">3,88</span></td></tr>
+        <tr><td>Filete de fila (borde fuerte)</td><td>Papel cal</td><td>3,0</td><td><span class="marca-ok">3,48</span></td></tr>
+        <tr><td>Filete que se usa hoy (borde)</td><td>Lienzo</td><td>3,0</td><td><span class="marca-no">1,44</span></td></tr>
+        <tr><td>Filete que se usa hoy (borde)</td><td>Papel cal</td><td>3,0</td><td><span class="marca-no">1,29</span></td></tr>
+        <tr><td>Anillo de foco (tinta)</td><td>Papel cal</td><td>3,0</td><td><span class="marca-ok">16,35</span></td></tr>
+        <tr><td>Anillo de foco (cal) en bloque de color</td><td>Azul chiva</td><td>3,0</td><td><span class="marca-ok">7,90</span></td></tr>
+        <tr><td>Hora ocupada (tinta suave)</td><td>Arena</td><td>4,5</td><td><span class="marca-ok">6,48</span></td></tr>
+        <tr><td>Hora pasada (tinta tenue)</td><td>Papel cal</td><td>4,5</td><td><span class="marca-ok">5,15</span></td></tr>
+        <tr><td>Texto sobre la raya de la trama, peor caso</td><td>Rayado al 14 %</td><td>4,5</td><td><span class="marca-ok">4,85</span></td></tr>
+        <tr><td>Sello pendiente</td><td>Su fondo</td><td>4,5</td><td><span class="marca-ok">7,63</span></td></tr>
+        <tr><td>Sello confirmada</td><td>Su fondo</td><td>4,5</td><td><span class="marca-ok">8,24</span></td></tr>
+        <tr><td>Sello atendida</td><td>Su fondo</td><td>4,5</td><td><span class="marca-ok">9,41</span></td></tr>
+        <tr><td>Sello no vino</td><td>Su fondo</td><td>4,5</td><td><span class="marca-ok">6,48</span></td></tr>
+        <tr><td>Sello cancelada</td><td>Su fondo</td><td>4,5</td><td><span class="marca-ok">8,10</span></td></tr>
+        <tr><td>Banda de agenda con el color de texto del estado, peor caso</td><td>Lienzo</td><td>3,0</td><td><span class="marca-ok">7,93</span></td></tr>
+        <tr><td>Banda de agenda con el token de borde, peor caso</td><td>Lienzo</td><td>3,0</td><td><span class="marca-no">2,14</span></td></tr>
+        <tr><td>Fila patrocinada (papel sobre tinta)</td><td>Tinta noche</td><td>4,5</td><td><span class="marca-ok">16,35</span></td></tr>
+        <tr><td>Naranja como color de texto, por si alguien lo intenta</td><td>Papel cal</td><td>4,5</td><td><span class="marca-no">2,34</span></td></tr>
+      </tbody>
+    </table>
+    <p class="nota-medida">
+      Las tres filas en rojo son opciones descartadas a propósito y están aquí para que quede escrito por qué:
+      el canto oscuro sobre el azul, el filete de 1,44:1 que se usa hoy como estructura, y el token de borde de
+      estado como banda de la agenda. Ninguna de las tres se usa en esta propuesta.
+    </p>
+  </section>
+
+  <footer class="seccion-doc">
+    <p class="entradilla">
+      El porqué de cada decisión y el CSS listo para pegar están en
+      <span class="dato">docs/marca/revision-2/lenguaje-de-componentes.md</span>. Nada de esto toca
+      <span class="dato">apps/web</span> ni <span class="dato">packages/</span> todavía: es una propuesta que
+      necesita el visto bueno de Luis y, si sale adelante, un ADR que la recoja.
+    </p>
+  </footer>
+</main>
+
+<script>
+/* Lo mínimo para poder tocar: un solo grupo de selección compartido. Nada más. */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-grupo] [aria-pressed], [data-grupo] [aria-selected]');
+  if (!b || b.disabled) return;
+  var grupo = b.closest('[data-grupo]');
+  var atributo = b.hasAttribute('aria-pressed') ? 'aria-pressed' : 'aria-selected';
+  grupo.querySelectorAll('[' + atributo + ']').forEach(function (x) { x.setAttribute(atributo, 'false'); });
+  b.setAttribute(atributo, 'true');
+});
+</script>
+</body>
+</html>

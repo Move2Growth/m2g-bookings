@@ -123,18 +123,18 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .seccion--arena { background: var(--color-arena); }
 .seccion--tinta { background: var(--color-tinta); color: var(--color-papel); }
 .seccion--tinta h1, .seccion--tinta h2, .seccion--tinta h3 { color: var(--color-papel); }
-.seccion--tinta a { color: var(--color-papel); }
+.seccion--tinta a:not(.boton) { color: var(--color-papel); }
 
 /* Bloque azul a sangre. En esta dirección el color no decora: separa una sección de la
    siguiente sin necesidad de filetes ni de sombras. */
 .seccion--azul { background: var(--color-acento); color: var(--color-acento-texto); }
 .seccion--azul h1, .seccion--azul h2, .seccion--azul h3 { color: var(--color-acento-texto); }
-.seccion--azul a { color: var(--color-acento-texto); }
+.seccion--azul a:not(.boton) { color: var(--color-acento-texto); }
 
 /* Bloque naranja. Se usa poco y para abrir: la sección que pide dar el paso. */
 .seccion--naranja { background: var(--color-abre); color: var(--color-abre-texto); }
 .seccion--naranja h1, .seccion--naranja h2, .seccion--naranja h3 { color: var(--color-abre-texto); }
-.seccion--naranja a { color: var(--color-abre-texto); }
+.seccion--naranja a:not(.boton) { color: var(--color-abre-texto); }
 
 /* Filo de bloque: la línea gruesa de color que corta la página como el canto de un rótulo. */
 .filo { border-top: 6px solid var(--color-abre); }
@@ -508,11 +508,24 @@ button, input, select, textarea { font: inherit; color: inherit; }
   padding-top: var(--espacio-4);
   border-top: 1px solid var(--color-borde);
 }
+/* El número de paso es un **bloque naranja con tinta encima**, no una cifra naranja.
+   Era 2,34:1 sobre cal, que incumple la regla del propio brandbook: el naranja nunca es color
+   de texto. Convertirlo en bloque lo arregla y además es lo que dice la dirección: el color es
+   estructura, no tinte. */
 .pasos__numero {
-  font-size: var(--tipografia-tamano-titulo-1);
-  color: var(--color-abre);
-  min-width: 2ch;
+  display: grid;
+  place-items: center;
+  min-width: 2.4ch;
+  padding: 0 var(--espacio-2);
+  background: var(--color-abre);
+  color: var(--color-abre-texto);
+  font-size: var(--tipografia-tamano-titulo-3);
+  line-height: 1.6;
+  align-self: start;
 }
+.seccion--azul .pasos__numero,
+.seccion--tinta .pasos__numero { background: var(--color-abre); color: var(--color-abre-texto); }
+.seccion--naranja .pasos__numero { background: var(--color-tinta); color: var(--color-papel); }
 /* La línea de texto no crece con la pantalla. Un párrafo de 1.100 px se lee saltando de
    renglón: el ojo pierde el principio de la línea siguiente. */
 .pasos p { max-width: 68ch; }
@@ -574,6 +587,12 @@ button, input, select, textarea { font: inherit; color: inherit; }
   grid-template-columns: 1fr;
 }
 .acceso__marca { display: none; }
+/* Atenuar sobre un fondo oscuro no es el mismo gris que sobre claro: `--color-tinta-tenue`
+   sobre tinta se queda en 3,17:1. Aquí se atenúa bajando desde el papel. */
+.seccion--tinta .tenue,
+.seccion--azul .tenue,
+.acceso__marca .tenue,
+.app--consola .app__barra .tenue { color: color-mix(in srgb, var(--color-papel) 74%, transparent); }
 .acceso__panel {
   display: grid;
   place-items: start center;
@@ -802,6 +821,7 @@ a:has(> svg) {
   display: flex;
   align-items: center;
   gap: var(--espacio-3);
+  min-width: 0;
   min-height: 56px;
   padding-inline: var(--espacio-4);
   background: var(--color-lienzo);
@@ -1056,9 +1076,7 @@ a:has(> svg) {
 .seccion--azul .pasos li,
 .seccion--tinta .pasos li,
 .seccion--naranja .pasos li { border-top-color: currentColor; opacity: 1; }
-.seccion--azul .pasos__numero,
-.seccion--tinta .pasos__numero { color: var(--color-abre); }
-.seccion--naranja .pasos__numero { color: var(--color-tinta); }
+
 
 /* ── Citas de la clienta ───────────────────────────────────────────────────── */
 
@@ -1334,8 +1352,17 @@ a:has(> svg) {
 }
 .fila__boton:hover { background: var(--color-arena); }
 .fila__principal { display: grid; gap: 2px; min-width: 0; }
-.fila__nombre { font-weight: var(--tipografia-pesos-medio); }
-.fila__detalle { font-size: var(--tipografia-tamano-menor); color: var(--color-tinta-suave); }
+.fila__nombre {
+  font-weight: var(--tipografia-pesos-medio);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.fila__detalle {
+  font-size: var(--tipografia-tamano-menor);
+  color: var(--color-tinta-suave);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .fila__alerta { color: var(--color-aviso); }
 .fila__cifra { flex: 0 0 auto; font-weight: var(--tipografia-pesos-fuerte); white-space: nowrap; }
 
@@ -1591,7 +1618,9 @@ textarea.entrada { resize: vertical; min-height: 7rem; line-height: var(--tipogr
 
 .cifras-clave {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  /* `min()` en vez de un mínimo fijo: con 140 px fijos, dos columnas más el hueco no caben en
+     un teléfono estrecho y la rejilla empuja el documento a lo ancho. */
+  grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
   gap: 1px;
   background: var(--color-borde);
   border: 1px solid var(--color-borde);
@@ -1612,7 +1641,14 @@ textarea.entrada { resize: vertical; min-height: 7rem; line-height: var(--tipogr
   padding: 0;
   list-style: none;
 }
-.serie__barra { flex: 1; height: 100%; display: flex; align-items: flex-end; min-width: 3px; }
+.serie__barra {
+  position: relative;
+  flex: 1 1 0;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  min-width: 0;
+}
 .serie__barra > span {
   width: 100%;
   min-height: 2px;
@@ -1680,8 +1716,9 @@ textarea.entrada { resize: vertical; min-height: 7rem; line-height: var(--tipogr
 
 .serie__eje {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: var(--espacio-3);
+  gap: var(--espacio-2) var(--espacio-3);
   margin-top: var(--espacio-2);
   font-size: var(--tipografia-tamano-menor);
   color: var(--color-tinta-suave);
