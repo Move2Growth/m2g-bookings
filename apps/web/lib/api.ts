@@ -93,6 +93,33 @@ async function pedir<T>(ruta: string, opciones: Opciones = {}): Promise<T> {
   return (await respuesta.json()) as T
 }
 
+export type ResultadoDeBusqueda = {
+  slug: string
+  nombre: string
+  direccion: string | null
+  zona: string | null
+  distancia_metros: number | null
+  rating: number | null
+  patrocinado: boolean
+}
+
+/** La búsqueda del marketplace. Cada combinación de filtros tiene su propia URL indexable. */
+export function buscarNegocios(filtros: {
+  texto?: string
+  zona?: string
+  categoria?: string
+}): Promise<ResultadoDeBusqueda[]> {
+  const parametros = new URLSearchParams()
+  if (filtros.texto) parametros.set('texto', filtros.texto)
+  if (filtros.zona) parametros.set('zona', filtros.zona)
+  if (filtros.categoria) parametros.set('categoria', filtros.categoria)
+  const cadena = parametros.toString()
+  return pedir<ResultadoDeBusqueda[]>(
+    `/api/v1/publico/buscar${cadena ? `?${cadena}` : ''}`,
+    { revalidar: 60 },
+  )
+}
+
 export function listarNegocios(): Promise<NegocioEnLista[]> {
   // Un minuto: el listado cambia cuando alguien publica un negocio, no cada segundo.
   return pedir<NegocioEnLista[]>('/api/v1/publico/negocios', { revalidar: 60 })

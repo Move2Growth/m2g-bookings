@@ -36,7 +36,7 @@ __all__ = [
     "entregar_cola_de_plataforma",
     "marcar_citas_sin_cerrar_de_negocio",
     "planificar_cierre_de_citas_pasadas",
-    "planificar_recordatorios_24h",
     "planificar_recordatorios_2h",
+    "planificar_recordatorios_24h",
     "planificar_reviews",
 ]

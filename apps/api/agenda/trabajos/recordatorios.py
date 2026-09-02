@@ -25,7 +25,6 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from agenda.dominio.reservas import ESTADOS_ACTIVOS, EstadoReserva
 from agenda.modelos.clientes import BusinessClient

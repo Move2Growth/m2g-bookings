@@ -24,7 +24,7 @@ Se arranca un proceso por cola, todos con la misma imagen y distinto comando::
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, ClassVar
 
 from arq.connections import RedisSettings
 from arq.cron import cron
@@ -72,7 +72,7 @@ class TrabajadorReactivo:
 
     redis_settings = ajustes_de_redis()
     queue_name = COLA_REACTIVA
-    functions = [entregar_cola_de_negocio, entregar_cola_de_plataforma]
+    functions: ClassVar[list[Any]] = [entregar_cola_de_negocio, entregar_cola_de_plataforma]
     on_startup = al_arrancar
     max_jobs = 20
     job_timeout = 60
@@ -86,7 +86,7 @@ class TrabajadorProgramado:
 
     redis_settings = ajustes_de_redis()
     queue_name = COLA_PROGRAMADA
-    functions = [
+    functions: ClassVar[list[Any]] = [
         planificar_recordatorios_24h,
         planificar_recordatorios_2h,
         planificar_reviews,
@@ -97,7 +97,7 @@ class TrabajadorProgramado:
     max_jobs = 4
     # Un barrido puede tardar: son muchos negocios y una transacción corta por cada uno.
     job_timeout = 600
-    cron_jobs = [
+    cron_jobs: ClassVar[list[Any]] = [
         # Cada cuarto de hora: la ventana de barrido es de una hora, así que una pasada
         # perdida no deja a nadie sin recordatorio.
         cron(planificar_recordatorios_24h, minute={0, 15, 30, 45}, run_at_startup=False),
@@ -120,7 +120,7 @@ class TrabajadorPesado:
 
     redis_settings = ajustes_de_redis()
     queue_name = COLA_PESADA
-    functions: list[Any] = []
+    functions: ClassVar[list[Any]] = []
     on_startup = al_arrancar
     max_jobs = 2
     job_timeout = 900

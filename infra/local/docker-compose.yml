@@ -74,6 +74,7 @@ services:
     env_file: ../../.env
     environment:
       DATABASE_URL: postgresql+asyncpg://agenda_api:agenda@db:5432/agenda
+      DATABASE_URL_TRABAJOS: postgresql+asyncpg://agenda_admin:agenda@db:5432/agenda
       REDIS_URL: redis://redis:6379/0
     volumes:
       - ../../apps/api:/app
@@ -82,7 +83,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: ["arq", "agenda.trabajos.ajustes.WorkerSettings"]
+    command: ["arq", "agenda.trabajos.worker.WorkerSettings"]
 
 volumes:
   datos_db:

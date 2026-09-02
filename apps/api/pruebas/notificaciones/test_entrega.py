@@ -13,6 +13,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from sqlalchemy import text
 
+from agenda.modelos.notificaciones import Notification
 from agenda.notificaciones.cola import (
     Hecho,
     PoliticaDeReintentos,
@@ -25,7 +26,6 @@ from agenda.notificaciones.proveedores import (
     ProveedorDeMensajes,
     ResultadoDeEnvio,
 )
-from agenda.modelos.notificaciones import Notification
 from pruebas.notificaciones.escenario import montar_negocio
 
 pytestmark = pytest.mark.bd

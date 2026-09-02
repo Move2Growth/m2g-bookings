@@ -28,6 +28,8 @@
 | `DATABASE_URL` | Conexión a PostgreSQL 16 con PostGIS. El usuario de la aplicación **no es dueño de las tablas y no tiene `BYPASSRLS`** (ADR-0002) | variable | `.env` |
 | `DATABASE_URL_MIGRACIONES` | Conexión con el rol dueño, usada **solo** por Alembic para migrar y crear extensiones | secreto | `.env` |
 | `REDIS_URL` | Caché de horarios y transporte de los trabajos de arq (ADR-0008) | variable | `.env` |
+| `DATABASE_URL_TRABAJOS` | Conexión de los trabajos en segundo plano, con el rol auditado `agenda_admin`. El planificador necesita **enumerar** negocios antes de saber en cuál trabajar, y sin tenant fijado el rol de la API no ve ninguno; el trabajo concreto sí corre con el negocio fijado | secreto | `.env` / SOPS |
+| `AGENDA_BUZON_NOTIFICACIONES` | Archivo donde el proveedor de desarrollo escribe los mensajes (OTP, recordatorios) mientras no hay canal real | variable | `.env` |
 | `SECRET_KEY` | Firma de los tokens de acceso. Rotarla invalida todas las sesiones | secreto | `.env` / SOPS |
 | `ENTORNO` | `local` \| `staging` \| `produccion`. Decide qué implementación de proveedor se usa | variable | `.env` |
 | `ZONA_HORARIA_DEFECTO` | Zona IANA que se propone al dar de alta un negocio. Default `America/Panama` (ADR-0003) | variable | `.env` |
