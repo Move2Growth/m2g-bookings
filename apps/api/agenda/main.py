@@ -12,6 +12,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from agenda.ajustes import obtener_ajustes
+from agenda.api import negocio, publico
 from agenda.errores import ErrorDeDominio
 
 ajustes = obtener_ajustes()
@@ -38,6 +39,10 @@ async def manejar_error_de_dominio(_: Request, error: ErrorDeDominio) -> JSONRes
     falta sin romper a nadie.
     """
     return JSONResponse(status_code=error.estado_http, content=error.como_respuesta())
+
+
+app.include_router(publico.router)
+app.include_router(negocio.router)
 
 
 @app.get("/salud", tags=["operación"], summary="Comprueba que el proceso responde")
