@@ -26,11 +26,11 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 URL_APP = os.environ.get(
     "DATABASE_URL_PRUEBAS",
-    "postgresql+asyncpg://agenda_api:agenda@localhost:5433/agenda",
+    "postgresql+asyncpg://agenda_api:agenda@localhost:5433/agenda_pruebas",
 )
 URL_DUENO = os.environ.get(
-    "DATABASE_URL_MIGRACIONES",
-    "postgresql+psycopg://agenda_owner:agenda@localhost:5433/agenda",
+    "DATABASE_URL_PRUEBAS_DUENO",
+    "postgresql+psycopg://agenda_owner:agenda@localhost:5433/agenda_pruebas",
 )
 
 AVISO_SIN_BASE = (

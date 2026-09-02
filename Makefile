@@ -37,6 +37,9 @@ semilla:  ## Recarga los datos de ejemplo sobre una base limpia
 	$(API) python -m agenda.semilla
 
 pruebas:  ## Ejecuta todas las pruebas contra un Postgres real
+	# Las pruebas usan su propia base (agenda_pruebas): dejan filas escritas a propósito
+	# -una carrera entre dos transacciones no se puede simular deshaciendo al final- y no
+	# pueden mezclarlas con los datos de ejemplo del desarrollo.
 	$(COMPOSE) up -d db redis
 	$(COMPOSE) run --rm api pytest -q
 

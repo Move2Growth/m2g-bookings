@@ -21,7 +21,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 URL_DUENO_ASYNC = os.environ.get(
     "DATABASE_URL_DUENO_ASYNC",
-    "postgresql+asyncpg://agenda_owner:agenda@localhost:5433/agenda",
+    "postgresql+asyncpg://agenda_owner:agenda@localhost:5433/agenda_pruebas",
 )
 
 

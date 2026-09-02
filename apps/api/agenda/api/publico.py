@@ -18,12 +18,14 @@ from typing import Annotated
 
 from fastapi import APIRouter, Query
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from agenda.api.dependencias import SesionPublica
 from agenda.bd import sesion_de_negocio
 from agenda.errores import NegocioNoPublicado
-from agenda.modelos.negocio import Business
+from agenda.modelos.catalogo import Service
+from agenda.modelos.equipo import StaffProfile
+from agenda.modelos.negocio import Business, Location
 from agenda.servicios import disponibilidad as servicio_disponibilidad
 
 router = APIRouter(prefix="/api/v1/publico", tags=["público"])
@@ -45,6 +47,142 @@ class RespuestaDisponibilidad(BaseModel):
     zona: str = Field(description="Zona horaria IANA del negocio, para pintar la hora local")
     duracion_minutos: int
     slots: list[SlotPublico]
+
+
+class ServicioPublico(BaseModel):
+    id: uuid.UUID
+    nombre: str
+    duracion_minutos: int
+    #: En centavos, como se guarda. Formatear es cosa de quien pinta, no de la API.
+    precio_centavos: int | None
+    tipo_de_precio: str = Field(description="fijo | desde | consultar")
+
+
+class ProfesionalPublico(BaseModel):
+    id: uuid.UUID
+    nombre: str
+
+
+class NegocioEnLista(BaseModel):
+    """Lo que se enseña en un listado. **Sin teléfono**: el número no viaja en claro."""
+
+    slug: str
+    nombre: str
+    zona: str | None = None
+    direccion: str | None = None
+    servicios_desde_centavos: int | None = None
+
+
+class PerfilPublico(NegocioEnLista):
+    id: uuid.UUID
+    zona_horaria: str
+    servicios: list[ServicioPublico]
+    equipo: list[ProfesionalPublico]
+
+
+@router.get("/negocios", summary="Negocios publicados (MKT-1)")
+async def listar_negocios(sesion: SesionPublica) -> list[NegocioEnLista]:
+    """El listado del marketplace.
+
+    Solo salen los **publicados**, y eso no lo decide esta función: lo decide la política de
+    seguridad por fila del rol público. Un despiste aquí no puede sacar a la luz un negocio en
+    borrador, porque desde este rol los borradores no existen.
+    """
+    negocios = (
+        (await sesion.execute(select(Business).order_by(Business.display_name))).scalars().all()
+    )
+
+    salida: list[NegocioEnLista] = []
+    for negocio in negocios:
+        ubicacion = (
+            (await sesion.execute(select(Location).where(Location.business_id == negocio.id)))
+            .scalars()
+            .first()
+        )
+        precio = (
+            await sesion.execute(
+                select(func.min(Service.price_minor)).where(
+                    Service.business_id == negocio.id,
+                    Service.active.is_(True),
+                    Service.price_minor.is_not(None),
+                )
+            )
+        ).scalar_one_or_none()
+
+        salida.append(
+            NegocioEnLista(
+                slug=negocio.slug,
+                nombre=negocio.display_name,
+                direccion=ubicacion.address_line if ubicacion else None,
+                servicios_desde_centavos=precio,
+            )
+        )
+    return salida
+
+
+@router.get("/negocios/{slug}", summary="Perfil público del negocio (NEG-1, NEG-3)")
+async def perfil(slug: str, sesion: SesionPublica) -> PerfilPublico:
+    """El perfil que indexa Google y desde el que se reserva.
+
+    Lleva servicios con precio y duración, y el equipo visible. **No lleva el teléfono**: el
+    click-to-chat se resuelve en servidor, porque si el número viaja aquí, alguien se lleva la
+    base entera de negocios en una tarde.
+    """
+    negocio = (
+        await sesion.execute(select(Business).where(Business.slug == slug))
+    ).scalar_one_or_none()
+    if negocio is None:
+        raise NegocioNoPublicado()
+
+    ubicacion = (
+        (await sesion.execute(select(Location).where(Location.business_id == negocio.id)))
+        .scalars()
+        .first()
+    )
+    servicios = (
+        (
+            await sesion.execute(
+                select(Service)
+                .where(Service.business_id == negocio.id, Service.active.is_(True))
+                .order_by(Service.position)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    equipo = (
+        (
+            await sesion.execute(
+                select(StaffProfile)
+                .where(StaffProfile.business_id == negocio.id, StaffProfile.active.is_(True))
+                .order_by(StaffProfile.position)
+            )
+        )
+        .scalars()
+        .all()
+    )
+
+    return PerfilPublico(
+        id=negocio.id,
+        slug=negocio.slug,
+        nombre=negocio.display_name,
+        zona_horaria=negocio.timezone,
+        direccion=ubicacion.address_line if ubicacion else None,
+        servicios_desde_centavos=min(
+            (s.price_minor for s in servicios if s.price_minor is not None), default=None
+        ),
+        servicios=[
+            ServicioPublico(
+                id=s.id,
+                nombre=s.name,
+                duracion_minutos=s.duration_min,
+                precio_centavos=s.price_minor,
+                tipo_de_precio=s.price_kind,
+            )
+            for s in servicios
+        ],
+        equipo=[ProfesionalPublico(id=p.id, nombre=p.display_name) for p in equipo],
+    )
 
 
 @router.get(
