@@ -65,6 +65,27 @@ async def _sesion_publica() -> AsyncIterator[AsyncSession]:
         await motor.dispose()
 
 
+async def _con_precio(negocio_id: uuid.UUID, centavos: int) -> None:
+    """Le añade al salón un servicio más barato, para poder comparar dos precios distintos."""
+    async with conexion_de_dueno() as sesion:
+        await sesion.execute(
+            text("SELECT set_config('app.current_business_id', :negocio, true)"),
+            {"negocio": str(negocio_id)},
+        )
+        await sesion.execute(
+            text(
+                """
+                INSERT INTO services (business_id, service_category_id, name, duration_min,
+                                      price_kind, price_minor)
+                SELECT :negocio, service_category_id, 'Flequillo', 15, 'fijo', :centavos
+                FROM services WHERE business_id = :negocio LIMIT 1
+                """
+            ),
+            {"negocio": negocio_id, "centavos": centavos},
+        )
+        await sesion.commit()
+
+
 async def _con_horario(negocio_id: uuid.UUID, abre: time, cierra: time) -> None:
     """Le pone al salón el mismo horario todos los días, para que el filtro tenga qué mirar."""
     async with conexion_de_dueno() as sesion:
@@ -245,9 +266,29 @@ async def test_el_filtro_de_rating_usa_el_bayesiano():
 
 
 async def test_el_orden_por_precio_pone_delante_al_mas_barato():
-    """Los órdenes explícitos **dejan la fórmula fuera**: quien pulsa «más baratos» los quiere."""
+    """Los órdenes explícitos **dejan la fórmula fuera**: quien pulsa «más baratos» los quiere.
+
+    La prueba monta **dos** salones con precios distintos, y eso no es ceremonia: la versión
+    anterior comprobaba que la lista entera estuviera ordenada, y como todos los salones del
+    escenario cuestan lo mismo, cualquier orden la pasaba. El fallo real —ordenar antes de que
+    `_adornar` rellene el precio, comparando `None` contra `None`— sobrevivió a su propia
+    prueba durante toda una tanda.
+    """
+    marca = f"orden{uuid.uuid4().hex[:6]}"
+    caro = await montar_salon(f"{marca}caro")
+    barato = await montar_salon(f"{marca}barato")
+    await _con_precio(barato.negocio_id, 500)
+
     async with _sesion_publica() as sesion:
-        resultados = await busqueda.buscar(sesion, orden="precio")
+        resultados = await busqueda.buscar(sesion, texto=marca, orden="precio")
+
+    posiciones = {r.negocio_id: i for i, r in enumerate(resultados)}
+    assert (
+        barato.negocio_id in posiciones and caro.negocio_id in posiciones
+    ), "Los dos salones tienen que salir en la búsqueda o no se compara nada."
+    assert (
+        posiciones[barato.negocio_id] < posiciones[caro.negocio_id]
+    ), "El de 5,00 tiene que ir delante del de 18,00."
 
     precios = [r.desde_centavos for r in resultados if r.desde_centavos is not None]
     assert precios == sorted(precios)

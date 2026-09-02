@@ -172,6 +172,10 @@ export function buscarNegocios(
     const valor = filtros[clave]
     if (valor) parametros.set(clave, valor)
   }
+  // La próxima hora libre es opcional en la API porque cuesta: son diez sondas al motor de
+  // disponibilidad. Medido en local, ~70 ms para los diez resultados de una página, y es el
+  // dato que convierte una lista en algo que se puede tocar. Se pide siempre.
+  parametros.set('con_proxima_hora', 'true')
   const cadena = parametros.toString()
   return pedir<ResultadoDeBusqueda[]>(
     `/api/v1/publico/buscar${cadena ? `?${cadena}` : ''}`,

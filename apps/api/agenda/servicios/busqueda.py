@@ -187,8 +187,13 @@ async def buscar(
     if not filas:
         return []
 
-    resultados = await _puntuar_y_ordenar(sesion, filas, ahora=ahora, orden=orden)
+    # Adornar **antes** de ordenar, y este orden importa: el precio desde y el rating fresco
+    # los pone `_adornar`. Ordenando primero, «más baratos» comparaba `None` contra `None` y
+    # devolvía el orden del ranking con otro nombre, y «mejor valorados» ordenaba por la señal
+    # vieja en vez de por la nota que ve la gente.
+    resultados = await _puntuar(sesion, filas, ahora=ahora)
     resultados = await _adornar(sesion, resultados, ahora=ahora)
+    resultados = _ordenar(resultados, orden)
 
     if abierto_ahora:
         # `None` —negocio sin horario cargado— **no pasa el filtro**: quien pide «abierto
@@ -242,10 +247,12 @@ def _negocios_en_rango_de_precio(minimo: int | None, maximo: int | None):
     return consulta
 
 
-async def _puntuar_y_ordenar(
-    sesion: AsyncSession, filas, *, ahora: datetime, orden: Orden
-) -> list[Resultado]:
-    """Combina las señales precalculadas con la distancia y ordena como se haya pedido."""
+async def _puntuar(sesion: AsyncSession, filas, *, ahora: datetime) -> list[Resultado]:
+    """Combina las señales precalculadas con la distancia y calcula la puntuación del ranking.
+
+    **No ordena**: ordenar es lo último que pasa, después de adornar, porque dos de los órdenes
+    que se pueden pedir —precio y rating— dependen de datos que pone `_adornar`.
+    """
     pesos = await pesos_vigentes(sesion)
     ids = [fila.id for fila in filas]
     senales = await _senales(sesion, ids)
@@ -281,12 +288,12 @@ async def _puntuar_y_ordenar(
                 distancia_metros=float(fila.distancia) if fila.distancia is not None else None,
                 rating=bayesiano,
                 numero_reviews=total_reviews,
-                desde_centavos=None,  # lo rellena `_adornar` con el resto de la tarjeta
+                desde_centavos=None,  # lo rellena `_adornar`, que corre antes de ordenar
                 puntuacion=puntuacion,
             )
         )
 
-    return _ordenar(resultados, orden)
+    return resultados
 
 
 def _ordenar(resultados: list[Resultado], orden: Orden) -> list[Resultado]:
