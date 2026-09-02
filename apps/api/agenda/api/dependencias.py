@@ -39,6 +39,17 @@ async def sesion_publica() -> AsyncIterator[AsyncSession]:
         yield sesion
 
 
+async def sesion_de_plataforma() -> AsyncIterator[AsyncSession]:
+    """Para lo que ocurre **antes de tener sesión**: pedir un código, canjearlo, refrescar.
+
+    Usa el rol de la aplicación pero sin negocio fijado, porque lo que toca son tablas de la
+    plataforma —personas, códigos, sesiones—, que no pertenecen a ningún salón. Y no puede
+    exigir autenticación por el motivo evidente: es justo lo que se está intentando conseguir.
+    """
+    async with crear_sesion() as sesion, sesion.begin():
+        yield sesion
+
+
 class Identidad:
     """Quién hace la petición, resuelto del token de acceso."""
 
@@ -115,5 +126,6 @@ def exigir_dueno(identidad: Identidad) -> None:
 
 
 SesionPublica = Annotated[AsyncSession, Depends(sesion_publica)]
+SesionPlataforma = Annotated[AsyncSession, Depends(sesion_de_plataforma)]
 SesionCliente = Annotated[tuple[AsyncSession, Identidad], Depends(sesion_de_cliente)]
 SesionNegocio = Annotated[tuple[AsyncSession, Identidad], Depends(sesion_de_negocio)]

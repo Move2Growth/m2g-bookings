@@ -30,7 +30,7 @@ from agenda.ajustes import obtener_ajustes
 from agenda.modelos.catalogo import Service, ServiceCategory
 from agenda.modelos.clientes import BusinessClient
 from agenda.modelos.equipo import StaffHours, StaffProfile, StaffService
-from agenda.modelos.identidad import User
+from agenda.modelos.identidad import Membership, User
 from agenda.modelos.marketplace import Zone
 from agenda.modelos.negocio import Business, BusinessHours, BusinessSettings, Location
 from agenda.modelos.reservas import Booking, BookingItem, StaffOccupancy
@@ -239,7 +239,7 @@ async def _limpiar(sesion: AsyncSession) -> None:
         text(
             "TRUNCATE bookings, booking_items, booking_events, staff_occupancy, "
             "business_clients, staff_services, staff_hours, staff_profiles, services, "
-            "business_hours, business_settings, locations, businesses, users, zones, "
+            "business_hours, business_settings, locations, memberships, businesses, users, zones, "
             "service_categories RESTART IDENTITY CASCADE"
         )
     )
@@ -317,6 +317,17 @@ async def _negocio(
             address_line=definicion["direccion"],
             zone_id=zonas[definicion["zona"]].id,
             geo=f"SRID=4326;POINT({lon} {lat})",
+        )
+    )
+    # El dueño necesita su membresía o no puede entrar a su propio panel: el permiso no es
+    # del usuario, es del par (usuario, negocio).
+    sesion.add(
+        Membership(
+            business_id=negocio.id,
+            user_id=dueno.id,
+            role="dueno",
+            status="activa",
+            accepted_at=datetime.now(UTC),
         )
     )
     sesion.add(BusinessSettings(business_id=negocio.id))
