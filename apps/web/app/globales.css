@@ -1600,7 +1600,9 @@ textarea.entrada { resize: vertical; min-height: 7rem; line-height: var(--tipogr
   min-height: var(--espacio-toque-minimo);
   border: none;
   background: transparent;
-  color: var(--color-abre);
+  /* Tinta, no naranja: sobre cal el naranja se queda en 2,61:1. La estrella elegida se
+     distingue por estar rellena, que es la señal que de verdad se lee. */
+  color: var(--color-tinta);
   font-size: var(--tipografia-tamano-titulo-2);
   line-height: 1;
   cursor: pointer;

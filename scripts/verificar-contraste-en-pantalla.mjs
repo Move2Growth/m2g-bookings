@@ -12,6 +12,7 @@
 //
 // Sale con error si hay algo por debajo de AA, para poder colgarlo de una comprobación.
 
+import { execSync } from 'node:child_process'
 import { chromium } from 'playwright'
 
 const WEB = process.env.BASE ?? 'http://127.0.0.1:3100'
@@ -23,7 +24,14 @@ const RUTAS = [
   '/spa-costa-del-este',
   '/entrar',
   '/legal/privacidad',
+  '/consola',
 ]
+
+/** Las pantallas con sesión. Se recorren aparte porque hay que entrar antes. */
+const CON_SESION = {
+  panel: ['/panel/agenda', '/panel/servicios', '/panel/equipo', '/panel/horario', '/panel/clientes', '/panel/resenas', '/panel/ficha'],
+  consola: ['/consola/negocios', '/consola/moderacion', '/consola/metricas', '/consola/ranking'],
+}
 const ANCHOS = [390, 1440]
 
 /** Se ejecuta dentro del navegador: necesita el color ya calculado, no el declarado. */
@@ -93,6 +101,58 @@ for (const ancho of ANCHOS) {
     }
   }
   await pagina.close()
+}
+
+// ── Las pantallas con sesión ─────────────────────────────────────────────────
+// Son la mitad del producto y hasta ahora no se comprobaban: el panel de un salón y la consola
+// de M2G solo se ven después de entrar, así que un fallo de contraste ahí podía vivir años.
+
+async function recorrerConSesion(contexto, rutas, etiqueta) {
+  const pagina = await contexto.newPage()
+  for (const ruta of rutas) {
+    await pagina.goto(`${WEB}${ruta}`, { waitUntil: 'networkidle' })
+    await pagina.waitForTimeout(1200)
+    const fallos = await pagina.evaluate(MEDIR)
+    total += fallos.length
+    console.log(`${fallos.length === 0 ? 'ok  ' : 'MAL '}${etiqueta.padEnd(8)} ${ruta.padEnd(22)} ${fallos.length}`)
+    for (const f of fallos) {
+      console.log(`        ${f.ratio}:1 (mín. ${f.minimo})  ${f.px}px  «${f.texto}»  ${f.color} sobre ${f.fondo}  .${f.clase}`)
+    }
+  }
+  await pagina.close()
+}
+
+try {
+  const salon = await navegador.newContext({ viewport: { width: 390, height: 844 } })
+  const entrada = await salon.newPage()
+  await entrada.goto(`${WEB}/entrar`, { waitUntil: 'networkidle' })
+  await entrada.fill('input[type="tel"]', process.env.TELEFONO_SALON ?? '+50760000004')
+  await entrada.click('button[type="submit"]')
+  await entrada.waitForSelector('input[inputmode="numeric"]', { timeout: 20000 })
+  const pista = await entrada.locator('text=Tu código es').textContent()
+  await entrada.fill('input[inputmode="numeric"]', pista.match(/(\d{6})/)[1])
+  await entrada.click('button[type="submit"]')
+  await entrada.waitForTimeout(3500)
+  await entrada.close()
+  await recorrerConSesion(salon, CON_SESION.panel, 'panel')
+
+  const consola = await navegador.newContext({ viewport: { width: 390, height: 844 } })
+  const c = await consola.newPage()
+  const codigo = execSync('./.venv/bin/python -m agenda.consola_codigo', { cwd: 'apps/api' })
+    .toString()
+    .match(/(\d{6})/)[1]
+  await c.goto(`${WEB}/consola`, { waitUntil: 'networkidle' })
+  await c.fill('input[type="email"]', 'consola@bukeo.local')
+  await c.fill('input[type="password"]', 'consola-de-demo-solo-en-local')
+  await c.fill('input[inputmode="numeric"]', codigo)
+  await c.click('button[type="submit"]')
+  await c.waitForTimeout(3000)
+  await c.close()
+  await recorrerConSesion(consola, CON_SESION.consola, 'consola')
+} catch (error) {
+  // Que no se pueda entrar no puede dar el visto bueno por omisión: se dice y se cuenta.
+  console.error(`\nNo se pudieron comprobar las pantallas con sesión: ${error.message}`)
+  total += 1
 }
 
 await navegador.close()
