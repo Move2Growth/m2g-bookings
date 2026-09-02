@@ -1,0 +1,885 @@
+/*
+ * Hoja de estilos de @agenda/ui.
+ *
+ * Regla única y no negociable (DESIGN-SYSTEM §8.1): aquí no se escribe **ningún** color, medida,
+ * radio ni tamaño de letra suelto. Todo sale de las variables de @agenda/tokens, que el consumidor
+ * carga antes que esta hoja. Si un valor no existe como token, no se inventa: se pide.
+ *
+ * Se diseña a 390 px. Las media queries van hacia arriba (--pantalla-tableta, --pantalla-escritorio)
+ * y nunca hacia abajo.
+ *
+ * Los únicos literales admitidos son los que no son decisiones de diseño sino mecánica del navegador
+ * (0, 100%, 1px de separador hairline, porcentajes de posición) y los pesos de fuente, que son
+ * tokens leídos con var().
+ */
+
+/* ---------------------------------------------------------------------------------------------
+ * Base compartida
+ * ------------------------------------------------------------------------------------------- */
+
+.agenda-foco:focus-visible,
+.agenda-boton:focus-visible,
+.agenda-campo__control:focus-visible,
+.agenda-fila:focus-visible,
+.agenda-hueco:focus-visible,
+.agenda-dia:focus-visible,
+.agenda-slot:focus-visible,
+.agenda-hoja__cerrar:focus-visible,
+.agenda-enlace:focus-visible {
+  outline: 2px solid var(--color-foco);
+  outline-offset: 2px;
+}
+
+/* Sobre fondo de acento el anillo azul se pierde: cambia a la superficie (DESIGN-SYSTEM §7). */
+.agenda-boton--primaria:focus-visible,
+.agenda-slot[aria-pressed='true']:focus-visible {
+  outline-color: var(--color-superficie);
+  box-shadow: 0 0 0 4px var(--color-foco);
+}
+
+.agenda-cifras {
+  font-family: var(--tipografia-familia-cifras);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * 6.1 · Botón
+ * ------------------------------------------------------------------------------------------- */
+
+.agenda-boton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espacio-2);
+  min-height: var(--espacio-toque-minimo);
+  padding: var(--espacio-2) var(--espacio-4);
+  border: 1px solid transparent;
+  border-radius: var(--radio-normal);
+  font-family: var(--tipografia-familia);
+  font-size: var(--tipografia-tamano-cuerpo);
+  line-height: var(--tipografia-interlineado-apretado);
+  font-weight: var(--tipografia-pesos-medio);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--movimiento-rapido) var(--movimiento-curva);
+}
+
+.agenda-boton--ancho-completo {
+  display: flex;
+  width: 100%;
+}
+
+.agenda-boton--primaria {
+  background-color: var(--color-acento);
+  color: var(--color-acento-texto);
+  font-weight: var(--tipografia-pesos-fuerte);
+}
+
+.agenda-boton--primaria:hover:not(:disabled),
+.agenda-boton--primaria:active:not(:disabled) {
+  background-color: var(--color-acento-hover);
+}
+
+.agenda-boton--secundaria {
+  background-color: var(--color-superficie);
+  color: var(--color-texto);
+  border-color: var(--color-borde-fuerte);
+}
+
+.agenda-boton--secundaria:hover:not(:disabled),
+.agenda-boton--secundaria:active:not(:disabled) {
+  background-color: var(--color-superficie-suave);
+}
+
+.agenda-boton--destructiva {
+  background-color: var(--color-superficie);
+  color: var(--color-peligro);
+  border-color: var(--color-peligro);
+}
+
+.agenda-boton--destructiva:hover:not(:disabled),
+.agenda-boton--destructiva:active:not(:disabled) {
+  background-color: var(--color-peligro-suave);
+}
+
+.agenda-boton:disabled {
+  cursor: not-allowed;
+  background-color: var(--color-superficie-suave);
+  color: var(--color-texto-tenue);
+  border-color: var(--color-borde);
+}
+
+/* En carga el botón conserva su ancho: el texto sigue ocupando sitio pero deja de verse, y el
+   indicador se superpone. Si cambiara de tamaño, el layout salta y el siguiente toque cae en otro
+   sitio (DESIGN-SYSTEM §6.1). */
+.agenda-boton__texto--oculto {
+  visibility: hidden;
+}
+
+.agenda-boton__indicador {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.agenda-boton__motivo {
+  margin-top: var(--espacio-1);
+  color: var(--color-texto-suave);
+  font-size: var(--tipografia-tamano-menor);
+  line-height: var(--tipografia-interlineado-normal);
+}
+
+/* Un botón destructivo nunca comparte fila con la acción frecuente (DESIGN-SYSTEM §6.1). */
+.agenda-zona-destructiva {
+  margin-top: var(--espacio-5);
+  padding-top: var(--espacio-4);
+  border-top: 1px solid var(--color-borde);
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * 6.2 · Campo de formulario
+ * ------------------------------------------------------------------------------------------- */
+
+.agenda-campo {
+  display: block;
+  margin-bottom: var(--espacio-4);
+}
+
+.agenda-campo__etiqueta {
+  display: block;
+  margin-bottom: var(--espacio-1);
+  color: var(--color-texto);
+  font-size: var(--tipografia-tamano-menor);
+  font-weight: var(--tipografia-pesos-medio);
+  line-height: var(--tipografia-interlineado-normal);
+}
+
+.agenda-campo__opcional {
+  color: var(--color-texto-suave);
+  font-weight: var(--tipografia-pesos-normal);
+}
+
+.agenda-campo__control {
+  display: block;
+  width: 100%;
+  min-height: var(--espacio-toque-minimo);
+  padding: var(--espacio-2) var(--espacio-3);
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-normal);
+  color: var(--color-texto);
+  font-family: var(--tipografia-familia);
+  /* 16 px y no se negocia: por debajo, Safari en iOS hace zoom al enfocar. */
+  font-size: var(--tipografia-tamano-cuerpo);
+  line-height: var(--tipografia-interlineado-normal);
+}
+
+.agenda-campo__control::placeholder {
+  color: var(--color-texto-tenue);
+}
+
+/* Enfocado: borde fuerte **más** anillo. Dos señales, no una. */
+.agenda-campo__control:focus-visible {
+  border-color: var(--color-borde-fuerte);
+}
+
+.agenda-campo__control[aria-invalid='true'] {
+  border-color: var(--color-peligro);
+}
+
+.agenda-campo__control:disabled {
+  background-color: var(--color-superficie-suave);
+  color: var(--color-texto-tenue);
+  cursor: not-allowed;
+}
+
+.agenda-campo__pie {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  margin-top: var(--espacio-1);
+}
+
+.agenda-campo__ayuda {
+  color: var(--color-texto-suave);
+  font-size: var(--tipografia-tamano-menor);
+  line-height: var(--tipografia-interlineado-normal);
+}
+
+.agenda-campo__contador {
+  flex-shrink: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--tipografia-tamano-menor);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+}
+
+.agenda-campo__contador--pasado {
+  color: var(--color-peligro);
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * 6.7 · Mensaje de error
+ * ------------------------------------------------------------------------------------------- */
+
+.agenda-error-linea {
+  display: block;
+  margin-top: var(--espacio-1);
+  color: var(--color-peligro);
+  font-size: var(--tipografia-tamano-menor);
+  line-height: var(--tipografia-interlineado-normal);
+}
+
+/* En bloque el texto va en color de texto, no en rojo: un párrafo entero en rojo se lee peor. */
+.agenda-error-bloque {
+  margin-bottom: var(--espacio-4);
+  padding: var(--espacio-3) var(--espacio-4);
+  background-color: var(--color-peligro-suave);
+  border-left: 3px solid var(--color-peligro);
+  border-radius: var(--radio-nada);
+  color: var(--color-texto);
+  font-size: var(--tipografia-tamano-cuerpo);
+  line-height: var(--tipografia-interlineado-normal);
+}
+
+.agenda-error-bloque__titulo {
+  margin: 0 0 var(--espacio-1);
+  color: var(--color-peligro);
+  font-size: var(--tipografia-tamano-menor);
+  font-weight: var(--tipografia-pesos-fuerte);
+  line-height: var(--tipografia-interlineado-normal);
+}
+
+.agenda-error-bloque__acciones {
+  margin-top: var(--espacio-3);
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * Indicador de estado de reserva
+ * ------------------------------------------------------------------------------------------- */
+
+.agenda-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-1);
+  padding: var(--espacio-1) var(--espacio-3);
+  border: 1px solid;
+  border-radius: var(--radio-pildora);
+  font-size: var(--tipografia-tamano-menor);
+  font-weight: var(--tipografia-pesos-medio);
+  line-height: var(--tipografia-interlineado-apretado);
+  white-space: nowrap;
+}
+
+.agenda-estado--pendiente {
+  background-color: var(--estado-reserva-pendiente-fondo);
+  color: var(--estado-reserva-pendiente-texto);
+  border-color: var(--estado-reserva-pendiente-borde);
+}
+
+.agenda-estado--confirmada {
+  background-color: var(--estado-reserva-confirmada-fondo);
+  color: var(--estado-reserva-confirmada-texto);
+  border-color: var(--estado-reserva-confirmada-borde);
+}
+
+.agenda-estado--completada {
+  background-color: var(--estado-reserva-completada-fondo);
+  color: var(--estado-reserva-completada-texto);
+  border-color: var(--estado-reserva-completada-borde);
+}
+
+.agenda-estado--no_show {
+  background-color: var(--estado-reserva-no_show-fondo);
+  color: var(--estado-reserva-no_show-texto);
+  border-color: var(--estado-reserva-no_show-borde);
+}
+
+.agenda-estado--cancelada {
+  background-color: var(--estado-reserva-cancelada-fondo);
+  color: var(--estado-reserva-cancelada-texto);
+  border-color: var(--estado-reserva-cancelada-borde);
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * 6.5 · Fila de agenda — 72 px, toda la fila es el objetivo táctil
+ * ------------------------------------------------------------------------------------------- */
+
+.agenda-lista {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agenda-fila {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+  width: 100%;
+  min-height: 72px;
+  padding: var(--espacio-3) var(--espacio-4) var(--espacio-3) var(--espacio-3);
+  background-color: var(--color-superficie);
+  border: 0;
+  border-bottom: 1px solid var(--color-borde);
+  border-radius: var(--radio-nada);
+  font-family: var(--tipografia-familia);
+  text-align: left;
+  cursor: pointer;
+}
+
+.agenda-fila:hover {
+  background-color: var(--color-superficie-suave);
+}
+
+/* Barra de 3 px del color de borde del estado, en el flanco izquierdo. */
+.agenda-fila__barra {
+  flex-shrink: 0;
+  align-self: stretch;
+  width: 3px;
+  border-radius: var(--radio-chico);
+}
+
+.agenda-fila__barra--pendiente {
+  background-color: var(--estado-reserva-pendiente-borde);
+}
+.agenda-fila__barra--confirmada {
+  background-color: var(--estado-reserva-confirmada-borde);
+}
+.agenda-fila__barra--completada {
+  background-color: var(--estado-reserva-completada-borde);
+}
+.agenda-fila__barra--no_show {
+  background-color: var(--estado-reserva-no_show-borde);
+}
+.agenda-fila__barra--cancelada {
+  background-color: var(--estado-reserva-cancelada-borde);
+}
+
+/* Columna fija de horas: fija de verdad, para que las filas se alineen entre sí. */
+.agenda-fila__horas {
+  flex-shrink: 0;
+  width: var(--espacio-8);
+  color: var(--color-texto);
+  font-family: var(--tipografia-familia-cifras);
+  font-size: var(--tipografia-tamano-menor);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+  line-height: var(--tipografia-interlineado-apretado);
+}
+
+.agenda-fila__hora-fin {
+  color: var(--color-texto-suave);
+}
+
+.agenda-fila__cuerpo {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.agenda-fila__cliente {
+  display: block;
+  overflow: hidden;
+  color: var(--color-texto);
+  font-size: var(--tipografia-tamano-cuerpo);
+  font-weight: var(--tipografia-pesos-medio);
+  line-height: var(--tipografia-interlineado-apretado);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agenda-fila__servicio {
+  display: block;
+  margin-top: var(--espacio-1);
+  overflow: hidden;
+  color: var(--color-texto-suave);
+  font-size: var(--tipografia-tamano-menor);
+  line-height: var(--tipografia-interlineado-apretado);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agenda-fila__derecha {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+/* Sin enviar: nunca se pinta como confirmado algo que no llegó al servidor. */
+.agenda-fila__sin-enviar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-1);
+  padding: var(--espacio-1) var(--espacio-2);
+  background-color: var(--color-aviso-suave);
+  border: 1px solid var(--color-aviso);
+  border-radius: var(--radio-pildora);
+  color: var(--color-aviso);
+  font-size: var(--tipografia-tamano-micro);
+  font-weight: var(--tipografia-pesos-medio);
+  white-space: nowrap;
+}
+
+/* Hueco libre entre citas: tocable, para crear una reserva ahí. */
+.agenda-hueco {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+  width: 100%;
+  min-height: var(--espacio-toque-minimo);
+  padding: var(--espacio-2) var(--espacio-4);
+  background-color: var(--color-superficie);
+  border: 0;
+  border-bottom: 1px dashed var(--color-borde);
+  color: var(--color-texto-tenue);
+  font-family: var(--tipografia-familia);
+  font-size: var(--tipografia-tamano-menor);
+  text-align: left;
+  cursor: pointer;
+}
+
+.agenda-hueco:hover {
+  color: var(--color-acento);
+  background-color: var(--color-acento-suave);
+}
+
+.agenda-hueco__accion {
+  margin-left: auto;
+  color: var(--color-acento);
+  font-weight: var(--tipografia-pesos-medio);
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * 6.4 · Tarjeta de cita — sin sombra: una tarjeta no está elevada
+ * ------------------------------------------------------------------------------------------- */
+
+.agenda-tarjeta-cita {
+  padding: var(--espacio-4);
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-normal);
+  box-shadow: var(--sombra-ninguna);
+}
+
+.agenda-tarjeta-cita__horas {
+  margin: var(--espacio-3) 0 0;
+  color: var(--color-texto);
+  font-family: var(--tipografia-familia-cifras);
+  font-size: var(--tipografia-tamano-mayor);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+  font-weight: var(--tipografia-pesos-fuerte);
+  line-height: var(--tipografia-interlineado-apretado);
+}
+
+.agenda-tarjeta-cita__quien {
+  margin: var(--espacio-1) 0 0;
+  color: var(--color-texto);
+  font-size: var(--tipografia-tamano-titulo-3);
+  font-weight: var(--tipografia-pesos-fuerte);
+  line-height: var(--tipografia-interlineado-apretado);
+}
+
+.agenda-tarjeta-cita__bloque {
+  margin-top: var(--espacio-4);
+}
+
+.agenda-tarjeta-cita__rotulo {
+  margin: 0 0 var(--espacio-1);
+  color: var(--color-texto-suave);
+  font-size: var(--tipografia-tamano-menor);
+  font-weight: var(--tipografia-pesos-medio);
+  line-height: var(--tipografia-interlineado-normal);
+}
+
+.agenda-tarjeta-cita__servicios {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agenda-tarjeta-cita__servicio {
+  display: flex;
+  gap: var(--espacio-3);
+  justify-content: space-between;
+  padding: var(--espacio-2) 0;
+  border-bottom: 1px solid var(--color-borde);
+  font-size: var(--tipografia-tamano-cuerpo);
+  line-height: var(--tipografia-interlineado-normal);
+}
+
+.agenda-tarjeta-cita__duracion,
+.agenda-tarjeta-cita__precio {
+  flex-shrink: 0;
+  color: var(--color-texto-suave);
+  font-family: var(--tipografia-familia-cifras);
+  font-size: var(--tipografia-tamano-menor);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+}
+
+.agenda-tarjeta-cita__precio {
+  color: var(--color-texto);
+  font-weight: var(--tipografia-pesos-medio);
+}
+
+.agenda-tarjeta-cita__dato {
+  margin: 0;
+  color: var(--color-texto);
+  font-size: var(--tipografia-tamano-cuerpo);
+  line-height: var(--tipografia-interlineado-normal);
+}
+
+.agenda-tarjeta-cita__total {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--espacio-3);
+  font-size: var(--tipografia-tamano-mayor);
+  font-weight: var(--tipografia-pesos-fuerte);
+}
+
+.agenda-tarjeta-cita__acciones {
+  margin-top: var(--espacio-5);
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * 6.3 · Selector de fecha y hora
+ * ------------------------------------------------------------------------------------------- */
+
+.agenda-selector__rotulo {
+  margin: 0 0 var(--espacio-2);
+  color: var(--color-texto);
+  font-size: var(--tipografia-tamano-menor);
+  font-weight: var(--tipografia-pesos-medio);
+  line-height: var(--tipografia-interlineado-normal);
+}
+
+/* Tira de siete días, 72 px de alto, desplazamiento horizontal. Sin vista de mes. */
+.agenda-selector__dias {
+  display: flex;
+  gap: var(--espacio-2);
+  margin: 0 0 var(--espacio-4);
+  padding: 0 0 var(--espacio-1);
+  overflow-x: auto;
+  list-style: none;
+  scrollbar-width: thin;
+}
+
+.agenda-dia {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espacio-1);
+  width: var(--espacio-7);
+  min-height: 72px;
+  padding: var(--espacio-2) var(--espacio-1);
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-normal);
+  color: var(--color-texto);
+  font-family: var(--tipografia-familia);
+  cursor: pointer;
+}
+
+/* Tres señales en el día elegido: fondo, borde y color de texto. El color solo no basta. */
+.agenda-dia[aria-pressed='true'] {
+  background-color: var(--color-acento-suave);
+  border-color: var(--color-acento);
+  color: var(--color-acento);
+  font-weight: var(--tipografia-pesos-fuerte);
+}
+
+.agenda-dia:disabled {
+  color: var(--color-texto-tenue);
+  cursor: not-allowed;
+}
+
+.agenda-dia__semana {
+  font-size: var(--tipografia-tamano-micro);
+  line-height: var(--tipografia-interlineado-apretado);
+  text-transform: lowercase;
+}
+
+.agenda-dia__mes {
+  font-family: var(--tipografia-familia-cifras);
+  font-size: var(--tipografia-tamano-mayor);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+  line-height: var(--tipografia-interlineado-apretado);
+}
+
+/* La marca de disponibilidad es forma **y** color, y además tiene texto accesible. */
+.agenda-dia__marca {
+  width: var(--espacio-2);
+  height: var(--espacio-2);
+  border-radius: var(--radio-pildora);
+  background-color: var(--color-acento);
+}
+
+.agenda-dia__marca--sin {
+  background-color: transparent;
+  border: 1px solid var(--color-borde-fuerte);
+}
+
+.agenda-selector__franja {
+  margin: var(--espacio-4) 0 var(--espacio-2);
+  color: var(--color-texto-suave);
+  font-size: var(--tipografia-tamano-menor);
+  font-weight: var(--tipografia-pesos-medio);
+  line-height: var(--tipografia-interlineado-normal);
+}
+
+/* Rejilla de tres columnas, botones de 48 px, separación de 8 px. */
+.agenda-selector__rejilla {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--espacio-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agenda-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: var(--espacio-2);
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-normal);
+  color: var(--color-texto);
+  font-family: var(--tipografia-familia-cifras);
+  font-size: var(--tipografia-tamano-cuerpo);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+  cursor: pointer;
+}
+
+.agenda-slot:hover {
+  border-color: var(--color-borde-fuerte);
+}
+
+.agenda-slot[aria-pressed='true'] {
+  background-color: var(--color-acento);
+  border-color: var(--color-acento);
+  color: var(--color-acento-texto);
+  font-weight: var(--tipografia-pesos-fuerte);
+}
+
+.agenda-selector__honestidad {
+  margin: var(--espacio-3) 0 0;
+  color: var(--color-texto-suave);
+  font-size: var(--tipografia-tamano-menor);
+  line-height: var(--tipografia-interlineado-normal);
+}
+
+/* El aviso de «se ocupó» aparece **sobre la rejilla**, sin diálogo que haya que cerrar. */
+.agenda-selector__aviso {
+  margin-bottom: var(--espacio-3);
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * 6.8 · Estado vacío — ni ilustración ni cara triste
+ * ------------------------------------------------------------------------------------------- */
+
+.agenda-vacio {
+  padding: var(--espacio-6) var(--espacio-4);
+  text-align: center;
+}
+
+.agenda-vacio__titulo {
+  margin: 0;
+  color: var(--color-texto);
+  font-size: var(--tipografia-tamano-titulo-3);
+  font-weight: var(--tipografia-pesos-fuerte);
+  line-height: var(--tipografia-interlineado-apretado);
+}
+
+.agenda-vacio__explicacion {
+  margin: var(--espacio-2) 0 0;
+  color: var(--color-texto-suave);
+  font-size: var(--tipografia-tamano-cuerpo);
+  line-height: var(--tipografia-interlineado-normal);
+}
+
+.agenda-vacio__accion {
+  margin-top: var(--espacio-5);
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * 6.6 · Hoja modal
+ * ------------------------------------------------------------------------------------------- */
+
+.agenda-velo {
+  position: fixed;
+  inset: 0;
+  background-color: var(--color-velo);
+}
+
+.agenda-hoja {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  /* Alto máximo del 90 % del viewport, con desplazamiento interno. */
+  max-height: 90dvh;
+  background-color: var(--color-superficie-elevada);
+  /* Radio grande **solo** en las dos esquinas superiores. */
+  border-radius: var(--radio-grande) var(--radio-grande) var(--radio-nada) var(--radio-nada);
+  box-shadow: var(--sombra-hoja);
+  transition: transform var(--movimiento-normal) var(--movimiento-curva);
+}
+
+.agenda-hoja--arrastrando {
+  transition: none;
+}
+
+.agenda-hoja__asa {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: center;
+  padding: var(--espacio-2) 0 0;
+  cursor: grab;
+  touch-action: none;
+}
+
+.agenda-hoja__asa-barra {
+  width: var(--espacio-7);
+  height: var(--espacio-1);
+  background-color: var(--color-borde);
+  border-radius: var(--radio-pildora);
+}
+
+.agenda-hoja__cabecera {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--espacio-3);
+  padding: var(--espacio-3) var(--espacio-4);
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.agenda-hoja__titulo {
+  flex: 1 1 auto;
+  margin: 0;
+  color: var(--color-texto);
+  font-size: var(--tipografia-tamano-titulo-3);
+  font-weight: var(--tipografia-pesos-fuerte);
+  line-height: var(--tipografia-interlineado-apretado);
+}
+
+.agenda-hoja__cerrar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--espacio-toque-minimo);
+  height: var(--espacio-toque-minimo);
+  background-color: transparent;
+  border: 0;
+  border-radius: var(--radio-normal);
+  color: var(--color-texto);
+  cursor: pointer;
+}
+
+.agenda-hoja__cerrar:hover {
+  background-color: var(--color-superficie-suave);
+}
+
+.agenda-hoja__cuerpo {
+  flex: 1 1 auto;
+  padding: var(--espacio-4);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* El pie queda por encima del teclado en pantalla, no debajo. */
+.agenda-hoja__pie {
+  flex-shrink: 0;
+  padding: var(--espacio-3) var(--espacio-4);
+  padding-bottom: max(var(--espacio-3), env(safe-area-inset-bottom));
+  border-top: 1px solid var(--color-borde);
+  background-color: var(--color-superficie-elevada);
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * 6.9 · Patrón de carga — esqueleto con la forma real, nunca un giro sobre pantalla en blanco
+ * ------------------------------------------------------------------------------------------- */
+
+.agenda-esqueleto {
+  background-color: var(--color-superficie-suave);
+  border-radius: var(--radio-chico);
+  animation: agenda-latido 1200ms var(--movimiento-curva) infinite;
+}
+
+@keyframes agenda-latido {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.agenda-esqueleto-fila {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+  /* El alto exacto de la fila real: si cambia al llegar los datos, el pulgar toca otra cosa. */
+  min-height: 72px;
+  padding: var(--espacio-3) var(--espacio-4);
+  border-bottom: 1px solid var(--color-borde);
+}
+
+/* Indicador circular: solo dentro de un botón en carga, nunca sobre pantalla en blanco. */
+.agenda-girador {
+  width: var(--espacio-4);
+  height: var(--espacio-4);
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: var(--radio-pildora);
+  animation: agenda-girar 700ms linear infinite;
+}
+
+@keyframes agenda-girar {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * Utilidades mínimas
+ * ------------------------------------------------------------------------------------------- */
+
+/* Texto solo para lectores de pantalla. No es decoración: es cómo se dice lo que el color dice. */
+.agenda-solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * Movimiento reducido: las tres animaciones que existen se apagan.
+ * ------------------------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .agenda-boton,
+  .agenda-hoja,
+  .agenda-esqueleto,
+  .agenda-girador {
+    transition-duration: 1ms;
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
+  }
+}

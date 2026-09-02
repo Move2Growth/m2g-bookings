@@ -1,0 +1,108 @@
+/*
+ * Estilos base de la web.
+ *
+ * Los valores no se escriben aquí: vienen de `@agenda/tokens`. Si en este archivo aparece un
+ * color en hexadecimal o una medida suelta, es un error — significa que alguien acaba de
+ * sacar una decisión de diseño del sitio donde se decide.
+ */
+@import '@agenda/tokens/css';
+
+/* IBM Plex Sans, autoalojada y variable. Nada de Google Fonts: es una dependencia de un
+   tercero, un problema de CSP y una petición más en una red de 3G. */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 600;
+  src: url('/fuentes/ibm-plex-sans-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F, U+2122, U+2191,
+    U+2193, U+2212, U+2215;
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 600;
+  src: url('/fuentes/ibm-plex-sans-latin-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* 16 px de base. Por debajo, iOS hace zoom al enfocar un campo y el diseño se descuadra
+     solo, sin que nadie haya tocado nada. */
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--tipografia-familia);
+  font-size: var(--tipografia-tamano-cuerpo);
+  line-height: var(--tipografia-interlineado-normal);
+  color: var(--color-texto);
+  background: var(--color-superficie-suave);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: var(--tipografia-interlineado-apretado);
+  font-weight: var(--tipografia-pesos-fuerte);
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--color-acento);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+/* Horas, duraciones y precios en cifras tabulares: en una agenda las columnas tienen que
+   alinearse o no se leen de un vistazo. */
+.cifras {
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+}
+
+/* Foco visible siempre. Sin esto, quien navega con teclado deja de saber dónde está, y eso
+   no se arregla «más adelante»: se nota el primer día y no lo reporta nadie. */
+:focus-visible {
+  outline: 2px solid var(--color-foco);
+  outline-offset: 2px;
+  border-radius: var(--radio-chico);
+}
+
+.contenido {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: var(--espacio-5) var(--espacio-4) var(--espacio-8);
+}
+
+/* Se diseña a 390 px primero; esto es el ensanchado, no al revés. */
+@media (min-width: 768px) {
+  .contenido {
+    padding-inline: var(--espacio-6);
+  }
+}
+
+/* Quien haya pedido menos movimiento en su sistema, no lo recibe. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

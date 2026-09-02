@@ -1,0 +1,29 @@
+{
+  "name": "@agenda/ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": ["*.css"],
+  "main": "./src/indice.ts",
+  "types": "./src/indice.ts",
+  "exports": {
+    ".": "./src/indice.ts",
+    "./css": "./src/estilos.css"
+  },
+  "scripts": {
+    "lint": "tsc --noEmit",
+    "test": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "dependencies": {
+    "@agenda/tokens": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "typescript": "^5.9.3"
+  }
+}
