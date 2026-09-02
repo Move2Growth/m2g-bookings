@@ -15,9 +15,13 @@
   --color-acento-suave: #E4F0ED;
   --color-acento-texto: #FFFFFF;
   --color-exito: #1F7A45;
+  --color-exito-suave: #E7F1E9;
   --color-aviso: #9A6206;
+  --color-aviso-suave: #FDF3DC;
   --color-peligro: #A32118;
   --color-peligro-suave: #FBEAE8;
+  --color-foco: #1B5FD9;
+  --color-velo: rgba(27, 26, 24, 0.45);
   --estado-reserva-pendiente-fondo: #FDF3DC;
   --estado-reserva-pendiente-texto: #6B4A05;
   --estado-reserva-pendiente-borde: #E2C173;
@@ -92,7 +96,11 @@
   --color-acento-suave: #16302C;
   --color-acento-texto: #0B1F1B;
   --color-exito: #5CBB80;
+  --color-exito-suave: #17301F;
   --color-aviso: #D9A441;
+  --color-aviso-suave: #33270F;
   --color-peligro: #E8776B;
   --color-peligro-suave: #3A1E1B;
+  --color-foco: #7FA9F5;
+  --color-velo: rgba(0, 0, 0, 0.6);
 }

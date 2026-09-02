@@ -25,9 +25,13 @@ export const tokens = {
       "acento-suave": "#E4F0ED",
       "acento-texto": "#FFFFFF",
       "exito": "#1F7A45",
+      "exito-suave": "#E7F1E9",
       "aviso": "#9A6206",
+      "aviso-suave": "#FDF3DC",
       "peligro": "#A32118",
-      "peligro-suave": "#FBEAE8"
+      "peligro-suave": "#FBEAE8",
+      "foco": "#1B5FD9",
+      "velo": "rgba(27, 26, 24, 0.45)"
     },
     "oscuro": {
       "superficie": "#141412",
@@ -43,9 +47,13 @@ export const tokens = {
       "acento-suave": "#16302C",
       "acento-texto": "#0B1F1B",
       "exito": "#5CBB80",
+      "exito-suave": "#17301F",
       "aviso": "#D9A441",
+      "aviso-suave": "#33270F",
       "peligro": "#E8776B",
-      "peligro-suave": "#3A1E1B"
+      "peligro-suave": "#3A1E1B",
+      "foco": "#7FA9F5",
+      "velo": "rgba(0, 0, 0, 0.6)"
     }
   },
   "estado-reserva": {

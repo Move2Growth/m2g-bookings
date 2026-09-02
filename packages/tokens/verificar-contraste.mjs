@@ -40,6 +40,13 @@ const comprobaciones = [
   ["aviso sobre superficie (claro)", claro.aviso, claro.superficie, 4.5],
   ["éxito sobre superficie (claro)", claro.exito, claro.superficie, 4.5],
   ["borde fuerte sobre superficie (claro)", claro["borde-fuerte"], claro.superficie, 3],
+  // El anillo de foco es un elemento de interfaz: AA le pide 3, y si no se ve, la navegación
+  // con teclado deja de existir para quien la necesita.
+  ["anillo de foco sobre superficie (claro)", claro.foco, claro.superficie, 3],
+  ["anillo de foco sobre superficie (oscuro)", oscuro.foco, oscuro.superficie, 3],
+  ["éxito sobre su fondo suave (claro)", claro.exito, claro["exito-suave"], 4.5],
+  ["aviso sobre su fondo suave (claro)", claro.aviso, claro["aviso-suave"], 4.5],
+  ["peligro sobre su fondo suave (claro)", claro.peligro, claro["peligro-suave"], 4.5],
   ["texto sobre superficie (oscuro)", oscuro.texto, oscuro.superficie, 4.5],
   ["texto suave sobre superficie (oscuro)", oscuro["texto-suave"], oscuro.superficie, 4.5],
   ["texto del acento sobre acento (oscuro)", oscuro["acento-texto"], oscuro.acento, 4.5],
