@@ -30,15 +30,15 @@ await pagina.fill('input[name="texto"]', 'uñas')
 await pagina.click('button[type="submit"]')
 await pagina.waitForLoadState('networkidle')
 await captura('1-busqueda')
-console.log('   resultados:', await pagina.locator('main ul li h2').allTextContents())
+console.log('   resultados:', await pagina.locator('.salon__nombre').allTextContents())
 
 console.log('2. entra en el primer salón')
 // La espera mira el destino, no «que no sea la portada»: viniendo de /buscar esa condición ya
 // se cumplía antes de pulsar y la prueba seguía en la página anterior sin enterarse.
-const destino = await pagina.locator('main ul li a.resultado').first().getAttribute('href')
+const destino = await pagina.locator('a.salon__enlace').first().getAttribute('href')
 await Promise.all([
   pagina.waitForURL((u) => u.pathname === destino, { timeout: 15000 }),
-  pagina.locator('main ul li a.resultado').first().click(),
+  pagina.locator('a.salon__enlace').first().click(),
 ])
 await pagina.waitForLoadState('networkidle')
 const salon = await pagina.locator('h1').first().textContent()
@@ -77,12 +77,12 @@ await captura('4-confirmar-con-sesion')
 
 console.log('6. confirma la cita')
 await pagina.click('text=Confirmar la cita')
-await pagina.waitForURL('**/mis-reservas**', { timeout: 15000 })
+await pagina.waitForURL('**/mi/citas**', { timeout: 15000 })
 await pagina.waitForLoadState('networkidle')
 await captura('5-mis-reservas')
-const citas = await pagina.locator('section ul li').count()
+const citas = await pagina.locator('.cita').count()
 console.log('   citas en «Mis citas»:', citas)
-console.log('   texto:', (await pagina.locator('section ul li').first().innerText()).replace(/\n/g, ' · '))
+console.log('   texto:', (await pagina.locator('.cita').first().innerText()).replace(/\n/g, ' · '))
 
 await navegador.close()
 console.log('\nRecorrido completo sin un solo paso a mano.')

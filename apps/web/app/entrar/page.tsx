@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense, useState } from 'react'
 import { Marca } from '@/componentes/marca'
 import { API, guardarSesion } from '@/lib/sesion'
 
@@ -14,8 +14,27 @@ import { API, guardarSesion } from '@/lib/sesion'
  * Dos pasos y ninguno más. No hay contraseña que recordar ni registro aparte: quien verifica
  * su teléfono ya tiene cuenta (ONB-1).
  */
-export default function Entrar() {
+/**
+ * A dónde se vuelve después de entrar.
+ *
+ * Quien pulsa «guardar» en la ficha de un salón y acaba en la pantalla de acceso tiene que
+ * volver **a esa ficha**, no a un listado genérico: si no, pierde lo que estaba haciendo y casi
+ * nadie lo retoma.
+ *
+ * Solo se admiten rutas internas. Un `volver` con un dominio de fuera convertiría esta pantalla
+ * en un trampolín para llevarse a alguien a otro sitio después de entrar, que es un fallo de
+ * seguridad clásico y barato de evitar.
+ */
+function destinoSeguro(crudo: string | null, porDefecto: string) {
+  if (!crudo) return porDefecto
+  if (!crudo.startsWith('/') || crudo.startsWith('//')) return porDefecto
+  return crudo
+}
+
+function Contenido() {
   const router = useRouter()
+  const parametros = useSearchParams()
+  const volver = destinoSeguro(parametros.get('volver'), '/mi/citas')
   const [paso, setPaso] = useState<'telefono' | 'codigo' | 'negocio'>('telefono')
   const [negocios, setNegocios] = useState<{ id: string; nombre: string; rol: string }[]>([])
   const [telefono, setTelefono] = useState('+507')
@@ -90,7 +109,7 @@ export default function Entrar() {
         return
       }
 
-      router.push('/mis-reservas')
+      router.push(volver)
     } catch (fallo) {
       setError(fallo instanceof Error ? fallo.message : 'Ese código no es válido.')
     } finally {
@@ -247,5 +266,18 @@ export default function Entrar() {
         </div>
       </div>
     </main>
+  )
+}
+
+/**
+ * `useSearchParams` obliga a un límite de suspensión: sin él, Next no puede prerenderizar esta
+ * página y el build falla. El respaldo es el armazón vacío, no un «cargando», porque en la
+ * práctica se resuelve en el mismo fotograma.
+ */
+export default function Entrar() {
+  return (
+    <Suspense fallback={<div className="acceso" aria-hidden="true" />}>
+      <Contenido />
+    </Suspense>
   )
 }
