@@ -20,10 +20,15 @@ export function Icono({ alto = 24 }: { alto?: number }) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* El bloque: la jornada. */}
-      <path d="M2 2h20v20H2z" fill="currentColor" />
-      {/* El hueco: la hora que queda libre. */}
-      <path d="M9 9h9v6H9z" fill="var(--color-papel, #F7F6F4)" />
+      {/* Un solo trazado con regla par-impar: el hueco queda **calado**, no pintado del color
+          del fondo. Es lo que hace que el símbolo funcione igual sobre papel, sobre tinta y
+          sobre una foto, con un solo archivo y sin versiones invertidas. */}
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M2 2h20v20H2V2zm7 7h9v6H9V9z"
+        fill="currentColor"
+      />
     </svg>
   )
 }
@@ -35,7 +40,9 @@ export function Marca({ alto = 22 }: { alto?: number }) {
         display: 'inline-flex',
         alignItems: 'center',
         gap: '0.45em',
-        color: 'var(--color-tinta)',
+        // Hereda el color del contexto: sobre papel es tinta y sobre una sección oscura es
+        // papel, sin necesidad de un segundo logotipo.
+        color: 'currentColor',
       }}
     >
       <Icono alto={alto} />

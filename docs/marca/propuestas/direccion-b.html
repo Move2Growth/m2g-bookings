@@ -28,7 +28,7 @@
   --sobre-azul-suave:#CBD5F8;  /* 6.04:1 sobre azul */
   --sobre-tinta-suave:#A8B3C9; /* 8.64:1 sobre tinta */
   --texto-suave:#4A5163;       /* 7.11:1 sobre cal */
-  --borde-tenue:#C9CCC4;       /* decorativo, nunca informativo */
+  --borde-tenue:#8A8E85;       /* filete de control en reposo: 3.34:1 sobre blanco, 3.00:1 sobre cal */
 
   --r:4px;                     /* escala de radio ÚNICA en todo el documento */
   --nav-h:66px;
@@ -187,7 +187,8 @@ section[id]{scroll-margin-top:calc(var(--nav-h) + 14px)}
 /* ---------- 5. FICHA DE SALÓN ---------- */
 .mercado{background:var(--cal);padding:var(--seccion) var(--gutter)}
 .mercado h2{font-size:clamp(1.75rem,6.4vw,3rem);max-width:20ch;text-wrap:balance}
-.mercado__intro{margin:14px 0 clamp(28px,4vw,44px);max-width:54ch;color:var(--texto-suave);font-size:clamp(1rem,3.2vw,1.125rem)}
+.mercado__intro{margin:14px 0 clamp(24px,3.5vw,32px);max-width:54ch;color:var(--texto-suave);font-size:clamp(1rem,3.2vw,1.125rem)}
+.mercado__nota{margin:0 0 clamp(28px,4vw,40px);max-width:46ch;color:var(--texto-suave);font-size:.9375rem;border-left:6px solid var(--naranja);padding-left:14px}
 .ficha{
   background:var(--blanco);border:2px solid var(--tinta);border-radius:var(--r);
   max-width:720px;overflow:hidden;
@@ -213,14 +214,14 @@ section[id]{scroll-margin-top:calc(var(--nav-h) + 14px)}
   margin-bottom:8px;min-height:64px;background:var(--blanco);width:100%;text-align:left;cursor:pointer;
 }
 .servicio:hover{border-color:var(--tinta)}
-.servicio[aria-pressed="true"]{border-color:var(--azul);background:#EDF1FE}
+.servicio[aria-pressed="true"]{border-color:var(--azul);border-left-width:8px;padding-left:8px}
 .servicio__nom{font-weight:600}
 .servicio__dur{color:var(--texto-suave);font-size:.875rem;grid-column:1}
 .servicio__precio{font-weight:700;grid-row:span 2;white-space:nowrap}
 .profesional{margin:14px 0 0;font-size:.9375rem;color:var(--texto-suave)}
-.dias{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;-webkit-overflow-scrolling:touch}
+.dias{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
 .dia{
-  border:2px solid var(--borde-tenue);border-radius:var(--r);background:var(--blanco);
+  scroll-snap-align:start;border:2px solid var(--borde-tenue);border-radius:var(--r);background:var(--blanco);
   padding:8px 12px;min-height:52px;display:flex;flex-direction:column;justify-content:center;
   line-height:1.15;white-space:nowrap;cursor:pointer;flex:0 0 auto;
 }
@@ -245,7 +246,8 @@ section[id]{scroll-margin-top:calc(var(--nav-h) + 14px)}
 .resumen{
   border-top:2px solid var(--tinta);padding-top:16px;display:grid;gap:12px;
 }
-.resumen__linea{display:flex;justify-content:space-between;gap:12px;font-weight:600}
+.resumen__linea{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 14px;font-weight:600}
+.resumen__linea span:first-child{flex:1 1 13rem;min-width:0}
 .resumen__linea span:last-child{white-space:nowrap}
 
 /* ---------- 6. PIE ---------- */
@@ -254,7 +256,7 @@ section[id]{scroll-margin-top:calc(var(--nav-h) + 14px)}
 .pie svg{height:30px;width:auto}
 .pie__lema{margin:16px 0 0;color:var(--sobre-tinta-suave);max-width:34ch}
 .pie__cols{display:grid;gap:28px}
-.pie h4{margin:0 0 12px;font-size:.8125rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sobre-tinta-suave)}
+.pie h4{margin:0 0 14px;font-size:.9375rem;font-weight:700;color:var(--sobre-tinta-suave)}
 .pie li{margin-bottom:10px}
 .pie li a{text-decoration:none;border-bottom:1px solid transparent}
 .pie li a:hover{border-bottom-color:var(--cal)}
@@ -271,11 +273,12 @@ section[id]{scroll-margin-top:calc(var(--nav-h) + 14px)}
 .sistema__intro{margin:14px 0 clamp(28px,4vw,40px);max-width:56ch;color:var(--texto-suave);font-size:clamp(1rem,3.2vw,1.125rem)}
 .h3sis{font-size:1.125rem;font-weight:800;margin:0 0 14px}
 .barra{display:flex;height:56px;border:2px solid var(--tinta);border-radius:var(--r);overflow:hidden;margin-bottom:10px}
-.barra span{display:block;height:100%}
+.barra span{display:block;height:100%;border-right:2px solid var(--tinta)}
+.barra span:last-child{border-right:0}
 .barra__pie{margin:0 0 clamp(28px,4vw,40px);font-size:.875rem;color:var(--texto-suave)}
-.muestras{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-bottom:clamp(36px,5vw,56px)}
+.muestras{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));margin-bottom:clamp(36px,5vw,56px)}
 .muestra{border:2px solid var(--tinta);border-radius:var(--r);overflow:hidden;background:var(--blanco)}
-.muestra__color{height:104px;border-bottom:2px solid var(--tinta)}
+.muestra__color{height:clamp(76px,18vw,104px);border-bottom:2px solid var(--tinta)}
 .muestra__datos{padding:14px}
 .muestra b{display:block;font-size:1rem;font-weight:700}
 .muestra__hex{font-weight:700;font-size:.9375rem;margin:4px 0 0}
@@ -315,6 +318,8 @@ section[id]{scroll-margin-top:calc(var(--nav-h) + 14px)}
   .salon__grid{grid-template-columns:1.05fr .95fr;align-items:stretch;max-width:none}
   .salon__texto{padding-left:max(var(--gutter),calc((100vw - var(--max))/2 + var(--gutter)))}
   .salon__foto{height:auto;min-height:100%;border-top:0;border-left:6px solid var(--naranja)}
+  .mercado__grid{display:grid;grid-template-columns:.82fr 1.18fr;gap:56px;align-items:start}
+  .mercado__intro{margin-bottom:20px}
   .pie__grid{grid-template-columns:1fr 1.3fr;gap:64px}
   .tipo{grid-template-columns:.9fr 1.1fr;gap:40px;align-items:start}
 }
@@ -423,9 +428,12 @@ section[id]{scroll-margin-top:calc(var(--nav-h) + 14px)}
 
   <!-- ===== 5. FICHA DE SALÓN ===== -->
   <section class="mercado" id="ficha">
-    <div class="limite">
-      <h2 class="rotulo">Así se ve un salón en el buscador.</h2>
-      <p class="mercado__intro">Todo lo que hace falta para decidir en una pantalla: qué cuesta, cuánto dura y a qué hora hay sitio hoy.</p>
+    <div class="limite mercado__grid">
+      <div class="mercado__cab">
+        <h2 class="rotulo">Así se ve un salón en el buscador.</h2>
+        <p class="mercado__intro">Todo lo que hace falta para decidir en una pantalla: qué cuesta, cuánto dura y a qué hora hay sitio hoy.</p>
+        <p class="mercado__nota">El orden lo decide la distancia, la valoración ponderada y la actividad reciente del salón. Los patrocinados van intercalados y con su etiqueta, nunca por encima de todo.</p>
+      </div>
 
       <article class="ficha">
         <div class="ficha__foto">
@@ -437,7 +445,7 @@ section[id]{scroll-margin-top:calc(var(--nav-h) + 14px)}
             <span class="etiqueta">Patrocinado</span>
           </div>
           <p class="ficha__meta">El Cangrejo, Ciudad de Panamá · <span class="cifra">1.2</span> km · <span class="cifra">4.8</span> de <span class="cifra">5</span> en <span class="cifra">127</span> reseñas</p>
-          <p class="ficha__estado">Abierto hoy hasta las <span class="cifra">8:00</span> p. m.</p>
+          <p class="ficha__estado">Abierto hoy hasta las <span class="cifra">8:00</span> p. m.</p>
 
           <p class="bloque-tit">Elige tu servicio</p>
           <button class="servicio" type="button" aria-pressed="true">
@@ -490,7 +498,7 @@ section[id]{scroll-margin-top:calc(var(--nav-h) + 14px)}
           </div>
 
           <div class="resumen">
-            <p class="resumen__linea"><span>Corte y barba, hoy a las <span class="cifra">2:30</span> p. m.</span><span class="cifra">B/. 22.00</span></p>
+            <p class="resumen__linea"><span>Corte y barba, hoy a las <span class="cifra">2:30</span> p. m.</span><span class="cifra">B/. 22.00</span></p>
             <button class="btn btn--azul" type="button">Confirmar cita</button>
           </div>
         </div>

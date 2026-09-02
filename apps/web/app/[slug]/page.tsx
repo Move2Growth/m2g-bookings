@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { Cabecera } from '@/componentes/cabecera'
+import { Pie } from '@/componentes/pie'
 import {
   duracion,
   precio,
@@ -93,7 +95,9 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
   const diaCorto = new Intl.DateTimeFormat('es-PA', { weekday: 'short', day: 'numeric' })
 
   return (
-    <main className="contenido">
+    <>
+      <Cabecera />
+      <main className="contenedor seccion">
       {/* Datos estructurados para Google: sin esto el perfil se indexa como texto suelto y
           no como un negocio con dirección y servicios (MKT-7). */}
       <script
@@ -127,15 +131,7 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
 
       <section style={{ marginTop: 'var(--espacio-6)' }}>
         <h2 style={{ fontSize: 'var(--tipografia-tamano-titulo-2)' }}>Servicios</h2>
-        <ul
-          style={{
-            listStyle: 'none',
-            padding: 0,
-            margin: 'var(--espacio-4) 0 0',
-            display: 'grid',
-            gap: 'var(--espacio-2)',
-          }}
-        >
+        <ul className="lista-servicios">
           {perfil.servicios.map((s) => {
             const elegido = servicio?.id === s.id
             return (
@@ -143,19 +139,7 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
                 <Link
                   href={`/${perfil.slug}?servicio=${s.id}&dia=${iso(dia)}`}
                   aria-current={elegido ? 'true' : undefined}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    gap: 'var(--espacio-3)',
-                    alignItems: 'baseline',
-                    minHeight: 'var(--espacio-toque-minimo)',
-                    padding: 'var(--espacio-3) var(--espacio-4)',
-                    background: elegido ? 'var(--color-acento-suave)' : 'var(--color-superficie)',
-                    border: `1px solid ${elegido ? 'var(--color-acento)' : 'var(--color-borde)'}`,
-                    borderRadius: 'var(--radio-grande)',
-                    textDecoration: 'none',
-                    color: 'inherit',
-                  }}
+                  className={elegido ? 'servicio servicio--elegido' : 'servicio'}
                 >
                   <span>
                     <strong style={{ fontWeight: 'var(--tipografia-pesos-medio)' }}>
@@ -189,16 +173,7 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
             Horas libres para {servicio.nombre}
           </h2>
 
-          <nav
-            aria-label="Elegir día"
-            style={{
-              display: 'flex',
-              gap: 'var(--espacio-2)',
-              overflowX: 'auto',
-              margin: 'var(--espacio-4) 0',
-              paddingBottom: 'var(--espacio-2)',
-            }}
-          >
+          <nav aria-label="Elegir día" className="tira" style={{ margin: 'var(--espacio-4) 0' }}>
             {dias.map((candidato) => {
               const activo = iso(candidato) === iso(dia)
               return (
@@ -206,20 +181,7 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
                   key={iso(candidato)}
                   href={`/${perfil.slug}?servicio=${servicio.id}&dia=${iso(candidato)}`}
                   aria-current={activo ? 'date' : undefined}
-                  className="cifras"
-                  style={{
-                    flex: '0 0 auto',
-                    minWidth: '4.5rem',
-                    minHeight: 'var(--espacio-toque-minimo)',
-                    display: 'grid',
-                    placeItems: 'center',
-                    padding: 'var(--espacio-2)',
-                    borderRadius: 'var(--radio-normal)',
-                    border: `1px solid ${activo ? 'var(--color-acento)' : 'var(--color-borde)'}`,
-                    background: activo ? 'var(--color-acento)' : 'var(--color-superficie)',
-                    color: activo ? 'var(--color-acento-texto)' : 'inherit',
-                    textDecoration: 'none',
-                  }}
+                  className="ficha cifras"
                 >
                   {diaCorto.format(candidato)}
                 </Link>
@@ -244,16 +206,7 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
               seguido.
             </p>
           ) : (
-            <ul
-              style={{
-                listStyle: 'none',
-                margin: 0,
-                padding: 0,
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-                gap: 'var(--espacio-2)',
-              }}
-            >
+            <ul className="horas">
               {slots.map((slot) => {
                 const destino = new URLSearchParams({
                   negocio: perfil.slug,
@@ -268,21 +221,7 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
                     {/* El hueco es un enlace y no un botón: tiene su propia URL, se puede
                         abrir en otra pestaña y sobrevive a que se recargue la página. Y
                         tocarlo **no aparta nada**: se compite por él al confirmar. */}
-                    <Link
-                      href={`/reservar?${destino}`}
-                      className="cifras"
-                      style={{
-                        display: 'grid',
-                        placeItems: 'center',
-                        minHeight: 'var(--espacio-toque-minimo)',
-                        padding: 'var(--espacio-2)',
-                        background: 'var(--color-superficie)',
-                        border: '1px solid var(--color-borde-fuerte)',
-                        borderRadius: 'var(--radio-normal)',
-                        textDecoration: 'none',
-                        color: 'inherit',
-                      }}
-                    >
+                    <Link href={`/reservar?${destino}`} className="hora">
                       {hora.format(new Date(slot.inicio))}
                     </Link>
                   </li>
@@ -303,6 +242,8 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
           </p>
         </section>
       )}
-    </main>
+      </main>
+      <Pie />
+    </>
   )
 }

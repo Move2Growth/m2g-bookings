@@ -63,8 +63,8 @@ export default function ParaNegocios() {
                 className="apagado medida"
                 style={{ marginTop: 'var(--espacio-4)', fontSize: 'var(--tipografia-tamano-mayor)' }}
               >
-                Sin tarjeta para registrarte, sin mensualidad y sin comisión por cita. Tardas
-                menos de diez minutos en dejarlo funcionando.
+                Sin comisión por reserva. Ni ahora, ni cuando tengas la agenda llena. Tardas
+                menos de diez minutos en dejarlo funcionando desde el teléfono.
               </p>
               <p style={{ marginTop: 'var(--espacio-5)', display: 'flex', gap: 'var(--espacio-3)', flexWrap: 'wrap' }}>
                 <Link href="/entrar" className="boton boton--primario">
@@ -97,8 +97,12 @@ export default function ParaNegocios() {
             <p className="apagado" style={{ marginTop: 'var(--espacio-4)' }}>
               En ningún sitio, y por eso conviene explicarlo. Bukeo gana cuando un salón quiere
               más clientas y compra aparecer primero en su categoría y su zona durante unos días.
-              Es opcional, va siempre marcado como patrocinado y no cambia la nota de nadie ni
-              esconde a los demás. Si nunca compras visibilidad, nunca pagas nada.
+              Es opcional, va siempre marcado como patrocinado, nunca esconde a los salones que
+              no pagan y no toca la nota de nadie. Si nunca compras visibilidad, nunca pagas nada.
+            </p>
+            <p className="tenue" style={{ marginTop: 'var(--espacio-3)' }}>
+              El precio de esa visibilidad depende de la zona y de los días, y lo verás antes de
+              comprarla. Todavía no está a la venta: primero tiene que haber clientas buscando.
             </p>
 
             <table className="tabla-plan">

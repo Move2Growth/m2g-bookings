@@ -468,3 +468,84 @@ button, input, select, textarea { font: inherit; color: inherit; }
   white-space: nowrap;
   padding-left: var(--espacio-4);
 }
+
+/* ── Acceso ─────────────────────────────────────────────────────────────────── */
+
+/* En el teléfono es una sola columna con el formulario arriba del todo: quien entra ya sabe a
+   qué viene y la columna de marca solo le robaría la primera pantalla. */
+.acceso {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+.acceso__marca { display: none; }
+.acceso__panel {
+  display: grid;
+  place-items: start center;
+  padding: var(--espacio-5) var(--espacio-4) var(--espacio-8);
+}
+.acceso__caja { width: 100%; max-width: 24rem; }
+.acceso__marca-movil { display: inline-flex; }
+
+@media (min-width: 900px) {
+  .acceso { grid-template-columns: 1fr 1fr; }
+  .acceso__marca {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--espacio-7);
+    padding: var(--espacio-7);
+    background: var(--color-tinta);
+    color: var(--color-papel);
+  }
+  .acceso__marca h1 { color: var(--color-papel); }
+  /* El enlace de la marca hereda para que el logotipo se cale en claro sobre la tinta. */
+  .acceso__marca a { color: var(--color-papel); }
+  .acceso__panel { place-items: center; padding: var(--espacio-7); }
+  .acceso__marca-movil { display: none; }
+}
+
+/* ── Resultados de búsqueda ─────────────────────────────────────────────────── */
+
+/* Filas con filete y no tarjetas: en un teléfono caben tres salones más por pantalla, y en una
+   lista lo que se compara son los nombres, no los bordes. */
+.resultados {
+  margin-top: var(--espacio-4);
+  border-top: 1px solid var(--color-borde);
+}
+.resultado {
+  display: block;
+  padding: var(--espacio-4) 0;
+  border-bottom: 1px solid var(--color-borde);
+  color: inherit;
+  text-decoration: none;
+}
+.resultado:hover { background: var(--color-arena); }
+.resultado h2 {
+  font-size: var(--tipografia-tamano-titulo-4);
+  margin-bottom: 2px;
+}
+.resultado .etiqueta { display: block; margin-bottom: var(--espacio-1); }
+
+/* ── Perfil del salón ───────────────────────────────────────────────────────── */
+
+.lista-servicios { margin-top: var(--espacio-4); border-top: 1px solid var(--color-borde); }
+.servicio {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--espacio-4);
+  min-height: var(--espacio-toque-minimo);
+  padding: var(--espacio-3) var(--espacio-2);
+  border-bottom: 1px solid var(--color-borde);
+  color: inherit;
+  text-decoration: none;
+}
+.servicio:hover { background: var(--color-arena); }
+/* El servicio elegido se marca con la barra de acento a la izquierda, no con un relleno de
+   color: así el precio y la duración siguen leyéndose igual de bien. */
+.servicio--elegido {
+  background: var(--color-acento-suave);
+  box-shadow: inset 3px 0 0 var(--color-acento);
+}
+.servicio strong { font-weight: var(--tipografia-pesos-medio); }

@@ -138,7 +138,7 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
 
 .boton{
   display:inline-flex; align-items:center; justify-content:center; gap:8px;
-  min-height:48px; padding:0 18px;
+  min-height:46px; padding:0 18px;
   font-size:15px; font-weight:600; letter-spacing:-.005em;
   text-decoration:none; cursor:pointer;
   border:1px solid var(--tinta);
@@ -155,59 +155,86 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
 
 /* ---- Portada ----------------------------------------------------------- */
 
-.portada{ padding:24px var(--canal) 28px; }
+.portada{ padding:16px var(--canal) 20px; }
 .ceja{
   font-family:var(--mono); font-size:11px; font-weight:500;
   letter-spacing:.14em; text-transform:uppercase; color:var(--grafito);
-  padding-bottom:14px; margin-bottom:16px;
+  padding-bottom:10px; margin-bottom:12px;
   border-bottom:1px solid var(--filete);
 }
 .portada h1{
-  font-size:30px; line-height:1.08; font-weight:600; letter-spacing:-.032em;
+  font-size:27px; line-height:1.08; font-weight:600; letter-spacing:-.032em;
   text-wrap:balance; max-width:15ch;
 }
 .portada .bajada{
-  margin-top:14px; font-size:16px; line-height:1.45; color:var(--grafito);
+  margin-top:10px; font-size:15px; line-height:1.4; color:var(--grafito);
   max-width:46ch;
 }
-.acciones{ display:flex; flex-direction:column; gap:8px; margin-top:20px; }
+.acciones{ display:flex; flex-direction:column; gap:6px; margin-top:14px; }
 
 .cinta{
   display:grid; grid-template-columns:1fr 1fr;
   border:1px solid var(--filete); border-bottom:0;
-  margin-top:22px;
+  margin-top:14px;
 }
 .cinta div{
-  padding:9px 10px;
+  padding:7px 10px;
   border-bottom:1px solid var(--filete);
   border-right:1px solid var(--filete);
 }
 .cinta div:nth-child(2n){ border-right:0; }
 .cinta div:last-child:nth-child(odd){ grid-column:1 / -1; border-right:0; }
 .cinta b{
-  display:block; font-family:var(--mono); font-size:17px; font-weight:500;
+  display:block; font-family:var(--mono); font-size:16px; font-weight:500;
   font-variant-numeric:tabular-nums lining-nums; letter-spacing:-.02em;
 }
 .cinta span{
   display:block; font-size:12px; color:var(--grafito); margin-top:1px;
 }
 
-.foto{ margin-top:22px; }
-.foto img{ width:100%; aspect-ratio:16/9; object-fit:cover; border:1px solid var(--filete); }
-.foto figcaption{
-  display:flex; justify-content:space-between; gap:12px;
-  padding-top:7px; border-top:1px solid var(--filete); margin-top:-1px;
-  font-family:var(--mono); font-size:11px; letter-spacing:.06em;
+/* Mapa de horas libres: el visual de portada es dato del producto, no adorno. */
+.mapa{ margin-top:14px; border:1px solid var(--tinta); }
+.mapa-cabeza{
+  display:flex; flex-wrap:wrap; gap:2px 12px; justify-content:space-between;
+  padding:7px 10px; border-bottom:1px solid var(--tinta);
+}
+.mapa-fila{
+  display:grid; grid-template-columns:104px repeat(12,minmax(0,1fr)) 46px;
+  align-items:center; border-bottom:1px solid var(--filete);
+}
+.mapa-fila:last-of-type{ border-bottom:0; }
+.mapa-regla{ border-bottom:1px solid var(--filete); }
+.mapa-regla span{
+  font-family:var(--mono); font-size:9px; letter-spacing:0; color:var(--grafito);
+  text-align:center; padding:5px 0 4px; border-left:1px solid var(--filete);
+  font-variant-numeric:tabular-nums lining-nums;
+}
+.mapa-fila .nom{ font-size:11.5px; padding:4px 6px 4px 9px; letter-spacing:-.012em; line-height:1.15; }
+.mapa-fila .b{ height:17px; border-left:1px solid var(--filete); }
+.mapa-fila .b.oc{ background:var(--tinta); }
+.mapa-fila .pr{
+  text-align:right; padding:0 10px 0 6px; border-left:1px solid var(--filete);
+  font-family:var(--mono); font-size:12px; font-weight:500;
+  font-variant-numeric:tabular-nums lining-nums;
+}
+.mapa-pie{
+  display:flex; flex-wrap:wrap; gap:4px 16px; justify-content:space-between;
+  padding:6px 10px; border-top:1px solid var(--tinta);
+  font-family:var(--mono); font-size:10px; letter-spacing:.06em;
   text-transform:uppercase; color:var(--grafito);
 }
+.mapa-pie i{ display:inline-block; width:9px; height:9px; margin-right:6px; vertical-align:-1px; border:1px solid var(--cota); }
+.mapa-pie i.oc{ background:var(--tinta); border-color:var(--tinta); }
 
 /* ---- Ledger de pasos (clienta) ----------------------------------------- */
 
 .ledger{ border-bottom:1px solid var(--filete); }
 .ledger li{
-  display:grid; gap:4px 20px;
+  display:grid; grid-template-columns:92px minmax(0,1fr); gap:4px 12px;
   padding:16px 0; border-bottom:1px solid var(--filete);
 }
+.ledger li > .cota{ grid-column:1; grid-row:1; font-size:10.5px; padding-top:3px; }
+.ledger li > div{ grid-column:2; }
 .ledger li:last-child{ border-bottom:0; }
 .ledger h3{ font-size:17px; font-weight:600; letter-spacing:-.015em; }
 .ledger p{ font-size:14.5px; color:var(--grafito); max-width:52ch; }
@@ -269,10 +296,11 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
 }
 .ficha-datos span{ white-space:nowrap; }
 .ficha-datos .cifra{ color:var(--tinta); font-weight:500; }
-.galeria{ display:grid; grid-template-columns:2fr 1fr; gap:1px; background:var(--filete); margin-top:16px; border:1px solid var(--filete); }
-.galeria img{ width:100%; height:100%; object-fit:cover; aspect-ratio:4/3; }
-.galeria .col{ display:grid; gap:1px; }
-.galeria .col img{ aspect-ratio:8/3; }
+.galeria{
+  display:grid; grid-template-columns:2fr 1fr 1fr; gap:1px;
+  background:var(--filete); border:1px solid var(--filete); margin-top:16px;
+}
+.galeria img{ width:100%; height:118px; object-fit:cover; }
 
 .bloque{ padding-top:20px; }
 .bloque-titulo{
@@ -498,7 +526,8 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
 .paleta .prop{ font-weight:500; font-size:15px; }
 .paleta .uso{ color:var(--grafito); font-size:13px; }
 .barra-prop{ display:flex; height:14px; border:1px solid var(--filete); margin-top:14px; }
-.barra-prop i{ display:block; height:100%; }
+.barra-prop i{ display:block; height:100%; border-right:1px solid var(--papel); }
+.barra-prop i:last-child{ border-right:0; }
 
 .tipo{ padding-top:26px; }
 .tipo-muestra{ border:1px solid var(--filete); padding:16px; margin-top:12px; }
@@ -509,7 +538,8 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
   padding-top:10px; border-top:1px solid var(--filete);
 }
 .tipo-escala{ margin-top:12px; width:100%; border-collapse:collapse; }
-.tipo-escala td{ padding:7px 0; border-bottom:1px solid var(--filete); font-size:14px; }
+.tipo-escala{ table-layout:fixed; }
+.tipo-escala td{ padding:7px 0; border-bottom:1px solid var(--filete); font-size:14px; width:48%; }
 .tipo-escala td.der{ text-align:right; font-family:var(--mono); font-size:12px; color:var(--grafito); font-variant-numeric:tabular-nums; }
 .tipo-escala tr:last-child td{ border-bottom:0; }
 
@@ -543,14 +573,18 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
   .portada{ display:grid; grid-template-columns:1fr 1fr; gap:0 32px; padding:32px var(--canal) 36px; }
   .portada .ceja{ grid-column:1 / -1; }
   .portada h1{ font-size:46px; }
+  .portada .bajada{ margin-top:16px; }
   .acciones{ flex-direction:row; }
-  .foto{ margin-top:0; grid-column:2; grid-row:2 / span 3; align-self:start; }
-  .foto img{ aspect-ratio:3/4; }
+  .mapa{ margin-top:0; grid-column:2; grid-row:2 / span 2; align-self:start; }
+  .mapa-fila{ grid-template-columns:124px repeat(12,minmax(0,1fr)) 56px; }
+  .mapa-fila .b{ height:28px; }
+  .mapa-fila .nom{ font-size:13px; }
+  .mapa-regla span{ font-size:10px; }
   .cinta{ grid-column:1; grid-template-columns:1fr 1fr; }
 
   .seccion-cabeza h2{ font-size:26px; }
-  .ledger li{ grid-template-columns:132px minmax(0,1fr) minmax(0,300px); align-items:start; }
-  .ledger li .pieza{ margin-top:0; }
+  .ledger li{ grid-template-columns:132px minmax(0,1fr) minmax(0,300px); gap:4px 20px; align-items:start; }
+  .ledger li > .pieza{ grid-column:3; grid-row:1; margin-top:0; }
   .cifras th{ font-size:15.5px; }
   .ficha-cabeza h3{ font-size:30px; }
   .rejilla{ grid-template-columns:repeat(6,1fr); }
@@ -628,9 +662,160 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
     <div><b>B/. 0.00</b><span>coste para el salón</span></div>
   </div>
 
-  <figure class="foto">
-    <img src="https://picsum.photos/seed/barberia-el-cangrejo-panama/900/1200" alt="Interior de una barbería en Ciudad de Panamá con la silla del barbero junto al espejo." width="900" height="1200">
-    <figcaption><span>Barbería en El Cangrejo</span><span class="cifra">08°59'N 79°32'O</span></figcaption>
+  <figure class="mapa" role="group" aria-label="Mapa de horas libres de hoy en ocho salones de Ciudad de Panamá, de las 08:00 a las 20:00.">
+    <figcaption class="mapa-cabeza">
+      <span class="cota">Horas libres hoy</span>
+      <span class="cota">Ocho salones · 08:00 a 20:00</span>
+    </figcaption>
+      <div class="mapa-fila mapa-regla" aria-hidden="true">
+        <span></span>
+        <span>08</span>
+        <span>09</span>
+        <span>10</span>
+        <span>11</span>
+        <span>12</span>
+        <span>13</span>
+        <span>14</span>
+        <span>15</span>
+        <span>16</span>
+        <span>17</span>
+        <span>18</span>
+        <span>19</span>
+        <span></span>
+      </div>
+      <div class="mapa-fila">
+        <p class="nom">Spa Calidonia</p>
+          <i class="b oc"></i>
+          <i class="b"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b"></i>
+        <p class="pr">10:45</p>
+      </div>
+      <div class="mapa-fila">
+        <p class="nom">Cejas Panamá</p>
+          <i class="b oc"></i>
+          <i class="b"></i>
+          <i class="b oc"></i>
+          <i class="b"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+        <p class="pr">11:30</p>
+      </div>
+      <div class="mapa-fila">
+        <p class="nom">Don Ramiro</p>
+          <i class="b"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b"></i>
+          <i class="b"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b"></i>
+          <i class="b"></i>
+          <i class="b"></i>
+          <i class="b"></i>
+        <p class="pr">11:45</p>
+      </div>
+      <div class="mapa-fila">
+        <p class="nom">Barbería 8A</p>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b"></i>
+        <p class="pr">12:15</p>
+      </div>
+      <div class="mapa-fila">
+        <p class="nom">Nails by Yaris</p>
+          <i class="b"></i>
+          <i class="b"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b"></i>
+          <i class="b oc"></i>
+        <p class="pr">13:00</p>
+      </div>
+      <div class="mapa-fila">
+        <p class="nom">Studio 507</p>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b"></i>
+          <i class="b oc"></i>
+          <i class="b"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b"></i>
+        <p class="pr">13:30</p>
+      </div>
+      <div class="mapa-fila">
+        <p class="nom">Casa Marañón</p>
+          <i class="b oc"></i>
+          <i class="b"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+        <p class="pr">14:00</p>
+      </div>
+      <div class="mapa-fila">
+        <p class="nom">Salón Marbella</p>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b oc"></i>
+          <i class="b"></i>
+          <i class="b oc"></i>
+          <i class="b"></i>
+          <i class="b oc"></i>
+        <p class="pr">16:00</p>
+      </div>
+    <p class="mapa-pie">
+      <span><i></i>Hay hueco</span>
+      <span><i class="oc"></i>Ocupado</span>
+      <span>Próximo hueco</span>
+    </p>
   </figure>
 </section>
 
@@ -734,11 +919,9 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
     </div>
 
     <div class="galeria">
-      <img src="https://picsum.photos/seed/don-ramiro-silla/800/600" alt="Silla de barbero y espejo del local." width="800" height="600" loading="lazy">
-      <div class="col">
-        <img src="https://picsum.photos/seed/don-ramiro-navaja/400/150" alt="Herramientas de afeitado sobre el mueble." width="400" height="150" loading="lazy">
-        <img src="https://picsum.photos/seed/don-ramiro-fachada/400/150" alt="Fachada del local desde la acera." width="400" height="150" loading="lazy">
-      </div>
+      <img src="https://picsum.photos/seed/espejo-luz-tienda/800/600" alt="Interior del local con la silla junto a la ventana." width="800" height="600" loading="lazy">
+      <img src="https://picsum.photos/seed/sillon-ventana-luz/500/500" alt="Detalle del mostrador de la entrada." width="500" height="500" loading="lazy">
+      <img src="https://picsum.photos/seed/mostrador-tienda-panama/500/500" alt="Herramientas de afeitado ordenadas sobre el mueble." width="500" height="500" loading="lazy">
     </div>
 
     <div class="ficha-cuerpo">
@@ -824,9 +1007,9 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
           </div>
 
           <div class="ag-kpi">
-            <div><b>8</b><span>citas</span></div>
-            <div><b>78 %</b><span>ocupación</span></div>
-            <div><b>83.00</b><span>previsto B/.</span></div>
+            <div><b>9</b><span>citas</span></div>
+            <div><b>87 %</b><span>ocupación</span></div>
+            <div><b>98.00</b><span>previsto B/.</span></div>
             <div><b>1</b><span>hueco</span></div>
           </div>
 
@@ -871,6 +1054,15 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
               </div>
             </li>
             <li>
+              <div class="cita cita--anulada" tabindex="0" role="button">
+                <div class="cita-reloj"><b>11:45</b><s>12:30</s></div>
+                <p class="cita-nombre">Yamileth Sánchez</p>
+                <span class="estado">Canceló ella</span>
+                <p class="cita-servicio">Afeitado a navaja · anoche 21:14</p>
+                <span class="cita-importe">B/. 0.00</span>
+              </div>
+            </li>
+            <li>
               <div class="hueco">
                 <p class="txt"><b>11:45 a 12:30</b><span>Hueco libre, 45 min</span></p>
                 <button type="button">Ofrecer esta hora</button>
@@ -898,21 +1090,21 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
               </div>
             </li>
             <li>
-              <div class="cita cita--anulada" tabindex="0" role="button">
-                <div class="cita-reloj"><b>14:30</b><s>15:15</s></div>
-                <p class="cita-nombre">Yamileth Sánchez</p>
-                <span class="estado">Canceló ella</span>
-                <p class="cita-servicio">Afeitado a navaja, 45 min · anoche 21:14</p>
-                <span class="cita-importe">B/. 0.00</span>
-              </div>
-            </li>
-            <li>
               <div class="cita" tabindex="0" role="button">
-                <div class="cita-reloj"><b>15:30</b><s>16:30</s></div>
+                <div class="cita-reloj"><b>14:30</b><s>15:30</s></div>
                 <p class="cita-nombre">Deibis Arjona</p>
                 <span class="estado estado--firme">Confirmada</span>
                 <p class="cita-servicio">Corte y barba, 60 min</p>
                 <span class="cita-importe">B/. 18.00</span>
+              </div>
+            </li>
+            <li>
+              <div class="cita" tabindex="0" role="button">
+                <div class="cita-reloj"><b>15:30</b><s>16:15</s></div>
+                <p class="cita-nombre">Eliécer Him</p>
+                <span class="estado estado--firme">Confirmada</span>
+                <p class="cita-servicio">Afeitado a navaja, 45 min</p>
+                <span class="cita-importe">B/. 15.00</span>
               </div>
             </li>
           </ul>
@@ -1087,14 +1279,14 @@ a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
 
       <div class="tipo-cuerpo">
         <div class="tipo-muestra">
-          <p class="grande">Bukeo. Barbería Don Ramiro, El Cangrejo</p>
-          <p class="mono-grande">08:30 09:55 11:45 B/. 18.00 40 min</p>
+          <p class="grande">Bukeo. Barbería Don Ramiro</p>
+          <p class="mono-grande">08:30 09:55 11:45 B/. 18.00</p>
         </div>
 
         <div>
           <table class="tipo-escala">
             <tbody>
-              <tr><td>Titular de portada</td><td class="der">Plex Sans 600 · 56 px / 1.08 · tracking -3.5 %</td></tr>
+              <tr><td>Titular de portada</td><td class="der">Plex Sans 600 · 56 px · tracking -3.5 %</td></tr>
               <tr><td>Título de sección</td><td class="der">Plex Sans 600 · 30 px / 1.15</td></tr>
               <tr><td>Nombre del cliente en la agenda</td><td class="der">Plex Sans 500 · 15 px / 1.5</td></tr>
               <tr><td>Texto corrido</td><td class="der">Plex Sans 400 · 15 px / 1.5</td></tr>
