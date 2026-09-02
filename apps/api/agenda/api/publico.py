@@ -26,6 +26,7 @@ from agenda.errores import NegocioNoPublicado
 from agenda.modelos.catalogo import Service
 from agenda.modelos.equipo import StaffProfile
 from agenda.modelos.negocio import Business, Location
+from agenda.servicios import busqueda as servicio_busqueda
 from agenda.servicios import disponibilidad as servicio_disponibilidad
 
 router = APIRouter(prefix="/api/v1/publico", tags=["público"])
@@ -78,6 +79,67 @@ class PerfilPublico(NegocioEnLista):
     zona_horaria: str
     servicios: list[ServicioPublico]
     equipo: list[ProfesionalPublico]
+
+
+class ResultadoDeBusqueda(BaseModel):
+    slug: str
+    nombre: str
+    direccion: str | None
+    zona: str | None
+    distancia_metros: int | None
+    rating: float | None
+    patrocinado: bool = Field(
+        default=False,
+        description="Si es un resultado pagado. Va etiquetado en pantalla, sin excepción",
+    )
+
+
+@router.get("/buscar", summary="Búsqueda del marketplace (MKT-1, MKT-2, MKT-3, MKT-4)")
+async def buscar(
+    sesion: SesionPublica,
+    texto: Annotated[str | None, Query(description="Nombre del negocio o del servicio")] = None,
+    categoria: Annotated[str | None, Query()] = None,
+    zona: Annotated[
+        str | None, Query(description="Slug de zona, por ejemplo «el-cangrejo»")
+    ] = None,
+    longitud: Annotated[float | None, Query()] = None,
+    latitud: Annotated[float | None, Query()] = None,
+    radio_metros: Annotated[int, Query(ge=200, le=50_000)] = 10_000,
+    pagina: Annotated[int, Query(ge=1)] = 1,
+) -> list[ResultadoDeBusqueda]:
+    """Busca por texto, categoría, zona o cercanía, y ordena por la fórmula de ranking.
+
+    Buscar «por zona» no es lo mismo que buscar «cerca de mí»: la zona es un sitio con nombre
+    que la gente escribe en Google, y el radio es el gesto de quien tiene el GPS encendido. Se
+    puede combinar, y quien pide «Bella Vista» ve también El Cangrejo y Obarrio, que están
+    dentro.
+
+    Los patrocinados se intercalan aquí cuando existan (Fase 4): **se insertan entre los
+    orgánicos, nunca en su lugar**, y siempre etiquetados.
+    """
+    resultados = await servicio_busqueda.buscar(
+        sesion,
+        texto=texto,
+        categoria=categoria,
+        zona=zona,
+        longitud=longitud,
+        latitud=latitud,
+        radio_metros=radio_metros,
+        pagina=pagina,
+    )
+
+    return [
+        ResultadoDeBusqueda(
+            slug=r.slug,
+            nombre=r.nombre,
+            direccion=r.direccion,
+            zona=r.zona,
+            distancia_metros=int(r.distancia_metros) if r.distancia_metros is not None else None,
+            rating=r.rating,
+            patrocinado=r.patrocinado,
+        )
+        for r in resultados
+    ]
 
 
 @router.get("/negocios", summary="Negocios publicados (MKT-1)")

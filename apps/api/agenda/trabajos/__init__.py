@@ -15,7 +15,11 @@ from agenda.trabajos.cierre import (
     marcar_citas_sin_cerrar_de_negocio,
     planificar_cierre_de_citas_pasadas,
 )
-from agenda.trabajos.entrega import entregar_cola_de_negocio, entregar_cola_de_plataforma
+from agenda.trabajos.entrega import (
+    barrer_la_cola,
+    entregar_cola_de_negocio,
+    entregar_cola_de_plataforma,
+)
 from agenda.trabajos.recordatorios import (
     encolar_recordatorios_de_negocio,
     encolar_reviews_de_negocio,
@@ -25,6 +29,7 @@ from agenda.trabajos.recordatorios import (
 )
 
 __all__ = [
+    "barrer_la_cola",
     "encolar_recordatorios_de_negocio",
     "encolar_reviews_de_negocio",
     "entregar_cola_de_negocio",
