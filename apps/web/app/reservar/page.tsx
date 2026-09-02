@@ -166,7 +166,7 @@ function Contenido() {
       ) : (
         <form onSubmit={paso === 'telefono' ? pedirCodigo : verificar} style={{ display: 'grid', gap: 'var(--espacio-3)' }}>
           <p style={{ color: 'var(--color-texto-suave)' }}>
-            Para reservar necesitamos tu teléfono. Te mandamos un código y listo — no hay
+            Para reservar necesitamos tu teléfono. Te mandamos un código y listo. No hay
             contraseña que recordar.
           </p>
           <label style={{ display: 'grid', gap: 'var(--espacio-2)' }}>
