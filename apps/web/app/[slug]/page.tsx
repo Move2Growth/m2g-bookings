@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { AccionesDeSalon } from '@/componentes/acciones-salon'
 import { Cabecera } from '@/componentes/cabecera'
+import { FotoDeSalon } from '@/componentes/foto'
 import { PestanasClienteSiHaySesion } from '@/componentes/pestanas-cliente'
 import { Pie } from '@/componentes/pie'
 import {
@@ -64,7 +64,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: perfil.nombre,
       description: `Mira las horas libres de ${perfil.nombre} y reserva sin llamar.`,
-      images: perfil.fotos?.[0]?.url ? [perfil.fotos[0].url] : undefined,
+      images: perfil.fotos?.[0] ? [perfil.fotos[0]] : undefined,
     },
   }
 }
@@ -84,6 +84,23 @@ function iso(dia: Date): string {
 }
 
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+
+/**
+ * Agrupa los tramos por día.
+ *
+ * Un salón que cierra a mediodía manda dos tramos del mismo día, y sin agrupar se pinta
+ * «Martes» dos veces seguidas, que se lee como un fallo. Además dos filas con la misma clave
+ * hacen que React se queje con razón.
+ */
+function porDia(tramos: { dia: number; abre: string; cierra: string }[]) {
+  const agrupados = new Map<number, string[]>()
+  for (const t of [...tramos].sort((a, b) => a.dia - b.dia || a.abre.localeCompare(b.abre))) {
+    const franjas = agrupados.get(t.dia) ?? []
+    franjas.push(`${t.abre.slice(0, 5)} a ${t.cierra.slice(0, 5)}`)
+    agrupados.set(t.dia, franjas)
+  }
+  return [...agrupados.entries()]
+}
 
 export default async function PaginaDeNegocio({ params, searchParams }: Props) {
   const { slug } = await params
@@ -137,7 +154,7 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
               '@type': 'HealthAndBeautyBusiness',
               name: perfil.nombre,
               address: perfil.direccion ?? undefined,
-              image: fotos.map((f) => f.url),
+              image: fotos,
               aggregateRating:
                 nota && cuantasResenas > 0
                   ? { '@type': 'AggregateRating', ratingValue: nota, reviewCount: cuantasResenas }
@@ -156,15 +173,14 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
             bloque de color con la inicial: una foto de banco engaña sobre cómo es el sitio. */}
         {fotos.length > 0 ? (
           <div className={fotos.length === 1 ? 'galeria galeria--una' : 'galeria'}>
-            {fotos.slice(0, 6).map((f) => (
-              <Image
-                key={f.id}
-                src={f.url}
-                alt={f.texto_alternativo ?? ''}
-                width={1200}
-                height={800}
+            {fotos.slice(0, 6).map((foto, i) => (
+              <FotoDeSalon
+                key={foto}
+                src={foto}
+                ancho={1200}
+                alto={800}
                 sizes="(min-width: 900px) 60vw, 90vw"
-                priority={f === fotos[0]}
+                prioridad={i === 0}
               />
             ))}
           </div>
@@ -379,13 +395,11 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
             <section className="bloque-panel">
               <h2>Cuándo abre</h2>
               <ul className="filas" style={{ marginTop: 'var(--espacio-3)' }}>
-                {perfil.horario.map((t) => (
-                  <li key={t.dia} className="fila">
+                {porDia(perfil.horario).map(([dia, franjas]) => (
+                  <li key={dia} className="fila">
                     <div className="fila__boton" style={{ cursor: 'default', minHeight: 48 }}>
-                      <span className="fila__nombre">{DIAS[t.dia]}</span>
-                      <span className="fila__cifra cifras">
-                        {t.abre.slice(0, 5)} a {t.cierra.slice(0, 5)}
-                      </span>
+                      <span className="fila__nombre">{DIAS[dia]}</span>
+                      <span className="fila__cifra cifras">{franjas.join(' y ')}</span>
                     </div>
                   </li>
                 ))}

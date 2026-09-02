@@ -86,9 +86,9 @@ export default function MetricasDeConsola() {
             <Cifra titulo="Reportes sin resolver" valor={datos.reportes_abiertos} />
           </div>
 
-          <Serie titulo="Reservas por día" puntos={datos.reservas_por_dia} />
-          <Serie titulo="Veces que se enseñó una ficha" puntos={datos.impresiones_por_dia} />
-          <Serie titulo="Clics en una ficha" puntos={datos.clics_por_dia} />
+          <Serie titulo="Reservas por día" puntos={datos.reservas_por_dia} dias={dias} />
+          <Serie titulo="Veces que se enseñó una ficha" puntos={datos.impresiones_por_dia} dias={dias} />
+          <Serie titulo="Clics en una ficha" puntos={datos.clics_por_dia} dias={dias} />
 
           <p className="tenue" style={{ marginTop: 'var(--espacio-5)', fontSize: 'var(--tipografia-tamano-menor)' }}>
             Las impresiones y los clics salen ya contados por día, no de recorrer eventos: la
@@ -109,8 +109,27 @@ function Cifra({ titulo, valor }: { titulo: string; valor: number }) {
   )
 }
 
-function Serie({ titulo, puntos }: { titulo: string; puntos: Punto[] }) {
-  const maximo = Math.max(1, ...puntos.map((p) => p.valor))
+/**
+ * Rellena los días sin nada con un cero.
+ *
+ * La API solo manda los días que tienen algo, así que una serie de treinta días puede llegar
+ * con un punto. Pintada tal cual sale un rectángulo lleno que parece un fallo, cuando lo que
+ * dice el dato es «todo pasó el mismo día». Con los ceros dentro, la forma es verdad.
+ */
+function completar(puntos: Punto[], dias: number): Punto[] {
+  const porFecha = new Map(puntos.map((p) => [p.dia, p.valor]))
+  const hoy = new Date()
+  return Array.from({ length: dias }, (_, i) => {
+    const d = new Date(hoy)
+    d.setDate(d.getDate() - (dias - 1 - i))
+    const clave = d.toISOString().slice(0, 10)
+    return { dia: clave, valor: porFecha.get(clave) ?? 0 }
+  })
+}
+
+function Serie({ titulo, puntos, dias }: { titulo: string; puntos: Punto[]; dias: number }) {
+  const serie = completar(puntos, dias)
+  const maximo = Math.max(1, ...serie.map((p) => p.valor))
   const total = puntos.reduce((suma, p) => suma + p.valor, 0)
   const fecha = new Intl.DateTimeFormat('es-PA', { day: 'numeric', month: 'short' })
 
@@ -126,8 +145,9 @@ function Serie({ titulo, puntos }: { titulo: string; puntos: Punto[] }) {
           Todavía no hay nada que contar en este periodo.
         </p>
       ) : (
+        <>
         <ol className="serie" aria-label={titulo}>
-          {puntos.map((p) => (
+          {serie.map((p) => (
             <li key={p.dia} className="serie__barra" title={`${fecha.format(new Date(`${p.dia}T12:00:00`))}: ${p.valor}`}>
               <span style={{ height: `${Math.round((p.valor / maximo) * 100)}%` }} />
               <span className="oculto-visualmente">
@@ -136,6 +156,13 @@ function Serie({ titulo, puntos }: { titulo: string; puntos: Punto[] }) {
             </li>
           ))}
         </ol>
+        {/* Sin las dos fechas, treinta barras no dicen de cuándo a cuándo. */}
+        <p className="serie__eje cifras">
+          <span>{fecha.format(new Date(`${serie[0].dia}T12:00:00`))}</span>
+          <span>máximo en un día: {maximo}</span>
+          <span>{fecha.format(new Date(`${serie[serie.length - 1].dia}T12:00:00`))}</span>
+        </p>
+        </>
       )}
     </section>
   )

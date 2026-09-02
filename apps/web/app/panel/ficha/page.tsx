@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { FotoDeSalon } from '@/componentes/foto'
 import { useCallback, useEffect, useState } from 'react'
 import { Error as BloqueDeError, Esqueleto } from '@/componentes/estados'
 import { conSesion, leerSesion, type Sesion } from '@/lib/sesion'
@@ -226,6 +227,8 @@ export default function FichaPublica() {
             )}
           </section>
 
+          <Fotos fotos={ficha.fotos} sesion={sesion!} onCambio={() => void cargar(sesion!)} />
+
           <form onSubmit={guardar} className="formulario" style={{ marginTop: 'var(--espacio-6)' }}>
             <label className="campo">
               <span>Nombre del salón</span>
@@ -347,5 +350,133 @@ export default function FichaPublica() {
         </>
       )}
     </div>
+  )
+}
+
+/**
+ * Las fotos de la ficha.
+ *
+ * **No hay subida de archivos todavía**, y eso está dicho en pantalla en vez de escondido: el
+ * almacenamiento de objetos no está decidido y un botón de «subir» que no sube sería peor que
+ * no tenerlo. Mientras tanto se pega una dirección, que es lo que hace cualquiera que ya tiene
+ * sus fotos en Instagram o en Drive.
+ *
+ * La portada es la primera y no se elige con un selector aparte: es la que está arriba. Ordenar
+ * y elegir portada son la misma decisión, y separarlas obliga a explicar las dos.
+ */
+function Fotos({
+  fotos,
+  sesion,
+  onCambio,
+}: {
+  fotos: Foto[]
+  sesion: Sesion
+  onCambio: () => void
+}) {
+  const [direccion, setDireccion] = useState('')
+  const [alternativo, setAlternativo] = useState('')
+  const [ocupado, setOcupado] = useState(false)
+  const [fallo, setFallo] = useState<string | null>(null)
+
+  return (
+    <section className="bloque-panel">
+      <h2 className="etiqueta">Fotos</h2>
+      <p className="tenue" style={{ fontSize: 'var(--tipografia-tamano-menor)' }}>
+        La primera es la portada: es la que sale en las búsquedas. Sin ninguna, tu ficha se pinta
+        con la inicial del salón sobre color.
+      </p>
+
+      {fotos.length > 0 && (
+        <ul className="fotos" style={{ marginTop: 'var(--espacio-4)' }}>
+          {fotos.map((f, i) => (
+            <li key={f.id} className="foto">
+              <FotoDeSalon src={f.url} alt={f.texto_alternativo ?? ''} ancho={300} alto={200} />
+              {i === 0 && <span className="foto__portada">Portada</span>}
+              <button
+                type="button"
+                className="foto__quitar"
+                aria-label="Quitar esta foto"
+                onClick={async () => {
+                  await conSesion(`/api/v1/negocio/fotos/${f.id}`, {
+                    metodo: 'DELETE',
+                    token: sesion.acceso,
+                  })
+                  onCambio()
+                }}
+              >
+                ×
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <form
+        className="formulario"
+        style={{ marginTop: 'var(--espacio-4)' }}
+        onSubmit={async (evento) => {
+          evento.preventDefault()
+          setOcupado(true)
+          setFallo(null)
+          try {
+            await conSesion('/api/v1/negocio/fotos', {
+              metodo: 'POST',
+              token: sesion.acceso,
+              cuerpo: {
+                clave: direccion.trim(),
+                clase: fotos.length === 0 ? 'portada' : 'galeria',
+                texto_alternativo: alternativo.trim() || null,
+                orden: fotos.length,
+              },
+            })
+            setDireccion('')
+            setAlternativo('')
+            onCambio()
+          } catch (error) {
+            setFallo(error instanceof Error ? error.message : 'No se pudo añadir la foto.')
+          } finally {
+            setOcupado(false)
+          }
+        }}
+      >
+        <label className="campo">
+          <span>Dirección de la foto</span>
+          <input
+            className="entrada"
+            value={direccion}
+            onChange={(e) => setDireccion(e.target.value)}
+            placeholder="https://… o la ruta de un archivo que ya tengas subido"
+            required
+          />
+          <span className="tenue" style={{ fontSize: 'var(--tipografia-tamano-menor)' }}>
+            Todavía no se pueden subir archivos desde aquí: pega la dirección de una foto que ya
+            esté en internet.
+          </span>
+        </label>
+
+        <label className="campo">
+          <span>Qué se ve en la foto (opcional)</span>
+          <input
+            className="entrada"
+            value={alternativo}
+            onChange={(e) => setAlternativo(e.target.value)}
+            placeholder="El local por dentro, con las tres sillas"
+            maxLength={200}
+          />
+        </label>
+
+        {fallo && (
+          <p role="alert" className="aviso aviso--error">
+            {fallo}
+          </p>
+        )}
+
+        <p>
+          <button type="submit" className="boton boton--primario" disabled={ocupado || !direccion.trim()}>
+            {ocupado ? 'Añadiendo…' : 'Añadir foto'}
+          </button>
+        </p>
+      </form>
+    </section>
   )
 }

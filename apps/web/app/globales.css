@@ -1429,6 +1429,9 @@ textarea.entrada { resize: vertical; min-height: 7rem; line-height: var(--tipogr
 @media (min-width: 900px) {
   .galeria { grid-auto-columns: 44%; aspect-ratio: auto; }
   .galeria img { aspect-ratio: 3 / 2; max-height: 420px; }
+  /* Con una sola foto no hay carrusel que hacer: ocupa el ancho. Heredar la columna del 44 %
+     dejaba media pantalla en gris, que se lee como una imagen que no cargó. */
+  .galeria--una { grid-auto-columns: 100%; }
 }
 /* Sin fotos, el bloque ocupa el ancho entero: heredar las columnas de la galería lo dejaría
    cortado a media pantalla y parecería una imagen que no cargó. */
@@ -1648,3 +1651,38 @@ textarea.entrada { resize: vertical; min-height: 7rem; line-height: var(--tipogr
 .estrella:active { transform: scale(0.85); }
 
 .cita__acciones { display: flex; flex-wrap: wrap; gap: var(--espacio-2); }
+
+.fotos { display: flex; flex-wrap: wrap; gap: var(--espacio-3); list-style: none; margin: 0; padding: 0; }
+.foto { position: relative; width: 148px; }
+.foto img { width: 100%; height: 104px; object-fit: cover; display: block; border: 1px solid var(--color-borde); }
+.foto__portada {
+  position: absolute;
+  bottom: 0;
+  inset-inline-start: 0;
+  padding: 2px var(--espacio-2);
+  background: var(--color-tinta);
+  color: var(--color-papel);
+  font-size: var(--tipografia-tamano-micro);
+}
+.foto__quitar {
+  position: absolute;
+  top: 0;
+  inset-inline-end: 0;
+  width: var(--espacio-toque-minimo);
+  height: var(--espacio-toque-minimo);
+  border: none;
+  background: var(--color-lienzo);
+  color: var(--color-peligro);
+  font-size: var(--tipografia-tamano-titulo-4);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.serie__eje {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  margin-top: var(--espacio-2);
+  font-size: var(--tipografia-tamano-menor);
+  color: var(--color-tinta-suave);
+}

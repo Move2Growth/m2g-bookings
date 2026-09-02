@@ -18,12 +18,19 @@
 
 | Qué | URL |
 |---|---|
-| Marketplace (lo que ve un cliente) | <http://localhost:3100> |
+| Portada | <http://localhost:3100> |
+| Cómo funciona (la página que explica el producto) | <http://localhost:3100/como-funciona> |
+| Marketplace con filtros | <http://localhost:3100/buscar> |
+| Una ficha con fotos y reseñas | <http://localhost:3100/spa-costa-del-este> |
 | Entrar (clientes y salones, la misma puerta) | <http://localhost:3100/entrar> |
-| Mis citas (cliente) | <http://localhost:3100/mis-reservas> |
-| Panel del salón | <http://localhost:3100/panel> |
+| Mis citas · Guardados · Perfil | `/mi/citas` · `/mi/favoritos` · `/mi/perfil` |
+| Panel del salón (siete pestañas) | `/panel/agenda` · `servicios` · `equipo` · `horario` · `clientes` · `resenas` · `ficha` |
 | Consola interna de M2G | <http://localhost:3100/consola> |
 | Documentación de la API | <http://localhost:8000/docs> |
+
+> **Por dónde empezar para verlo entero:** abre `/buscar`, entra en **Spa Costa del Este** —es el
+> único con foto y con reseñas respondidas—, reserva una hora, y luego entra con el teléfono de
+> ese salón para verla caer en su agenda. Con eso has recorrido las dos mitades del producto.
 
 ---
 

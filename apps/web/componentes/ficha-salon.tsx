@@ -1,7 +1,7 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
+import { FotoDeSalon } from '@/componentes/foto'
 import { useState } from 'react'
 import { API, leerSesion } from '@/lib/sesion'
 
@@ -49,11 +49,10 @@ export function FichaSalon({
       <Link href={`/${salon.slug}`} className="salon__enlace">
         <span className="salon__foto">
           {salon.foto_portada ? (
-            <Image
+            <FotoDeSalon
               src={salon.foto_portada}
-              alt=""
-              width={480}
-              height={480}
+              ancho={480}
+              alto={480}
               sizes="(min-width: 900px) 220px, 40vw"
             />
           ) : (
