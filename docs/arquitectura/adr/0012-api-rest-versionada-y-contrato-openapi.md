@@ -13,7 +13,7 @@ Una sola API sirve a tres superficies (§4 del brief), y una de ellas —la app�
 
 **Convenciones que no se discuten en cada endpoint:**
 
-- Recursos en plural y en español (`/negocios`, `/reservas`, `/servicios`), coherentes con el vocabulario de [`context/restricciones.md`](../../context/restricciones.md). El mismo término en el código, en la API y en la pantalla.
+- Recursos en plural y en español (`/negocios`, `/reservas`, `/servicios`), coherentes con el vocabulario de [`context/restricciones.md`](../../../context/restricciones.md). El mismo término en el código, en la API y en la pantalla.
 - Identificadores **UUID v7**: ordenables en el tiempo, sin revelar cuántas reservas hay ni permitir enumerarlas.
 - Paginación **por cursor** en todo lo que crece (reservas, reviews, resultados). El desplazamiento por página se degrada y se descuadra cuando entran filas nuevas.
 - Fechas y horas **ISO-8601 con desplazamiento explícito** (ADR-0003).
