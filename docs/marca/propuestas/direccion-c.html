@@ -1,0 +1,1113 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bukeo · Dirección C: Herramienta afilada</title>
+<meta name="description" content="Propuesta de identidad C para Bukeo, plataforma panameña de reservas y agenda para belleza y bienestar.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' fill='%23fff'/%3E%3Crect x='16' y='8' width='8' height='8' fill='%23CE300A'/%3E%3Cg stroke='%23101418' stroke-width='1.5' fill='none'%3E%3Crect x='.75' y='.75' width='22.5' height='22.5'/%3E%3Cpath d='M8 .75V23.25M16 .75V23.25M.75 8H23.25M.75 16H23.25'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   BUKEO . DIRECCION C . HERRAMIENTA AFILADA
+   Retícula visible, filetes de 1 px, cifras tabulares y un solo color
+   saturado reservado a lo accionable. Radio 0 en todo. Sin sombras.
+   ========================================================================== */
+
+:root{
+  color-scheme: light only;
+
+  /* Paleta. Siete valores, ni uno más. */
+  --papel:      #FFFFFF;  /* blanco papel   */
+  --reticula:   #F4F5F6;  /* gris retícula  */
+  --filete:     #DDE0E3;  /* gris filete    */
+  --cota:       #878E95;  /* gris cota      3.32:1 sobre papel, borde de control */
+  --grafito:    #4E555C;  /* grafito        7.56:1 sobre papel */
+  --tinta:      #101418;  /* tinta         18.50:1 sobre papel */
+  --bermellon:  #CE300A;  /* bermellón      5.18:1 sobre papel y 5.18:1 con blanco encima */
+  --tinta-suave:#C7CCD1;  /* solo sobre tinta, 11.44:1 */
+
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --marco: 1120px;
+  --canal: 16px;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+
+html{ -webkit-text-size-adjust:100%; scroll-behavior:smooth; }
+
+body{
+  margin:0;
+  background:var(--papel);
+  color:var(--tinta);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.5;
+  font-weight:400;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+img{ display:block; max-width:100%; height:auto; }
+a{ color:inherit; }
+h1,h2,h3,h4,p,ul,ol,figure,dl,dd{ margin:0; }
+ul,ol{ list-style:none; padding:0; }
+button{ font:inherit; color:inherit; background:none; border:0; }
+
+:where(a,button,[tabindex]):focus-visible{
+  outline:2px solid var(--bermellon);
+  outline-offset:2px;
+}
+
+/* Nada redondeado en ningún sitio. */
+a,button,input,img,div,section,li,figure,span,table,th,td{ border-radius:0; }
+
+/* ---- Estructura -------------------------------------------------------- */
+
+.marco{
+  width:100%;
+  max-width:var(--marco);
+  margin:0 auto;
+  padding:0 var(--canal);
+}
+
+.seccion{ border-top:1px solid var(--tinta); }
+
+.seccion-cabeza{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:4px 16px;
+  padding:22px 0 14px;
+  border-bottom:1px solid var(--filete);
+}
+.seccion-cabeza h2{
+  font-size:22px;
+  line-height:1.15;
+  font-weight:600;
+  letter-spacing:-.018em;
+}
+.cota{
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  color:var(--grafito);
+  font-variant-numeric:tabular-nums lining-nums;
+}
+.cifra{ font-family:var(--mono); font-variant-numeric:tabular-nums lining-nums; }
+
+.parrafo{ color:var(--grafito); font-size:15px; max-width:62ch; }
+.parrafo strong{ color:var(--tinta); font-weight:500; }
+
+/* ---- Barra ------------------------------------------------------------- */
+
+.barra{
+  position:sticky; top:0; z-index:20;
+  background:var(--papel);
+  border-bottom:1px solid var(--tinta);
+}
+.barra-fila{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px; height:56px;
+}
+.logo{ display:flex; align-items:center; text-decoration:none; }
+.logo svg{ height:22px; width:auto; display:block; }
+.menu{ display:flex; align-items:center; gap:18px; }
+.menu a{
+  font-size:14px; font-weight:500; text-decoration:none;
+  color:var(--tinta); padding:4px 0;
+  border-bottom:1px solid transparent;
+  white-space:nowrap;
+}
+.menu a:hover{ border-bottom-color:var(--tinta); }
+.menu a.entrar{
+  border:1px solid var(--tinta);
+  padding:6px 12px;
+}
+.menu a.entrar:hover{ background:var(--tinta); color:var(--papel); }
+.menu .opcional{ display:none; }
+
+/* ---- Botones ----------------------------------------------------------- */
+
+.boton{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  min-height:48px; padding:0 18px;
+  font-size:15px; font-weight:600; letter-spacing:-.005em;
+  text-decoration:none; cursor:pointer;
+  border:1px solid var(--tinta);
+  background:var(--papel); color:var(--tinta);
+}
+.boton:hover{ background:var(--reticula); }
+.boton--principal{
+  background:var(--bermellon);
+  border-color:var(--bermellon);
+  color:#FFFFFF;
+}
+.boton--principal:hover{ background:#B32808; border-color:#B32808; }
+.boton--menor{ min-height:38px; padding:0 12px; font-size:13px; }
+
+/* ---- Portada ----------------------------------------------------------- */
+
+.portada{ padding:24px var(--canal) 28px; }
+.ceja{
+  font-family:var(--mono); font-size:11px; font-weight:500;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--grafito);
+  padding-bottom:14px; margin-bottom:16px;
+  border-bottom:1px solid var(--filete);
+}
+.portada h1{
+  font-size:30px; line-height:1.08; font-weight:600; letter-spacing:-.032em;
+  text-wrap:balance; max-width:15ch;
+}
+.portada .bajada{
+  margin-top:14px; font-size:16px; line-height:1.45; color:var(--grafito);
+  max-width:46ch;
+}
+.acciones{ display:flex; flex-direction:column; gap:8px; margin-top:20px; }
+
+.cinta{
+  display:grid; grid-template-columns:1fr 1fr;
+  border:1px solid var(--filete); border-bottom:0;
+  margin-top:22px;
+}
+.cinta div{
+  padding:9px 10px;
+  border-bottom:1px solid var(--filete);
+  border-right:1px solid var(--filete);
+}
+.cinta div:nth-child(2n){ border-right:0; }
+.cinta div:last-child:nth-child(odd){ grid-column:1 / -1; border-right:0; }
+.cinta b{
+  display:block; font-family:var(--mono); font-size:17px; font-weight:500;
+  font-variant-numeric:tabular-nums lining-nums; letter-spacing:-.02em;
+}
+.cinta span{
+  display:block; font-size:12px; color:var(--grafito); margin-top:1px;
+}
+
+.foto{ margin-top:22px; }
+.foto img{ width:100%; aspect-ratio:16/9; object-fit:cover; border:1px solid var(--filete); }
+.foto figcaption{
+  display:flex; justify-content:space-between; gap:12px;
+  padding-top:7px; border-top:1px solid var(--filete); margin-top:-1px;
+  font-family:var(--mono); font-size:11px; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--grafito);
+}
+
+/* ---- Ledger de pasos (clienta) ----------------------------------------- */
+
+.ledger{ border-bottom:1px solid var(--filete); }
+.ledger li{
+  display:grid; gap:4px 20px;
+  padding:16px 0; border-bottom:1px solid var(--filete);
+}
+.ledger li:last-child{ border-bottom:0; }
+.ledger h3{ font-size:17px; font-weight:600; letter-spacing:-.015em; }
+.ledger p{ font-size:14.5px; color:var(--grafito); max-width:52ch; }
+.pieza{
+  margin-top:8px; border:1px solid var(--filete); background:var(--reticula);
+  padding:10px 11px;
+}
+.pieza .cifra, .pieza code{
+  font-family:var(--mono); font-size:13px; color:var(--tinta);
+  font-variant-numeric:tabular-nums lining-nums;
+}
+.pieza .rotulo{
+  display:block; font-family:var(--mono); font-size:10px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--grafito); margin-bottom:5px;
+}
+.minihoras{ display:flex; flex-wrap:wrap; gap:5px; }
+.minihoras span{
+  font-family:var(--mono); font-size:12.5px; font-variant-numeric:tabular-nums;
+  padding:4px 7px; border:1px solid var(--cota); background:var(--papel);
+  color:var(--grafito);
+}
+.minihoras span.libre{ border-color:var(--bermellon); color:var(--bermellon); font-weight:500; }
+
+/* ---- Tabla de cifras (salón) ------------------------------------------- */
+
+.cifras{ width:100%; border-collapse:collapse; margin-top:2px; }
+.oculto{ position:absolute; width:1px; height:1px; margin:-1px; padding:0;
+  overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; border:0; }
+.cifras caption{ position:absolute; width:1px; height:1px; margin:-1px; padding:0;
+  overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; }
+.cifras th, .cifras td{
+  text-align:left; padding:12px 0; border-bottom:1px solid var(--filete);
+  vertical-align:baseline;
+}
+.cifras th{ font-size:14.5px; font-weight:400; color:var(--grafito); padding-right:14px; }
+.cifras td{
+  text-align:right; white-space:nowrap;
+  font-family:var(--mono); font-weight:500; font-size:16px;
+  font-variant-numeric:tabular-nums lining-nums; letter-spacing:-.02em;
+}
+.cifras tr:last-child th, .cifras tr:last-child td{ border-bottom:0; }
+.cifras .destacada th{ color:var(--tinta); font-weight:500; }
+.cifras .destacada td{ font-size:22px; }
+
+.remate{
+  display:flex; flex-wrap:wrap; align-items:center; gap:14px;
+  padding:18px 0 24px; border-top:1px solid var(--tinta);
+}
+.remate p{ font-size:14.5px; color:var(--grafito); max-width:44ch; }
+
+/* ---- Ficha de salón ---------------------------------------------------- */
+
+.ficha{ padding-bottom:26px; }
+.ficha-cabeza{ padding:20px 0 14px; border-bottom:1px solid var(--filete); }
+.ficha-cabeza h3{ font-size:24px; font-weight:600; letter-spacing:-.025em; line-height:1.1; }
+.ficha-datos{
+  display:flex; flex-wrap:wrap; gap:4px 10px; margin-top:8px;
+  font-size:13px; color:var(--grafito);
+}
+.ficha-datos span{ white-space:nowrap; }
+.ficha-datos .cifra{ color:var(--tinta); font-weight:500; }
+.galeria{ display:grid; grid-template-columns:2fr 1fr; gap:1px; background:var(--filete); margin-top:16px; border:1px solid var(--filete); }
+.galeria img{ width:100%; height:100%; object-fit:cover; aspect-ratio:4/3; }
+.galeria .col{ display:grid; gap:1px; }
+.galeria .col img{ aspect-ratio:8/3; }
+
+.bloque{ padding-top:20px; }
+.bloque-titulo{
+  display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+  padding-bottom:8px; border-bottom:1px solid var(--tinta);
+}
+.bloque-titulo h4{ font-size:15px; font-weight:600; letter-spacing:-.01em; }
+
+.servicios{ width:100%; border-collapse:collapse; }
+.servicios thead th{
+  font-family:var(--mono); font-size:10px; font-weight:500; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--grafito); text-align:left;
+  padding:8px 0; border-bottom:1px solid var(--filete);
+}
+.servicios thead th.der{ text-align:right; }
+.servicios td{
+  padding:11px 0; border-bottom:1px solid var(--filete); font-size:15px;
+  vertical-align:baseline;
+}
+.servicios td.dur, .servicios td.pre{
+  text-align:right; white-space:nowrap;
+  font-family:var(--mono); font-variant-numeric:tabular-nums lining-nums;
+  font-size:14px;
+}
+.servicios td.dur{ color:var(--grafito); padding-right:14px; }
+.servicios td.pre{ font-weight:500; }
+.servicios tr.elegido td{ background:var(--reticula); }
+.servicios tr.elegido td.nom::before{
+  content:""; display:inline-block; width:7px; height:7px;
+  background:var(--bermellon); margin-right:8px; vertical-align:1px;
+}
+
+.rejilla{
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:1px; background:var(--filete);
+  border:1px solid var(--filete); margin-top:12px;
+}
+.hora{
+  display:flex; align-items:center; justify-content:center;
+  min-height:46px; background:var(--papel);
+  font-family:var(--mono); font-size:14px; font-weight:500;
+  font-variant-numeric:tabular-nums lining-nums;
+  color:var(--bermellon); cursor:pointer;
+  box-shadow:inset 0 0 0 1px var(--bermellon);
+}
+.hora:hover{ background:var(--bermellon); color:#FFFFFF; }
+.hora[aria-pressed="true"]{ background:var(--bermellon); color:#FFFFFF; }
+.hora.ocupada{
+  background:var(--reticula); color:var(--grafito); cursor:default;
+  box-shadow:none; text-decoration:line-through;
+  text-decoration-thickness:1px; font-weight:400;
+}
+.leyenda{
+  display:flex; flex-wrap:wrap; gap:6px 16px; padding-top:10px;
+  font-family:var(--mono); font-size:11px; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--grafito);
+}
+.leyenda i{ display:inline-block; width:9px; height:9px; margin-right:6px; vertical-align:-1px; }
+.leyenda i.l{ box-shadow:inset 0 0 0 1px var(--bermellon); }
+.leyenda i.o{ background:var(--reticula); box-shadow:inset 0 0 0 1px var(--filete); }
+
+.reserva-pie{
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
+  gap:12px; margin-top:16px; padding-top:14px; border-top:1px solid var(--tinta);
+}
+.reserva-pie .resumen{ font-size:14px; color:var(--grafito); }
+.reserva-pie .resumen b{
+  display:block; color:var(--tinta); font-family:var(--mono); font-weight:500;
+  font-size:15px; font-variant-numeric:tabular-nums lining-nums;
+}
+
+/* ---- Agenda del salón en el móvil -------------------------------------- */
+
+.agenda-zona{ padding:20px 0 28px; display:grid; gap:26px; }
+
+.pantalla{
+  width:100%; max-width:390px; border:1px solid var(--tinta); background:var(--papel);
+}
+.pantalla-rotulo{
+  display:flex; justify-content:space-between; gap:10px;
+  font-family:var(--mono); font-size:10px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--grafito);
+  padding-bottom:6px; max-width:390px;
+}
+.ag-barra{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 12px; border-bottom:1px solid var(--tinta);
+}
+.ag-barra .dia{ font-size:15px; font-weight:600; letter-spacing:-.01em; }
+.ag-barra .dia small{ display:block; font-family:var(--mono); font-size:10px; font-weight:400; letter-spacing:.08em; text-transform:uppercase; color:var(--grafito); }
+.ag-nav{ display:flex; gap:1px; background:var(--filete); border:1px solid var(--filete); }
+.ag-nav button{
+  width:34px; height:34px; background:var(--papel); cursor:pointer;
+  font-family:var(--mono); font-size:14px; line-height:1; color:var(--tinta);
+}
+.ag-nav button:hover{ background:var(--reticula); }
+
+.ag-kpi{ display:grid; grid-template-columns:repeat(4,1fr); background:var(--filete); gap:1px; border-bottom:1px solid var(--tinta); }
+.ag-kpi div{ background:var(--reticula); padding:8px 6px; }
+.ag-kpi b{
+  display:block; font-family:var(--mono); font-size:14px; font-weight:500;
+  font-variant-numeric:tabular-nums lining-nums; letter-spacing:-.03em;
+}
+.ag-kpi span{ display:block; font-family:var(--mono); font-size:9px; letter-spacing:.07em; text-transform:uppercase; color:var(--grafito); margin-top:2px; }
+
+.citas li{ border-bottom:1px solid var(--filete); }
+.citas li:last-child{ border-bottom:0; }
+
+.cita{
+  display:grid; grid-template-columns:52px 1fr auto;
+  gap:2px 10px; padding:9px 12px; min-height:60px; align-items:start;
+  cursor:pointer; background:var(--papel);
+}
+.cita:hover{ background:var(--reticula); }
+.cita-reloj{ grid-row:1 / span 2; border-right:1px solid var(--filete); padding-right:8px; height:100%; }
+.cita-reloj b{
+  display:block; font-family:var(--mono); font-size:15px; font-weight:500;
+  font-variant-numeric:tabular-nums lining-nums; letter-spacing:-.03em;
+}
+.cita-reloj s{
+  display:block; font-family:var(--mono); font-size:11px; color:var(--grafito);
+  font-variant-numeric:tabular-nums lining-nums; text-decoration:none;
+}
+.cita--anulada .cita-reloj b{ text-decoration:line-through; text-decoration-thickness:1px; color:var(--grafito); font-weight:400; }
+.cita-nombre{ font-size:15px; font-weight:500; letter-spacing:-.01em; }
+.cita--anulada .cita-nombre{ text-decoration:line-through; text-decoration-thickness:1px; color:var(--grafito); font-weight:400; }
+.cita-servicio{ grid-column:2; font-size:12.5px; color:var(--grafito); font-variant-numeric:tabular-nums; }
+.cita-importe{
+  grid-column:3; grid-row:2; text-align:right; align-self:end;
+  font-family:var(--mono); font-size:12.5px; color:var(--grafito);
+  font-variant-numeric:tabular-nums lining-nums;
+}
+.estado{
+  grid-column:3; justify-self:end;
+  font-family:var(--mono); font-size:9.5px; font-weight:500; letter-spacing:.08em;
+  text-transform:uppercase; padding:3px 5px; white-space:nowrap;
+  border:1px solid var(--filete); color:var(--grafito);
+}
+.estado--firme{ border-color:var(--tinta); color:var(--tinta); }
+.estado--espera{ border-color:var(--tinta); color:var(--tinta); background:var(--reticula); }
+
+.ahora{
+  display:flex; align-items:center; gap:8px; padding:0 12px;
+  background:var(--papel);
+}
+.ahora b{
+  font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.09em;
+  color:var(--tinta); padding:3px 0; white-space:nowrap;
+  font-variant-numeric:tabular-nums lining-nums;
+}
+.ahora .linea{ flex:1; height:0; border-top:2px solid var(--tinta); }
+
+.hueco{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:11px 12px; box-shadow:inset 0 0 0 1px var(--bermellon);
+  margin:0;
+}
+.hueco .txt b{
+  display:block; font-family:var(--mono); font-size:14px; font-weight:500;
+  color:var(--bermellon); font-variant-numeric:tabular-nums lining-nums; letter-spacing:-.03em;
+}
+.hueco .txt span{ display:block; font-size:12.5px; color:var(--grafito); }
+.hueco button{
+  border:1px solid var(--bermellon); background:var(--bermellon); color:#FFFFFF;
+  font-size:12.5px; font-weight:600; padding:9px 11px; cursor:pointer; white-space:nowrap;
+}
+.hueco button:hover{ background:#B32808; border-color:#B32808; }
+
+.bloqueo{
+  display:grid; grid-template-columns:52px 1fr; gap:10px; padding:9px 12px;
+  background:var(--reticula);
+}
+.bloqueo b{
+  font-family:var(--mono); font-size:13px; font-weight:400; color:var(--grafito);
+  font-variant-numeric:tabular-nums lining-nums; letter-spacing:-.03em;
+}
+.bloqueo span{ font-size:13px; color:var(--grafito); }
+
+.notas{ border-top:1px solid var(--tinta); }
+.notas li{ padding:13px 0; border-bottom:1px solid var(--filete); display:grid; gap:3px; }
+.notas li:last-child{ border-bottom:0; }
+.notas p{ font-size:14px; color:var(--grafito); max-width:50ch; }
+
+/* ---- Pie --------------------------------------------------------------- */
+
+.pie{ background:var(--tinta); color:var(--tinta-suave); border-top:1px solid var(--tinta); }
+.pie-red{ display:grid; gap:22px; padding:26px 0 20px; }
+.pie h5{
+  font-family:var(--mono); font-size:10px; font-weight:500; letter-spacing:.11em;
+  text-transform:uppercase; color:#FFFFFF; padding-bottom:8px;
+  border-bottom:1px solid #3A4048; margin-bottom:8px;
+}
+.pie ul{ display:grid; gap:6px; }
+.pie a{ color:var(--tinta-suave); font-size:14px; text-decoration:none; }
+.pie a:hover{ color:#FFFFFF; text-decoration:underline; text-underline-offset:3px; }
+.pie-legal{
+  display:flex; flex-wrap:wrap; gap:6px 18px; justify-content:space-between;
+  padding:14px 0 26px; border-top:1px solid #3A4048;
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.06em;
+  text-transform:uppercase; color:#9AA1A8;
+  font-variant-numeric:tabular-nums lining-nums;
+}
+.pie-marca{ display:flex; align-items:center; gap:12px; padding-top:24px; }
+.pie-marca svg{ height:20px; width:auto; }
+
+/* ---- Anexo: paleta y tipografía ---------------------------------------- */
+
+.anexo{ background:var(--papel); border-top:1px solid var(--tinta); }
+.paleta{ width:100%; border-collapse:collapse; }
+.paleta thead th{
+  font-family:var(--mono); font-size:10px; font-weight:500; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--grafito); text-align:left;
+  padding:8px 10px 8px 0; border-bottom:1px solid var(--tinta);
+}
+.paleta thead th.der{ text-align:right; padding-right:0; }
+.paleta td{ padding:10px 10px 10px 0; border-bottom:1px solid var(--filete); font-size:14px; vertical-align:middle; }
+.paleta td.der{ text-align:right; padding-right:0; white-space:nowrap; }
+.paleta .muestra{ width:1%; padding-right:12px; }
+.paleta .muestra i{ display:block; width:44px; height:30px; border:1px solid var(--cota); }
+.paleta .hex, .paleta .prop, .paleta .ratio{
+  font-family:var(--mono); font-variant-numeric:tabular-nums lining-nums; font-size:13px;
+}
+.paleta .prop{ font-weight:500; font-size:15px; }
+.paleta .uso{ color:var(--grafito); font-size:13px; }
+.barra-prop{ display:flex; height:14px; border:1px solid var(--filete); margin-top:14px; }
+.barra-prop i{ display:block; height:100%; }
+
+.tipo{ padding-top:26px; }
+.tipo-muestra{ border:1px solid var(--filete); padding:16px; margin-top:12px; }
+.tipo-muestra .grande{ font-size:34px; font-weight:600; letter-spacing:-.03em; line-height:1.05; }
+.tipo-muestra .mono-grande{
+  font-family:var(--mono); font-size:26px; font-weight:500; letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums lining-nums; margin-top:10px;
+  padding-top:10px; border-top:1px solid var(--filete);
+}
+.tipo-escala{ margin-top:12px; width:100%; border-collapse:collapse; }
+.tipo-escala td{ padding:7px 0; border-bottom:1px solid var(--filete); font-size:14px; }
+.tipo-escala td.der{ text-align:right; font-family:var(--mono); font-size:12px; color:var(--grafito); font-variant-numeric:tabular-nums; }
+.tipo-escala tr:last-child td{ border-bottom:0; }
+
+/* ---- Paleta apilada por debajo de 768 px -------------------------------- */
+
+@media (max-width:767px){
+  .paleta thead{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); }
+  .paleta, .paleta tbody{ display:block; }
+  .paleta tr{
+    display:grid; grid-template-columns:56px minmax(0,1fr) auto;
+    padding:13px 0; border-bottom:1px solid var(--filete);
+  }
+  .paleta tr:last-child{ border-bottom:0; }
+  .paleta td{ display:block; padding:0; border-bottom:0; }
+  .paleta td.muestra{ width:auto; grid-column:1; grid-row:1 / span 2; padding-right:12px; }
+  .paleta td:nth-child(2){ grid-column:2; grid-row:1; font-weight:500; }
+  .paleta td.hex{ grid-column:2; grid-row:2; color:var(--grafito); }
+  .paleta td.der.ratio{ grid-column:3; grid-row:2; text-align:right; color:var(--grafito); }
+  .paleta td.der.prop{ grid-column:3; grid-row:1; text-align:right; }
+  .paleta td.uso{ grid-column:2 / -1; grid-row:3; padding-top:6px; }
+}
+
+/* ---- 768 px ------------------------------------------------------------ */
+
+@media (min-width:768px){
+  :root{ --canal:28px; }
+  .menu .opcional{ display:inline-block; }
+  .barra-fila{ height:64px; }
+  .logo svg{ height:24px; }
+
+  .portada{ display:grid; grid-template-columns:1fr 1fr; gap:0 32px; padding:32px var(--canal) 36px; }
+  .portada .ceja{ grid-column:1 / -1; }
+  .portada h1{ font-size:46px; }
+  .acciones{ flex-direction:row; }
+  .foto{ margin-top:0; grid-column:2; grid-row:2 / span 3; align-self:start; }
+  .foto img{ aspect-ratio:3/4; }
+  .cinta{ grid-column:1; grid-template-columns:1fr 1fr; }
+
+  .seccion-cabeza h2{ font-size:26px; }
+  .ledger li{ grid-template-columns:132px minmax(0,1fr) minmax(0,300px); align-items:start; }
+  .ledger li .pieza{ margin-top:0; }
+  .cifras th{ font-size:15.5px; }
+  .ficha-cabeza h3{ font-size:30px; }
+  .rejilla{ grid-template-columns:repeat(6,1fr); }
+  .ficha-cuerpo{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:0 32px; align-items:start; }
+  .agenda-zona{ grid-template-columns:390px minmax(0,1fr); gap:0 40px; align-items:start; }
+  .pie-red{ grid-template-columns:repeat(4,1fr); gap:26px; padding:32px 0 24px; }
+  .paleta td{ font-size:15px; }
+  .tipo-cuerpo{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:0 32px; align-items:start; }
+}
+
+/* ---- 1120 px ----------------------------------------------------------- */
+
+@media (min-width:1120px){
+  :root{ --canal:40px; }
+  .portada{ grid-template-columns:1.05fr .95fr; gap:0 56px; padding:44px var(--canal) 48px; }
+  .portada h1{ font-size:56px; letter-spacing:-.035em; }
+  .portada .bajada{ font-size:17px; }
+  .seccion-cabeza h2{ font-size:30px; }
+  .ledger li{ grid-template-columns:150px minmax(0,1fr) minmax(0,340px); }
+  .rejilla{ grid-template-columns:repeat(11,1fr); }
+  .agenda-zona{ gap:0 56px; }
+}
+
+@media (prefers-reduced-motion:reduce){ html{ scroll-behavior:auto; } }
+</style>
+</head>
+<body>
+
+<!-- ====================== 1. BARRA ====================== -->
+<header class="barra">
+  <div class="marco barra-fila">
+    <a class="logo" href="#portada" aria-label="Bukeo, inicio">
+      <svg viewBox="-1 -1 152 28" height="22" role="img" aria-label="Bukeo">
+        <rect x="16" y="8" width="8" height="8" fill="#CE300A"/>
+        <g fill="none" stroke="#101418">
+          <rect x="0.75" y="0.75" width="22.5" height="22.5" stroke-width="1.5"/>
+          <path d="M8 0.75V23.25M16 0.75V23.25M0.75 8H23.25M0.75 16H23.25" stroke-width="1.25"/>
+        </g>
+        <g fill="none" stroke="#101418" stroke-width="3">
+          <path d="M37.5 0V24"/><circle cx="45.5" cy="16" r="8"/>
+          <path d="M61.5 8V16a8 8 0 0 0 16 0V8"/><path d="M77.5 16V24"/>
+          <path d="M85.5 0V24"/><path d="M99 8L87 17.5"/><path d="M93.6 12.275L100.5 24"/>
+          <path d="M108.5 16H124.5"/><path d="M124.5 16A8 8 0 1 0 122.16 21.66"/>
+          <circle cx="140.5" cy="16" r="8"/>
+        </g>
+      </svg>
+    </a>
+    <nav class="menu" aria-label="Principal">
+      <a href="#ficha">Buscar</a>
+      <a href="#clienta" class="opcional">Cómo funciona</a>
+      <a href="#salon">Para tu salón</a>
+      <a href="#agenda" class="entrar">Entrar</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ====================== 2. PORTADA ====================== -->
+<main id="portada">
+<section class="marco portada">
+  <p class="ceja">Reservas y agenda · Ciudad de Panamá</p>
+
+  <div>
+    <h1>La hora exacta, no la lista de espera.</h1>
+    <p class="bajada">Barberías, salones y spa en Panamá. Reservas desde el móvil y agenda gratis para el negocio, sin comisión.</p>
+    <div class="acciones">
+      <a class="boton boton--principal" href="#ficha">Buscar hora libre</a>
+      <a class="boton" href="#salon">Publicar mi salón</a>
+    </div>
+  </div>
+
+  <div class="cinta" role="group" aria-label="Cifras de la plataforma">
+    <div><b>418</b><span>salones publicados</span></div>
+    <div><b>2,146</b><span>horas libres hoy</span></div>
+    <div><b>11</b><span>zonas de la ciudad</span></div>
+    <div><b>B/. 0.00</b><span>coste para el salón</span></div>
+  </div>
+
+  <figure class="foto">
+    <img src="https://picsum.photos/seed/barberia-el-cangrejo-panama/900/1200" alt="Interior de una barbería en Ciudad de Panamá con la silla del barbero junto al espejo." width="900" height="1200">
+    <figcaption><span>Barbería en El Cangrejo</span><span class="cifra">08°59'N 79°32'O</span></figcaption>
+  </figure>
+</section>
+
+<!-- ====================== 3. LA CLIENTA ====================== -->
+<section class="seccion" id="clienta">
+  <div class="marco">
+    <div class="seccion-cabeza">
+      <h2>Cómo reserva la clienta</h2>
+      <p class="cota">Tres pasos · 40 segundos de media</p>
+    </div>
+
+    <ol class="ledger">
+      <li>
+        <p class="cota">Buscar</p>
+        <div>
+          <h3>Escribe qué necesita y dónde está</h3>
+          <p>El buscador entiende el servicio y la zona en la misma línea. Los resultados salen ordenados por hora libre más cercana, no por quién paga más. Lo patrocinado se marca como tal.</p>
+        </div>
+        <div class="pieza">
+          <span class="rotulo">Consulta</span>
+          <span class="cifra">barbería · El Cangrejo · hoy</span><br>
+          <span class="cifra" style="color:var(--grafito)">38 resultados en 0.4 s</span>
+        </div>
+      </li>
+      <li>
+        <p class="cota">Elegir hora</p>
+        <div>
+          <h3>Ve las horas que quedan de verdad</h3>
+          <p>No es un formulario de solicitud que alguien contesta mañana. Es la agenda del salón restando reservas, descansos y márgenes entre servicios, calculada en el momento.</p>
+        </div>
+        <div class="pieza">
+          <span class="rotulo">Corte clásico, 40 min</span>
+          <div class="minihoras">
+            <span>10:30</span><span class="libre">11:00</span><span class="libre">11:15</span><span>11:45</span><span class="libre">13:00</span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <p class="cota">Reservar</p>
+        <div>
+          <h3>Confirma con su número y se acabó</h3>
+          <p>Teléfono verificado una sola vez. El recordatorio llega por WhatsApp la tarde anterior y cancelar es un toque, que es exactamente lo que evita que el salón se quede con la silla vacía.</p>
+        </div>
+        <div class="pieza">
+          <span class="rotulo">Comprobante</span>
+          <span class="cifra">BK-A4-7719 · confirmada</span><br>
+          <span class="cifra" style="color:var(--grafito)">mié 3 sep · 11:00 · B/. 12.00</span>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ====================== 4. EL SALÓN ====================== -->
+<section class="seccion" id="salon">
+  <div class="marco">
+    <div class="seccion-cabeza">
+      <h2>Para el salón, la agenda cuesta cero</h2>
+      <p class="cota">Operativo en menos de 10 minutos</p>
+    </div>
+
+    <table class="cifras">
+      <caption>Lo que cuesta cada cosa en Bukeo</caption>
+      <tbody>
+        <tr class="destacada"><th scope="row">Agenda, equipo, ficha pública y recordatorios</th><td>B/. 0.00 / mes</td></tr>
+        <tr><th scope="row">Comisión por cada reserva que entra</th><td>0 %</td></tr>
+        <tr><th scope="row">Tarjeta de crédito para registrarte</th><td>No</td></tr>
+        <tr><th scope="row">Profesionales que puedes dar de alta</th><td>Sin tope</td></tr>
+        <tr><th scope="row">Aparecer primero en tu categoría y tu zona</th><td>desde B/. 15.00 / 7 días</td></tr>
+      </tbody>
+    </table>
+
+    <div class="remate">
+      <p>Bukeo cobra solo por posicionamiento, y es opcional. Si nunca compras visibilidad, nunca pagas nada. Ese es todo el modelo.</p>
+      <a class="boton boton--principal" href="#agenda">Publicar mi salón</a>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 5. FICHA DE SALÓN ====================== -->
+<section class="seccion" id="ficha">
+  <div class="marco ficha">
+    <div class="seccion-cabeza">
+      <h2>La ficha en el marketplace</h2>
+      <p class="cota">Vista de la clienta</p>
+    </div>
+
+    <div class="ficha-cabeza">
+      <h3>Barbería Don Ramiro</h3>
+      <p class="ficha-datos">
+        <span>El Cangrejo, Ciudad de Panamá</span>
+        <span>·</span>
+        <span class="cifra">4.8</span> <span>de 212 reseñas</span>
+        <span>·</span>
+        <span class="cifra">1.2 km</span>
+        <span>·</span>
+        <span>Vía Argentina con Calle D</span>
+        <span>·</span>
+        <span>Abre hasta las <span class="cifra">20:00</span></span>
+      </p>
+    </div>
+
+    <div class="galeria">
+      <img src="https://picsum.photos/seed/don-ramiro-silla/800/600" alt="Silla de barbero y espejo del local." width="800" height="600" loading="lazy">
+      <div class="col">
+        <img src="https://picsum.photos/seed/don-ramiro-navaja/400/150" alt="Herramientas de afeitado sobre el mueble." width="400" height="150" loading="lazy">
+        <img src="https://picsum.photos/seed/don-ramiro-fachada/400/150" alt="Fachada del local desde la acera." width="400" height="150" loading="lazy">
+      </div>
+    </div>
+
+    <div class="ficha-cuerpo">
+      <div class="bloque">
+        <div class="bloque-titulo">
+          <h4>Servicios</h4>
+          <span class="cota">5 activos</span>
+        </div>
+        <table class="servicios">
+          <caption class="oculto">Servicios con duración y precio</caption>
+          <thead>
+            <tr><th scope="col">Servicio</th><th scope="col" class="der">Duración</th><th scope="col" class="der">Precio</th></tr>
+          </thead>
+          <tbody>
+            <tr class="elegido"><td class="nom">Corte clásico</td><td class="dur">40 min</td><td class="pre">B/. 12.00</td></tr>
+            <tr><td class="nom">Corte y barba</td><td class="dur">60 min</td><td class="pre">B/. 18.00</td></tr>
+            <tr><td class="nom">Perfilado de barba</td><td class="dur">25 min</td><td class="pre">B/. 8.00</td></tr>
+            <tr><td class="nom">Afeitado a navaja</td><td class="dur">45 min</td><td class="pre">B/. 15.00</td></tr>
+            <tr><td class="nom">Corte infantil</td><td class="dur">30 min</td><td class="pre">B/. 9.00</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="bloque">
+        <div class="bloque-titulo">
+          <h4>Horas libres, miércoles 3 de septiembre</h4>
+          <span class="cota">9 de 22</span>
+        </div>
+        <div class="rejilla" role="group" aria-label="Horas disponibles para Corte clásico el miércoles 3 de septiembre">
+          <button type="button" class="hora" aria-pressed="false">09:00</button>
+          <button type="button" class="hora ocupada" disabled aria-label="09:30 ocupada">09:30</button>
+          <button type="button" class="hora ocupada" disabled aria-label="10:00 ocupada">10:00</button>
+          <button type="button" class="hora" aria-pressed="false">10:30</button>
+          <button type="button" class="hora" aria-pressed="true">11:00</button>
+          <button type="button" class="hora ocupada" disabled aria-label="11:30 ocupada">11:30</button>
+          <button type="button" class="hora ocupada" disabled aria-label="12:00 ocupada">12:00</button>
+          <button type="button" class="hora ocupada" disabled aria-label="12:30 ocupada">12:30</button>
+          <button type="button" class="hora" aria-pressed="false">13:00</button>
+          <button type="button" class="hora ocupada" disabled aria-label="13:30 ocupada">13:30</button>
+          <button type="button" class="hora ocupada" disabled aria-label="14:00 ocupada">14:00</button>
+          <button type="button" class="hora" aria-pressed="false">14:30</button>
+          <button type="button" class="hora ocupada" disabled aria-label="15:00 ocupada">15:00</button>
+          <button type="button" class="hora" aria-pressed="false">15:30</button>
+          <button type="button" class="hora ocupada" disabled aria-label="16:00 ocupada">16:00</button>
+          <button type="button" class="hora ocupada" disabled aria-label="16:30 ocupada">16:30</button>
+          <button type="button" class="hora" aria-pressed="false">17:00</button>
+          <button type="button" class="hora ocupada" disabled aria-label="17:30 ocupada">17:30</button>
+          <button type="button" class="hora" aria-pressed="false">18:00</button>
+          <button type="button" class="hora ocupada" disabled aria-label="18:30 ocupada">18:30</button>
+          <button type="button" class="hora" aria-pressed="false">19:00</button>
+          <button type="button" class="hora ocupada" disabled aria-label="19:30 ocupada">19:30</button>
+        </div>
+        <p class="leyenda"><span><i class="l"></i>Libre, se puede tocar</span><span><i class="o"></i>Ocupada</span></p>
+      </div>
+    </div>
+
+    <div class="reserva-pie">
+      <p class="resumen">Corte clásico con Ramiro Him, 40 min<b>Miércoles 3 sep · 11:00 · B/. 12.00</b></p>
+      <a class="boton boton--principal" href="#agenda">Reservar a las 11:00</a>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 6. LA AGENDA EN EL MÓVIL ====================== -->
+<section class="seccion" id="agenda">
+  <div class="marco">
+    <div class="seccion-cabeza">
+      <h2>La agenda del salón, en el móvil</h2>
+      <p class="cota">La pantalla que se abre 40 veces al día</p>
+    </div>
+
+    <div class="agenda-zona">
+      <div>
+        <p class="pantalla-rotulo"><span>Bukeo, modo negocio</span><span>390 px</span></p>
+        <div class="pantalla">
+
+          <div class="ag-barra">
+            <p class="dia">Martes 2 de septiembre<small>Barbería Don Ramiro · Ramiro Him</small></p>
+            <div class="ag-nav">
+              <button type="button" aria-label="Día anterior">&lsaquo;</button>
+              <button type="button" aria-label="Día siguiente">&rsaquo;</button>
+            </div>
+          </div>
+
+          <div class="ag-kpi">
+            <div><b>8</b><span>citas</span></div>
+            <div><b>78 %</b><span>ocupación</span></div>
+            <div><b>83.00</b><span>previsto B/.</span></div>
+            <div><b>1</b><span>hueco</span></div>
+          </div>
+
+          <ul class="citas">
+            <li>
+              <div class="cita" tabindex="0" role="button">
+                <div class="cita-reloj"><b>08:30</b><s>09:30</s></div>
+                <p class="cita-nombre">Yariela Him</p>
+                <span class="estado">Completada</span>
+                <p class="cita-servicio">Corte y barba, 60 min</p>
+                <span class="cita-importe">B/. 18.00</span>
+              </div>
+            </li>
+            <li>
+              <div class="cita" tabindex="0" role="button">
+                <div class="cita-reloj"><b>09:30</b><s>09:55</s></div>
+                <p class="cita-nombre">Kevin Batista</p>
+                <span class="estado">Completada</span>
+                <p class="cita-servicio">Perfilado de barba, 25 min</p>
+                <span class="cita-importe">B/. 8.00</span>
+              </div>
+            </li>
+            <li>
+              <div class="cita cita--anulada" tabindex="0" role="button">
+                <div class="cita-reloj"><b>10:00</b><s>10:40</s></div>
+                <p class="cita-nombre">Ovidio Sáenz</p>
+                <span class="estado">No vino</span>
+                <p class="cita-servicio">Corte clásico, 40 min · 2.º aviso</p>
+                <span class="cita-importe">B/. 0.00</span>
+              </div>
+            </li>
+            <li>
+              <p class="ahora"><b>Ahora 10:42</b><span class="linea"></span></p>
+            </li>
+            <li>
+              <div class="cita" tabindex="0" role="button">
+                <div class="cita-reloj"><b>10:45</b><s>11:45</s></div>
+                <p class="cita-nombre">Aracelis Mendieta</p>
+                <span class="estado estado--firme">Confirmada</span>
+                <p class="cita-servicio">Corte y barba, 60 min</p>
+                <span class="cita-importe">B/. 18.00</span>
+              </div>
+            </li>
+            <li>
+              <div class="hueco">
+                <p class="txt"><b>11:45 a 12:30</b><span>Hueco libre, 45 min</span></p>
+                <button type="button">Ofrecer esta hora</button>
+              </div>
+            </li>
+            <li>
+              <p class="bloqueo"><b>12:30</b><span>Almuerzo, 45 min. Bloqueo fijo.</span></p>
+            </li>
+            <li>
+              <div class="cita" tabindex="0" role="button">
+                <div class="cita-reloj"><b>13:15</b><s>13:55</s></div>
+                <p class="cita-nombre">Josué Caballero</p>
+                <span class="estado estado--firme">Confirmada</span>
+                <p class="cita-servicio">Corte clásico, 40 min</p>
+                <span class="cita-importe">B/. 12.00</span>
+              </div>
+            </li>
+            <li>
+              <div class="cita" tabindex="0" role="button">
+                <div class="cita-reloj"><b>14:00</b><s>14:30</s></div>
+                <p class="cita-nombre">Maribel Quintero</p>
+                <span class="estado estado--espera">Pendiente</span>
+                <p class="cita-servicio">Corte infantil, 30 min · pide confirmar</p>
+                <span class="cita-importe">B/. 9.00</span>
+              </div>
+            </li>
+            <li>
+              <div class="cita cita--anulada" tabindex="0" role="button">
+                <div class="cita-reloj"><b>14:30</b><s>15:15</s></div>
+                <p class="cita-nombre">Yamileth Sánchez</p>
+                <span class="estado">Canceló ella</span>
+                <p class="cita-servicio">Afeitado a navaja, 45 min · anoche 21:14</p>
+                <span class="cita-importe">B/. 0.00</span>
+              </div>
+            </li>
+            <li>
+              <div class="cita" tabindex="0" role="button">
+                <div class="cita-reloj"><b>15:30</b><s>16:30</s></div>
+                <p class="cita-nombre">Deibis Arjona</p>
+                <span class="estado estado--firme">Confirmada</span>
+                <p class="cita-servicio">Corte y barba, 60 min</p>
+                <span class="cita-importe">B/. 18.00</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div>
+        <div class="bloque-titulo">
+          <h4>Por qué está dibujada así</h4>
+          <span class="cota">5 decisiones</span>
+        </div>
+        <ul class="notas">
+          <li><p><strong style="color:var(--tinta);font-weight:500">La fila entera se toca.</strong> Cada cita mide 60 px de alto y el objetivo táctil es la fila completa, no un icono de 24 px pegado al borde. Se usa con una mano y con prisa, muchas veces con tijeras en la otra.</p></li>
+          <li><p><strong style="color:var(--tinta);font-weight:500">El bermellón aparece una sola vez.</strong> Marca lo único que se puede hacer ahora mismo, que es cubrir el hueco de las 11:45. Si el color estuviera en cinco sitios, no señalaría ninguno.</p></li>
+          <li><p><strong style="color:var(--tinta);font-weight:500">Hora de inicio y hora de fin, en cifras tabulares.</strong> 09:55 y 11:45 ocupan exactamente el mismo ancho, así que la columna de horas cae recta y el ojo la recorre sin releer.</p></li>
+          <li><p><strong style="color:var(--tinta);font-weight:500">El estado se lee escrito, no pintado.</strong> Ninguno de los cinco estados depende del color. A contraluz, en un local con ventana a la calle, la palabra sigue ahí y el color se habría perdido.</p></li>
+          <li><p><strong style="color:var(--tinta);font-weight:500">La franja de arriba responde antes de bajar.</strong> Cuántas citas, cuánto entra hoy y qué queda libre son las tres preguntas que se hacen 40 veces al día. Están resueltas en 34 px de alto.</p></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ====================== 7. PIE ====================== -->
+<footer class="pie">
+  <div class="marco">
+    <div class="pie-red">
+      <div>
+        <h5>Reservar</h5>
+        <ul>
+          <li><a href="#ficha">Barberías</a></li>
+          <li><a href="#ficha">Peluquerías y salones</a></li>
+          <li><a href="#ficha">Uñas, pestañas y cejas</a></li>
+          <li><a href="#ficha">Spa y masajes</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Zonas</h5>
+        <ul>
+          <li><a href="#ficha">El Cangrejo</a></li>
+          <li><a href="#ficha">San Francisco</a></li>
+          <li><a href="#ficha">Costa del Este</a></li>
+          <li><a href="#ficha">Casco Antiguo</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Para el salón</h5>
+        <ul>
+          <li><a href="#salon">Publicar mi negocio</a></li>
+          <li><a href="#salon">Precios y posicionamiento</a></li>
+          <li><a href="#agenda">Agenda y equipo</a></li>
+          <li><a href="#clienta">Centro de ayuda</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Bukeo</h5>
+        <ul>
+          <li><a href="#portada">Quiénes somos</a></li>
+          <li><a href="#portada">Términos del servicio</a></li>
+          <li><a href="#portada">Privacidad, Ley 81</a></li>
+          <li><a href="#portada">Contacto</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pie-marca">
+      <svg viewBox="-1 -1 152 28" height="20" role="img" aria-label="Bukeo">
+        <rect x="16" y="8" width="8" height="8" fill="#CE300A"/>
+        <g fill="none" stroke="#FFFFFF">
+          <rect x="0.75" y="0.75" width="22.5" height="22.5" stroke-width="1.5"/>
+          <path d="M8 0.75V23.25M16 0.75V23.25M0.75 8H23.25M0.75 16H23.25" stroke-width="1.25"/>
+        </g>
+        <g fill="none" stroke="#FFFFFF" stroke-width="3">
+          <path d="M37.5 0V24"/><circle cx="45.5" cy="16" r="8"/>
+          <path d="M61.5 8V16a8 8 0 0 0 16 0V8"/><path d="M77.5 16V24"/>
+          <path d="M85.5 0V24"/><path d="M99 8L87 17.5"/><path d="M93.6 12.275L100.5 24"/>
+          <path d="M108.5 16H124.5"/><path d="M124.5 16A8 8 0 1 0 122.16 21.66"/>
+          <circle cx="140.5" cy="16" r="8"/>
+        </g>
+      </svg>
+    </div>
+
+    <p class="pie-legal">
+      <span>Bukeo, S.A. · Ciudad de Panamá</span>
+      <span>Hora del negocio: America/Panama, GMT-5, sin horario de verano</span>
+      <span>2026</span>
+    </p>
+  </div>
+</footer>
+
+<!-- ====================== 8. ANEXO: PALETA Y TIPOGRAFÍA ====================== -->
+<section class="anexo" id="sistema">
+  <div class="marco">
+    <div class="seccion-cabeza">
+      <h2>Paleta y tipografía</h2>
+      <p class="cota">Dirección C · Herramienta afilada</p>
+    </div>
+
+    <table class="paleta">
+      <thead>
+        <tr>
+          <th scope="col" colspan="2">Muestra y nombre</th>
+          <th scope="col">Hex</th>
+          <th scope="col">Para qué</th>
+          <th scope="col" class="der">Contraste</th>
+          <th scope="col" class="der">Uso</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="muestra"><i style="background:#FFFFFF"></i></td>
+          <td>Blanco papel</td><td class="hex">#FFFFFF</td>
+          <td class="uso">Fondo de la página y de toda superficie de lectura</td>
+          <td class="der ratio">base</td><td class="der prop">58 %</td>
+        </tr>
+        <tr>
+          <td class="muestra"><i style="background:#F4F5F6"></i></td>
+          <td>Gris retícula</td><td class="hex">#F4F5F6</td>
+          <td class="uso">Celda ocupada, franja de cifras, fila agrupada</td>
+          <td class="der ratio">superficie</td><td class="der prop">20 %</td>
+        </tr>
+        <tr>
+          <td class="muestra"><i style="background:#DDE0E3"></i></td>
+          <td>Gris filete</td><td class="hex">#DDE0E3</td>
+          <td class="uso">Todos los filetes de 1 px que dibujan la retícula</td>
+          <td class="der ratio">separador</td><td class="der prop">7 %</td>
+        </tr>
+        <tr>
+          <td class="muestra"><i style="background:#878E95"></i></td>
+          <td>Gris cota</td><td class="hex">#878E95</td>
+          <td class="uso">Borde de control que hay que distinguir del fondo</td>
+          <td class="der ratio">3.32:1</td><td class="der prop">3 %</td>
+        </tr>
+        <tr>
+          <td class="muestra"><i style="background:#4E555C"></i></td>
+          <td>Grafito</td><td class="hex">#4E555C</td>
+          <td class="uso">Texto secundario: duración, zona, metadatos, estado</td>
+          <td class="der ratio">7.56:1</td><td class="der prop">6 %</td>
+        </tr>
+        <tr>
+          <td class="muestra"><i style="background:#101418"></i></td>
+          <td>Tinta</td><td class="hex">#101418</td>
+          <td class="uso">Todo lo que hay que leer, reglas maestras y pie</td>
+          <td class="der ratio">18.50:1</td><td class="der prop">4 %</td>
+        </tr>
+        <tr>
+          <td class="muestra"><i style="background:#CE300A"></i></td>
+          <td>Bermellón</td><td class="hex">#CE300A</td>
+          <td class="uso">Solo lo accionable: hora libre, hueco por cubrir, acción principal</td>
+          <td class="der ratio">5.18:1</td><td class="der prop">2 %</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="barra-prop" role="img" aria-label="Proporción de uso: blanco papel 58 %, gris retícula 20 %, gris filete 7 %, grafito 6 %, tinta 4 %, gris cota 3 %, bermellón 2 %.">
+      <i style="width:58%;background:#FFFFFF"></i>
+      <i style="width:20%;background:#F4F5F6"></i>
+      <i style="width:7%;background:#DDE0E3"></i>
+      <i style="width:3%;background:#878E95"></i>
+      <i style="width:6%;background:#4E555C"></i>
+      <i style="width:4%;background:#101418"></i>
+      <i style="width:2%;background:#CE300A"></i>
+    </div>
+    <p class="cota" style="padding-top:8px">Un solo color saturado. Ocupa el 2 % de la superficie y no aparece nunca en algo que no se pueda tocar.</p>
+
+    <div class="tipo">
+      <div class="bloque-titulo">
+        <h4>Tipografía</h4>
+        <span class="cota">IBM Plex Sans · IBM Plex Mono</span>
+      </div>
+
+      <div class="tipo-cuerpo">
+        <div class="tipo-muestra">
+          <p class="grande">Bukeo. Barbería Don Ramiro, El Cangrejo</p>
+          <p class="mono-grande">08:30 09:55 11:45 B/. 18.00 40 min</p>
+        </div>
+
+        <div>
+          <table class="tipo-escala">
+            <tbody>
+              <tr><td>Titular de portada</td><td class="der">Plex Sans 600 · 56 px / 1.08 · tracking -3.5 %</td></tr>
+              <tr><td>Título de sección</td><td class="der">Plex Sans 600 · 30 px / 1.15</td></tr>
+              <tr><td>Nombre del cliente en la agenda</td><td class="der">Plex Sans 500 · 15 px / 1.5</td></tr>
+              <tr><td>Texto corrido</td><td class="der">Plex Sans 400 · 15 px / 1.5</td></tr>
+              <tr><td>Toda hora, precio y duración</td><td class="der">Plex Mono 500 · tabular-nums</td></tr>
+              <tr><td>Rótulo de columna y de estado</td><td class="der">Plex Mono 500 · 10 px · tracking +10 %</td></tr>
+            </tbody>
+          </table>
+          <p class="parrafo" style="margin-top:14px">Se elige IBM Plex porque trae cifras tabulares reales dibujadas en el archivo, no simuladas al vuelo, y esa es la única forma de que una columna de horas de 14 px caiga recta en la agenda en vez de bailar entre las 9 y las 11. Es una familia sola en dos anchos, la Sans para leer y la Mono para todo lo que sea una cifra, así que un teléfono en 3G en Panamá descarga un sistema tipográfico y no dos.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

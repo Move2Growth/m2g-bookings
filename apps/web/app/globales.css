@@ -1,32 +1,16 @@
 /*
- * Estilos base de la web.
+ * Bukeo — capa base y componentes.
  *
- * Los valores no se escriben aquí: vienen de `@agenda/tokens`. Si en este archivo aparece un
- * color en hexadecimal o una medida suelta, es un error — significa que alguien acaba de
- * sacar una decisión de diseño del sitio donde se decide.
+ * Aquí no hay ni un color ni una medida escritos a mano: todo sale de `@agenda/tokens`, que es
+ * la implementación del brandbook. Si en este archivo aparece un hexadecimal, es un error.
+ *
+ * Orden del archivo: reset, tipografía, primitivas de página, componentes. Las clases se
+ * nombran en español porque el producto se piensa en español y un `.card` entre `.tarjeta` y
+ * `.ficha` es como se empieza a tener dos sistemas.
  */
 @import '@agenda/tokens/css';
 
-/* IBM Plex Sans, autoalojada y variable. Nada de Google Fonts: es una dependencia de un
-   tercero, un problema de CSP y una petición más en una red de 3G. */
-@font-face {
-  font-family: 'IBM Plex Sans';
-  font-style: normal;
-  font-display: swap;
-  font-weight: 400 600;
-  src: url('/fuentes/ibm-plex-sans-latin-wght-normal.woff2') format('woff2-variations');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F, U+2122, U+2191,
-    U+2193, U+2212, U+2215;
-}
-
-@font-face {
-  font-family: 'IBM Plex Sans';
-  font-style: normal;
-  font-display: swap;
-  font-weight: 400 600;
-  src: url('/fuentes/ibm-plex-sans-latin-ext-wght-normal.woff2') format('woff2-variations');
-  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB;
-}
+/* ── Reset acotado ──────────────────────────────────────────────────────────── */
 
 *,
 *::before,
@@ -35,84 +19,90 @@
 }
 
 html {
-  /* 16 px de base. Por debajo, iOS hace zoom al enfocar un campo y el diseño se descuadra
-     solo, sin que nadie haya tocado nada. */
+  /* 16 px de base. Por debajo, iOS hace zoom al enfocar un campo y descuadra la pantalla sin
+     que nadie haya tocado nada. */
   font-size: 100%;
   -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
-  /* La página no se desplaza en horizontal **nunca**. Lo que no cabe se corta o se desplaza
-     dentro de su propio contenedor; que se mueva la página entera a 390 px es el fallo que
-     hace que el pulgar pierda el sitio y que la acción principal desaparezca de la vista. */
+  /* La página no se desplaza en horizontal nunca. Lo que no cabe se desplaza dentro de su
+     propio contenedor. */
   overflow-x: hidden;
   font-family: var(--tipografia-familia);
   font-size: var(--tipografia-tamano-cuerpo);
   line-height: var(--tipografia-interlineado-normal);
-  color: var(--color-texto);
-  background: var(--color-superficie-suave);
+  color: var(--color-tinta);
+  background: var(--color-papel);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-h1,
-h2,
-h3 {
+h1, h2, h3, h4 {
   margin: 0;
-  line-height: var(--tipografia-interlineado-apretado);
-  font-weight: var(--tipografia-pesos-fuerte);
-  letter-spacing: -0.01em;
+  font-family: var(--tipografia-familia-display);
+  font-weight: var(--tipografia-pesos-display);
+  line-height: var(--tipografia-interlineado-titulo);
+  letter-spacing: var(--tipografia-espaciado-titular);
+  text-wrap: balance;
 }
 
-p {
-  margin: 0;
-}
+h1 { font-size: var(--tipografia-tamano-titulo-1); line-height: var(--tipografia-interlineado-apretado); }
+h2 { font-size: var(--tipografia-tamano-titulo-2); }
+h3 { font-size: var(--tipografia-tamano-titulo-3); }
+h4 { font-size: var(--tipografia-tamano-titulo-4); }
+
+p { margin: 0; text-wrap: pretty; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+img, svg, video { display: block; max-width: 100%; }
 
 a {
   color: var(--color-acento);
   text-decoration-thickness: 1px;
-  text-underline-offset: 2px;
+  text-underline-offset: 3px;
 }
 
-/* Horas, duraciones y precios en cifras tabulares: en una agenda las columnas tienen que
-   alinearse o no se leen de un vistazo. */
-.cifras {
-  font-variant-numeric: var(--tipografia-cifras-tabulares);
-}
+button, input, select, textarea { font: inherit; color: inherit; }
 
-/* Foco visible siempre. Sin esto, quien navega con teclado deja de saber dónde está, y eso
-   no se arregla «más adelante»: se nota el primer día y no lo reporta nadie. */
+/* Foco visible siempre. Sin esto, quien navega con teclado deja de saber dónde está, y eso no
+   se arregla más adelante: se nota el primer día y no lo reporta nadie. */
 :focus-visible {
   outline: 2px solid var(--color-foco);
   outline-offset: 2px;
-  border-radius: var(--radio-chico);
+  border-radius: var(--radio-control);
 }
 
-.contenido {
-  max-width: 60rem;
-  margin: 0 auto;
-  padding: var(--espacio-5) var(--espacio-4) var(--espacio-8);
+::selection {
+  background: var(--color-acento-suave);
+  color: var(--color-tinta);
 }
 
-/* Se diseña a 390 px primero; esto es el ensanchado, no al revés. */
-@media (min-width: 768px) {
-  .contenido {
-    padding-inline: var(--espacio-6);
-  }
+/* ── Primitivas de página ───────────────────────────────────────────────────── */
+
+.contenedor {
+  width: 100%;
+  max-width: var(--pantalla-ancho);
+  margin-inline: auto;
+  padding-inline: var(--espacio-4);
 }
 
-/* Quien haya pedido menos movimiento en su sistema, no lo recibe. */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-}
+.seccion { padding-block: var(--espacio-7); }
+.seccion--holgada { padding-block: var(--espacio-8); }
+.seccion--arena { background: var(--color-arena); }
+.seccion--tinta { background: var(--color-tinta); color: var(--color-papel); }
+.seccion--tinta h1, .seccion--tinta h2, .seccion--tinta h3 { color: var(--color-papel); }
 
-/* Texto que solo leen los lectores de pantalla: una etiqueta que existe aunque no se vea.
-   Un campo sin etiqueta accesible es un campo que alguien no puede usar. */
+/* Cifras tabulares: en una agenda las columnas de horas tienen que alinearse o no se leen de
+   un vistazo. */
+.cifras { font-variant-numeric: var(--tipografia-cifras-tabulares); }
+
+.apagado { color: var(--color-tinta-suave); }
+.tenue { color: var(--color-tinta-tenue); font-size: var(--tipografia-tamano-menor); }
+.medida { max-width: 62ch; }
+
+/* Texto solo para lectores de pantalla: una etiqueta que existe aunque no se vea. Un campo sin
+   etiqueta accesible es un campo que alguien no puede usar. */
 .oculto-visualmente {
   position: absolute;
   width: 1px;
@@ -122,4 +112,359 @@ a {
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+/* ── Botones ────────────────────────────────────────────────────────────────── */
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espacio-2);
+  min-height: var(--espacio-toque-minimo);
+  padding-inline: var(--espacio-4);
+  border: 1px solid transparent;
+  border-radius: var(--radio-control);
+  font-weight: var(--tipografia-pesos-medio);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--movimiento-rapido) var(--movimiento-curva),
+              border-color var(--movimiento-rapido) var(--movimiento-curva),
+              transform var(--movimiento-rapido) var(--movimiento-curva);
+}
+
+/* Empuje físico al pulsar. Es la diferencia entre una pantalla y algo que responde. */
+.boton:active { transform: translateY(1px); }
+.boton[disabled] { opacity: 0.55; cursor: not-allowed; }
+
+.boton--primario {
+  background: var(--color-acento);
+  color: var(--color-acento-texto);
+}
+.boton--primario:hover { background: var(--color-acento-hover); }
+
+.boton--secundario {
+  background: transparent;
+  color: var(--color-tinta);
+  border-color: var(--color-borde-fuerte);
+}
+.boton--secundario:hover { background: var(--color-arena); }
+
+.boton--llano {
+  background: transparent;
+  color: var(--color-tinta-suave);
+  padding-inline: var(--espacio-3);
+}
+.boton--llano:hover { color: var(--color-tinta); }
+
+.boton--peligro {
+  background: transparent;
+  color: var(--color-peligro);
+  border-color: var(--color-borde-fuerte);
+}
+.boton--ancho { width: 100%; }
+
+/* ── Superficies ────────────────────────────────────────────────────────────── */
+
+/* Canto vivo y filete de 1 px, no tarjeta con sombra. La regla de forma del brandbook. */
+.panel {
+  background: var(--color-lienzo);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-superficie);
+  padding: var(--espacio-4);
+}
+
+.panel--plano { background: transparent; }
+.panel--elevado { box-shadow: var(--sombra-elevada); }
+
+/* Lista con filetes entre filas en vez de una tarjeta por elemento: menos ruido y más densidad
+   real en un teléfono. */
+.lista-filete > li + li { border-top: 1px solid var(--color-borde); }
+
+/* ── Formularios ────────────────────────────────────────────────────────────── */
+
+.campo {
+  display: grid;
+  gap: var(--espacio-2);
+}
+
+/* La etiqueta va ENCIMA del campo y existe siempre. El marcador de posición no es una
+   etiqueta: desaparece justo cuando hace falta. */
+.campo > label,
+.campo-etiqueta {
+  font-weight: var(--tipografia-pesos-medio);
+  font-size: var(--tipografia-tamano-menor);
+}
+
+.entrada {
+  width: 100%;
+  min-height: var(--espacio-toque-minimo);
+  padding: var(--espacio-3);
+  background: var(--color-lienzo);
+  color: var(--color-tinta);
+  border: 1px solid var(--color-borde-fuerte);
+  border-radius: var(--radio-control);
+  font-size: var(--tipografia-tamano-cuerpo);
+}
+.entrada::placeholder { color: var(--color-tinta-tenue); }
+.entrada:disabled { background: var(--color-arena); color: var(--color-tinta-suave); }
+
+.entrada--codigo {
+  letter-spacing: 0.4em;
+  font-size: var(--tipografia-tamano-titulo-4);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+}
+
+.campo-error {
+  color: var(--color-peligro);
+  font-size: var(--tipografia-tamano-menor);
+}
+
+/* ── Avisos ─────────────────────────────────────────────────────────────────── */
+
+.aviso {
+  padding: var(--espacio-3) var(--espacio-4);
+  border-radius: var(--radio-control);
+  border-left: 3px solid transparent;
+}
+.aviso--error { background: var(--color-peligro-suave); color: var(--color-peligro); border-left-color: var(--color-peligro); }
+.aviso--exito { background: var(--color-exito-suave); color: var(--color-exito); border-left-color: var(--color-exito); }
+.aviso--info { background: var(--color-arena); color: var(--color-tinta-suave); border-left-color: var(--color-borde-fuerte); }
+
+/* ── Fichas de filtro ───────────────────────────────────────────────────────── */
+
+/* Píldora solo aquí y en avatares. Es la única excepción de la regla de forma. */
+.ficha {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--espacio-toque-minimo);
+  padding-inline: var(--espacio-3);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-pildora);
+  background: var(--color-lienzo);
+  color: var(--color-tinta);
+  font-size: var(--tipografia-tamano-menor);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.ficha[aria-current] {
+  background: var(--color-tinta);
+  border-color: var(--color-tinta);
+  color: var(--color-papel);
+}
+
+.tira {
+  display: flex;
+  gap: var(--espacio-2);
+  overflow-x: auto;
+  padding-bottom: var(--espacio-2);
+  scrollbar-width: thin;
+}
+.tira > * { flex: 0 0 auto; }
+
+/* ── Estado de una reserva ──────────────────────────────────────────────────── */
+
+.estado {
+  display: inline-block;
+  padding: 2px var(--espacio-2);
+  border-radius: var(--radio-control);
+  font-size: var(--tipografia-tamano-micro);
+  font-weight: var(--tipografia-pesos-medio);
+}
+.estado--pendiente { background: var(--estado-reserva-pendiente-fondo); color: var(--estado-reserva-pendiente-texto); }
+.estado--confirmada { background: var(--estado-reserva-confirmada-fondo); color: var(--estado-reserva-confirmada-texto); }
+.estado--completada { background: var(--estado-reserva-completada-fondo); color: var(--estado-reserva-completada-texto); }
+.estado--no_show { background: var(--estado-reserva-no_show-fondo); color: var(--estado-reserva-no_show-texto); }
+.estado--cancelada_cliente,
+.estado--cancelada_negocio { background: var(--estado-reserva-cancelada-fondo); color: var(--estado-reserva-cancelada-texto); }
+
+/* ── Rejilla de horas ───────────────────────────────────────────────────────── */
+
+.horas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--espacio-2);
+}
+@media (min-width: 768px) {
+  .horas { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
+
+.hora {
+  display: grid;
+  place-items: center;
+  min-height: var(--espacio-toque-minimo);
+  background: var(--color-lienzo);
+  border: 1px solid var(--color-borde-fuerte);
+  border-radius: var(--radio-control);
+  color: var(--color-tinta);
+  text-decoration: none;
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+}
+.hora:hover { background: var(--color-acento-suave); border-color: var(--color-acento); }
+
+/* ── Rejilla genérica ───────────────────────────────────────────────────────── */
+
+.rejilla { display: grid; gap: var(--espacio-4); }
+@media (min-width: 768px) {
+  .rejilla--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rejilla--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* ── Escala tipográfica en pantallas grandes ────────────────────────────────── */
+
+@media (min-width: 768px) {
+  h1 { font-size: var(--tipografia-tamano-cartel); }
+  .seccion { padding-block: var(--espacio-8); }
+  .seccion--holgada { padding-block: var(--espacio-9); }
+  .contenedor { padding-inline: var(--espacio-6); }
+}
+
+/* Quien haya pedido menos movimiento en su sistema, no lo recibe. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Piezas de la portada ───────────────────────────────────────────────────── */
+
+/* Reparto asimétrico: el contenido manda y la foto acompaña. A 390 px se apila y la foto pasa
+   a ser una banda, no un cuadrado que empuja el CTA fuera de pantalla. */
+.hero {
+  display: grid;
+  gap: var(--espacio-5);
+}
+.hero__foto {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border: 1px solid var(--color-borde);
+  background: var(--color-arena);
+}
+@media (min-width: 900px) {
+  .hero {
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: var(--espacio-7);
+    /* Centrado y no alineado arriba: con la foto más alta que el texto, alinear arriba deja un
+       hueco muerto de trescientos píxeles bajo el buscador que parece un fallo de maquetación. */
+    align-items: center;
+  }
+  .hero__foto { aspect-ratio: 5 / 4; }
+}
+
+.etiqueta {
+  font-size: var(--tipografia-tamano-micro);
+  text-transform: uppercase;
+  letter-spacing: var(--tipografia-espaciado-etiqueta);
+  color: var(--color-tinta-tenue);
+}
+
+.categorias {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--espacio-3);
+}
+@media (min-width: 768px) {
+  .categorias { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.categoria a {
+  display: flex;
+  align-items: flex-end;
+  /* Todas las celdas miden lo mismo. Con dos alturas distintas la fila se rompe y parece un
+     fallo de maquetación en vez de un ritmo. El ritmo lo pone la foto, no el tamaño. */
+  min-height: 132px;
+  padding: var(--espacio-3);
+  background: var(--color-lienzo);
+  border: 1px solid var(--color-borde);
+  color: var(--color-tinta);
+  text-decoration: none;
+  font-weight: var(--tipografia-pesos-medio);
+}
+.categoria a:hover { border-color: var(--color-tinta); }
+/* Las celdas con foto pesan el doble: es lo que da ritmo a la rejilla sin decorarla. */
+.categoria--foto a { position: relative; overflow: hidden; }
+.categoria--foto img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.categoria--foto span {
+  position: relative;
+  color: var(--color-papel);
+  /* Velo bajo el texto para que se lea sobre cualquier foto. Sin esto el contraste depende de
+     la suerte de la imagen. */
+  background: var(--color-velo);
+  padding: 2px var(--espacio-2);
+}
+
+.pasos {
+  margin-top: var(--espacio-5);
+  display: grid;
+  gap: var(--espacio-5);
+}
+.pasos li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--espacio-4);
+  align-items: start;
+  padding-top: var(--espacio-4);
+  border-top: 1px solid var(--color-borde);
+}
+.pasos__numero {
+  font-family: var(--tipografia-familia-display);
+  font-size: var(--tipografia-tamano-titulo-2);
+  font-weight: var(--tipografia-pesos-display);
+  color: var(--color-acento);
+  line-height: 1;
+}
+
+.pregunta {
+  border-bottom: 1px solid var(--color-borde);
+}
+.pregunta summary {
+  padding: var(--espacio-4) 0;
+  cursor: pointer;
+  font-weight: var(--tipografia-pesos-medio);
+  list-style: none;
+}
+.pregunta summary::-webkit-details-marker { display: none; }
+.pregunta summary::after {
+  content: '+';
+  float: right;
+  color: var(--color-tinta-tenue);
+}
+.pregunta[open] summary::after { content: '−'; }
+.pregunta p { padding-bottom: var(--espacio-4); max-width: 62ch; }
+
+/* Enlaces secundarios de la cabecera: en un teléfono no caben cuatro destinos en una línea, y
+   una barra de dos líneas es una barra rota. */
+.oculto-en-movil { display: none; }
+@media (min-width: 768px) {
+  .oculto-en-movil { display: inline-flex; }
+}
+
+/* Tabla del plan: filas con filete y el valor alineado a la derecha en cifras tabulares, que es
+   como se lee una lista de precios sin tener que compararla a ojo. */
+.tabla-plan {
+  width: 100%;
+  margin-top: var(--espacio-5);
+  border-collapse: collapse;
+  text-align: left;
+}
+.tabla-plan th,
+.tabla-plan td {
+  padding: var(--espacio-3) 0;
+  border-top: 1px solid var(--color-borde);
+  font-weight: var(--tipografia-pesos-normal);
+  vertical-align: baseline;
+}
+.tabla-plan td {
+  text-align: right;
+  font-weight: var(--tipografia-pesos-medio);
+  white-space: nowrap;
+  padding-left: var(--espacio-4);
 }

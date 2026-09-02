@@ -1,229 +1,288 @@
+import Image from 'next/image'
 import Link from 'next/link'
-import { NOMBRE } from '@/lib/marca'
-import { buscarNegocios, ErrorDeApi, type ResultadoDeBusqueda } from '@/lib/api'
+import { Cabecera } from '@/componentes/cabecera'
+import { Pie } from '@/componentes/pie'
 
 /**
- * La portada del marketplace: buscar y encontrar.
+ * La portada.
  *
- * Se renderiza **en servidor** (ADR-0011): la mitad de la clientela llega buscando «barbería
- * en San Francisco», y una página que llega vacía y se rellena con JavaScript no la indexa
- * nadie. La búsqueda va por formulario y método GET a propósito — así cada búsqueda tiene su
- * propia URL, se puede compartir por WhatsApp y el rastreador la puede seguir.
+ * Se renderiza en servidor (ADR-0011): media clientela llega buscando «barbería en San
+ * Francisco», y una página que llega vacía y se rellena con JavaScript no la indexa nadie.
+ *
+ * El buscador va en formulario con método GET a propósito. Así cada búsqueda tiene su URL, se
+ * comparte por WhatsApp y el rastreador la puede seguir. Un buscador que solo funciona con
+ * JavaScript es un buscador que Google no usa.
  */
 
-type Props = { searchParams: Promise<{ q?: string; zona?: string }> }
-
-const ZONAS = [
-  { slug: 'bella-vista', nombre: 'Bella Vista' },
-  { slug: 'el-cangrejo', nombre: 'El Cangrejo' },
-  { slug: 'obarrio', nombre: 'Obarrio' },
-  { slug: 'costa-del-este', nombre: 'Costa del Este' },
-  { slug: 'san-francisco', nombre: 'San Francisco' },
+// Solo dos categorías llevan foto, y son fotos de verdad. Poner una imagen genérica de banco
+// en las ocho es peor que no ponerla: se nota que no es el salón de nadie. Las demás son celdas
+// tipográficas, que además pesan cero en una red de 3G.
+const CATEGORIAS = [
+  { nombre: 'Barbería', slug: 'barberia', foto: null },
+  { nombre: 'Peluquería', slug: 'peluqueria', foto: null },
+  { nombre: 'Uñas', slug: 'unas', foto: '/fotos/unas.webp' },
+  { nombre: 'Pestañas y cejas', slug: 'pestanas-cejas', foto: null },
+  { nombre: 'Maquillaje', slug: 'maquillaje', foto: null },
+  { nombre: 'Depilación', slug: 'depilacion', foto: null },
+  { nombre: 'Spa y masajes', slug: 'spa-masajes', foto: '/fotos/spa.webp' },
+  { nombre: 'Estética', slug: 'estetica', foto: null },
 ]
 
-export default async function Portada({ searchParams }: Props) {
-  const { q, zona } = await searchParams
+const ZONAS = [
+  ['Bella Vista', 'bella-vista'],
+  ['El Cangrejo', 'el-cangrejo'],
+  ['Obarrio', 'obarrio'],
+  ['San Francisco', 'san-francisco'],
+  ['Costa del Este', 'costa-del-este'],
+  ['Juan Díaz', 'juan-diaz'],
+]
 
-  let resultados: ResultadoDeBusqueda[] = []
-  let fallo: string | null = null
-  try {
-    resultados = await buscarNegocios({ texto: q, zona })
-  } catch (error) {
-    // Si la API no responde, la página **sale igual** y lo dice. Una pantalla en blanco no
-    // informa de nada, y una excepción sin capturar tumba el renderizado del servidor.
-    fallo = error instanceof ErrorDeApi ? error.message : 'No pudimos cargar los negocios.'
-  }
+const PASOS = [
+  {
+    titulo: 'Busca lo que necesitas',
+    texto: 'Un corte, un balayage o el salón por su nombre. Filtra por tu zona y mira quién está cerca.',
+  },
+  {
+    titulo: 'Mira las horas que quedan',
+    texto: 'Las de verdad. Si aparece libre, está libre: se calcula contra la agenda del salón en ese momento.',
+  },
+  {
+    titulo: 'Reserva con tu teléfono',
+    texto: 'Te llega un código por WhatsApp y listo. Sin contraseña y sin esperar a que alguien te conteste.',
+  },
+]
 
+const PREGUNTAS = [
+  {
+    p: '¿Cuánto cuesta reservar?',
+    r: 'Nada. Reservar es gratis para quien reserva, y la agenda es gratis para el salón. Pagas tu servicio en el salón, como siempre.',
+  },
+  {
+    p: '¿Puedo cancelar?',
+    r: 'Sí, desde «Mis citas» hasta dos horas antes. Pasado ese plazo lo arreglas hablando con el salón, que es quien se queda con el hueco vacío.',
+  },
+  {
+    p: '¿Por qué me piden el teléfono?',
+    r: 'Porque el salón necesita saber que la cita es real. Verificamos el número con un código y nada más: no hay contraseña ni registro aparte.',
+  },
+  {
+    p: 'Tengo un salón, ¿qué me cuesta?',
+    r: 'Cero. Sin tarjeta para registrarte, sin mensualidad y sin comisión por cita. Ganamos cuando un salón quiere más visibilidad y compra un destacado, que va siempre marcado.',
+  },
+]
+
+export default function Portada() {
   return (
-    <main className="contenido">
-      <header style={{ marginBottom: 'var(--espacio-5)' }}>
-        <p
-          style={{
-            color: 'var(--color-acento)',
-            fontWeight: 'var(--tipografia-pesos-medio)',
-            marginBottom: 'var(--espacio-2)',
-          }}
-        >
-          {NOMBRE}
-        </p>
-        <h1 style={{ fontSize: 'var(--tipografia-tamano-titulo-1)' }}>
-          Reserva en salones y barberías de Panamá
-        </h1>
-        <p style={{ color: 'var(--color-texto-suave)', marginTop: 'var(--espacio-3)' }}>
-          Sin llamar y sin esperar respuesta por WhatsApp. Eliges servicio, profesional y hora.
-        </p>
-      </header>
+    <>
+      <Cabecera />
 
-      <form
-        method="get"
-        style={{ display: 'flex', gap: 'var(--espacio-2)', marginBottom: 'var(--espacio-4)' }}
-      >
-        {/* `minWidth: 0` no es cosmético: sin él, el ancho intrínseco del campo impide que
-            encoja y la página entera se sale de los 390 px. */}
-        <label style={{ flex: 1, minWidth: 0 }}>
-          <span className="oculto-visualmente">Qué buscas</span>
-          <input
-            type="search"
-            name="q"
-            defaultValue={q ?? ''}
-            placeholder="Corte, balayage, barbería…"
-            style={{
-              width: '100%',
-              minHeight: 'var(--espacio-toque-minimo)',
-              padding: 'var(--espacio-3)',
-              fontSize: 'var(--tipografia-tamano-cuerpo)',
-              fontFamily: 'inherit',
-              border: '1px solid var(--color-borde-fuerte)',
-              borderRadius: 'var(--radio-normal)',
-              background: 'var(--color-superficie)',
-              color: 'var(--color-texto)',
-            }}
-          />
-        </label>
-        <button
-          type="submit"
-          style={{
-            minHeight: 'var(--espacio-toque-minimo)',
-            padding: '0 var(--espacio-4)',
-            border: 'none',
-            borderRadius: 'var(--radio-normal)',
-            background: 'var(--color-acento)',
-            color: 'var(--color-acento-texto)',
-            fontFamily: 'inherit',
-            fontWeight: 'var(--tipografia-pesos-medio)',
-            cursor: 'pointer',
-          }}
-        >
-          Buscar
-        </button>
-      </form>
-
-      <nav
-        aria-label="Buscar por zona"
-        style={{
-          display: 'flex',
-          gap: 'var(--espacio-2)',
-          overflowX: 'auto',
-          paddingBottom: 'var(--espacio-2)',
-          marginBottom: 'var(--espacio-4)',
-        }}
-      >
-        {ZONAS.map((z) => {
-          const activa = zona === z.slug
-          return (
-            <Link
-              key={z.slug}
-              href={activa ? '/' : `/?zona=${z.slug}`}
-              aria-current={activa ? 'true' : undefined}
-              style={{
-                flex: '0 0 auto',
-                minHeight: 'var(--espacio-toque-minimo)',
-                display: 'grid',
-                placeItems: 'center',
-                padding: '0 var(--espacio-3)',
-                borderRadius: 'var(--radio-pildora)',
-                border: `1px solid ${activa ? 'var(--color-acento)' : 'var(--color-borde)'}`,
-                background: activa ? 'var(--color-acento)' : 'var(--color-superficie)',
-                color: activa ? 'var(--color-acento-texto)' : 'inherit',
-                textDecoration: 'none',
-                fontSize: 'var(--tipografia-tamano-menor)',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {z.nombre}
-            </Link>
-          )
-        })}
-      </nav>
-
-      {fallo && (
-        <p
-          role="status"
-          style={{
-            background: 'var(--color-peligro-suave)',
-            color: 'var(--color-peligro)',
-            padding: 'var(--espacio-4)',
-            borderRadius: 'var(--radio-grande)',
-          }}
-        >
-          {fallo} Comprueba que la API está levantada con <code>make arriba</code>.
-        </p>
-      )}
-
-      {!fallo && resultados.length === 0 && (
-        /* Un resultado vacío dice qué pasó y qué hacer, no «sin resultados» a secas. */
-        <p
-          style={{
-            background: 'var(--color-superficie)',
-            border: '1px solid var(--color-borde)',
-            borderRadius: 'var(--radio-grande)',
-            padding: 'var(--espacio-4)',
-            color: 'var(--color-texto-suave)',
-          }}
-        >
-          {q || zona
-            ? 'No encontramos negocios con eso. Prueba con otra palabra o quita el filtro de zona.'
-            : 'Todavía no hay negocios publicados. Carga los datos de ejemplo con make semilla.'}
-        </p>
-      )}
-
-      <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 'var(--espacio-3)' }}>
-        {resultados.map((negocio) => (
-          <li key={negocio.slug}>
-            <Link
-              href={`/${negocio.slug}`}
-              style={{
-                display: 'block',
-                background: 'var(--color-superficie)',
-                border: '1px solid var(--color-borde)',
-                borderRadius: 'var(--radio-grande)',
-                padding: 'var(--espacio-4)',
-                textDecoration: 'none',
-                color: 'inherit',
-                minHeight: 'var(--espacio-toque-minimo)',
-              }}
-            >
-              {negocio.patrocinado && (
-                /* Un patrocinado va etiquetado **siempre** y por encima del nombre, donde se
-                   lee antes de decidir. Es la regla MKT-4 y no admite matices. */
-                <span
-                  style={{
-                    display: 'inline-block',
-                    marginBottom: 'var(--espacio-1)',
-                    fontSize: 'var(--tipografia-tamano-micro)',
-                    color: 'var(--color-texto-suave)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                  }}
-                >
-                  Patrocinado
-                </span>
-              )}
-              <h2 style={{ fontSize: 'var(--tipografia-tamano-mayor)' }}>{negocio.nombre}</h2>
+      <main>
+        {/* Hero. Reparto asimétrico: la mitad izquierda decide, la derecha da contexto. */}
+        <section className="seccion" style={{ paddingTop: 'var(--espacio-6)' }}>
+          <div className="contenedor hero">
+            <div>
+              <h1>Reserva en salones y barberías de Panamá</h1>
               <p
+                className="apagado medida"
+                style={{ marginTop: 'var(--espacio-4)', fontSize: 'var(--tipografia-tamano-mayor)' }}
+              >
+                Encuentra un sitio cerca, mira las horas libres de verdad y reserva. Sin llamar y
+                sin esperar respuesta.
+              </p>
+
+              <form
+                method="get"
+                action="/buscar"
                 style={{
-                  color: 'var(--color-texto-suave)',
-                  fontSize: 'var(--tipografia-tamano-menor)',
-                  marginTop: 'var(--espacio-1)',
+                  display: 'flex',
+                  gap: 'var(--espacio-2)',
+                  marginTop: 'var(--espacio-5)',
+                  maxWidth: '30rem',
                 }}
               >
-                {[negocio.zona, negocio.direccion].filter(Boolean).join(' · ')}
+                {/* `minWidth: 0` no es cosmético: sin él el ancho intrínseco del campo impide
+                    que encoja y la fila se sale de los 390 px. */}
+                <label className="campo" style={{ flex: 1, minWidth: 0 }}>
+                  <span className="oculto-visualmente">Qué buscas</span>
+                  <input
+                    className="entrada"
+                    type="search"
+                    name="texto"
+                    placeholder="Corte, balayage, uñas…"
+                  />
+                </label>
+                <button type="submit" className="boton boton--primario">
+                  Buscar
+                </button>
+              </form>
+
+              <p style={{ marginTop: 'var(--espacio-4)' }}>
+                <Link href="/para-negocios">Tengo un salón y quiero mi agenda</Link>
               </p>
-              {negocio.distancia_metros !== null && (
-                <p
-                  className="cifras"
+            </div>
+
+            <div className="hero__foto">
+              <Image
+                src="/fotos/unas.webp"
+                alt="Manos de una manicurista aplicando esmalte a una clienta"
+                width={1000}
+                height={1000}
+                priority
+                sizes="(min-width: 900px) 40vw, 100vw"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Categorías. Rejilla con celdas de distinto peso: cuatro llevan foto y cuatro no, y
+            eso ya da ritmo sin inventarse decoración. */}
+        <section className="seccion seccion--arena">
+          <div className="contenedor">
+            <h2>Qué te vas a hacer hoy</h2>
+            <ul className="categorias" style={{ marginTop: 'var(--espacio-5)' }}>
+              {CATEGORIAS.map((c) => (
+                <li key={c.slug} className={c.foto ? 'categoria categoria--foto' : 'categoria'}>
+                  <Link href={`/buscar?categoria=${c.slug}`}>
+                    {c.foto && (
+                      <Image
+                        src={c.foto}
+                        alt=""
+                        width={1000}
+                        height={1000}
+                        sizes="(min-width: 768px) 25vw, 50vw"
+                      />
+                    )}
+                    <span>{c.nombre}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* La diferencia del producto, enseñada con el producto: una rejilla de horas real. */}
+        <section className="seccion">
+          <div className="contenedor hero" style={{ alignItems: 'center' }}>
+            <div>
+              <p className="etiqueta">Lo que nos separa del WhatsApp</p>
+              <h2 style={{ marginTop: 'var(--espacio-2)' }}>Horas que existen, no solicitudes</h2>
+              <p className="apagado medida" style={{ marginTop: 'var(--espacio-4)' }}>
+                Cada hora que ves sale de cruzar el horario del salón con el de tu profesional y
+                restarle lo que ya está ocupado. Si aparece, es tuya al confirmar. Y si alguien
+                se adelanta por segundos, te lo decimos en el momento en vez de al día siguiente.
+              </p>
+            </div>
+
+            <div className="panel" aria-hidden="true">
+              <p className="tenue">Jueves 3 de septiembre</p>
+              <p style={{ fontWeight: 'var(--tipografia-pesos-medio)', marginTop: 'var(--espacio-1)' }}>
+                Corte + barba, 45 min
+              </p>
+              <div className="horas" style={{ marginTop: 'var(--espacio-4)' }}>
+                {['09:00', '09:15', '10:45', '11:00', '11:15', '14:00'].map((h) => (
+                  <span key={h} className="hora">
+                    {h}
+                  </span>
+                ))}
+              </div>
+              <p className="tenue" style={{ marginTop: 'var(--espacio-3)' }}>
+                De 09:30 a 10:30 hay una cita. A la una almuerza el barbero.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Cómo funciona. Ritmo vertical numerado, no tres tarjetas iguales en fila. */}
+        <section className="seccion seccion--arena">
+          <div className="contenedor">
+            <h2>Reservar lleva un minuto</h2>
+            <ol className="pasos">
+              {PASOS.map((paso, i) => (
+                <li key={paso.titulo}>
+                  <span className="pasos__numero cifras">{i + 1}</span>
+                  <div>
+                    <h3>{paso.titulo}</h3>
+                    <p className="apagado" style={{ marginTop: 'var(--espacio-2)' }}>
+                      {paso.texto}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        {/* El único bloque de color de la página, y es para el otro público. Se usa una vez. */}
+        <section className="seccion seccion--holgada seccion--tinta">
+          <div className="contenedor" style={{ maxWidth: '46rem' }}>
+            <h2>Tu agenda, gratis</h2>
+            <p style={{ marginTop: 'var(--espacio-4)', fontSize: 'var(--tipografia-tamano-mayor)' }}>
+              Sin tarjeta para registrarte, sin mensualidad y sin comisión por cita. Tardas menos
+              de diez minutos en dejarlo funcionando desde el teléfono.
+            </p>
+            <ul
+              className="lista-filete"
+              style={{ marginTop: 'var(--espacio-5)', borderTop: '1px solid rgba(255,255,255,.18)' }}
+            >
+              {[
+                ['Se acabó apuntar citas en el WhatsApp', 'La agenda de todo tu equipo en una pantalla.'],
+                ['No hay dobles citas', 'Dos clientas no pueden quedarse con la misma hora aunque confirmen a la vez.'],
+                ['Cada quien ve lo suyo', 'Tu barbero ve su agenda. La caja y la configuración son tuyas.'],
+              ].map(([titulo, texto]) => (
+                <li
+                  key={titulo}
                   style={{
-                    marginTop: 'var(--espacio-2)',
-                    fontSize: 'var(--tipografia-tamano-menor)',
+                    padding: 'var(--espacio-4) 0',
+                    borderBottom: '1px solid rgba(255,255,255,.18)',
                   }}
                 >
-                  A {(negocio.distancia_metros / 1000).toFixed(1)} km
-                </p>
-              )}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </main>
+                  <strong>{titulo}</strong>
+                  <span style={{ display: 'block', opacity: 0.78, marginTop: '2px' }}>{texto}</span>
+                </li>
+              ))}
+            </ul>
+            <p style={{ marginTop: 'var(--espacio-6)' }}>
+              <Link href="/para-negocios" className="boton boton--primario">
+                Crear mi salón
+              </Link>
+            </p>
+          </div>
+        </section>
+
+        {/* Índice de zonas: enlaces internos de verdad, que es lo que indexa Google. */}
+        <section className="seccion">
+          <div className="contenedor">
+            <h2>Busca por tu zona</h2>
+            <ul className="tira" style={{ marginTop: 'var(--espacio-4)' }}>
+              {ZONAS.map(([nombre, slug]) => (
+                <li key={slug}>
+                  <Link href={`/buscar?zona=${slug}`} className="ficha">
+                    {nombre}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* Preguntas con `details`: acordeón nativo, accesible y sin una línea de JavaScript. */}
+        <section className="seccion seccion--arena">
+          <div className="contenedor" style={{ maxWidth: '46rem' }}>
+            <h2>Preguntas</h2>
+            <div style={{ marginTop: 'var(--espacio-5)' }}>
+              {PREGUNTAS.map(({ p, r }) => (
+                <details key={p} className="pregunta">
+                  <summary>{p}</summary>
+                  <p className="apagado">{r}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <Pie />
+    </>
   )
 }

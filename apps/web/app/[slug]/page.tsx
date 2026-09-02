@@ -115,7 +115,7 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
       />
 
       <p style={{ marginBottom: 'var(--espacio-4)' }}>
-        <Link href="/">← Todos los negocios</Link>
+        <Link href="/buscar">← Todos los salones</Link>
       </p>
 
       <h1 style={{ fontSize: 'var(--tipografia-tamano-titulo-1)' }}>{perfil.nombre}</h1>

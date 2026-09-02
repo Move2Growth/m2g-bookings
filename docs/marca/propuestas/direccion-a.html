@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bukeo · Dirección A: Editorial de barrio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light;
+    --papel:#F6F6F3;
+    --ficha:#FFFFFF;
+    --tinta:#16211D;
+    --plomo:#4E5A55;
+    --filete:#D7D9D3;
+    --achiote:#C6350A;
+    --achiote-fuerte:#A72C08;
+    --claro-suave:#B9C0BC;
+    --display:"Jost","Trebuchet MS",Verdana,sans-serif;
+    --texto:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+    --env:1180px;
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--papel);
+    color:var(--tinta);
+    font-family:var(--texto);
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  img{display:block;width:100%;height:auto;background:var(--filete)}
+  a{color:inherit}
+  h1,h2,h3,h4{font-family:var(--display);font-weight:600;margin:0;letter-spacing:-.02em}
+  p{margin:0}
+  ul,ol{margin:0;padding:0;list-style:none}
+  .cifras{font-variant-numeric:tabular-nums lining-nums;font-feature-settings:"tnum" 1}
+  .env{width:100%;max-width:var(--env);margin:0 auto;padding:0 20px}
+  :focus-visible{outline:2px solid var(--achiote);outline-offset:3px}
+
+  /* ---------- barra ---------- */
+  .barra{border-bottom:1px solid var(--filete);background:var(--papel)}
+  .barra-in{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:62px}
+  .marca{display:block;line-height:0}
+  .marca svg{width:96px;height:auto}
+  .enlaces{display:flex;align-items:center;gap:20px;font-size:.9375rem}
+  .enlaces a{text-decoration:none;padding:6px 0;border-bottom:1px solid transparent}
+  .enlaces a:hover{border-bottom-color:var(--tinta)}
+  .enlaces .fuerte{font-weight:600;border-bottom:1px solid var(--tinta)}
+  .solo-ancho{display:none}
+
+  /* ---------- botones ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-height:48px;padding:11px 22px;border-radius:0;border:1px solid transparent;
+    font-family:var(--texto);font-size:1rem;font-weight:600;text-decoration:none;cursor:pointer;
+  }
+  .btn-acento{background:var(--achiote);border-color:var(--achiote);color:#fff}
+  .btn-acento:hover{background:var(--achiote-fuerte);border-color:var(--achiote-fuerte)}
+  .btn-linea{background:transparent;border-color:var(--tinta);color:var(--tinta)}
+  .btn-linea:hover{background:var(--tinta);color:var(--papel)}
+
+  /* ---------- hero ---------- */
+  .hero{padding:22px 0 40px}
+  .fecha{
+    font-size:.6875rem;text-transform:uppercase;letter-spacing:.16em;font-weight:600;
+    color:var(--plomo);border-top:2px solid var(--tinta);padding-top:9px;margin-bottom:20px;
+  }
+  .hero h1{
+    font-size:clamp(2.35rem,9.4vw,5.25rem);line-height:.96;letter-spacing:-.03em;
+    text-wrap:balance;margin-bottom:18px;
+  }
+  .entrada{font-size:1.0625rem;color:var(--plomo);max-width:36ch;margin-bottom:26px}
+  .acciones{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+  .hero-fig{margin:30px 0 0}
+  .hero-fig img{height:clamp(150px,23vh,290px);object-fit:cover}
+  figcaption{
+    font-size:.8125rem;color:var(--plomo);border-top:1px solid var(--filete);
+    padding-top:8px;margin-top:8px;
+  }
+
+  /* ---------- secciones ---------- */
+  .seccion{padding:52px 0}
+  .cabecera{border-top:2px solid var(--tinta);padding-top:16px;margin-bottom:30px}
+  .cabecera h2{font-size:clamp(1.75rem,5.6vw,3rem);line-height:1.02;text-wrap:balance}
+  .sumario{color:var(--plomo);margin-top:12px;max-width:52ch}
+
+  /* pasos */
+  .pasos li{
+    display:grid;grid-template-columns:auto 1fr;column-gap:16px;row-gap:6px;
+    border-top:1px solid var(--filete);padding:22px 0;
+  }
+  .pasos li:last-child{border-bottom:1px solid var(--filete)}
+  .num{font-family:var(--display);font-weight:600;font-size:1.375rem;color:var(--achiote);line-height:1.35}
+  .pasos h3{font-size:1.1875rem;line-height:1.25;align-self:center}
+  .pasos p{grid-column:2;color:var(--plomo);max-width:56ch}
+  .foto-lateral{margin:26px 0 0}
+  .foto-lateral img{height:250px;object-fit:cover}
+
+  /* ---------- bloque salón, tinta ---------- */
+  .oscuro{background:var(--tinta);color:var(--papel)}
+  .oscuro .cabecera{border-top-color:var(--papel)}
+  .oscuro .sumario,.oscuro .apoyo{color:var(--claro-suave)}
+  .precio{
+    font-family:var(--display);font-weight:600;font-size:clamp(4.5rem,20vw,8rem);
+    line-height:.85;letter-spacing:-.05em;margin:18px 0 0;
+  }
+  .precio-regla{width:120px;height:5px;background:var(--achiote);margin:14px 0 12px}
+  .precio-pie{color:var(--papel);font-size:1.0625rem;max-width:34ch}
+  .lista-linea{margin:26px 0 0;border-top:1px solid #33403B}
+  .lista-linea li{border-bottom:1px solid #33403B;padding:12px 0;font-size:.9375rem}
+  .cita{
+    font-family:var(--display);font-size:clamp(1.375rem,4.4vw,1.875rem);line-height:1.2;
+    letter-spacing:-.02em;margin:30px 0 0;padding-left:16px;border-left:4px solid var(--achiote);
+    text-wrap:balance;
+  }
+  .cierre-salon{margin-top:28px;display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+  .apoyo{font-size:.875rem}
+  .oscuro figcaption{color:var(--claro-suave);border-top-color:#33403B}
+  .oscuro .foto-lateral img{height:230px}
+
+  /* ---------- ficha de salón ---------- */
+  .filtros{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+  .chip{
+    border-radius:999px;border:1px solid var(--filete);background:var(--ficha);
+    padding:8px 15px;font-size:.875rem;color:var(--plomo);white-space:nowrap;
+  }
+  .chip-on{background:var(--tinta);border-color:var(--tinta);color:var(--papel);font-weight:500}
+  .tarjeta{background:var(--ficha);border:1px solid var(--filete)}
+  .fotos{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr;gap:1px;background:var(--filete);height:230px}
+  .fotos img{width:100%;height:100%;object-fit:cover}
+  .fotos img:first-child{grid-row:1 / 3}
+  .ficha-cab{padding:20px 18px}
+  .ficha-cab h3{font-size:1.625rem;line-height:1.1}
+  .zona{color:var(--plomo);font-size:.9375rem;margin-top:4px}
+  .valor{font-size:.875rem;color:var(--tinta);margin-top:10px}
+  .valor strong{font-weight:600}
+  .ficha-extra{padding:14px 18px 20px;border-bottom:1px solid var(--filete)}
+  .descripcion{color:var(--plomo);font-size:.9375rem;max-width:54ch}
+  .atributos{display:flex;flex-wrap:wrap;margin-top:14px;font-size:.8125rem;color:var(--plomo)}
+  .atributos li{padding-right:11px;margin-right:11px;border-right:1px solid var(--filete);line-height:1.5}
+  .atributos li:last-child{padding-right:0;margin-right:0;border-right:0}
+  .ficha-cuerpo{display:grid}
+  .bloque{padding:20px 18px}
+  .bloque + .bloque{border-top:1px solid var(--filete)}
+  .bloque h4{font-size:1rem;letter-spacing:0}
+  .nota{font-size:.8125rem;color:var(--plomo);margin-top:2px}
+  .servicios{margin-top:12px}
+  .servicios li{
+    display:flex;align-items:baseline;justify-content:space-between;gap:14px;
+    border-top:1px solid var(--filete);padding:11px 0;
+  }
+  .servicios li:last-child{border-bottom:1px solid var(--filete)}
+  .srv-nombre{font-weight:500}
+  .srv-dur{display:block;font-size:.8125rem;color:var(--plomo);font-weight:400}
+  .srv-precio{font-weight:600;white-space:nowrap}
+  .franja{font-size:.8125rem;color:var(--plomo);margin:14px 0 8px}
+  .horas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .hora{
+    display:flex;align-items:center;justify-content:center;min-height:46px;
+    border:1px solid var(--filete);background:var(--ficha);border-radius:0;
+    font-family:var(--texto);font-size:.9375rem;color:var(--tinta);cursor:pointer;
+  }
+  .hora:hover{border-color:var(--tinta)}
+  .hora-tomada{color:var(--plomo);background:var(--papel);text-decoration:line-through;cursor:default}
+  .hora-tomada:hover{border-color:var(--filete)}
+  .hora-elegida{background:var(--achiote);border-color:var(--achiote);color:#fff;font-weight:600}
+  .leyenda{font-size:.8125rem;color:var(--plomo);margin-top:12px;max-width:46ch}
+  .leyenda + .leyenda{margin-top:6px}
+  .ficha-pie{
+    border-top:1px solid var(--filete);padding:18px;display:flex;flex-direction:column;
+    align-items:stretch;gap:12px;background:var(--papel);
+  }
+  .resumen{font-size:.9375rem}
+  .resumen strong{font-weight:600}
+
+  /* ---------- pie ---------- */
+  .pie{border-top:2px solid var(--tinta);padding:36px 0 26px;margin-top:10px}
+  .pie-marca svg{width:120px;height:auto}
+  .pie-lema{color:var(--plomo);font-size:.9375rem;margin-top:12px;max-width:34ch}
+  .pie-cols{display:grid;gap:24px;margin-top:32px}
+  .pie-cols h4{font-size:.9375rem;margin-bottom:10px}
+  .pie-cols li{padding:5px 0}
+  .pie-cols a{font-size:.9375rem;color:var(--plomo);text-decoration:none}
+  .pie-cols a:hover{color:var(--tinta);text-decoration:underline}
+  .legal{
+    border-top:1px solid var(--filete);margin-top:30px;padding-top:14px;
+    font-size:.8125rem;color:var(--plomo);
+  }
+
+  /* ---------- anexo ---------- */
+  .anexo{background:var(--ficha);border-top:1px solid var(--filete)}
+  .muestras{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--filete);border:1px solid var(--filete)}
+  .muestra{background:var(--ficha);padding:14px}
+  .tono{height:74px;border:1px solid var(--filete)}
+  .muestra h4{font-size:.9375rem;margin-top:12px;letter-spacing:0}
+  .muestra .dato{font-size:.8125rem;color:var(--plomo);display:flex;justify-content:space-between;gap:10px;margin-top:4px}
+  .proporcion{display:flex;height:26px;margin-top:22px;border:1px solid var(--filete)}
+  .proporcion span{display:block;height:100%}
+  .proporcion-pie{font-size:.8125rem;color:var(--plomo);margin-top:8px}
+  .tipos{display:grid;gap:1px;background:var(--filete);border:1px solid var(--filete);margin-top:34px}
+  .tipo{background:var(--ficha);padding:20px 16px}
+  .tipo .rotulo{font-size:.8125rem;color:var(--plomo)}
+  .espec-display{font-family:var(--display);font-weight:600;font-size:clamp(2rem,8vw,3.25rem);line-height:1;letter-spacing:-.03em;margin:10px 0 12px}
+  .espec-texto{font-size:1.0625rem;margin:10px 0 12px}
+  .abecedario{font-size:.9375rem;color:var(--plomo);word-break:break-word}
+  .justificacion{margin-top:26px;max-width:70ch;color:var(--tinta)}
+
+  /* pantallas cortas: el hero sigue cabiendo de una sola pantalla */
+  @media (max-width:999px) and (max-height:760px){
+    .hero{padding:16px 0 24px}
+    .fecha{margin-bottom:14px}
+    .hero-fig figcaption{padding-top:6px;margin-top:6px}
+    .entrada{margin-bottom:18px}
+    .btn{min-height:46px}
+    .acciones{gap:8px}
+    .hero-fig{margin-top:16px}
+    .hero-fig img{height:clamp(96px,16vh,150px)}
+  }
+
+  /* ---------- tableta ---------- */
+  @media (min-width:768px){
+    .solo-ancho{display:inline}
+    .env{padding:0 32px}
+    .seccion{padding:76px 0}
+    .hero{padding:40px 0 66px}
+    .horas{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .fotos{height:300px}
+    .ficha-pie{flex-direction:row;align-items:center;justify-content:space-between}
+    .pie-cols{grid-template-columns:repeat(3,minmax(0,1fr));gap:30px}
+    .muestras{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .tipos{grid-template-columns:1fr 1fr}
+    .lista-linea{columns:2;column-gap:34px}
+    .lista-linea li{break-inside:avoid}
+    .acciones{flex-direction:row;align-items:center;gap:14px}
+  }
+
+  /* ---------- escritorio ---------- */
+  @media (min-width:1000px){
+    .seccion{padding:96px 0}
+    .hero{padding:52px 0 84px}
+    .hero-rej{display:grid;grid-template-columns:1.08fr .92fr;gap:52px;align-items:start}
+    .hero-fig{margin:0;border-left:1px solid var(--filete);padding-left:26px}
+    .hero-fig img{height:min(58vh,540px)}
+    .fecha{margin-bottom:26px}
+    .cabecera{display:grid;grid-template-columns:1.15fr .85fr;gap:52px;align-items:start;margin-bottom:44px}
+    .cabecera .sumario{margin-top:6px}
+    .pasos-rej{display:grid;grid-template-columns:1.55fr .95fr;gap:52px;align-items:start}
+    .pasos li{grid-template-columns:auto 1fr;column-gap:26px;padding:26px 0}
+    .pasos h3{font-size:1.375rem}
+    .num{font-size:1.5rem}
+    .foto-lateral{margin:0}
+    .foto-lateral img{height:430px}
+    .salon-rej{display:grid;grid-template-columns:1.12fr .88fr;gap:56px;align-items:start}
+    .oscuro .foto-lateral img{height:520px}
+    .ficha-rej{display:grid;grid-template-columns:.42fr .58fr;gap:0}
+    .ficha-cuerpo{grid-template-columns:.9fr 1.1fr}
+    .bloque + .bloque{border-top:0;border-left:1px solid var(--filete)}
+    .bloque{padding:26px}
+    .ficha-cab{padding:28px 28px 0}
+    .ficha-extra{padding:14px 28px 28px;border-bottom:0}
+    .ficha-rej{border-bottom:1px solid var(--filete)}
+    .ficha-pie{padding:22px 28px}
+    .horas{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .fotos{height:340px}
+    .pie-rej{display:grid;grid-template-columns:.9fr 1.1fr;gap:56px;align-items:start}
+    .pie-cols{margin-top:0}
+    .muestras{grid-template-columns:repeat(6,minmax(0,1fr))}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ 1. barra ============ -->
+<header class="barra">
+  <div class="env barra-in">
+    <a class="marca" href="#" aria-label="Bukeo, inicio">
+      <svg viewBox="-2 -2 196 52" role="img" aria-label="Bukeo">
+        <g fill="none" stroke="#16211D" stroke-width="8" stroke-linecap="butt">
+          <path d="M4 0 V46"/>
+          <circle cx="16" cy="30" r="12"/>
+          <path d="M38 14 V34 A12 12 0 0 0 62 34 V14"/>
+          <path d="M76 0 V46"/>
+          <path d="M98 15 L78 34 L98 46"/>
+          <path d="M112 30 H136 A12 12 0 1 0 130.9 39.8"/>
+          <circle cx="162" cy="30" r="12"/>
+        </g>
+        <rect x="182" y="38" width="8" height="8" fill="#C6350A"/>
+      </svg>
+    </a>
+    <nav class="enlaces" aria-label="Principal">
+      <a href="#ficha">Buscar</a>
+      <a href="#como" class="solo-ancho">Categorías</a>
+      <a href="#salon" class="solo-ancho">Para tu salón</a>
+      <a href="#" class="fuerte">Entrar</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ 2. hero ============ -->
+<section class="hero">
+  <div class="env hero-rej">
+    <div>
+      <p class="fecha">Ciudad de Panamá · martes 2 de septiembre</p>
+      <h1>Tu hora está<br>a dos cuadras.</h1>
+      <p class="entrada">Barberías, salones, uñas y spa en Ciudad de Panamá. Mira quién tiene hueco hoy y toma tu hora.</p>
+      <div class="acciones">
+        <a class="btn btn-acento" href="#ficha">Buscar cerca de mí</a>
+        <a class="btn btn-linea" href="#salon">Publicar mi salón, gratis</a>
+      </div>
+    </div>
+    <figure class="hero-fig">
+      <img src="https://picsum.photos/seed/barberia-casco-antiguo-panama/900/1100" alt="Calle de barrio en Ciudad de Panamá con locales a pie de calle" width="900" height="1100">
+      <figcaption>Vía Argentina, El Cangrejo. Tres barberías en la misma cuadra.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ 3. cómo se reserva ============ -->
+<section class="seccion" id="como">
+  <div class="env">
+    <div class="cabecera">
+      <h2>Cómo reserva una clienta</h2>
+      <p class="sumario">Tres pantallas y listo. Sin llamar al salón, sin esperar a que alguien conteste el chat y sin dejar un adelanto por si acaso.</p>
+    </div>
+    <div class="pasos-rej">
+      <ol class="pasos">
+        <li>
+          <span class="num cifras">01</span>
+          <h3>Busca por zona, no por marca</h3>
+          <p>Escribes «barbería» o tocas tu zona, y la lista sale ordenada por cercanía, por horario abierto y por quién tiene hueco hoy. Los patrocinados van marcados y nunca tapan al resto.</p>
+        </li>
+        <li>
+          <span class="num cifras">02</span>
+          <h3>Elige la hora que te sirve</h3>
+          <p>Ves las horas libres de verdad de cada profesional, con el precio y la duración delante, antes de tocar nada. Si son las 3:10 y hay algo a las 4:00, sale primero.</p>
+        </li>
+        <li>
+          <span class="num cifras">03</span>
+          <h3>Reserva y sigue con tu día</h3>
+          <p>Confirmas con tu número y un código por WhatsApp. Te llega recordatorio 24 horas y 2 horas antes, y puedes mover o cancelar tú misma hasta 2 horas antes de la cita.</p>
+        </li>
+      </ol>
+      <figure class="foto-lateral">
+        <img src="https://picsum.photos/seed/mujer-telefono-cafe/800/1000" alt="Clienta reservando desde el teléfono con una sola mano" width="800" height="1000">
+        <figcaption>Una reserva de 40 segundos, con 3G y una sola mano.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. para el salón ============ -->
+<section class="seccion oscuro" id="salon">
+  <div class="env">
+    <div class="cabecera">
+      <h2>Para el salón cuesta cero</h2>
+      <p class="sumario">Tu agenda, tu equipo, tus servicios y tu ficha de clientas. Desde el mismo teléfono con el que atiendes, sin mensualidad que renovar.</p>
+    </div>
+    <div class="salon-rej">
+      <div>
+        <p class="precio cifras">$0</p>
+        <div class="precio-regla" aria-hidden="true"></div>
+        <p class="precio-pie">al mes. Sin tarjeta para registrarte y sin comisión por cita.</p>
+        <ul class="lista-linea">
+          <li>Agenda del equipo completo, por día y por semana</li>
+          <li>Servicios con precio, duración y descansos</li>
+          <li>Recordatorios por WhatsApp a la clienta</li>
+          <li>Perfil público con enlace para tu bio de Instagram</li>
+          <li>Reservas a mano para quien llega sin cita</li>
+          <li>Ficha de clienta con notas y control de plantones</li>
+        </ul>
+        <p class="cita">«Aquí no se paga por trabajar. Se paga, si acaso, por salir arriba.»</p>
+        <div class="cierre-salon">
+          <a class="btn btn-acento" href="#">Publicar mi salón</a>
+          <p class="apoyo">Menos de 10 minutos desde el teléfono y sin que nadie te llame. Bukeo vive de la visibilidad: si un mes quieres salir arriba en tu categoría y tu zona, compras esa posición, con el precio a la vista y la etiqueta de patrocinado puesta.</p>
+        </div>
+      </div>
+      <figure class="foto-lateral">
+        <img src="https://picsum.photos/seed/barbera-panama-retrato/900/1200" alt="Dueña de un salón repasando la agenda del día entre clienta y clienta" width="900" height="1200">
+        <figcaption>Salón de barrio en San Francisco. La agenda del jueves, entre dos clientas.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5. ficha de salón ============ -->
+<section class="seccion" id="ficha">
+  <div class="env">
+    <div class="cabecera">
+      <h2>Así te ve una clienta</h2>
+      <p class="sumario">La misma ficha que sale en el buscador, en el mapa y en el enlace que pegas en tu Instagram.</p>
+    </div>
+
+    <div class="filtros" role="group" aria-label="Filtros del buscador">
+      <span class="chip chip-on">Abierto ahora</span>
+      <span class="chip">Hoy</span>
+      <span class="chip">Barbería</span>
+      <span class="chip">A menos de 1 km</span>
+      <span class="chip">Paga con Yappy</span>
+    </div>
+
+    <article class="tarjeta">
+      <div class="ficha-rej">
+        <div class="fotos">
+          <img src="https://picsum.photos/seed/barberia-el-cangrejo-tijeras/900/1100" alt="Clienta con su hijo a la entrada de la barbería" width="900" height="1100">
+          <img src="https://picsum.photos/seed/barberia-el-cangrejo-local/600/450" alt="Interior del local, la silla junto al espejo" width="600" height="450">
+          <img src="https://picsum.photos/seed/duena-barberia-panama/600/450" alt="Detalle de las manos del barbero durante un afeitado" width="600" height="450">
+        </div>
+        <div class="ficha-lado">
+          <header class="ficha-cab">
+            <h3>Barbería El Cangrejo</h3>
+            <p class="zona">El Cangrejo, Bella Vista · a 850 m de ti</p>
+            <p class="valor cifras"><strong>4,8</strong> de 5 · 132 reseñas · Abierto hoy hasta las 8:00 p.&nbsp;m.</p>
+          </header>
+          <div class="ficha-extra">
+            <p class="descripcion">Cuatro barberos en la esquina de Vía Argentina con calle 47, desde 2014. Corte clásico, barba a navaja y cortes de niño los sábados por la mañana.</p>
+            <ul class="atributos">
+              <li>Español e inglés</li>
+              <li>Estacionamiento en la calle</li>
+              <li>Yappy, tarjeta y efectivo</li>
+              <li>Entrada sin escalones</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="ficha-cuerpo">
+        <div class="bloque">
+          <h4>Servicios</h4>
+          <p class="nota">Precio y duración fijos, los mismos que verás al pagar.</p>
+          <ul class="servicios cifras">
+            <li><span class="srv-nombre">Corte clásico<span class="srv-dur">45 min</span></span><span class="srv-precio">$12,00</span></li>
+            <li><span class="srv-nombre">Corte y barba<span class="srv-dur">1 h</span></span><span class="srv-precio">$18,00</span></li>
+            <li><span class="srv-nombre">Barba a navaja<span class="srv-dur">30 min</span></span><span class="srv-precio">$10,00</span></li>
+            <li><span class="srv-nombre">Corte de niño<span class="srv-dur">30 min</span></span><span class="srv-precio">$9,00</span></li>
+            <li><span class="srv-nombre">Diseño de línea<span class="srv-dur">20 min</span></span><span class="srv-precio">$7,00</span></li>
+          </ul>
+        </div>
+
+        <div class="bloque">
+          <h4>Horas libres hoy</h4>
+          <p class="nota">Martes 2 de septiembre, con Kevin.</p>
+          <p class="franja">Mañana</p>
+          <div class="horas cifras">
+            <button type="button" class="hora">9:00</button>
+            <button type="button" class="hora">9:45</button>
+            <button type="button" class="hora hora-tomada" disabled>10:30</button>
+            <button type="button" class="hora">11:15</button>
+          </div>
+          <p class="franja">Tarde</p>
+          <div class="horas cifras">
+            <button type="button" class="hora">12:00</button>
+            <button type="button" class="hora hora-tomada" disabled>1:30</button>
+            <button type="button" class="hora">2:15</button>
+            <button type="button" class="hora">3:00</button>
+            <button type="button" class="hora hora-tomada" disabled>3:45</button>
+            <button type="button" class="hora">4:30</button>
+            <button type="button" class="hora hora-elegida" aria-pressed="true">5:15</button>
+            <button type="button" class="hora">6:00</button>
+          </div>
+          <p class="leyenda">Las horas tachadas ya están tomadas. Lo que ves libre está libre.</p>
+          <p class="leyenda">Puedes mover o cancelar tú misma hasta 2 horas antes de la cita, sin llamar y sin dar explicaciones.</p>
+        </div>
+      </div>
+
+      <footer class="ficha-pie">
+        <p class="resumen cifras">Corte y barba · 1 h · 5:15 p.&nbsp;m. · <strong>$18,00</strong></p>
+        <a class="btn btn-acento" href="#">Reservar las 5:15 p.&nbsp;m.</a>
+      </footer>
+    </article>
+  </div>
+</section>
+
+<!-- ============ 6. pie ============ -->
+<footer class="pie">
+  <div class="env pie-rej">
+    <div class="pie-marca">
+      <svg viewBox="-2 -2 196 52" role="img" aria-label="Bukeo">
+        <g fill="none" stroke="#16211D" stroke-width="8" stroke-linecap="butt">
+          <path d="M4 0 V46"/>
+          <circle cx="16" cy="30" r="12"/>
+          <path d="M38 14 V34 A12 12 0 0 0 62 34 V14"/>
+          <path d="M76 0 V46"/>
+          <path d="M98 15 L78 34 L98 46"/>
+          <path d="M112 30 H136 A12 12 0 1 0 130.9 39.8"/>
+          <circle cx="162" cy="30" r="12"/>
+        </g>
+        <rect x="182" y="38" width="8" height="8" fill="#C6350A"/>
+      </svg>
+      <p class="pie-lema">La agenda de tu salón, gratis, y el sitio donde tus clientas te encuentran.</p>
+    </div>
+    <div class="pie-cols">
+      <div>
+        <h4>Para reservar</h4>
+        <ul>
+          <li><a href="#ficha">Buscar salones</a></li>
+          <li><a href="#ficha">Categorías</a></li>
+          <li><a href="#ficha">Zonas de la ciudad</a></li>
+          <li><a href="#">Mis reservas</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Para el salón</h4>
+        <ul>
+          <li><a href="#salon">Publicar mi salón</a></li>
+          <li><a href="#como">Cómo funciona</a></li>
+          <li><a href="#salon">Posicionamiento pagado</a></li>
+          <li><a href="#">Ayuda</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Bukeo</h4>
+        <ul>
+          <li><a href="#">Quiénes somos</a></li>
+          <li><a href="#">Privacidad</a></li>
+          <li><a href="#">Términos</a></li>
+          <li><a href="#">Escríbenos</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="env">
+    <p class="legal cifras">© 2026 Bukeo. Ciudad de Panamá. Precios en dólares. Español de Panamá. Hecho para pantallas pequeñas y datos lentos.</p>
+  </div>
+</footer>
+
+<!-- ============ 7. anexo: paleta y tipografía ============ -->
+<section class="seccion anexo">
+  <div class="env">
+    <div class="cabecera">
+      <h2>Anexo. Paleta y tipografía</h2>
+      <p class="sumario">Dirección A, «Editorial de barrio». Papel y tinta, filetes de 1 px en vez de sombras, canto vivo salvo en las fichas de filtro, y un solo acento cálido que aparece poco.</p>
+    </div>
+
+    <div class="muestras">
+      <div class="muestra">
+        <div class="tono" style="background:#F6F6F3"></div>
+        <h4>Papel de imprenta</h4>
+        <p class="dato cifras"><span>#F6F6F3</span><span>58 %</span></p>
+      </div>
+      <div class="muestra">
+        <div class="tono" style="background:#FFFFFF"></div>
+        <h4>Blanco de ficha</h4>
+        <p class="dato cifras"><span>#FFFFFF</span><span>22 %</span></p>
+      </div>
+      <div class="muestra">
+        <div class="tono" style="background:#16211D"></div>
+        <h4>Tinta pizarra</h4>
+        <p class="dato cifras"><span>#16211D</span><span>12 %</span></p>
+      </div>
+      <div class="muestra">
+        <div class="tono" style="background:#4E5A55"></div>
+        <h4>Gris plomo</h4>
+        <p class="dato cifras"><span>#4E5A55</span><span>4 %</span></p>
+      </div>
+      <div class="muestra">
+        <div class="tono" style="background:#D7D9D3"></div>
+        <h4>Filete</h4>
+        <p class="dato cifras"><span>#D7D9D3</span><span>2 %</span></p>
+      </div>
+      <div class="muestra">
+        <div class="tono" style="background:#C6350A"></div>
+        <h4>Rojo achiote</h4>
+        <p class="dato cifras"><span>#C6350A</span><span>2 %</span></p>
+      </div>
+    </div>
+
+    <div class="proporcion" aria-hidden="true">
+      <span style="width:58%;background:#F6F6F3"></span>
+      <span style="width:22%;background:#FFFFFF"></span>
+      <span style="width:12%;background:#16211D"></span>
+      <span style="width:4%;background:#4E5A55"></span>
+      <span style="width:2%;background:#D7D9D3"></span>
+      <span style="width:2%;background:#C6350A"></span>
+    </div>
+    <p class="proporcion-pie cifras">Proporción de uso sobre una pantalla media. El achiote solo pinta lo que se toca: el botón que reserva, la hora elegida y los números de los pasos. Contraste medido: tinta sobre papel 16,4:1; gris plomo sobre blanco 7,2:1; blanco sobre achiote 5,4:1.</p>
+
+    <div class="tipos">
+      <div class="tipo">
+        <p class="rotulo">Titulares y wordmark</p>
+        <p class="espec-display">Jost 600</p>
+        <p class="abecedario">AaBbCcDdEeÑñ 0123456789 $12,00 · 5:15 p.&nbsp;m.</p>
+      </div>
+      <div class="tipo">
+        <p class="rotulo">Texto, interfaz y cifras</p>
+        <p class="espec-texto">IBM Plex Sans 400 / 600</p>
+        <p class="abecedario cifras">9:00 · 9:45 · 10:30 · 11:15 · 12:00 · $18,00 · 45 min</p>
+      </div>
+    </div>
+
+    <p class="justificacion">Jost es una geométrica de estirpe Futura: dibuja titulares grandes con carácter de cartel de imprenta y sin el aire de plantilla que ya tienen todas las neogrotescas de aplicación. IBM Plex Sans lleva cifras tabulares de verdad dentro del archivo, así que una columna de horas, precios y duraciones queda alineada al píxel, que es justo donde se juega la agenda de un salón.</p>
+  </div>
+</section>
+
+</body>
+</html>

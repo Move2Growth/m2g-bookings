@@ -1,112 +1,121 @@
 /* Generado por generar.mjs a partir de tokens.json. No editar a mano. */
 
 export const tokens = {
-  "_comentario": [
-    "Fuente única de los tokens de diseño (ADR-0013). De aquí se generan las variables CSS de",
-    "la web y el back-office y el módulo TypeScript que consume la app. Ningún color, medida o",
-    "tamaño de letra se escribe suelto en un componente.",
-    "Modo claro por defecto. El modo oscuro se define aquí desde el principio para que activarlo",
-    "no sea un rediseño, pero no se construye en la Fase 1.",
-    "El nombre comercial está sin decidir (D1): la identidad vive en estos tokens, así que",
-    "cambiarla el día que Luis decida es cambiar valores, no pantallas."
+  "_marca": [
+    "Bukeo — tokens de marca. Fuente única: de aquí salen las variables CSS de la web y el",
+    "módulo TypeScript de la app. Ningún color, medida, radio o tamaño de letra se escribe",
+    "suelto en un componente.",
+    "El brandbook que explica el porqué de cada decisión vive en docs/marca/BRANDBOOK-BUKEO.md.",
+    "Modo claro por defecto; el oscuro está definido desde el principio para que encenderlo no",
+    "sea un rediseño."
   ],
   "color": {
     "claro": {
-      "superficie": "#FFFFFF",
-      "superficie-suave": "#F6F5F3",
-      "superficie-elevada": "#FFFFFF",
-      "borde": "#DFDCD6",
-      "borde-fuerte": "#8A857C",
-      "texto": "#1B1A18",
-      "texto-suave": "#5C5851",
-      "texto-tenue": "#8A857C",
-      "acento": "#125E52",
-      "acento-hover": "#0E4C42",
-      "acento-suave": "#E4F0ED",
+      "_nota": "Tinta cálida sobre papel frío, y un solo acento. Ni negro puro ni blanco puro: matan la profundidad.",
+      "papel": "#F7F6F4",
+      "lienzo": "#FFFFFF",
+      "arena": "#EFEDE9",
+      "borde": "#DCD8D2",
+      "borde-fuerte": "#8A857D",
+      "tinta": "#171310",
+      "tinta-suave": "#585149",
+      "tinta-tenue": "#726A61",
+      "acento": "#B5124F",
+      "acento-hover": "#94063E",
+      "acento-suave": "#FBE7EE",
       "acento-texto": "#FFFFFF",
-      "exito": "#1F7A45",
-      "exito-suave": "#E7F1E9",
-      "aviso": "#9A6206",
-      "aviso-suave": "#FDF3DC",
-      "peligro": "#A32118",
-      "peligro-suave": "#FBEAE8",
-      "foco": "#1B5FD9",
-      "velo": "rgba(27, 26, 24, 0.45)"
+      "exito": "#1B6B41",
+      "exito-suave": "#E4F0E8",
+      "aviso": "#8A5A06",
+      "aviso-suave": "#FBEFD8",
+      "peligro": "#A11B1B",
+      "peligro-suave": "#FBE9E7",
+      "foco": "#B5124F",
+      "velo": "rgba(23, 19, 16, 0.48)"
     },
     "oscuro": {
-      "superficie": "#141412",
-      "superficie-suave": "#1D1D1A",
-      "superficie-elevada": "#232320",
-      "borde": "#35342F",
-      "borde-fuerte": "#4E4C45",
-      "texto": "#F2F0EC",
-      "texto-suave": "#B6B2A9",
-      "texto-tenue": "#87837B",
-      "acento": "#4FB3A0",
-      "acento-hover": "#69C6B4",
-      "acento-suave": "#16302C",
-      "acento-texto": "#0B1F1B",
-      "exito": "#5CBB80",
-      "exito-suave": "#17301F",
+      "papel": "#131110",
+      "lienzo": "#1C1918",
+      "arena": "#242020",
+      "borde": "#332E2C",
+      "borde-fuerte": "#7A736D",
+      "tinta": "#F5F2EF",
+      "tinta-suave": "#B5ACA4",
+      "tinta-tenue": "#8A827A",
+      "acento": "#FF6B9D",
+      "acento-hover": "#FF89B1",
+      "acento-suave": "#38141F",
+      "acento-texto": "#1C0A11",
+      "exito": "#5FBB84",
+      "exito-suave": "#16281D",
       "aviso": "#D9A441",
-      "aviso-suave": "#33270F",
-      "peligro": "#E8776B",
-      "peligro-suave": "#3A1E1B",
-      "foco": "#7FA9F5",
-      "velo": "rgba(0, 0, 0, 0.6)"
+      "aviso-suave": "#2C2210",
+      "peligro": "#F08080",
+      "peligro-suave": "#331817",
+      "foco": "#FF6B9D",
+      "velo": "rgba(0, 0, 0, 0.62)"
     }
   },
   "estado-reserva": {
-    "_comentario": "Los cinco estados de RSV-3, con el mismo color en la web, el back-office y la app. Un estado que se lee distinto en cada superficie es un estado que nadie aprende.",
+    "_nota": "Los cinco estados de una cita. El mismo color en la web, el panel y la app: un estado que se lee distinto en cada sitio es un estado que nadie aprende.",
     "pendiente": {
-      "fondo": "#FDF3DC",
-      "texto": "#6B4A05",
-      "borde": "#E2C173"
+      "fondo": "#FBEFD8",
+      "texto": "#6B4405",
+      "borde": "#D9A441"
     },
     "confirmada": {
-      "fondo": "#E4F0ED",
-      "texto": "#0E4C42",
-      "borde": "#7FBDB1"
+      "fondo": "#E4F0E8",
+      "texto": "#14522F",
+      "borde": "#5A9C74"
     },
     "completada": {
-      "fondo": "#E7F1E9",
-      "texto": "#1B5C36",
-      "borde": "#8CBB9E"
+      "fondo": "#EAEEF3",
+      "texto": "#2A4560",
+      "borde": "#7D9BB8"
     },
     "no_show": {
-      "fondo": "#F3F1EE",
-      "texto": "#5C5851",
-      "borde": "#C4BFB6"
+      "fondo": "#EFEDE9",
+      "texto": "#585149",
+      "borde": "#B9B2A8"
     },
     "cancelada": {
-      "fondo": "#FBEAE8",
-      "texto": "#8A1C15",
-      "borde": "#DFA49E"
+      "fondo": "#FBE9E7",
+      "texto": "#8A1616",
+      "borde": "#D69C97"
     }
   },
   "tipografia": {
-    "_comentario": "Una sola familia. Vetadas por el encargo: Inter, Fraunces, Bricolage y General Sans.",
-    "familia": "\"IBM Plex Sans\", system-ui, -apple-system, \"Segoe UI\", sans-serif",
-    "familia-cifras": "\"IBM Plex Sans\", system-ui, sans-serif",
+    "_nota": "Outfit para titulares y marca; Geist para interfaz y cifras. Vetadas: Inter, Fraunces, Bricolage y General Sans. Ambas autoalojadas, nunca enlazadas a un tercero.",
+    "familia-display": "'Outfit Variable', 'Outfit', system-ui, sans-serif",
+    "familia": "'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif",
     "cifras-tabulares": "tabular-nums",
     "pesos": {
       "normal": 400,
       "medio": 500,
-      "fuerte": 600
+      "fuerte": 600,
+      "display": 700
     },
     "tamano": {
       "micro": "0.75rem",
       "menor": "0.875rem",
       "cuerpo": "1rem",
       "mayor": "1.125rem",
-      "titulo-3": "1.25rem",
-      "titulo-2": "1.5rem",
-      "titulo-1": "2rem"
+      "titulo-4": "1.25rem",
+      "titulo-3": "1.5rem",
+      "titulo-2": "2rem",
+      "titulo-1": "2.75rem",
+      "cartel": "4rem"
     },
     "interlineado": {
-      "apretado": 1.2,
-      "normal": 1.5,
+      "apretado": 1.08,
+      "titulo": 1.2,
+      "normal": 1.55,
       "suelto": 1.7
+    },
+    "espaciado": {
+      "titular": "-0.02em",
+      "normal": "0",
+      "etiqueta": "0.08em"
     }
   },
   "espacio": {
@@ -119,33 +128,36 @@ export const tokens = {
     "6": "2rem",
     "7": "3rem",
     "8": "4rem",
-    "_comentario": "Escala de 4 px. El objetivo táctil mínimo es 44 px, y en la agenda la fila de cita entera es el objetivo.",
+    "9": "6rem",
+    "_nota": "Escala de 4 px. El objetivo táctil mínimo es 44 px; en la agenda, la fila entera es el objetivo.",
     "toque-minimo": "44px"
   },
   "radio": {
-    "_comentario": "Contenido y consistente. Nada de todo redondeado por defecto.",
-    "nada": "0",
-    "chico": "2px",
-    "normal": "4px",
-    "grande": "8px",
+    "_nota": "Regla de forma, y se cumple entera: superficies a canto vivo con filete de 1 px, controles a 4 px, y píldora solo en fichas de filtro y avatares. Nada de todo redondeado.",
+    "superficie": "0",
+    "control": "4px",
     "pildora": "999px"
   },
   "sombra": {
-    "_comentario": "Solo donde comunican elevación real: una hoja modal, un menú. Nunca decorativas.",
+    "_nota": "Solo donde comunican elevación real. La sombra se tiñe del fondo; nunca negro puro sobre claro.",
     "ninguna": "none",
-    "menu": "0 2px 8px rgba(27, 26, 24, 0.12)",
-    "hoja": "0 -2px 16px rgba(27, 26, 24, 0.16)"
+    "menu": "0 2px 10px rgba(23, 19, 16, 0.10)",
+    "hoja": "0 -2px 24px rgba(23, 19, 16, 0.16)",
+    "elevada": "0 1px 2px rgba(23, 19, 16, 0.06), 0 8px 24px rgba(23, 19, 16, 0.08)"
   },
   "pantalla": {
-    "_comentario": "Se diseña a 390 px primero y se ensancha después, no al revés.",
+    "_nota": "Se diseña a 390 px primero y se ensancha después.",
     "movil": "390px",
     "tableta": "768px",
-    "escritorio": "1120px"
+    "escritorio": "1024px",
+    "ancho": "1280px"
   },
   "movimiento": {
-    "rapido": "120ms",
-    "normal": "200ms",
-    "curva": "cubic-bezier(0.2, 0, 0.2, 1)"
+    "_nota": "Contenido a propósito: esto se usa en 3G. Toda animación se apaga con prefers-reduced-motion.",
+    "rapido": "140ms",
+    "normal": "220ms",
+    "lento": "420ms",
+    "curva": "cubic-bezier(0.16, 1, 0.3, 1)"
   }
 } as const;
 

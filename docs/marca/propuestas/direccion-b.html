@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bukeo. Dirección B, bloque de color panameño</title>
+<meta name="description" content="Propuesta de identidad B para Bukeo. El color como estructura: bloques planos a sangre, tipografía de rótulo y cifras tabulares.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   BUKEO · Dirección B «Bloque de color panameño»
+   Color como estructura. Sin degradados. Modo claro por defecto.
+   Radio único: 4 px. Los bloques a sangre no llevan radio.
+   ============================================================ */
+
+:root{
+  /* Paleta. Proporciones de uso: cal 42, azul 27, naranja 15, tinta 10, blanco 6 */
+  --cal:#F2F3EF;
+  --blanco:#FFFFFF;
+  --azul:#1636C7;
+  --naranja:#FF7A1F;
+  --tinta:#0D1526;
+
+  /* Derivados verificados en contraste */
+  --sobre-azul:#F2F3EF;        /* 7.90:1 sobre azul */
+  --sobre-azul-suave:#CBD5F8;  /* 6.04:1 sobre azul */
+  --sobre-tinta-suave:#A8B3C9; /* 8.64:1 sobre tinta */
+  --texto-suave:#4A5163;       /* 7.11:1 sobre cal */
+  --borde-tenue:#C9CCC4;       /* decorativo, nunca informativo */
+
+  --r:4px;                     /* escala de radio ÚNICA en todo el documento */
+  --nav-h:66px;
+  --max:1160px;
+  --gutter:clamp(16px, 4vw, 40px);
+  --seccion:clamp(56px, 8vw, 108px);
+
+  --fuente:'Archivo','Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--cal);
+  color:var(--tinta);
+  font-family:var(--fuente);
+  font-size:1rem;
+  line-height:1.5;
+  font-synthesis-weight:none;
+}
+img{max-width:100%;display:block}
+ul{margin:0;padding:0;list-style:none}
+p,h1,h2,h3,h4{margin:0}
+a{color:inherit}
+button{font:inherit;color:inherit}
+
+:focus-visible{outline:3px solid currentColor;outline-offset:3px;border-radius:var(--r)}
+
+.oculto{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+.saltar{
+  position:absolute;left:var(--gutter);top:-100px;z-index:20;
+  background:var(--tinta);color:var(--cal);padding:12px 18px;border-radius:var(--r);
+  font-weight:600;text-decoration:none;transition:top .12s;
+}
+.saltar:focus{top:10px}
+
+.limite{max-width:var(--max);margin-inline:auto;width:100%}
+section[id]{scroll-margin-top:calc(var(--nav-h) + 14px)}
+
+/* Titulares de rótulo. Una sola familia, tres anchuras */
+.rotulo{
+  font-weight:800;
+  font-stretch:112%;
+  line-height:.94;
+  letter-spacing:-.02em;
+  margin:0;
+}
+.cifra{font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1}
+
+/* ---------- 1. NAVEGACIÓN ---------- */
+.nav{
+  position:sticky;top:0;z-index:10;
+  background:var(--cal);
+  border-bottom:6px solid var(--naranja);
+  min-height:var(--nav-h);
+  display:flex;align-items:center;
+  padding-inline:var(--gutter);
+}
+.nav__fila{display:flex;align-items:center;gap:16px;justify-content:space-between}
+.marca{display:flex;align-items:center;text-decoration:none;color:var(--tinta);flex:0 0 auto}
+.marca svg{height:26px;width:auto;display:block}
+.nav__enlaces{display:flex;align-items:center;gap:clamp(14px,2.4vw,30px);flex:0 0 auto}
+.nav__enlaces a:not(.nav__entrar){
+  text-decoration:none;font-weight:500;font-size:.9375rem;white-space:nowrap;
+  padding:6px 0;border-bottom:2px solid transparent;
+}
+.nav__enlaces a:not(.nav__entrar):hover{border-bottom-color:var(--tinta)}
+.nav__enlaces a.solo-ancho{display:none}
+.nav__entrar{
+  background:var(--tinta);color:var(--cal);text-decoration:none;
+  padding:11px 16px;border-radius:var(--r);font-weight:600;font-size:.9375rem;white-space:nowrap;
+  min-height:44px;display:inline-flex;align-items:center;
+}
+.nav__entrar:hover{background:var(--azul)}
+
+/* ---------- 2. HERO ---------- */
+.hero{
+  background:var(--azul);
+  color:var(--sobre-azul);
+  display:grid;
+  grid-template-rows:1fr auto;
+  min-height:calc(100vh - var(--nav-h));
+  min-height:calc(100svh - var(--nav-h));
+}
+.hero__texto{
+  padding:clamp(24px,5.5vw,56px) var(--gutter);
+  display:flex;flex-direction:column;justify-content:center;
+  max-width:var(--max);margin-inline:auto;width:100%;
+}
+.encabezado{
+  font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;
+  color:var(--sobre-azul-suave);margin:0 0 14px;
+}
+.hero h1{font-size:clamp(2rem,5.6vw,4rem);max-width:22ch}
+.hero__sub{
+  margin:16px 0 0;max-width:46ch;
+  font-size:clamp(1rem,3.4vw,1.1875rem);
+  color:var(--sobre-azul-suave);
+}
+.acciones{display:flex;flex-wrap:wrap;gap:12px;margin-top:clamp(20px,3.5vw,32px)}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:52px;padding:0 22px;border-radius:var(--r);
+  font-weight:700;font-size:1rem;text-decoration:none;border:2px solid transparent;cursor:pointer;
+}
+.btn--naranja{background:var(--naranja);color:var(--tinta);border-color:var(--naranja)}
+.btn--naranja:hover{background:var(--tinta);color:var(--naranja);border-color:var(--tinta)}
+.btn--linea{background:transparent;color:var(--sobre-azul);border-color:var(--sobre-azul)}
+.btn--linea:hover{background:var(--sobre-azul);color:var(--azul)}
+.btn--azul{background:var(--azul);color:var(--cal);border-color:var(--azul);width:100%}
+.btn--azul:hover{background:var(--tinta);border-color:var(--tinta)}
+.hero__foto{position:relative;overflow:hidden;height:clamp(140px,29vh,270px);border-top:6px solid var(--naranja)}
+.hero__foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+/* ---------- 3. CÓMO FUNCIONA (clienta) ---------- */
+.pasos{background:var(--naranja);color:var(--tinta);padding:var(--seccion) var(--gutter)}
+.pasos h2{font-size:clamp(1.75rem,6.4vw,3.25rem);max-width:18ch;text-wrap:balance}
+.pasos__intro{margin:14px 0 clamp(28px,4vw,48px);max-width:52ch;font-size:clamp(1rem,3.2vw,1.125rem)}
+.paso{
+  display:grid;grid-template-columns:auto 1fr;gap:4px 18px;
+  align-items:start;padding:24px 0;border-top:2px solid var(--tinta);
+}
+.paso:last-child{border-bottom:2px solid var(--tinta)}
+.paso__num{
+  font-weight:800;font-stretch:125%;font-size:clamp(2.25rem,9vw,3.75rem);line-height:.85;
+  grid-row:span 2;
+}
+.paso h3{margin:0;font-size:clamp(1.125rem,4.2vw,1.5rem);font-weight:700;line-height:1.15;align-self:center}
+.paso__txt{margin:6px 0 0;max-width:58ch;grid-column:2}
+
+/* ---------- 4. PARA EL SALÓN ---------- */
+.salon{background:var(--azul);color:var(--sobre-azul)}
+.salon__grid{display:grid;max-width:var(--max);margin-inline:auto}
+.salon__texto{padding:var(--seccion) var(--gutter)}
+.salon h2{font-size:clamp(1.75rem,6.4vw,3.25rem);max-width:16ch;text-wrap:balance}
+.precio{margin:clamp(22px,3.5vw,32px) 0 0}
+.precio__cifra{
+  display:block;font-weight:800;font-stretch:125%;
+  font-size:clamp(2.75rem,12.5vw,6.5rem);line-height:.86;
+  letter-spacing:-.03em;color:var(--naranja);
+}
+.precio__pie{display:block;margin-top:10px;font-size:clamp(1rem,3.4vw,1.375rem);font-weight:600;max-width:30ch}
+.ventajas{margin:clamp(24px,4vw,36px) 0 0;display:grid;gap:14px}
+.ventajas li{display:grid;grid-template-columns:14px 1fr;gap:14px;align-items:start;max-width:52ch}
+.ventajas li::before{content:"";width:14px;height:14px;background:var(--naranja);margin-top:.45em}
+.nota{
+  margin:clamp(24px,4vw,32px) 0 0;padding:18px 20px;
+  border:2px solid var(--sobre-azul-suave);border-radius:var(--r);
+  color:var(--sobre-azul-suave);font-size:.9375rem;max-width:52ch;
+}
+.salon__foto{position:relative;overflow:hidden;height:clamp(220px,45vw,340px);border-top:6px solid var(--naranja)}
+.salon__foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+/* ---------- 5. FICHA DE SALÓN ---------- */
+.mercado{background:var(--cal);padding:var(--seccion) var(--gutter)}
+.mercado h2{font-size:clamp(1.75rem,6.4vw,3rem);max-width:20ch;text-wrap:balance}
+.mercado__intro{margin:14px 0 clamp(28px,4vw,44px);max-width:54ch;color:var(--texto-suave);font-size:clamp(1rem,3.2vw,1.125rem)}
+.ficha{
+  background:var(--blanco);border:2px solid var(--tinta);border-radius:var(--r);
+  max-width:720px;overflow:hidden;
+}
+.ficha__foto{aspect-ratio:16/9;border-bottom:2px solid var(--tinta)}
+.ficha__foto img{width:100%;height:100%;object-fit:cover}
+.ficha__cuerpo{padding:clamp(18px,4vw,28px)}
+.ficha__alto{display:flex;align-items:flex-start;gap:12px;justify-content:space-between}
+.ficha h3{margin:0;font-size:clamp(1.375rem,5vw,1.75rem);font-weight:800;line-height:1.05;letter-spacing:-.01em}
+.etiqueta{
+  background:var(--naranja);color:var(--tinta);border-radius:var(--r);
+  padding:5px 9px;font-size:.75rem;font-weight:700;white-space:nowrap;flex:0 0 auto;
+}
+.ficha__meta{margin:10px 0 0;color:var(--texto-suave);font-size:.9375rem}
+.ficha__estado{margin:6px 0 0;font-size:.9375rem;font-weight:600}
+.bloque-tit{
+  margin:clamp(20px,3.5vw,28px) 0 12px;font-size:.9375rem;font-weight:700;
+  padding-top:16px;border-top:2px solid var(--tinta);
+}
+.servicio{
+  display:grid;grid-template-columns:1fr auto;gap:2px 14px;align-items:center;
+  padding:12px 14px;border:2px solid var(--borde-tenue);border-radius:var(--r);
+  margin-bottom:8px;min-height:64px;background:var(--blanco);width:100%;text-align:left;cursor:pointer;
+}
+.servicio:hover{border-color:var(--tinta)}
+.servicio[aria-pressed="true"]{border-color:var(--azul);background:#EDF1FE}
+.servicio__nom{font-weight:600}
+.servicio__dur{color:var(--texto-suave);font-size:.875rem;grid-column:1}
+.servicio__precio{font-weight:700;grid-row:span 2;white-space:nowrap}
+.profesional{margin:14px 0 0;font-size:.9375rem;color:var(--texto-suave)}
+.dias{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;-webkit-overflow-scrolling:touch}
+.dia{
+  border:2px solid var(--borde-tenue);border-radius:var(--r);background:var(--blanco);
+  padding:8px 12px;min-height:52px;display:flex;flex-direction:column;justify-content:center;
+  line-height:1.15;white-space:nowrap;cursor:pointer;flex:0 0 auto;
+}
+.dia small{color:var(--texto-suave);font-size:.75rem;font-weight:600}
+.dia b{font-weight:700;font-size:.9375rem}
+.dia[aria-pressed="true"]{background:var(--azul);border-color:var(--azul);color:var(--cal)}
+.dia[aria-pressed="true"] small{color:var(--sobre-azul-suave)}
+.franja-hora{font-size:.8125rem;font-weight:700;color:var(--texto-suave);margin:0 0 8px}
+.horas{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px;margin-bottom:18px}
+.hora{
+  border:2px solid var(--tinta);border-radius:var(--r);background:var(--blanco);color:var(--azul);
+  min-height:46px;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:1rem;cursor:pointer;
+}
+.hora:hover{background:var(--azul);color:var(--cal)}
+.hora[aria-pressed="true"]{background:var(--azul);border-color:var(--azul);color:var(--cal)}
+.hora--ocupada{
+  border-color:var(--borde-tenue);color:var(--texto-suave);
+  text-decoration:line-through;cursor:not-allowed;background:var(--cal);
+}
+.hora--ocupada:hover{background:var(--cal);color:var(--texto-suave)}
+.resumen{
+  border-top:2px solid var(--tinta);padding-top:16px;display:grid;gap:12px;
+}
+.resumen__linea{display:flex;justify-content:space-between;gap:12px;font-weight:600}
+.resumen__linea span:last-child{white-space:nowrap}
+
+/* ---------- 6. PIE ---------- */
+.pie{background:var(--tinta);color:var(--cal);padding:var(--seccion) var(--gutter) 32px}
+.pie__grid{display:grid;gap:36px}
+.pie svg{height:30px;width:auto}
+.pie__lema{margin:16px 0 0;color:var(--sobre-tinta-suave);max-width:34ch}
+.pie__cols{display:grid;gap:28px}
+.pie h4{margin:0 0 12px;font-size:.8125rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sobre-tinta-suave)}
+.pie li{margin-bottom:10px}
+.pie li a{text-decoration:none;border-bottom:1px solid transparent}
+.pie li a:hover{border-bottom-color:var(--cal)}
+.pie__base{
+  margin-top:40px;padding-top:20px;border-top:2px solid var(--sobre-tinta-suave);
+  display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;
+  color:var(--sobre-tinta-suave);font-size:.875rem;
+}
+.pie__base a{text-decoration:none;border-bottom:1px solid currentColor}
+
+/* ---------- 7. SISTEMA: PALETA Y TIPOGRAFÍA ---------- */
+.sistema{background:var(--cal);padding:var(--seccion) var(--gutter);border-top:6px solid var(--naranja)}
+.sistema h2{font-size:clamp(1.75rem,6.4vw,3rem)}
+.sistema__intro{margin:14px 0 clamp(28px,4vw,40px);max-width:56ch;color:var(--texto-suave);font-size:clamp(1rem,3.2vw,1.125rem)}
+.h3sis{font-size:1.125rem;font-weight:800;margin:0 0 14px}
+.barra{display:flex;height:56px;border:2px solid var(--tinta);border-radius:var(--r);overflow:hidden;margin-bottom:10px}
+.barra span{display:block;height:100%}
+.barra__pie{margin:0 0 clamp(28px,4vw,40px);font-size:.875rem;color:var(--texto-suave)}
+.muestras{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-bottom:clamp(36px,5vw,56px)}
+.muestra{border:2px solid var(--tinta);border-radius:var(--r);overflow:hidden;background:var(--blanco)}
+.muestra__color{height:104px;border-bottom:2px solid var(--tinta)}
+.muestra__datos{padding:14px}
+.muestra b{display:block;font-size:1rem;font-weight:700}
+.muestra__hex{font-weight:700;font-size:.9375rem;margin:4px 0 0}
+.muestra__pct{font-weight:800;font-stretch:125%;font-size:1.5rem;margin:8px 0 0;line-height:1}
+.muestra__uso{margin:8px 0 0;font-size:.8125rem;color:var(--texto-suave);line-height:1.45}
+.tipo{display:grid;gap:24px}
+.specimen{
+  background:var(--tinta);color:var(--cal);border-radius:var(--r);padding:clamp(20px,4vw,32px);overflow:hidden;
+}
+.specimen__grande{font-weight:800;font-stretch:125%;font-size:clamp(2.5rem,11vw,5rem);line-height:.9;letter-spacing:-.02em;margin:0}
+.specimen__cifras{font-weight:700;font-size:clamp(1.25rem,5vw,2rem);margin:16px 0 0;color:var(--naranja);line-height:1.2}
+.specimen__pesos{margin:18px 0 0;color:var(--sobre-tinta-suave);font-size:.875rem;line-height:1.7}
+.specimen__pesos b{font-weight:700;color:var(--cal)}
+.justifica p{margin:0 0 14px;max-width:62ch;font-size:clamp(1rem,3.2vw,1.0625rem)}
+.reglas{margin-top:28px;border-top:2px solid var(--tinta);padding-top:20px;display:grid;gap:10px}
+.reglas li{display:grid;grid-template-columns:auto 1fr;gap:12px;max-width:64ch;font-size:.9375rem}
+.reglas b{font-weight:700;white-space:nowrap}
+
+/* ---------- ADAPTACIÓN ---------- */
+@media (max-width:359px){
+  .hero h1{font-size:1.625rem}
+  .hero__sub{font-size:.9375rem}
+}
+@media (min-width:600px){
+  .nav__enlaces a.solo-ancho{display:inline-block}
+  .paso{grid-template-columns:auto 1fr;gap:6px 26px}
+  .pie__cols{grid-template-columns:repeat(3,auto);gap:48px;justify-content:start}
+}
+@media (min-width:900px){
+  .hero{grid-template-rows:none;grid-template-columns:1.24fr .76fr}
+  .hero__texto{max-width:none;padding-left:max(var(--gutter),calc((100vw - var(--max))/2));padding-right:clamp(24px,3vw,48px)}
+  .hero__foto{height:auto;border-top:0;border-left:6px solid var(--naranja)}
+  .paso{grid-template-columns:6rem 15rem 1fr;align-items:center;gap:0 32px;padding:28px 0}
+  .paso h3{grid-column:2;align-self:center}
+  .paso__num{grid-row:1}
+  .paso__txt{grid-column:3;margin:0}
+  .salon__grid{grid-template-columns:1.05fr .95fr;align-items:stretch;max-width:none}
+  .salon__texto{padding-left:max(var(--gutter),calc((100vw - var(--max))/2 + var(--gutter)))}
+  .salon__foto{height:auto;min-height:100%;border-top:0;border-left:6px solid var(--naranja)}
+  .pie__grid{grid-template-columns:1fr 1.3fr;gap:64px}
+  .tipo{grid-template-columns:.9fr 1.1fr;gap:40px;align-items:start}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+
+<!-- ===== 1. NAVEGACIÓN ===== -->
+<header class="nav">
+  <div class="nav__fila limite">
+    <a class="marca" href="#" aria-label="Bukeo, inicio">
+      <svg viewBox="0 0 286 96" role="img" aria-label="Bukeo" fill="none" stroke="currentColor" stroke-width="13" stroke-linecap="square" stroke-linejoin="miter">
+        <path d="M20 16 V80"/>
+        <path d="M20 16 A16 16 0 0 1 20 48"/>
+        <path d="M20 48 A16 16 0 0 1 20 80"/>
+        <path d="M60 16 V64 A16 16 0 0 0 92 64 V16"/>
+        <path d="M116 16 V80"/>
+        <path d="M148 16 L116 48"/>
+        <path d="M116 48 L150 80"/>
+        <path d="M172 16 V80"/>
+        <path d="M172 16 H202"/>
+        <path d="M172 48 H196"/>
+        <path d="M172 80 H202"/>
+        <ellipse cx="244" cy="48" rx="22" ry="32"/>
+      </svg>
+    </a>
+    <nav class="nav__enlaces" aria-label="Principal">
+      <a href="#ficha">Buscar</a>
+      <a href="#pasos" class="solo-ancho">Cómo funciona</a>
+      <a href="#salon" class="solo-ancho">Para tu salón</a>
+      <a class="nav__entrar" href="#">Entrar</a>
+    </nav>
+  </div>
+</header>
+
+<main id="contenido">
+
+  <!-- ===== 2. HERO ===== -->
+  <section class="hero">
+    <div class="hero__texto">
+      <p class="encabezado">Ciudad de Panamá</p>
+      <h1 class="rotulo">Corte, uñas y spa<br>sin llamar a nadie.</h1>
+      <p class="hero__sub">Mira las horas libres de hoy en salones cerca de ti y confirma tu cita en segundos.</p>
+      <div class="acciones">
+        <a class="btn btn--naranja" href="#ficha">Buscar salón cerca</a>
+        <a class="btn btn--linea" href="#salon">Tengo un salón</a>
+      </div>
+    </div>
+    <div class="hero__foto">
+      <img src="https://picsum.photos/seed/barberia-panama-corte-cliente/1200/1500" alt="Cliente en el sillón de una barbería mientras le terminan el corte." width="1200" height="1500">
+    </div>
+  </section>
+
+  <!-- ===== 3. CÓMO FUNCIONA PARA LA CLIENTA ===== -->
+  <section class="pasos" id="pasos">
+    <div class="limite">
+      <h2 class="rotulo">Reservar toma menos que escribir un mensaje.</h2>
+      <p class="pasos__intro">Sin llamadas, sin esperar a que alguien conteste el chat, sin ir al local a preguntar si hay cupo.</p>
+
+      <div class="paso">
+        <p class="paso__num cifra">01</p>
+        <h3>Busca</h3>
+        <p class="paso__txt">Escribe «barbería» o el nombre de tu barrio. Ves quién tiene cupo hoy, con precio, distancia y valoración.</p>
+      </div>
+      <div class="paso">
+        <p class="paso__num cifra">02</p>
+        <h3>Elige tu hora</h3>
+        <p class="paso__txt">Las horas libres de verdad de la agenda del salón, no una solicitud que alguien tiene que contestar luego.</p>
+      </div>
+      <div class="paso">
+        <p class="paso__num cifra">03</p>
+        <h3>Reserva</h3>
+        <p class="paso__txt">Confirmas con tu número verificado y te llega el recordatorio por WhatsApp el día antes de la cita.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 4. PARA EL SALÓN ===== -->
+  <section class="salon" id="salon">
+    <div class="salon__grid">
+      <div class="salon__texto">
+        <h2 class="rotulo">Para tu salón, Bukeo es gratis.</h2>
+        <p class="precio">
+          <span class="precio__cifra cifra">B/. 0.00</span>
+          <span class="precio__pie">al mes, y sin tarjeta para registrarte.</span>
+        </p>
+        <ul class="ventajas">
+          <li>Tu agenda y la de todo tu equipo, en el mismo teléfono con el que ya trabajas.</li>
+          <li>Tu perfil en el buscador con tus servicios, tus precios, tus fotos y tus reseñas.</li>
+          <li>Recordatorios automáticos por WhatsApp, para que se presenten menos plantones.</li>
+          <li>Sin comisión por reserva. Ni ahora, ni cuando tengas la agenda llena.</li>
+        </ul>
+        <p class="nota">Bukeo gana cuando un salón quiere aparecer más arriba y paga por posicionamiento. Va siempre etiquetado «Patrocinado», como máximo 2 de cada 10 resultados, y nunca esconde a los salones que no pagan.</p>
+        <div class="acciones">
+          <a class="btn btn--naranja" href="#">Registrar mi salón</a>
+        </div>
+      </div>
+      <div class="salon__foto">
+        <img src="https://picsum.photos/seed/duena-salon-panama-agenda-telefono/1000/1250" alt="Dueña de un salón revisando la agenda del día en su teléfono." width="1000" height="1250">
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 5. FICHA DE SALÓN ===== -->
+  <section class="mercado" id="ficha">
+    <div class="limite">
+      <h2 class="rotulo">Así se ve un salón en el buscador.</h2>
+      <p class="mercado__intro">Todo lo que hace falta para decidir en una pantalla: qué cuesta, cuánto dura y a qué hora hay sitio hoy.</p>
+
+      <article class="ficha">
+        <div class="ficha__foto">
+          <img src="https://picsum.photos/seed/barberia-via-argentina-panama-interior/1200/675" alt="Interior de la Barbería Vía Argentina con tres sillones ocupados." width="1200" height="675">
+        </div>
+        <div class="ficha__cuerpo">
+          <div class="ficha__alto">
+            <h3>Barbería Vía Argentina</h3>
+            <span class="etiqueta">Patrocinado</span>
+          </div>
+          <p class="ficha__meta">El Cangrejo, Ciudad de Panamá · <span class="cifra">1.2</span> km · <span class="cifra">4.8</span> de <span class="cifra">5</span> en <span class="cifra">127</span> reseñas</p>
+          <p class="ficha__estado">Abierto hoy hasta las <span class="cifra">8:00</span> p. m.</p>
+
+          <p class="bloque-tit">Elige tu servicio</p>
+          <button class="servicio" type="button" aria-pressed="true">
+            <span class="servicio__nom">Corte y barba</span>
+            <span class="servicio__precio cifra">B/. 22.00</span>
+            <span class="servicio__dur cifra">60 min</span>
+          </button>
+          <button class="servicio" type="button" aria-pressed="false">
+            <span class="servicio__nom">Corte clásico</span>
+            <span class="servicio__precio cifra">B/. 15.00</span>
+            <span class="servicio__dur cifra">45 min</span>
+          </button>
+          <button class="servicio" type="button" aria-pressed="false">
+            <span class="servicio__nom">Perfilado de barba</span>
+            <span class="servicio__precio cifra">B/. 10.00</span>
+            <span class="servicio__dur cifra">30 min</span>
+          </button>
+          <button class="servicio" type="button" aria-pressed="false">
+            <span class="servicio__nom">Corte infantil</span>
+            <span class="servicio__precio cifra">B/. 10.00</span>
+            <span class="servicio__dur cifra">30 min</span>
+          </button>
+          <p class="profesional">Con Rafa, con Yaris o con quien esté libre.</p>
+
+          <p class="bloque-tit">Horas libres</p>
+          <div class="dias" role="group" aria-label="Elegir día">
+            <button class="dia" type="button" aria-pressed="true"><small>Hoy</small><b class="cifra">1 sep</b></button>
+            <button class="dia" type="button" aria-pressed="false"><small>Mar</small><b class="cifra">2 sep</b></button>
+            <button class="dia" type="button" aria-pressed="false"><small>Mié</small><b class="cifra">3 sep</b></button>
+            <button class="dia" type="button" aria-pressed="false"><small>Jue</small><b class="cifra">4 sep</b></button>
+            <button class="dia" type="button" aria-pressed="false"><small>Vie</small><b class="cifra">5 sep</b></button>
+          </div>
+
+          <p class="franja-hora">Mañana</p>
+          <div class="horas" role="group" aria-label="Horas libres por la mañana">
+            <button class="hora cifra" type="button" aria-pressed="false">9:00</button>
+            <button class="hora cifra" type="button" aria-pressed="false">9:30</button>
+            <button class="hora hora--ocupada cifra" type="button" disabled>10:00<span class="oculto">, ocupado</span></button>
+            <button class="hora cifra" type="button" aria-pressed="false">11:30</button>
+          </div>
+
+          <p class="franja-hora">Tarde</p>
+          <div class="horas" role="group" aria-label="Horas libres por la tarde">
+            <button class="hora cifra" type="button" aria-pressed="false">1:00</button>
+            <button class="hora hora--ocupada cifra" type="button" disabled>1:30<span class="oculto">, ocupado</span></button>
+            <button class="hora cifra" type="button" aria-pressed="true">2:30</button>
+            <button class="hora cifra" type="button" aria-pressed="false">3:00</button>
+            <button class="hora cifra" type="button" aria-pressed="false">4:30</button>
+            <button class="hora cifra" type="button" aria-pressed="false">6:00</button>
+          </div>
+
+          <div class="resumen">
+            <p class="resumen__linea"><span>Corte y barba, hoy a las <span class="cifra">2:30</span> p. m.</span><span class="cifra">B/. 22.00</span></p>
+            <button class="btn btn--azul" type="button">Confirmar cita</button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== 6. PIE DE PÁGINA ===== -->
+<footer class="pie">
+  <div class="limite">
+    <div class="pie__grid">
+      <div>
+        <svg viewBox="0 0 286 96" role="img" aria-label="Bukeo" fill="none" stroke="currentColor" stroke-width="13" stroke-linecap="square" stroke-linejoin="miter">
+          <path d="M20 16 V80"/>
+          <path d="M20 16 A16 16 0 0 1 20 48"/>
+          <path d="M20 48 A16 16 0 0 1 20 80"/>
+          <path d="M60 16 V64 A16 16 0 0 0 92 64 V16"/>
+          <path d="M116 16 V80"/>
+          <path d="M148 16 L116 48"/>
+          <path d="M116 48 L150 80"/>
+          <path d="M172 16 V80"/>
+          <path d="M172 16 H202"/>
+          <path d="M172 48 H196"/>
+          <path d="M172 80 H202"/>
+          <ellipse cx="244" cy="48" rx="22" ry="32"/>
+        </svg>
+        <p class="pie__lema">Reservas de belleza y bienestar en Panamá. Gratis para el salón, siempre.</p>
+      </div>
+      <div class="pie__cols">
+        <div>
+          <h4>Para ti</h4>
+          <ul>
+            <li><a href="#ficha">Buscar salón</a></li>
+            <li><a href="#pasos">Cómo funciona</a></li>
+            <li><a href="#">Mis reservas</a></li>
+            <li><a href="#">Ayuda</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Para tu salón</h4>
+          <ul>
+            <li><a href="#salon">Registrar mi salón</a></li>
+            <li><a href="#">Posicionamiento</a></li>
+            <li><a href="#">Guía de inicio</a></li>
+            <li><a href="#">Hablar con alguien</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Bukeo</h4>
+          <ul>
+            <li><a href="#">Quiénes somos</a></li>
+            <li><a href="#">Trabaja con nosotros</a></li>
+            <li><a href="#">Prensa</a></li>
+            <li><a href="#">Contacto</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="pie__base">
+      <p>Bukeo, Ciudad de Panamá. Hecho en Panamá.</p>
+      <p><a href="#">Términos</a> · <a href="#">Privacidad</a> · <a href="#">Cookies</a></p>
+    </div>
+  </div>
+</footer>
+
+<!-- ===== 7. SISTEMA: PALETA Y TIPOGRAFÍA ===== -->
+<section class="sistema" aria-label="Paleta y tipografía de la dirección B">
+  <div class="limite">
+    <h2 class="rotulo">Dirección B. Bloque de color panameño.</h2>
+    <p class="sistema__intro">El color no decora: construye. Cada sección es un bloque plano a sangre y el titular hace de imagen, como el rótulo pintado de un local. Dos colores saturados en tensión, uno frío y uno cálido, sobre un neutro de cal.</p>
+
+    <p class="h3sis">Reparto de la paleta</p>
+    <div class="barra" role="img" aria-label="Reparto de uso: cal 42 por ciento, azul chiva 27, naranja mango 15, tinta noche 10, blanco rótulo 6.">
+      <span style="width:42%;background:#F2F3EF"></span>
+      <span style="width:27%;background:#1636C7"></span>
+      <span style="width:15%;background:#FF7A1F"></span>
+      <span style="width:10%;background:#0D1526"></span>
+      <span style="width:6%;background:#FFFFFF"></span>
+    </div>
+    <p class="barra__pie">El reparto es la dirección de arte. El neutro manda en superficie, el azul carga los dos bloques de mensaje, el naranja se reserva para lo que hay que tocar y el negro azulado sostiene el texto y el pie.</p>
+
+    <div class="muestras">
+      <div class="muestra">
+        <div class="muestra__color" style="background:#F2F3EF;border-bottom:2px solid #0D1526"></div>
+        <div class="muestra__datos">
+          <b>Cal</b>
+          <p class="muestra__hex cifra">#F2F3EF</p>
+          <p class="muestra__pct cifra">42 %</p>
+          <p class="muestra__uso">Papel de la página. Blanco de pared encalada, sin gota de amarillo. Texto tinta encima: 16.35:1.</p>
+        </div>
+      </div>
+      <div class="muestra">
+        <div class="muestra__color" style="background:#1636C7"></div>
+        <div class="muestra__datos">
+          <b>Azul chiva</b>
+          <p class="muestra__hex cifra">#1636C7</p>
+          <p class="muestra__pct cifra">27 %</p>
+          <p class="muestra__uso">El frío. Bloques de hero y de salón, horas libres y confirmación. Cal encima: 7.90:1.</p>
+        </div>
+      </div>
+      <div class="muestra">
+        <div class="muestra__color" style="background:#FF7A1F"></div>
+        <div class="muestra__datos">
+          <b>Naranja mango</b>
+          <p class="muestra__hex cifra">#FF7A1F</p>
+          <p class="muestra__pct cifra">15 %</p>
+          <p class="muestra__uso">El calor. Bloque de la clienta, botón principal y filo de rótulo. Solo lleva texto tinta: 6.99:1.</p>
+        </div>
+      </div>
+      <div class="muestra">
+        <div class="muestra__color" style="background:#0D1526"></div>
+        <div class="muestra__datos">
+          <b>Tinta noche</b>
+          <p class="muestra__hex cifra">#0D1526</p>
+          <p class="muestra__pct cifra">10 %</p>
+          <p class="muestra__uso">Todo el texto oscuro, los filetes de 2 px y el pie. Es negro azulado, no marrón. Cal encima: 16.35:1.</p>
+        </div>
+      </div>
+      <div class="muestra">
+        <div class="muestra__color" style="background:#FFFFFF"></div>
+        <div class="muestra__datos">
+          <b>Blanco rótulo</b>
+          <p class="muestra__hex cifra">#FFFFFF</p>
+          <p class="muestra__pct cifra">6 %</p>
+          <p class="muestra__uso">Solo la ficha del salón, para que la pieza de producto se despegue del papel. Azul encima: 8.80:1.</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="h3sis">Tipografía</p>
+    <div class="tipo">
+      <div class="specimen">
+        <p class="specimen__grande">Archivo</p>
+        <p class="specimen__cifras cifra">9:30 · 60 min · B/. 22.00</p>
+        <p class="specimen__pesos">
+          <b>Anchura 125</b> en cifras y números de paso.<br>
+          <b>Anchura 112, peso 800</b> en titulares de rótulo.<br>
+          <b>Anchura 100, pesos 400 a 700</b> en texto, botones y ficha.<br>
+          Una sola familia variable, tres anchuras, un archivo.
+        </p>
+      </div>
+      <div class="justifica">
+        <p>Archivo nació para titulares de periódico y para señalética de espacio público, que es exactamente lo que pide esta dirección: aguanta el tamaño enorme de un bloque de color sin volverse decorativa y sigue leyéndose a 14 px en la fila de una agenda. Trae eje de anchura variable y cifras tabulares reales en el mismo archivo, así que el rótulo ancho del titular y la columna de horas alineada salen de una sola familia, sin descargar una segunda fuente en una conexión 3G de Ciudad de Panamá.</p>
+        <ul class="reglas">
+          <li><b>Radio</b><span>Escala única de 4 px en botones, chips, fotos y ficha. Los bloques a sangre van a esquina viva, sin radio.</span></li>
+          <li><b>Filetes</b><span>2 px en tinta cuando separan información, 6 px en naranja cuando marcan el canto de un bloque.</span></li>
+          <li><b>Prohibido</b><span>Degradados, sombras, iconos decorativos y color como único portador de significado. La hora ocupada va tachada, no solo gris.</span></li>
+          <li><b>Cifras</b><span>Tabulares en horas, duraciones, precios y distancias. Es lo que mantiene recta una columna de agenda.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
