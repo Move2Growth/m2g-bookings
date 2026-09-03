@@ -55,6 +55,23 @@ class SlotNoDisponible(ErrorDeDominio):
     mensaje = "Ese horario se acaba de ocupar. Elige otro y lo confirmamos enseguida."
 
 
+class CarreraEnLaBase(ErrorDeDominio):
+    """Dos transacciones se bloquearon entre sí y PostgreSQL abortó una (`SQLSTATE 40P01`).
+
+    Pasa de verdad: con diez intentos simultáneos por la misma hora, la base detecta el abrazo
+    mortal y mata a una en vez de dejar que la restricción de exclusión la rechace limpiamente.
+
+    **No se traduce como «esa hora está ocupada»**, y esa distinción importa: un bloqueo mutuo
+    no demuestra que el hueco esté cogido, solo que dos escrituras se cruzaron. Decirle a alguien
+    que su hora se ocupó cuando quizá sigue libre es peor que pedirle que repita.
+
+    Antes esto subía tal cual y salía un 500 en la pantalla desde la que se reserva.
+    """
+
+    codigo = "VUELVE_A_INTENTARLO"
+    estado_http = 409
+
+
 class FueraDeAntelacion(ErrorDeDominio):
     codigo = "FUERA_DE_ANTELACION"
     estado_http = 422

@@ -31,7 +31,7 @@ from agenda.api import (
     publico,
     resenas,
 )
-from agenda.errores import ErrorDeDominio, NoAutorizado
+from agenda.errores import CarreraEnLaBase, ErrorDeDominio, NoAutorizado
 
 ajustes = obtener_ajustes()
 
@@ -63,6 +63,10 @@ async def manejar_error_de_dominio(_: Request, error: ErrorDeDominio) -> JSONRes
 #: no pasa el `WITH CHECK` de una política de seguridad por fila.
 PERMISO_INSUFICIENTE = "42501"
 
+#: `SQLSTATE 40P01` — abrazo mortal. Con diez intentos simultáneos por la misma hora la base
+#: detecta el bloqueo mutuo y mata a una transacción; medido, no supuesto.
+ABRAZO_MORTAL = "40P01"
+
 
 @app.exception_handler(DBAPIError)
 async def manejar_rechazo_de_la_base(_: Request, error: DBAPIError) -> JSONResponse:
@@ -77,6 +81,16 @@ async def manejar_rechazo_de_la_base(_: Request, error: DBAPIError) -> JSONRespo
     que no habíamos previsto, y convertirlo en un 403 educado lo escondería durante meses.
     """
     codigo = getattr(getattr(error, "orig", None), "sqlstate", None)
+
+    # El abrazo mortal se traduce a «vuelve a intentarlo» y **no** a «esa hora está ocupada»:
+    # que dos escrituras se crucen no demuestra que el hueco esté cogido. Antes subía tal cual y
+    # salía un 500 en la pantalla desde la que se reserva.
+    if codigo == ABRAZO_MORTAL or ABRAZO_MORTAL in str(error):
+        carrera = CarreraEnLaBase(
+            "Alguien más estaba reservando en ese mismo instante. Vuelve a intentarlo."
+        )
+        return JSONResponse(status_code=carrera.estado_http, content=carrera.como_respuesta())
+
     if codigo != PERMISO_INSUFICIENTE and PERMISO_INSUFICIENTE not in str(error):
         raise error
 

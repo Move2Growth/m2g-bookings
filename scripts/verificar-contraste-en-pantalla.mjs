@@ -123,17 +123,35 @@ async function recorrerConSesion(contexto, rutas, etiqueta) {
 }
 
 try {
-  const salon = await navegador.newContext({ viewport: { width: 390, height: 844 } })
-  const entrada = await salon.newPage()
-  await entrada.goto(`${WEB}/entrar`, { waitUntil: 'networkidle' })
-  await entrada.fill('input[type="tel"]', process.env.TELEFONO_SALON ?? '+50760000004')
-  await entrada.click('button[type="submit"]')
-  await entrada.waitForSelector('input[inputmode="numeric"]', { timeout: 20000 })
-  const pista = await entrada.locator('text=Tu código es').textContent()
-  await entrada.fill('input[inputmode="numeric"]', pista.match(/(\d{6})/)[1])
-  await entrada.click('button[type="submit"]')
-  await entrada.waitForTimeout(3500)
-  await entrada.close()
+  // Se prueba con varios dueños del seed: el código tiene límite por teléfono y dos pasadas
+  // seguidas con el mismo chocan. Que la comprobación falle por eso sería confundir «no pude
+  // mirar» con «hay un fallo de contraste», y son cosas distintas.
+  const DUENOS = process.env.TELEFONO_SALON
+    ? [process.env.TELEFONO_SALON]
+    : ['+50760000002', '+50760000005', '+50760000009', '+50760000003']
+
+  let salon = null
+  for (const telefono of DUENOS) {
+    const contexto = await navegador.newContext({ viewport: { width: 390, height: 844 } })
+    const entrada = await contexto.newPage()
+    try {
+      await entrada.goto(`${WEB}/entrar`, { waitUntil: 'networkidle' })
+      await entrada.fill('input[type="tel"]', telefono)
+      await entrada.click('button[type="submit"]')
+      await entrada.waitForSelector('input[inputmode="numeric"]', { timeout: 15000 })
+      const pista = await entrada.locator('text=Tu código es').textContent()
+      await entrada.fill('input[inputmode="numeric"]', pista.match(/(\d{6})/)[1])
+      await entrada.click('button[type="submit"]')
+      await entrada.waitForURL('**/panel**', { timeout: 15000 })
+      await entrada.close()
+      salon = contexto
+      break
+    } catch {
+      await contexto.close()
+    }
+  }
+  if (!salon) throw new Error('ningún dueño del seed pudo entrar; ¿límite de códigos?')
+
   await recorrerConSesion(salon, CON_SESION.panel, 'panel')
 
   const consola = await navegador.newContext({ viewport: { width: 390, height: 844 } })
@@ -151,7 +169,13 @@ try {
   await recorrerConSesion(consola, CON_SESION.consola, 'consola')
 } catch (error) {
   // Que no se pueda entrar no puede dar el visto bueno por omisión: se dice y se cuenta.
-  console.error(`\nNo se pudieron comprobar las pantallas con sesión: ${error.message}`)
+  const limitado = /DEMASIADOS|muchos códigos/i.test(error.message)
+  console.error(
+    `\nNo se pudieron comprobar las pantallas con sesión: ${error.message}` +
+      (limitado
+        ? '\nEs el límite de códigos por teléfono. Espera unos minutos o pasa TELEFONO_SALON.'
+        : ''),
+  )
   total += 1
 }
 

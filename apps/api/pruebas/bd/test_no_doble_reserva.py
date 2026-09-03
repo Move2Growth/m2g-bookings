@@ -19,7 +19,7 @@ from datetime import timedelta
 
 import pytest
 from sqlalchemy import text
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import DBAPIError, IntegrityError
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from pruebas.bd.escenario import (
@@ -75,8 +75,24 @@ async def test_dos_clientes_a_la_vez_por_el_mismo_slot_solo_gana_uno():
         await motor.dispose()
 
 
+def _es_abrazo_mortal(error: DBAPIError) -> bool:
+    """`SQLSTATE 40P01`. Es perder la carrera igual que un solape, solo que por otro camino."""
+    codigo = getattr(getattr(error, "orig", None), "sqlstate", None)
+    return codigo == "40P01" or "deadlock detected" in str(error)
+
+
 async def test_la_restriccion_aguanta_diez_intentos_simultaneos():
-    """Con diez a la vez sigue habiendo una sola cita. La carrera no se resuelve por suerte."""
+    """Con diez a la vez sigue habiendo una sola cita. La carrera no se resuelve por suerte.
+
+    Perder la carrera tiene **dos formas**, y las dos son perderla: la restricción de exclusión
+    rechaza la fila (`23P01`), o PostgreSQL detecta un abrazo mortal entre dos transacciones que
+    se cruzan y mata a una (`40P01`). La segunda aparece de verdad con diez intentos a la vez, y
+    antes hacía fallar esta prueba una de cada doce veces.
+
+    Lo que se comprueba sigue siendo lo mismo y es lo único que importa: **gana una sola**.
+    El abrazo mortal la API lo traduce a «vuelve a intentarlo» y no a «esa hora está ocupada»,
+    porque un bloqueo mutuo no demuestra que el hueco esté cogido.
+    """
     escenario = await montar_escenario()
     hora = manana_a_las(11)
 
@@ -90,6 +106,10 @@ async def test_la_restriccion_aguanta_diez_intentos_simultaneos():
                 return True
             except IntegrityError as error:
                 if es_solape(error):
+                    return False
+                raise
+            except DBAPIError as error:
+                if _es_abrazo_mortal(error):
                     return False
                 raise
 
