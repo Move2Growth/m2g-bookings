@@ -1,0 +1,1815 @@
+<!doctype html>
+<html lang="es-PA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bukeo · dirección 3 · cinética de app</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   BUKEO · Dirección 3 · «Cinética de app»
+   Un solo archivo. Sin librerías. Movimiento con Web Animations API y CSS.
+   Tokens: neutro grafito violeta frío + un solo saturado (voltio, verde eléctrico).
+   ========================================================================== */
+
+:root{
+  /* --- neutros: grafito violeta frío ------------------------------------ */
+  --tinta:        #101014;   /* texto principal y chasis */
+  --muro:         #17161E;   /* bloque oscuro */
+  --grafito:      #4A4857;   /* texto secundario   8,91:1 sobre papel */
+  --humo:         #5B5869;   /* texto terciario    6,90:1 sobre papel */
+  --lienzo:       #EDECF2;   /* fondo de página */
+  --papel:        #FFFFFF;   /* superficie elevada */
+  --borde:        #B9B6C7;   /* subdivisión fina, nunca portadora de dato */
+  --borde-fuerte: #8E8BA0;   /* límite de control  3,31:1 sobre papel */
+  --tinta-inv:    #EDECF2;   /* texto sobre muro  15,28:1 */
+  --humo-inv:     #9E9BB0;   /* texto secundario sobre muro  6,64:1 */
+  --trama:        #D8D6E2;   /* raya de la trama sobre lienzo */
+  --trama-papel:  #E4E2EC;
+
+  /* --- el único saturado: voltio ---------------------------------------- */
+  --voltio:       #00E06B;   /* relleno vivo. Tinta encima: 10,73:1 */
+  --voltio-hondo: #00563A;   /* texto sobre claro. 8,78:1 papel */
+  --voltio-tenue: #DAF9E6;   /* lavado de selección. Tinta encima: 16,88:1 */
+
+  /* --- métrica ---------------------------------------------------------- */
+  --u: 4px;
+  --filo: 3px;              /* el grosor de la regleta */
+  --toque: 44px;            /* objetivo táctil mínimo */
+  --ancho: 1280px;
+
+  /* --- movimiento ------------------------------------------------------- */
+  --t-micro: 90ms;
+  --t-control: 220ms;
+  --t-lista: 320ms;
+  --t-pantalla: 300ms;
+  --e-salida: cubic-bezier(.2,0,0,1);
+  --e-control: cubic-bezier(.2,.9,.2,1);
+  --e-lista: cubic-bezier(.2,.8,.2,1);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--lienzo);
+  color:var(--tinta);
+  font-family:'Schibsted Grotesk','Helvetica Neue',Helvetica,Arial,sans-serif;
+  font-size:16px;
+  line-height:1.45;
+  font-variant-numeric:tabular-nums lining-nums;
+  overflow-x:hidden;
+  padding-bottom:76px; /* barra de prototipo en móvil */
+}
+img{max-width:100%;display:block}
+button{font:inherit;color:inherit;background:none;border:0;margin:0;font-variant-numeric:inherit}
+a{color:var(--voltio-hondo);text-underline-offset:3px}
+h1,h2,h3,h4{margin:0;font-weight:800;letter-spacing:-.025em;line-height:1.02}
+p{margin:0}
+ul{margin:0;padding:0;list-style:none}
+:focus-visible{outline:var(--filo) solid var(--voltio-hondo);outline-offset:2px}
+
+/* --- tipografía: un solo eje de tamaño, dos de peso --------------------- */
+.t-cartel{font-size:clamp(2.35rem,8.2vw,5.1rem);font-weight:900;letter-spacing:-.038em;line-height:.96}
+.t-titulo{font-size:clamp(1.5rem,4.2vw,2.35rem);font-weight:800;letter-spacing:-.03em;line-height:1.04}
+.t-seccion{font-size:1.125rem;font-weight:800;letter-spacing:-.02em}
+.t-cuerpo{font-size:1rem;color:var(--grafito)}
+.t-dato{font-weight:700;font-variant-numeric:tabular-nums}
+.t-rotulo{font-size:.75rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+.t-micro{font-size:.8125rem;color:var(--humo);line-height:1.35}
+.cifra{font-variant-numeric:tabular-nums lining-nums;font-feature-settings:"tnum" 1}
+
+/* --- la regleta: la estructura cuelga de una regla marcada -------------- */
+.regleta{
+  height:var(--filo);
+  background:var(--tinta);
+  position:relative;
+  transform-origin:left center;
+}
+.regleta::after{
+  content:"";position:absolute;left:0;right:0;top:var(--filo);height:7px;
+  background:repeating-linear-gradient(90deg,var(--tinta) 0 1px,transparent 1px 24px);
+}
+.regleta--inv{background:var(--tinta-inv)}
+.regleta--inv::after{background:repeating-linear-gradient(90deg,var(--tinta-inv) 0 1px,transparent 1px 24px)}
+.regleta--voltio{background:var(--voltio-hondo)}
+.regleta--voltio::after{background:repeating-linear-gradient(90deg,var(--voltio-hondo) 0 1px,transparent 1px 24px)}
+
+.bloque{padding:calc(var(--u)*8) 0}
+.cont{width:100%;max-width:var(--ancho);margin:0 auto;padding:0 calc(var(--u)*5)}
+@media(min-width:900px){.cont{padding:0 calc(var(--u)*10)}}
+
+/* --- la ranura: todo lo que se toca está rehundido en la superficie ----- */
+.ranura{
+  position:relative;
+  background:var(--papel);
+  border:0;
+  box-shadow:inset 0 var(--filo) 0 var(--tinta), inset 0 0 0 1px var(--borde-fuerte);
+  min-height:var(--toque);
+  display:flex;align-items:center;gap:calc(var(--u)*3);
+  padding:calc(var(--u)*3);
+  text-align:left;width:100%;
+  transition:box-shadow var(--t-micro) var(--e-salida), transform var(--t-micro) var(--e-salida);
+}
+.ranura[data-pulsable]{cursor:pointer}
+.ranura[data-pulsable]:active{transform:translateY(2px);box-shadow:inset 0 6px 0 var(--tinta), inset 0 0 0 1px var(--tinta)}
+.ranura--viva{box-shadow:inset 0 var(--filo) 0 var(--voltio-hondo), inset 0 0 0 1px var(--voltio-hondo);background:var(--voltio-tenue)}
+
+/* --- botones: bloque macizo, radio 0 ----------------------------------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:calc(var(--u)*2);
+  min-height:var(--toque);padding:0 calc(var(--u)*5);
+  font-weight:800;letter-spacing:-.01em;cursor:pointer;
+  border:0;position:relative;overflow:hidden;
+  transition:transform var(--t-micro) var(--e-salida), background-color var(--t-micro) linear;
+}
+.btn:active{transform:translateY(2px)}
+.btn--voltio{background:var(--voltio);color:var(--tinta);box-shadow:inset 0 -4px 0 var(--voltio-hondo)}
+.btn--tinta{background:var(--tinta);color:var(--papel);box-shadow:inset 0 -4px 0 var(--voltio-hondo)}
+.btn--hueco{background:transparent;color:var(--tinta);box-shadow:inset 0 0 0 var(--filo) var(--tinta)}
+.btn--hueco-inv{background:transparent;color:var(--tinta-inv);box-shadow:inset 0 0 0 var(--filo) var(--tinta-inv)}
+.btn--ancho{width:100%}
+.btn--chico{min-height:36px;padding:0 calc(var(--u)*3);font-size:.875rem}
+.btn__barrido{position:absolute;inset:0;background:var(--voltio-hondo);transform:scaleX(0);transform-origin:left;pointer-events:none}
+
+/* --- trama del oficio: donde no hay foto, hay dato --------------------- */
+.trama{background:repeating-linear-gradient(135deg,var(--trama) 0 2px,var(--lienzo) 2px 8px)}
+.trama--papel{background:repeating-linear-gradient(135deg,var(--trama-papel) 0 2px,var(--papel) 2px 8px)}
+.trama--muro{background:repeating-linear-gradient(135deg,#23222D 0 2px,var(--muro) 2px 8px)}
+
+/* --- la rueda de dígitos ----------------------------------------------- */
+.rueda{display:inline-flex;overflow:hidden;height:1em;line-height:1em;vertical-align:baseline}
+.rueda__cinta{display:flex;flex-direction:column}
+.rueda__cinta span{height:1em;line-height:1em;display:block;text-align:center}
+.rueda__fijo{display:inline-block}
+::placeholder{color:var(--grafito);opacity:1}
+
+/* ============================ BARRA DE PROTOTIPO ======================= */
+.cinta{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;
+  background:var(--muro);color:var(--tinta-inv);
+}
+.cinta__fila{display:flex;align-items:stretch;max-width:var(--ancho);margin:0 auto}
+.cinta__marca{display:none}
+.cinta__nav{display:flex;flex:1;position:relative}
+.cinta__ind{position:absolute;top:0;height:var(--filo);background:var(--voltio);width:20%;left:0}
+.cinta__b{
+  flex:1;min-height:66px;padding:calc(var(--u)*2) 2px calc(var(--u)*2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  color:var(--humo-inv);cursor:pointer;
+  transition:color var(--t-control) var(--e-control);
+}
+.cinta__b[aria-current="true"]{color:var(--tinta-inv)}
+.cinta__n{font-size:1.0625rem;font-weight:900;letter-spacing:-.02em}
+.cinta__et{font-size:.625rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.cinta__mov{
+  display:flex;align-items:center;gap:8px;padding:0 calc(var(--u)*4);
+  color:var(--humo-inv);font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  cursor:pointer;border-left:1px solid #2C2B36;
+}
+.cinta__led{width:12px;height:12px;background:var(--voltio)}
+.cinta__mov[data-apagado="si"] .cinta__led{background:var(--humo-inv)}
+@media(min-width:900px){
+  body{padding-bottom:0;padding-top:72px}
+  .cinta{top:0;bottom:auto}
+  .cinta__fila{padding:0 calc(var(--u)*10)}
+  .cinta__marca{display:flex;align-items:center;gap:10px;padding-right:calc(var(--u)*8);font-size:.75rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--humo-inv)}
+  .cinta__marca b{color:var(--tinta-inv);font-size:1rem;letter-spacing:-.02em;text-transform:none}
+  .cinta__nav{flex:0 1 auto}
+  .cinta__b{min-height:72px;flex-direction:row;gap:8px;padding:0 calc(var(--u)*5)}
+  .cinta__et{font-size:.75rem}
+  .cinta__ind{top:auto;bottom:0;height:var(--filo)}
+  .cinta__mov{margin-left:auto;border-left:0}
+}
+
+/* ============================ PANTALLAS ================================ */
+.pantalla{display:none}
+.pantalla[data-activa="si"]{display:block}
+.zona{will-change:transform,opacity}
+
+/* ---------- portada ---------- */
+.faro{background:var(--muro);color:var(--tinta-inv);padding:calc(var(--u)*8) 0 calc(var(--u)*10)}
+.faro__ojo{display:flex;align-items:baseline;gap:calc(var(--u)*3);margin-bottom:calc(var(--u)*6)}
+.faro__marca{font-size:1.75rem;font-weight:900;letter-spacing:-.04em;color:var(--papel)}
+.faro__fecha{font-size:.8125rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--humo-inv)}
+.faro h1{color:var(--papel);max-width:16ch}
+.faro h1 em{font-style:normal;color:var(--voltio)}
+.faro__sub{margin-top:calc(var(--u)*5);max-width:46ch;color:var(--humo-inv);font-size:1.0625rem}
+.buscador{margin-top:calc(var(--u)*7);display:grid;gap:2px;background:var(--tinta-inv);padding:2px}
+.buscador input,.buscador select{
+  font:inherit;font-weight:600;color:var(--tinta);background:var(--papel);border:0;
+  min-height:52px;padding:0 calc(var(--u)*4);width:100%;
+  border-radius:0;-webkit-appearance:none;appearance:none;
+}
+.buscador select{background-image:none}
+.buscador__campo{position:relative;display:flex;align-items:center;background:var(--papel)}
+.buscador__campo .t-rotulo{position:absolute;left:calc(var(--u)*4);top:8px;color:var(--humo);font-size:.625rem;pointer-events:none}
+.buscador__campo input,.buscador__campo select{padding-top:18px;min-height:64px}
+.buscador .btn{min-height:64px}
+@media(min-width:760px){.buscador{grid-template-columns:1.4fr 1fr auto}}
+.faro__acciones{display:flex;flex-wrap:wrap;gap:calc(var(--u)*3);margin-top:calc(var(--u)*5)}
+
+.huecos{background:var(--papel);padding:calc(var(--u)*5) 0 calc(var(--u)*6)}
+.huecos__cab{display:flex;align-items:center;justify-content:space-between;gap:calc(var(--u)*4);flex-wrap:wrap;margin-bottom:calc(var(--u)*4)}
+.dias{display:flex;gap:2px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.dia{
+  flex:0 0 auto;min-width:60px;min-height:var(--toque);padding:calc(var(--u)*2) calc(var(--u)*3);
+  background:var(--lienzo);cursor:pointer;text-align:center;
+  box-shadow:inset 0 var(--filo) 0 var(--borde-fuerte);
+  transition:background-color var(--t-micro) linear,box-shadow var(--t-micro) linear;
+}
+.dia b{display:block;font-size:1.125rem;font-weight:800}
+.dia span{display:block;font-size:.6875rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--humo)}
+.dia[aria-pressed="true"]{background:var(--tinta);color:var(--papel);box-shadow:inset 0 var(--filo) 0 var(--voltio)}
+.dia[aria-pressed="true"] span{color:var(--voltio)}
+.tira{display:grid;gap:2px;grid-template-columns:1fr}
+@media(min-width:700px){.tira{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1000px){.tira{grid-template-columns:repeat(4,1fr)}}
+.hueco{
+  background:var(--lienzo);padding:calc(var(--u)*4);min-height:var(--toque);cursor:pointer;
+  display:flex;flex-direction:column;gap:2px;text-align:left;
+  box-shadow:inset var(--filo) 0 0 var(--voltio-hondo);
+  transition:background-color var(--t-micro) linear;
+}
+.hueco:active{background:var(--voltio-tenue)}
+.hueco__h{font-size:1.5rem;font-weight:900;letter-spacing:-.03em}
+.hueco__n{font-size:.9375rem;font-weight:700}
+.hueco__z{font-size:.8125rem;color:var(--humo)}
+.hueso{background:var(--lienzo);height:88px;box-shadow:inset var(--filo) 0 0 var(--borde-fuerte);padding:calc(var(--u)*4)}
+.hueso i{display:block;height:12px;background:var(--borde);margin-bottom:8px}
+.hueso i:nth-child(1){width:38%;height:20px}
+.hueso i:nth-child(2){width:66%}
+.hueso i:nth-child(3){width:44%}
+
+.pasos{display:grid;gap:calc(var(--u)*6);margin-top:calc(var(--u)*6)}
+@media(min-width:760px){.pasos{grid-template-columns:repeat(3,1fr);gap:calc(var(--u)*8)}}
+.paso__n{font-size:3rem;font-weight:900;letter-spacing:-.05em;line-height:1;color:var(--tinta)}
+.paso h3{font-size:1.25rem;margin:calc(var(--u)*2) 0}
+.rejilla-cat{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;margin-top:calc(var(--u)*5)}
+@media(min-width:640px){.rejilla-cat{grid-template-columns:repeat(4,1fr)}}
+.cat{
+  background:var(--papel);min-height:76px;padding:calc(var(--u)*3);cursor:pointer;text-align:left;
+  display:flex;flex-direction:column;justify-content:flex-end;gap:2px;
+  box-shadow:inset 0 -4px 0 var(--tinta);
+  transition:box-shadow var(--t-micro) linear,background-color var(--t-micro) linear;
+}
+.cat:active,.cat:hover{box-shadow:inset 0 -10px 0 var(--voltio)}
+.cat b{font-size:.9375rem;font-weight:800;letter-spacing:-.01em}
+.cat span{font-size:.75rem;color:var(--humo)}
+.zonas{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;margin-top:calc(var(--u)*5)}
+@media(min-width:760px){.zonas{grid-template-columns:repeat(3,1fr)}}
+.zona-b{background:var(--papel);min-height:var(--toque);padding:calc(var(--u)*3) calc(var(--u)*4);display:flex;align-items:center;justify-content:space-between;font-weight:700;cursor:pointer}
+.zona-b:active{background:var(--voltio-tenue)}
+.negocios{background:var(--muro);color:var(--tinta-inv)}
+.negocios h2{color:var(--papel)}
+.negocios .t-cuerpo{color:var(--humo-inv)}
+.lista-marcas{display:grid;gap:calc(var(--u)*4);margin-top:calc(var(--u)*6)}
+@media(min-width:760px){.lista-marcas{grid-template-columns:repeat(2,1fr);gap:calc(var(--u)*6)}}
+.marca-p{display:flex;gap:calc(var(--u)*3)}
+.marca-p i{flex:0 0 var(--filo);background:var(--voltio);align-self:stretch}
+.marca-p b{display:block;color:var(--papel);font-size:1.0625rem}
+.pie{padding:calc(var(--u)*8) 0;color:var(--humo)}
+
+/* ---------- 02 · resultados ---------- */
+.cab-busq{background:var(--tinta);color:var(--tinta-inv);padding:calc(var(--u)*4) 0}
+.cab-busq__fila{display:flex;align-items:center;gap:calc(var(--u)*3);flex-wrap:wrap}
+.cab-busq h2{color:var(--papel);font-size:1.375rem}
+.cab-busq__n{margin-left:auto;font-size:.8125rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--humo-inv)}
+.filtros{display:flex;gap:2px;overflow-x:auto;padding:calc(var(--u)*3) 0;scrollbar-width:thin}
+.chip{
+  flex:0 0 auto;min-height:var(--toque);padding:0 calc(var(--u)*4);
+  display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+  background:var(--papel);font-weight:700;font-size:.9375rem;
+  box-shadow:inset 0 0 0 1px var(--borde-fuerte);
+  transition:background-color var(--t-micro) linear,color var(--t-micro) linear,box-shadow var(--t-micro) linear;
+}
+.chip[aria-pressed="true"]{background:var(--tinta);color:var(--papel);box-shadow:inset 0 -4px 0 var(--voltio)}
+.chip__x{font-weight:900;font-size:1.125rem;line-height:1}
+.orden{position:relative;display:flex;gap:0;background:var(--papel);box-shadow:inset 0 0 0 1px var(--borde-fuerte);margin-bottom:2px}
+.orden__b{flex:1;min-height:var(--toque);padding:0 calc(var(--u)*2);font-weight:700;font-size:.875rem;cursor:pointer;color:var(--grafito);position:relative;z-index:1;transition:color var(--t-control) var(--e-control)}
+.orden__b[aria-pressed="true"]{color:var(--tinta)}
+.orden__ind{position:absolute;top:0;bottom:0;left:0;width:33.33%;background:var(--voltio-tenue);box-shadow:inset 0 -4px 0 var(--voltio-hondo)}
+.res{display:grid;gap:2px}
+.fila-res{
+  display:grid;grid-template-columns:88px 1fr;gap:calc(var(--u)*4);
+  background:var(--papel);padding:calc(var(--u)*4);text-align:left;cursor:pointer;width:100%;
+  box-shadow:inset var(--filo) 0 0 var(--tinta);
+  transition:box-shadow var(--t-micro) linear,background-color var(--t-micro) linear;
+}
+.fila-res:hover,.fila-res:active{box-shadow:inset 8px 0 0 var(--voltio-hondo);background:var(--voltio-tenue)}
+@media(min-width:760px){.fila-res{grid-template-columns:168px 1fr auto;align-items:center;padding:calc(var(--u)*5)}}
+.fila-res__cara{aspect-ratio:1/1;overflow:hidden;position:relative;background:var(--lienzo)}
+.fila-res__cara img{width:100%;height:100%;object-fit:cover}
+.fila-res__cuerpo{min-width:0}
+.fila-res h3{font-size:1.125rem;letter-spacing:-.02em}
+@media(min-width:760px){.fila-res h3{font-size:1.375rem}}
+.fila-res__meta{display:flex;flex-wrap:wrap;gap:calc(var(--u)*2) calc(var(--u)*3);align-items:baseline;margin-top:6px;font-size:.875rem;color:var(--grafito)}
+.fila-res__meta b{color:var(--tinta)}
+.fila-res__horas{display:flex;gap:2px;margin-top:calc(var(--u)*3);flex-wrap:wrap}
+.h-mini{
+  min-height:36px;padding:0 calc(var(--u)*3);display:inline-flex;align-items:center;
+  background:var(--voltio-tenue);color:var(--voltio-hondo);font-weight:800;font-size:.9375rem;
+  box-shadow:inset 0 -3px 0 var(--voltio-hondo);
+}
+.h-mini--mas{background:var(--lienzo);color:var(--grafito);box-shadow:inset 0 -3px 0 var(--borde-fuerte)}
+.fila-res__precio{text-align:left;white-space:nowrap}
+@media(min-width:760px){.fila-res__precio{text-align:right}}
+.fila-res__precio b{display:block;font-size:1.375rem;font-weight:900;letter-spacing:-.03em}
+.fila-res__precio span{font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--humo)}
+.sello{display:inline-flex;align-items:center;min-height:22px;padding:0 8px;background:var(--tinta);color:var(--papel);font-size:.6875rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.sello--nuevo{background:var(--voltio);color:var(--tinta)}
+.rail{display:none}
+@media(min-width:1100px){
+  .con-rail{display:grid;grid-template-columns:1fr 300px;gap:calc(var(--u)*8);align-items:start}
+  .rail{display:block;position:sticky;top:96px}
+}
+.rail__caja{background:var(--papel);padding:calc(var(--u)*5);box-shadow:inset 0 var(--filo) 0 var(--tinta)}
+
+/* portada de datos: donde no hay foto, se dibuja la semana del salón */
+.pdatos{position:relative;height:100%;width:100%;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;padding:8px;background:var(--tinta)}
+.pdatos__barras{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;align-items:end;height:100%}
+.pdatos__col{display:flex;flex-direction:column;justify-content:flex-end;gap:2px;height:100%}
+.pdatos__col i{display:block;background:var(--humo)}
+.pdatos__col i.libre{background:var(--voltio)}
+.pdatos__pie{font-size:.5625rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--humo-inv)}
+
+/* estados compartidos */
+.vacio{background:var(--papel);padding:calc(var(--u)*8) calc(var(--u)*5);box-shadow:inset 0 var(--filo) 0 var(--tinta);text-align:left}
+.vacio h3{font-size:1.25rem;margin-bottom:calc(var(--u)*2)}
+.vacio p{color:var(--grafito);max-width:44ch;margin-bottom:calc(var(--u)*5)}
+.vacio__marco{height:96px;margin-bottom:calc(var(--u)*5);box-shadow:inset 0 0 0 var(--filo) var(--borde-fuerte)}
+.hueso-fila{display:grid;grid-template-columns:88px 1fr;gap:calc(var(--u)*4);background:var(--papel);padding:calc(var(--u)*4);box-shadow:inset var(--filo) 0 0 var(--borde-fuerte)}
+.hueso-fila i{display:block;background:var(--borde)}
+.hueso-fila .c{aspect-ratio:1/1;background:var(--borde)}
+.hueso-fila .l1{height:20px;width:60%;margin-bottom:8px}
+.hueso-fila .l2{height:12px;width:80%;margin-bottom:8px}
+.hueso-fila .l3{height:12px;width:40%}
+.cargando-rot{display:flex;align-items:center;gap:calc(var(--u)*3);padding:calc(var(--u)*3) 0}
+.barra-carga{position:relative;height:6px;background:var(--borde);overflow:hidden;flex:1}
+.barra-carga i{position:absolute;inset:0;background:var(--voltio-hondo);transform:scaleX(0);transform-origin:left}
+
+/* ---------- 03 · ficha ---------- */
+.ficha__cima{position:relative;background:var(--muro);color:var(--tinta-inv)}
+.ficha__foto{height:200px;overflow:hidden;position:relative}
+@media(min-width:760px){.ficha__foto{height:320px}}
+.ficha__foto img{width:100%;height:100%;object-fit:cover}
+.ficha__datos{padding:calc(var(--u)*5) 0 calc(var(--u)*6)}
+.ficha__datos h2{color:var(--papel);font-size:clamp(1.75rem,6vw,3rem);letter-spacing:-.035em}
+.ficha__linea{display:flex;flex-wrap:wrap;gap:calc(var(--u)*2) calc(var(--u)*4);margin-top:calc(var(--u)*3);font-size:.9375rem;color:var(--humo-inv);align-items:center}
+.ficha__linea b{color:var(--papel)}
+.ficha__abierto{display:inline-flex;align-items:center;gap:8px;font-weight:800;color:var(--voltio)}
+.punto{width:10px;height:10px;background:var(--voltio);flex:0 0 auto}
+.ficha__cuerpo{display:grid;gap:calc(var(--u)*8);padding:calc(var(--u)*7) 0 calc(var(--u)*10)}
+@media(min-width:1000px){.ficha__cuerpo{grid-template-columns:1fr 420px;gap:calc(var(--u)*10);align-items:start}}
+.servicio{
+  display:grid;grid-template-columns:1fr auto;gap:calc(var(--u)*3);align-items:center;
+  background:var(--papel);padding:calc(var(--u)*4);width:100%;text-align:left;cursor:pointer;
+  box-shadow:inset 0 0 0 1px var(--borde);
+  transition:box-shadow var(--t-micro) linear,background-color var(--t-micro) linear;
+}
+.servicio+.servicio{margin-top:2px}
+.servicio[aria-pressed="true"]{background:var(--voltio-tenue);box-shadow:inset var(--filo) 0 0 var(--voltio-hondo),inset 0 0 0 1px var(--voltio-hondo)}
+.servicio b{font-size:1.0625rem;font-weight:800;letter-spacing:-.015em;display:block}
+.servicio span{font-size:.875rem;color:var(--grafito)}
+.servicio__precio{text-align:right;font-size:1.25rem;font-weight:900;letter-spacing:-.03em}
+.servicio__marca{width:26px;height:26px;box-shadow:inset 0 0 0 var(--filo) var(--borde-fuerte);display:grid;place-items:center;color:transparent;font-weight:900}
+.servicio[aria-pressed="true"] .servicio__marca{background:var(--voltio-hondo);color:var(--papel);box-shadow:none}
+.reserva-caja{background:var(--papel);padding:calc(var(--u)*5);box-shadow:inset 0 var(--filo) 0 var(--tinta)}
+@media(min-width:1000px){.reserva-caja{position:sticky;top:96px}}
+.horas{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:calc(var(--u)*4)}
+@media(min-width:420px){.horas{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:1000px){.horas{grid-template-columns:repeat(4,1fr)}}
+.hora{
+  min-height:var(--toque);display:flex;align-items:center;justify-content:center;gap:6px;
+  background:var(--lienzo);font-weight:800;font-size:1.0625rem;cursor:pointer;
+  box-shadow:inset 0 -3px 0 var(--voltio-hondo);
+  transition:background-color var(--t-micro) linear,color var(--t-micro) linear,transform var(--t-micro) var(--e-salida);
+}
+.hora:active{transform:translateY(2px)}
+.hora[aria-pressed="true"]{background:var(--tinta);color:var(--papel);box-shadow:inset 0 -3px 0 var(--voltio)}
+.hora[disabled]{
+  cursor:not-allowed;color:var(--humo);box-shadow:none;font-weight:600;
+  background:repeating-linear-gradient(135deg,var(--trama) 0 2px,var(--lienzo) 2px 8px);
+  text-decoration:line-through;text-decoration-thickness:2px;
+}
+.pie-accion{
+  position:sticky;bottom:76px;z-index:20;background:var(--tinta);color:var(--papel);
+  display:flex;align-items:center;gap:calc(var(--u)*4);padding:calc(var(--u)*3) calc(var(--u)*5);
+}
+@media(min-width:900px){.pie-accion{bottom:0}}
+.pie-accion__res{min-width:0}
+.pie-accion__res b{display:block;font-size:1.0625rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pie-accion__res span{font-size:.8125rem;color:var(--humo-inv)}
+.pie-accion .btn{margin-left:auto;flex:0 0 auto}
+
+/* hoja: sube con muelle */
+.velo{position:fixed;inset:0;background:rgba(16,16,20,.72);z-index:50;opacity:0}
+.hoja{
+  position:fixed;left:0;right:0;bottom:0;z-index:51;background:var(--papel);
+  max-height:92vh;overflow-y:auto;box-shadow:inset 0 var(--filo) 0 var(--tinta);
+}
+@media(min-width:760px){.hoja{left:50%;transform:translateX(-50%);width:560px;bottom:0}}
+.hoja__asa{width:56px;height:5px;background:var(--tinta);margin:calc(var(--u)*3) auto calc(var(--u)*2)}
+.hoja__cuerpo{padding:calc(var(--u)*5) calc(var(--u)*5) calc(var(--u)*8)}
+.hoja h3{font-size:1.5rem;margin-bottom:calc(var(--u)*4)}
+.resumen{display:grid;gap:2px;margin:calc(var(--u)*5) 0}
+.resumen__f{display:flex;justify-content:space-between;gap:calc(var(--u)*4);background:var(--lienzo);padding:calc(var(--u)*3) calc(var(--u)*4)}
+.resumen__f dt{font-size:.8125rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--humo)}
+.resumen__f dd{margin:0;font-weight:800;text-align:right}
+.resumen__f--total dd{font-size:1.5rem;font-weight:900;letter-spacing:-.03em}
+.nota-legal{font-size:.875rem;color:var(--grafito);padding-left:calc(var(--u)*4);box-shadow:inset var(--filo) 0 0 var(--tinta);margin-bottom:calc(var(--u)*5)}
+.campo{display:block;margin-bottom:calc(var(--u)*5)}
+.campo span{display:block;font-size:.75rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--humo);margin-bottom:6px}
+.campo input{font:inherit;font-weight:700;font-size:1.0625rem;width:100%;min-height:52px;padding:0 calc(var(--u)*4);border:0;background:var(--lienzo);box-shadow:inset 0 var(--filo) 0 var(--tinta),inset 0 0 0 1px var(--borde-fuerte);border-radius:0}
+.aviso{background:var(--tinta);color:var(--papel);padding:calc(var(--u)*4);margin-bottom:calc(var(--u)*5);box-shadow:inset var(--filo) 0 0 var(--voltio)}
+.aviso b{display:block;margin-bottom:4px}
+.aviso p{color:var(--humo-inv);font-size:.9375rem}
+.exito{text-align:left}
+.exito__sello{background:var(--voltio);color:var(--tinta);padding:calc(var(--u)*5);box-shadow:inset 0 -6px 0 var(--voltio-hondo)}
+.exito__sello b{display:block;font-size:.75rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+.exito__sello strong{display:block;font-size:2.25rem;font-weight:900;letter-spacing:-.04em;line-height:1.05;margin-top:6px}
+
+/* ---------- 04 · agenda del panel ---------- */
+.panel__cab{background:var(--tinta);color:var(--tinta-inv);padding:calc(var(--u)*4) 0}
+.panel__ident{display:flex;align-items:center;gap:calc(var(--u)*3);flex-wrap:wrap}
+.panel__ident b{color:var(--papel);font-size:1.125rem;font-weight:800;letter-spacing:-.02em}
+.panel__modo{font-size:.6875rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;background:var(--voltio);color:var(--tinta);padding:3px 8px}
+.panel__fecha{display:flex;align-items:center;gap:2px;margin-top:calc(var(--u)*4)}
+.panel__flecha{width:var(--toque);height:var(--toque);display:grid;place-items:center;background:#23222D;color:var(--papel);font-weight:900;font-size:1.25rem;cursor:pointer}
+.panel__flecha:active{background:var(--voltio-hondo)}
+.panel__dia{flex:1;display:flex;align-items:baseline;gap:calc(var(--u)*3);padding:0 calc(var(--u)*4);min-height:var(--toque);background:#23222D}
+.panel__dia b{font-size:1.5rem;font-weight:900;letter-spacing:-.03em;color:var(--papel)}
+.panel__dia span{font-size:.8125rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--humo-inv)}
+.pestanas{position:relative;display:flex;gap:0;background:var(--muro);overflow-x:auto}
+.pest{
+  flex:0 0 auto;min-height:52px;padding:0 calc(var(--u)*5);cursor:pointer;
+  display:flex;align-items:center;gap:8px;color:var(--humo-inv);font-weight:700;position:relative;z-index:1;
+  transition:color var(--t-control) var(--e-control);
+}
+.pest[aria-pressed="true"]{color:var(--papel)}
+.pest__c{font-size:.75rem;font-weight:800;background:#2C2B36;padding:2px 6px;color:var(--tinta-inv)}
+.pest[aria-pressed="true"] .pest__c{background:var(--voltio);color:var(--tinta)}
+.pestanas__ind{position:absolute;bottom:0;left:0;height:var(--filo);width:120px;background:var(--voltio)}
+.dia-resumen{display:flex;gap:2px;margin:2px 0 0}
+.dia-resumen div{flex:1;background:var(--papel);padding:calc(var(--u)*3);box-shadow:inset 0 var(--filo) 0 var(--tinta)}
+.dia-resumen b{display:block;font-size:1.5rem;font-weight:900;letter-spacing:-.03em}
+.dia-resumen span{font-size:.6875rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--humo)}
+.agenda{display:grid;gap:2px;margin-top:2px}
+@media(min-width:1000px){.con-panel{display:grid;grid-template-columns:1fr 320px;gap:calc(var(--u)*8);align-items:start}}
+.cita{
+  display:grid;grid-template-columns:64px 1fr auto;gap:calc(var(--u)*3);align-items:center;
+  background:var(--papel);padding:calc(var(--u)*3) calc(var(--u)*3);width:100%;text-align:left;cursor:pointer;
+  min-height:64px;box-shadow:inset var(--filo) 0 0 var(--tinta);
+  transition:box-shadow var(--t-micro) linear,background-color var(--t-micro) linear,transform var(--t-micro) var(--e-salida);
+}
+.cita:active{transform:translateX(2px)}
+.cita__h{font-weight:900;font-size:1.0625rem;letter-spacing:-.02em;line-height:1.15}
+.cita__h span{display:block;font-size:.8125rem;font-weight:600;color:var(--humo)}
+.cita__q b{display:block;font-size:1.0625rem;font-weight:800;letter-spacing:-.015em}
+.cita__q span{font-size:.875rem;color:var(--grafito)}
+.cita__e{font-size:.6875rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;padding:4px 8px;background:var(--lienzo);color:var(--grafito)}
+.cita--confirmada{box-shadow:inset var(--filo) 0 0 var(--voltio-hondo)}
+.cita--confirmada .cita__e{background:var(--voltio-tenue);color:var(--voltio-hondo)}
+.cita--pendiente{box-shadow:inset var(--filo) 0 0 var(--tinta)}
+.cita--pendiente .cita__e{background:var(--tinta);color:var(--papel)}
+.cita--pendiente .cita__h{box-shadow:none}
+.cita--completada{background:var(--lienzo);box-shadow:inset var(--filo) 0 0 var(--borde-fuerte)}
+.cita--completada .cita__q b,.cita--completada .cita__h{color:var(--grafito)}
+.cita--nollego{background:repeating-linear-gradient(135deg,var(--trama-papel) 0 2px,var(--papel) 2px 8px);box-shadow:inset var(--filo) 0 0 var(--tinta)}
+.cita--nollego .cita__e{background:var(--tinta);color:var(--papel)}
+.cita--cancelada{background:repeating-linear-gradient(135deg,var(--trama) 0 2px,var(--lienzo) 2px 8px);box-shadow:inset var(--filo) 0 0 var(--borde-fuerte)}
+.cita--cancelada .cita__q b{text-decoration:line-through;text-decoration-thickness:2px;color:var(--grafito)}
+.libre-fila{
+  display:grid;grid-template-columns:64px 1fr auto;gap:calc(var(--u)*3);align-items:center;
+  padding:calc(var(--u)*3);min-height:56px;width:100%;text-align:left;cursor:pointer;
+  background:var(--voltio-tenue);box-shadow:inset var(--filo) 0 0 var(--voltio-hondo);
+}
+.libre-fila b{font-weight:900;font-size:1.0625rem;color:var(--voltio-hondo)}
+.libre-fila span{font-size:.875rem;color:var(--voltio-hondo);font-weight:700}
+.bloqueo-fila{display:grid;grid-template-columns:64px 1fr;gap:calc(var(--u)*3);align-items:center;padding:calc(var(--u)*3);min-height:48px;background:var(--lienzo);box-shadow:inset var(--filo) 0 0 var(--borde-fuerte);color:var(--grafito);font-weight:700;font-size:.9375rem}
+.leyenda{display:flex;flex-wrap:wrap;gap:calc(var(--u)*3);margin-top:calc(var(--u)*5)}
+.leyenda div{display:flex;align-items:center;gap:8px;font-size:.75rem;font-weight:700;color:var(--grafito)}
+.leyenda i{width:18px;height:18px;flex:0 0 auto;background:var(--papel);box-shadow:inset var(--filo) 0 0 var(--tinta)}
+.zona-peligro{margin-top:calc(var(--u)*8);padding-top:calc(var(--u)*5);box-shadow:inset 0 var(--filo) 0 var(--tinta)}
+.zona-peligro .t-micro{margin-bottom:calc(var(--u)*3)}
+.mantener{position:relative;overflow:hidden}
+.mantener__relleno{position:absolute;inset:0;background:var(--voltio-hondo);transform:scaleX(0);transform-origin:left;pointer-events:none}
+.mantener span{position:relative;z-index:1}
+.toast{
+  position:fixed;left:calc(var(--u)*4);right:calc(var(--u)*4);bottom:92px;z-index:60;
+  background:var(--tinta);color:var(--papel);padding:calc(var(--u)*4);
+  box-shadow:inset var(--filo) 0 0 var(--voltio);font-weight:700;
+}
+@media(min-width:900px){.toast{left:auto;right:calc(var(--u)*10);bottom:calc(var(--u)*6);width:380px}}
+
+/* ---------- 05 · consola ---------- */
+.consola__cab{background:var(--muro);color:var(--tinta-inv);padding:calc(var(--u)*5) 0}
+.consola__cab h2{color:var(--papel);font-size:1.5rem}
+.consola__sello{display:inline-flex;align-items:center;gap:8px;font-size:.6875rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--tinta);background:var(--voltio);padding:3px 8px}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;margin-top:calc(var(--u)*5)}
+@media(min-width:760px){.kpis{grid-template-columns:repeat(4,1fr)}}
+.kpi{background:#23222D;padding:calc(var(--u)*4);box-shadow:inset 0 var(--filo) 0 var(--voltio)}
+.kpi b{display:block;font-size:2rem;font-weight:900;letter-spacing:-.04em;color:var(--papel);line-height:1}
+.kpi span{display:block;margin-top:6px;font-size:.6875rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--humo-inv)}
+.tabla{width:100%;border-collapse:collapse;background:var(--papel);font-size:.9375rem}
+.tabla th{
+  text-align:left;font-size:.6875rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--humo);
+  padding:calc(var(--u)*3);background:var(--lienzo);white-space:nowrap;
+}
+.tabla th button{display:flex;align-items:center;gap:6px;min-height:32px;cursor:pointer;font:inherit;color:inherit;letter-spacing:inherit;text-transform:inherit}
+.tabla th[aria-sort] button{color:var(--tinta)}
+.tabla td{padding:calc(var(--u)*3);vertical-align:middle;box-shadow:inset 0 -1px 0 var(--borde)}
+.tabla tbody tr{transition:background-color var(--t-micro) linear}
+.tabla tbody tr:hover{background:var(--voltio-tenue)}
+.tabla .num{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
+.tabla .neg b{display:block;font-weight:800;letter-spacing:-.01em}
+.tabla .neg span{font-size:.8125rem;color:var(--humo)}
+.est{display:inline-flex;align-items:center;min-height:24px;padding:0 8px;font-size:.6875rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.est--publicado{background:var(--voltio-tenue);color:var(--voltio-hondo);box-shadow:inset 0 -3px 0 var(--voltio-hondo)}
+.est--borrador{background:var(--lienzo);color:var(--grafito);box-shadow:inset 0 -3px 0 var(--borde-fuerte)}
+.est--suspendido{background:repeating-linear-gradient(135deg,var(--trama) 0 2px,var(--lienzo) 2px 8px);color:var(--tinta);box-shadow:inset 0 -3px 0 var(--tinta)}
+.tabla-envoltura{overflow-x:auto}
+.tabla-movil{display:grid;gap:2px}
+.tarjeta-neg{background:var(--papel);padding:calc(var(--u)*4);box-shadow:inset var(--filo) 0 0 var(--tinta);text-align:left;width:100%;cursor:pointer}
+.tarjeta-neg__cab{display:flex;justify-content:space-between;gap:calc(var(--u)*3);align-items:flex-start}
+.tarjeta-neg b{font-size:1.0625rem;font-weight:800;letter-spacing:-.015em}
+.tarjeta-neg__zona{font-size:.8125rem;color:var(--humo)}
+.tarjeta-neg__nums{display:flex;gap:calc(var(--u)*5);margin-top:calc(var(--u)*3)}
+.tarjeta-neg__nums div span{display:block;font-size:.625rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--humo)}
+.tarjeta-neg__nums div b{font-size:1.25rem;font-weight:900;letter-spacing:-.03em}
+@media(min-width:900px){.tabla-movil{display:none}}
+.tabla-envoltura{display:none}
+@media(min-width:900px){.tabla-envoltura{display:block}}
+
+/* ---------- apagado del movimiento ---------- */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;scroll-behavior:auto !important;
+  }
+}
+body[data-movimiento="no"] *,body[data-movimiento="no"] *::before,body[data-movimiento="no"] *::after{
+  animation-duration:.001ms !important;transition-duration:.001ms !important;
+}
+</style>
+</head>
+<body data-movimiento="si">
+
+<!-- ===================== barra del prototipo ===================== -->
+<nav class="cinta" aria-label="Pantallas del prototipo">
+  <div class="cinta__fila">
+    <div class="cinta__marca"><b>Bukeo</b> dirección 3 · cinética de app</div>
+    <div class="cinta__nav" id="cintaNav">
+      <div class="cinta__ind" id="cintaInd" aria-hidden="true"></div>
+      <button class="cinta__b" data-ir="portada" aria-current="true"><span class="cinta__n cifra">01</span><span class="cinta__et">Portada</span></button>
+      <button class="cinta__b" data-ir="resultados"><span class="cinta__n cifra">02</span><span class="cinta__et">Resultados</span></button>
+      <button class="cinta__b" data-ir="ficha"><span class="cinta__n cifra">03</span><span class="cinta__et">Ficha</span></button>
+      <button class="cinta__b" data-ir="agenda"><span class="cinta__n cifra">04</span><span class="cinta__et">Agenda</span></button>
+      <button class="cinta__b" data-ir="consola"><span class="cinta__n cifra">05</span><span class="cinta__et">Consola</span></button>
+    </div>
+    <button class="cinta__mov" id="btnMov" data-apagado="no" aria-pressed="false">
+      <span class="cinta__led" aria-hidden="true"></span><span id="movTxt">Movimiento</span>
+    </button>
+  </div>
+</nav>
+
+<main id="app">
+
+<!-- ===================== 01 · PORTADA ===================== -->
+<section class="pantalla" id="p-portada" data-activa="si" aria-label="Portada pública">
+
+  <header class="faro zona">
+    <div class="cont">
+      <div class="faro__ojo">
+        <span class="faro__marca">Bukeo</span>
+        <span class="faro__fecha">Ciudad de Panamá · miércoles 2 de septiembre</span>
+      </div>
+      <h1 class="t-cartel">Reserva en salones y barberías de Panamá</h1>
+      <p class="faro__sub">Encuentra un sitio cerca, mira las horas libres de verdad y reserva. Sin llamar y sin esperar respuesta.</p>
+
+      <form class="buscador" id="formBuscar" onsubmit="return false">
+        <label class="buscador__campo">
+          <span class="t-rotulo">Qué buscas</span>
+          <input type="text" placeholder="Corte, balayage, manicura o el nombre del salón" aria-label="Qué buscas">
+        </label>
+        <label class="buscador__campo">
+          <span class="t-rotulo">Zona</span>
+          <select aria-label="Zona">
+            <option>Toda la ciudad</option>
+            <option>Bella Vista</option>
+            <option selected>El Cangrejo</option>
+            <option>Obarrio</option>
+            <option>San Francisco</option>
+            <option>Costa del Este</option>
+            <option>Juan Díaz</option>
+          </select>
+        </label>
+        <button class="btn btn--voltio" data-ir="resultados">Buscar</button>
+      </form>
+
+      <div class="faro__acciones">
+        <button class="btn btn--hueco-inv" data-ir="resultados">Buscar cerca de mí</button>
+        <button class="btn btn--hueco-inv" data-ir="resultados">Ver salones</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="huecos zona" aria-labelledby="tHuecos">
+    <div class="cont">
+      <div class="regleta" data-dibuja></div>
+      <div class="huecos__cab" style="margin-top:16px">
+        <h2 class="t-seccion" id="tHuecos">Huecos que quedan hoy cerca de ti</h2>
+        <p class="t-micro" id="huecosPie">Se actualiza cuando alguien reserva.</p>
+      </div>
+      <div class="dias" id="diasPortada" role="group" aria-label="Elegir día"></div>
+      <div class="tira" id="tiraHuecos" style="margin-top:2px" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="bloque zona">
+    <div class="cont">
+      <div class="regleta" data-dibuja></div>
+      <h2 class="t-titulo" style="margin-top:20px">Cómo funciona</h2>
+      <ol class="pasos">
+        <li class="paso"><div class="paso__n cifra">01</div><h3>Busca lo que necesitas</h3><p class="t-cuerpo">Corte, balayage, manicura o el salón por su nombre. Filtra por tu zona.</p></li>
+        <li class="paso"><div class="paso__n cifra">02</div><h3>Mira las horas que quedan</h3><p class="t-cuerpo">Las de verdad, las que el salón tiene libres ahora mismo.</p></li>
+        <li class="paso"><div class="paso__n cifra">03</div><h3>Reserva con tu teléfono</h3><p class="t-cuerpo">Un código por WhatsApp y listo. No hay contraseña que recordar.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="bloque zona" style="padding-top:0">
+    <div class="cont">
+      <div class="regleta" data-dibuja></div>
+      <h2 class="t-titulo" style="margin-top:20px">Qué se reserva</h2>
+      <div class="rejilla-cat" id="catsPortada"></div>
+      <h2 class="t-titulo" style="margin-top:40px">Zonas de Ciudad de Panamá</h2>
+      <div class="zonas">
+        <button class="zona-b" data-ir="resultados">Bella Vista <span aria-hidden="true">›</span></button>
+        <button class="zona-b" data-ir="resultados">El Cangrejo <span aria-hidden="true">›</span></button>
+        <button class="zona-b" data-ir="resultados">Obarrio <span aria-hidden="true">›</span></button>
+        <button class="zona-b" data-ir="resultados">San Francisco <span aria-hidden="true">›</span></button>
+        <button class="zona-b" data-ir="resultados">Costa del Este <span aria-hidden="true">›</span></button>
+        <button class="zona-b" data-ir="resultados">Juan Díaz <span aria-hidden="true">›</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="bloque negocios zona">
+    <div class="cont">
+      <div class="regleta regleta--inv" data-dibuja></div>
+      <h2 class="t-titulo" style="margin-top:20px;max-width:18ch">Tu agenda, gratis. Para siempre en lo que importa.</h2>
+      <p class="t-cuerpo" style="margin-top:16px;max-width:52ch">Sin tarjeta para registrarte, sin mensualidad y sin comisión por cita. Tardas menos de diez minutos en dejarlo funcionando.</p>
+      <div class="lista-marcas">
+        <div class="marca-p"><i aria-hidden="true"></i><div><b>Se acabó apuntar citas en el WhatsApp.</b><p class="t-cuerpo">La agenda de tu equipo en una pantalla, desde tu teléfono.</p></div></div>
+        <div class="marca-p"><i aria-hidden="true"></i><div><b>No hay dobles citas.</b><p class="t-cuerpo">Dos clientas no pueden quedarse con la misma hora aunque confirmen a la vez.</p></div></div>
+        <div class="marca-p"><i aria-hidden="true"></i><div><b>Cada quien ve lo suyo.</b><p class="t-cuerpo">Tu barbero ve su agenda; la caja y la configuración son tuyas.</p></div></div>
+        <div class="marca-p"><i aria-hidden="true"></i><div><b>Tus clientas te encuentran.</b><p class="t-cuerpo">Tu perfil sale en las búsquedas de tu zona, con tus servicios y tus precios.</p></div></div>
+      </div>
+      <div class="faro__acciones"><button class="btn btn--voltio" data-ir="agenda">Crear mi salón</button><button class="btn btn--hueco-inv" data-ir="agenda">Ver la agenda por dentro</button></div>
+    </div>
+  </section>
+
+  <footer class="pie zona">
+    <div class="cont">
+      <div class="regleta" data-dibuja></div>
+      <p class="t-micro" style="margin-top:16px">Prototipo de dirección de arte. Los salones, los precios y las citas son de ejemplo y sirven para ver el diseño con datos que se parecen a los de verdad.</p>
+    </div>
+  </footer>
+</section>
+
+<!-- ===================== 02 · RESULTADOS ===================== -->
+<section class="pantalla" id="p-resultados" aria-label="Resultados de la búsqueda">
+  <header class="cab-busq zona">
+    <div class="cont">
+      <div class="cab-busq__fila">
+        <h2>Cerca de El Cangrejo</h2>
+        <span class="cab-busq__n cifra" id="contadorRes">3 salones</span>
+      </div>
+      <div class="filtros" id="filtros" role="group" aria-label="Filtros">
+        <button class="chip" data-filtro="zona" aria-pressed="true">El Cangrejo <span class="chip__x" aria-hidden="true">×</span></button>
+        <button class="chip" data-filtro="hoy" aria-pressed="true">Con hueco hoy <span class="chip__x" aria-hidden="true">×</span></button>
+        <button class="chip" data-filtro="pestanas" aria-pressed="false">Pestañas</button>
+        <button class="chip" data-filtro="barato" aria-pressed="false">Menos de $20</button>
+        <button class="chip" data-filtro="abierto" aria-pressed="false">Abierto ahora</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="cont bloque zona" style="padding-top:12px">
+    <div class="con-rail">
+      <div>
+        <div class="orden" id="orden" role="group" aria-label="Ordenar">
+          <div class="orden__ind" id="ordenInd" aria-hidden="true"></div>
+          <button class="orden__b" data-orden="recomendados" aria-pressed="true">Recomendados</button>
+          <button class="orden__b" data-orden="cerca" aria-pressed="false">Más cerca</button>
+          <button class="orden__b" data-orden="precio" aria-pressed="false">Precio</button>
+        </div>
+        <div class="res" id="listaRes" aria-live="polite"></div>
+        <p class="t-micro" style="margin-top:16px">Los patrocinados van marcados y como mucho salen 2 de cada 10. Nunca suben la nota ni esconden a los demás.</p>
+      </div>
+      <aside class="rail">
+        <div class="rail__caja">
+          <h3 class="t-seccion">Tu búsqueda</h3>
+          <dl class="resumen" style="margin-top:12px">
+            <div class="resumen__f"><dt>Zona</dt><dd>El Cangrejo</dd></div>
+            <div class="resumen__f"><dt>Día</dt><dd>Hoy, mié 2</dd></div>
+            <div class="resumen__f"><dt>Precio</dt><dd class="cifra">$9.00 a $45.00</dd></div>
+          </dl>
+          <p class="t-micro">La distancia se calcula desde donde estás. Si no compartes ubicación, se ordena por zona.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 03 · FICHA ===================== -->
+<section class="pantalla" id="p-ficha" aria-label="Ficha del salón">
+  <div id="fichaCima"></div>
+  <div class="cont">
+    <div class="ficha__cuerpo">
+      <div>
+        <div class="regleta" data-dibuja></div>
+        <h3 class="t-titulo" style="margin:20px 0 16px">Servicios</h3>
+        <div id="listaServicios"></div>
+
+        <div class="regleta" data-dibuja style="margin-top:40px"></div>
+        <h3 class="t-titulo" style="margin:20px 0 8px">Quién atiende</h3>
+        <p class="t-cuerpo" id="equipoTxt"></p>
+
+        <div class="regleta" data-dibuja style="margin-top:40px"></div>
+        <h3 class="t-titulo" style="margin:20px 0 12px">Lo que dicen</h3>
+        <div id="resenas"></div>
+      </div>
+
+      <div class="reserva-caja" id="cajaReserva">
+        <div class="cifra" style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+          <h3 class="t-seccion">Horas libres</h3>
+          <span class="t-micro" id="huecosDia"></span>
+        </div>
+        <div class="dias" id="diasFicha" style="margin-top:12px" role="group" aria-label="Elegir día"></div>
+        <div id="zonaHoras"></div>
+        <p class="t-micro" style="margin-top:16px">Puedes cancelar tú misma hasta 2 horas antes. Después lo arregla el salón.</p>
+      </div>
+    </div>
+  </div>
+  <div class="pie-accion" id="pieFicha">
+    <div class="pie-accion__res"><b id="pieServicio">Elige un servicio</b><span id="pieDetalle">Y después la hora que te sirva</span></div>
+    <button class="btn btn--voltio" id="btnReservar" disabled>Reservar</button>
+  </div>
+</section>
+
+<!-- ===================== 04 · AGENDA DEL PANEL ===================== -->
+<section class="pantalla" id="p-agenda" aria-label="Agenda del salón">
+  <header class="panel__cab zona">
+    <div class="cont">
+      <div class="panel__ident">
+        <b>Barbería El Cangrejo</b>
+        <span class="panel__modo">Modo negocio</span>
+        <span class="t-micro" style="color:var(--humo-inv);margin-left:auto">Ricardo Him · dueño</span>
+      </div>
+      <div class="panel__fecha">
+        <button class="panel__flecha" id="diaAtras" aria-label="Día anterior">‹</button>
+        <div class="panel__dia"><b id="agendaFecha"></b><span id="agendaDia"></span></div>
+        <button class="panel__flecha" id="diaAdelante" aria-label="Día siguiente">›</button>
+      </div>
+    </div>
+  </header>
+  <div class="pestanas" id="pestanas" role="group" aria-label="Profesional">
+    <div class="pestanas__ind" id="pestInd" aria-hidden="true"></div>
+  </div>
+  <div class="cont" style="padding-top:2px;padding-bottom:40px">
+    <div class="con-panel">
+      <div>
+        <div class="dia-resumen" id="resumenDia"></div>
+        <div class="agenda" id="agenda" aria-live="polite"></div>
+        <div class="leyenda" id="leyenda"></div>
+      </div>
+      <aside class="rail" style="display:none">
+        <div class="rail__caja">
+          <h3 class="t-seccion">Hoy en el salón</h3>
+          <dl class="resumen" style="margin-top:12px" id="resumenLateral"></dl>
+          <button class="btn btn--tinta btn--ancho" id="btnWalkin">Apuntar a alguien</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 05 · CONSOLA ===================== -->
+<section class="pantalla" id="p-consola" aria-label="Consola interna de M2G">
+  <header class="consola__cab zona">
+    <div class="cont">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <h2>Consola M2G</h2>
+        <span class="consola__sello">Interna</span>
+        <span class="t-micro" style="color:var(--humo-inv);margin-left:auto">Ileana Rodríguez · soporte · la sesión se cierra al cerrar la pestaña</span>
+      </div>
+      <div class="kpis" id="kpis"></div>
+    </div>
+  </header>
+  <div class="cont bloque zona" style="padding-top:16px">
+    <div class="filtros" id="filtrosConsola" role="group" aria-label="Filtrar negocios">
+      <button class="chip" data-estado="todos" aria-pressed="true">Todos</button>
+      <button class="chip" data-estado="publicado" aria-pressed="false">Publicados</button>
+      <button class="chip" data-estado="borrador" aria-pressed="false">En borrador</button>
+      <button class="chip" data-estado="suspendido" aria-pressed="false">Suspendidos</button>
+    </div>
+    <div class="cargando-rot" id="rotRanking">
+      <button class="btn btn--tinta btn--chico" id="btnRanking">Recalcular ranking</button>
+      <div class="barra-carga" aria-hidden="true"><i id="barraRanking"></i></div>
+      <span class="t-micro" id="txtRanking">Pesos vigentes desde el 28 de agosto</span>
+    </div>
+    <div id="zonaTabla"></div>
+  </div>
+</section>
+
+</main>
+
+<div class="velo" id="velo" hidden></div>
+<div class="hoja" id="hoja" role="dialog" aria-modal="true" aria-label="Confirmar la reserva" hidden>
+  <div class="hoja__asa" aria-hidden="true"></div>
+  <div class="hoja__cuerpo" id="hojaCuerpo"></div>
+</div>
+<div id="zonaToast" aria-live="assertive"></div>
+
+<script>
+"use strict";
+/* =======================================================================
+   1 · UTILIDADES Y MOVIMIENTO
+   Reglas: nada en bucle, todo con causa, todo apagable.
+   ======================================================================= */
+const $  = (s, c = document) => c.querySelector(s);
+const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
+
+const E_SALIDA  = 'cubic-bezier(.2,0,0,1)';
+const E_CONTROL = 'cubic-bezier(.2,.9,.2,1)';
+const E_LISTA   = 'cubic-bezier(.2,.8,.2,1)';
+
+/* muelle real: oscilador amortiguado muestreado y volcado a linear() */
+function muelle({ rigidez = 190, amortiguacion = 22, masa = 1, ms = 480, muestras = 50 }) {
+  const w0 = Math.sqrt(rigidez / masa);
+  const z  = amortiguacion / (2 * Math.sqrt(rigidez * masa));
+  const wd = w0 * Math.sqrt(Math.max(0, 1 - z * z));
+  const v  = [];
+  for (let i = 0; i <= muestras; i++) {
+    const t = (i / muestras) * (ms / 1000);
+    let y;
+    if (z < 1) y = 1 - Math.exp(-z * w0 * t) * (Math.cos(wd * t) + (z * w0 / wd) * Math.sin(wd * t));
+    else       y = 1 - Math.exp(-w0 * t) * (1 + w0 * t);
+    v.push(Math.round(y * 10000) / 10000);
+  }
+  v[v.length - 1] = 1;
+  return 'linear(' + v.join(',') + ')';
+}
+const HAY_LINEAR = typeof CSS !== 'undefined' && CSS.supports && CSS.supports('transition-timing-function', 'linear(0,1)');
+const E_MUELLE = HAY_LINEAR ? muelle({}) : 'cubic-bezier(.18,.89,.32,1.06)';
+
+const PREFIERE_QUIETO = window.matchMedia('(prefers-reduced-motion: reduce)');
+let MOV = !PREFIERE_QUIETO.matches;
+function pintaMov() {
+  document.body.dataset.movimiento = MOV ? 'si' : 'no';
+  const b = $('#btnMov');
+  b.dataset.apagado = MOV ? 'no' : 'si';
+  b.setAttribute('aria-pressed', MOV ? 'false' : 'true');
+  $('#movTxt').textContent = MOV ? 'Movimiento' : 'Sin movimiento';
+}
+PREFIERE_QUIETO.addEventListener('change', e => { MOV = !e.matches; pintaMov(); });
+
+/* toda animación pasa por aquí: si el movimiento está apagado, no ocurre */
+function anima(el, kf, opt) {
+  if (!el) return { finished: Promise.resolve(), cancel() {} };
+  if (!MOV) {
+    const fin = Array.isArray(kf) ? kf[kf.length - 1] : kf;
+    if (opt && opt.fill === 'forwards') Object.assign(el.style, fin);
+    return { finished: Promise.resolve(), cancel() {} };
+  }
+  return el.animate(kf, opt);
+}
+const espera = ms => new Promise(r => setTimeout(r, MOV ? ms : 0));
+
+/* FLIP: la lista se reordena y cada fila viaja a su sitio nuevo */
+function flip(cont, mutar) {
+  const antes = new Map(Array.from(cont.children).map(h => [h, h.getBoundingClientRect()]));
+  mutar();
+  Array.from(cont.children).forEach((h, i) => {
+    const a = antes.get(h);
+    if (!a) { anima(h, [{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }],
+                    { duration: 300, delay: Math.min(i, 6) * 26, easing: E_LISTA, fill: 'backwards' }); return; }
+    const d = h.getBoundingClientRect();
+    const dx = a.left - d.left, dy = a.top - d.top;
+    if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5)
+      anima(h, [{ transform: `translate(${dx}px,${dy}px)` }, { transform: 'none' }],
+            { duration: 340, delay: Math.min(i, 6) * 14, easing: E_LISTA });
+  });
+}
+
+/* rueda de dígitos: un número que cambia hace tick, dígito a dígito */
+function ponCifra(cont, texto) {
+  const viejo = cont.dataset.cifra || '';
+  if (viejo.length !== texto.length || !cont.firstChild) {
+    cont.dataset.cifra = texto;
+    cont.innerHTML = Array.from(texto).map(c => {
+      if (!/[0-9]/.test(c)) return `<span class="rueda__fijo">${c === ' ' ? '&nbsp;' : c}</span>`;
+      const cinta = '0123456789'.split('').map(d => `<span>${d}</span>`).join('');
+      return `<span class="rueda"><span class="rueda__cinta" style="transform:translateY(-${c}em)">${cinta}</span></span>`;
+    }).join('');
+    return;
+  }
+  const cintas = $$('.rueda__cinta', cont);
+  let k = 0;
+  Array.from(texto).forEach((c, i) => {
+    if (!/[0-9]/.test(c)) return;
+    const cinta = cintas[k++];
+    const antes = viejo[i], ahora = c;
+    if (antes === ahora) return;
+    cinta.style.transform = `translateY(-${ahora}em)`;
+    anima(cinta, [{ transform: `translateY(-${antes}em)` }, { transform: `translateY(-${ahora}em)` }],
+          { duration: 300, delay: k * 28, easing: E_CONTROL });
+  });
+  cont.dataset.cifra = texto;
+}
+
+function toast(txt) {
+  const z = $('#zonaToast');
+  z.innerHTML = `<div class="toast">${txt}</div>`;
+  const t = z.firstChild;
+  anima(t, [{ transform: 'translateY(20px)', opacity: 0 }, { transform: 'none', opacity: 1 }],
+        { duration: 320, easing: E_MUELLE });
+  clearTimeout(z._t);
+  z._t = setTimeout(() => {
+    anima(t, [{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: E_SALIDA })
+      .finished.then(() => { if (t.parentNode) t.remove(); });
+  }, 3200);
+}
+
+const dinero = n => '$' + n.toFixed(2);
+const durar  = m => m >= 60 ? (m % 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${Math.floor(m / 60)} h`) : `${m} min`;
+</script>
+<script>
+"use strict";
+/* =======================================================================
+   2 · DATOS · Ciudad de Panamá, miércoles 2 de septiembre de 2026
+   ======================================================================= */
+const DIAS = [
+  { n: '02', d: 'Mié', et: 'Hoy',  largo: 'miércoles 2 de septiembre' },
+  { n: '03', d: 'Jue', et: 'Jue',  largo: 'jueves 3 de septiembre' },
+  { n: '04', d: 'Vie', et: 'Vie',  largo: 'viernes 4 de septiembre' },
+  { n: '05', d: 'Sáb', et: 'Sáb',  largo: 'sábado 5 de septiembre' },
+  { n: '06', d: 'Dom', et: 'Dom',  largo: 'domingo 6 de septiembre' },
+  { n: '07', d: 'Lun', et: 'Lun',  largo: 'lunes 7 de septiembre' },
+  { n: '08', d: 'Mar', et: 'Mar',  largo: 'martes 8 de septiembre' }
+];
+
+const SALONES = [
+  {
+    id: 'cangrejo', nombre: 'Barbería El Cangrejo', cat: 'Barbería', zona: 'El Cangrejo',
+    dir: 'Vía Argentina, planta baja', rating: 4.8, resenas: 48, dist: 0.3, desde: 12,
+    foto: null, oficio: 'barbería', cierre: '8:00 p. m.', abre: 9, cierra: 20, cerrado: [4],
+    equipo: 'Ricardo Him, Yariela Batista y Deivis Sánchez. Puedes elegir o dejar que te toque quien esté libre.',
+    servicios: [
+      { n: 'Corte clásico', d: 30, p: 12 },
+      { n: 'Corte + barba', d: 45, p: 18 },
+      { n: 'Barba y toalla caliente', d: 25, p: 9 },
+      { n: 'Corte de niño', d: 30, p: 10 }
+    ],
+    opiniones: [
+      { a: 'Yaritza H.', e: 5, c: 'Llegué a la hora y me atendieron a la hora. Aquí eso no pasa siempre.', f: 'hace 3 días' },
+      { a: 'José Luis M.', e: 5, c: 'Ricardo sabe lo que hace con la barba. Reservé desde el celular en un minuto.', f: 'hace 1 semana' }
+    ]
+  },
+  {
+    id: 'obarrio', nombre: 'Nails & Lashes Obarrio', cat: 'Uñas, pestañas y cejas', zona: 'Obarrio',
+    dir: 'Calle 53 Este, local 4', rating: 4.9, resenas: 91, dist: 1.1, desde: 15,
+    foto: '../../../apps/web/public/fotos/unas.webp', oficio: 'uñas', cierre: '7:00 p. m.', abre: 10, cierra: 19, cerrado: [4],
+    equipo: 'Mariel Quintero y Anayansi Torres. Mariel hace pestañas pelo a pelo; Anayansi, uñas y cejas.',
+    servicios: [
+      { n: 'Manicura semipermanente', d: 75, p: 25 },
+      { n: 'Pedicura spa', d: 60, p: 30 },
+      { n: 'Pestañas pelo a pelo', d: 120, p: 45 },
+      { n: 'Diseño de cejas', d: 30, p: 15 },
+      { n: 'Retoque de pestañas', d: 60, p: 28 },
+      { n: 'Uñas acrílicas', d: 105, p: 40 }
+    ],
+    opiniones: [
+      { a: 'Kathia R.', e: 5, c: 'Me duraron tres semanas enteras. Vuelvo fijo.', f: 'hace 5 días' },
+      { a: 'Ivonne B.', e: 4, c: 'Muy buen trabajo. Empezaron diez minutos tarde.', f: 'hace 2 semanas' }
+    ]
+  },
+  {
+    id: 'costa', nombre: 'Spa Costa del Este', cat: 'Spa y masajes', zona: 'Costa del Este',
+    dir: 'Ave. Centenario, torre Vía Brasil', rating: 4.7, resenas: 33, dist: 6.8, desde: 35,
+    foto: '../../../apps/web/public/fotos/spa.webp', oficio: 'spa', cierre: '9:00 p. m.', abre: 10, cierra: 21, cerrado: [],
+    patrocinado: true,
+    equipo: 'Ovidio Pérez y Elvia Samudio, terapeutas. Ovidio lleva la parte de descontracturante.',
+    servicios: [
+      { n: 'Masaje descontracturante', d: 60, p: 55 },
+      { n: 'Masaje relajante', d: 90, p: 75 },
+      { n: 'Limpieza facial profunda', d: 75, p: 40 },
+      { n: 'Ritual de espalda', d: 45, p: 35 },
+      { n: 'Drenaje linfático', d: 60, p: 50 }
+    ],
+    opiniones: [
+      { a: 'Marisol A.', e: 5, c: 'Salí nueva. El sitio es silencioso de verdad, no es propaganda.', f: 'hace 1 semana' },
+      { a: 'Deivis S.', e: 4, c: 'Buen masaje. El parqueo del edificio cobra aparte.', f: 'hace 3 semanas' }
+    ]
+  }
+];
+
+/* rejilla de horas: generada, estable y con huecos de verdad */
+function pseudo(semilla) { let x = Math.sin(semilla) * 10000; return x - Math.floor(x); }
+function rejilla(salon, diaIdx) {
+  const s = SALONES.findIndex(x => x.id === salon.id);
+  if (salon.cerrado.includes(diaIdx)) return { cerrado: true, huecos: [] };
+  const paso = salon.id === 'costa' ? 60 : 45;
+  const huecos = [];
+  for (let m = salon.abre * 60; m + paso <= salon.cierra * 60; m += paso) {
+    const h = String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+    const r = pseudo(s * 97 + diaIdx * 31 + m);
+    const almuerzo = (salon.id === 'cangrejo' && (h === '12:45' || h === '13:00'));
+    huecos.push({ h, libre: r > 0.42 && !almuerzo, almuerzo });
+  }
+  return { cerrado: false, huecos };
+}
+
+/* agenda del panel: Barbería El Cangrejo, miércoles 2 */
+const EQUIPO = [
+  { id: 'ricardo', nombre: 'Ricardo Him', citas: [
+    { i: '09:00', f: '09:30', c: 'Ivonne Barría',      s: 'Corte clásico',           e: 'completada' },
+    { i: '09:45', f: '10:30', c: 'José Luis Mendieta', s: 'Corte + barba',           e: 'completada' },
+    { i: '10:30', f: '11:15', c: 'Kathia Ríos',        s: 'Corte + barba',           e: 'completada' },
+    { i: '11:15', f: '11:40', c: 'Ovidio Bethancourt', s: 'Barba y toalla caliente', e: 'nollego' },
+    { libre: '12:00', dura: 45 },
+    { bloqueo: '12:45', txt: 'Almuerzo · 45 min' },
+    { i: '13:30', f: '14:00', c: 'Yaritza Him',        s: 'Corte clásico',           e: 'confirmada' },
+    { i: '14:15', f: '15:00', c: 'Marisol Achurra',    s: 'Corte + barba',           e: 'confirmada' },
+    { libre: '15:00', dura: 60 },
+    { i: '16:00', f: '16:30', c: 'Elvia Samudio',      s: 'Corte de niño',           e: 'pendiente' },
+    { i: '17:00', f: '17:45', c: 'Anayansi Torres',    s: 'Corte + barba',           e: 'cancelada' }
+  ]},
+  { id: 'yariela', nombre: 'Yariela Batista', citas: [
+    { i: '10:00', f: '10:45', c: 'Mariel Quintero',    s: 'Corte + barba',           e: 'completada' },
+    { libre: '11:00', dura: 90 },
+    { i: '13:00', f: '13:30', c: 'Ileana Rodríguez',   s: 'Corte clásico',           e: 'confirmada' },
+    { i: '15:30', f: '16:15', c: 'Ovidio Pérez',       s: 'Corte + barba',           e: 'confirmada' },
+    { i: '18:00', f: '18:25', c: 'Deivis Sánchez',     s: 'Barba y toalla caliente', e: 'pendiente' }
+  ]},
+  { id: 'deivis', nombre: 'Deivis Sánchez', citas: [] }
+];
+const NOMBRE_ESTADO = { confirmada: 'Confirmada', pendiente: 'Por confirmar', completada: 'Completada', nollego: 'No llegó', cancelada: 'Cancelada' };
+
+const NEGOCIOS = [
+  { n: 'Barbería El Cangrejo',   z: 'El Cangrejo',    e: 'publicado',  srv: 4, citas: 41, r: 4.8, alta: '12 jun 2026' },
+  { n: 'Nails & Lashes Obarrio', z: 'Obarrio',        e: 'publicado',  srv: 6, citas: 33, r: 4.9, alta: '03 jul 2026' },
+  { n: 'Spa Costa del Este',     z: 'Costa del Este', e: 'publicado',  srv: 5, citas: 22, r: 4.7, alta: '21 jul 2026' },
+  { n: 'Peluquería Yariela',     z: 'San Francisco',  e: 'borrador',   srv: 2, citas: 0,  r: null, alta: '30 ago 2026' },
+  { n: 'Barbería Don Cheo',      z: 'Juan Díaz',      e: 'borrador',   srv: 1, citas: 0,  r: null, alta: '01 sep 2026' }
+];
+const CATEGORIAS = [
+  ['Barbería', 'Corte, barba y niños'], ['Peluquería y salón', 'Color, keratina y peinado'],
+  ['Uñas', 'Manicura, pedicura y acrílicas'], ['Pestañas y cejas', 'Pelo a pelo, laminado'],
+  ['Maquillaje', 'Social y novias'], ['Depilación', 'Cera y láser'],
+  ['Spa y masajes', 'Descontracturante y relajante'], ['Estética', 'Facial y corporal']
+];
+</script>
+<script>
+"use strict";
+/* =======================================================================
+   3 · NAVEGACIÓN ENTRE PANTALLAS
+   La pantalla que se va cae hacia atrás; la que llega entra por bloques.
+   ======================================================================= */
+const ORDEN_PANTALLAS = ['portada', 'resultados', 'ficha', 'agenda', 'consola'];
+let PANTALLA = 'portada';
+let navegando = false;
+
+function moverIndicador(cont, ind, btn) {
+  const c = cont.getBoundingClientRect(), b = btn.getBoundingClientRect();
+  const x = b.left - c.left, w = b.width;
+  const prev = ind.getBoundingClientRect();
+  ind.style.width = w + 'px';
+  ind.style.transform = `translateX(${x}px)`;
+  const dx = prev.left - c.left - x;
+  if (Math.abs(dx) > 0.5 || Math.abs(prev.width - w) > 0.5)
+    anima(ind, [{ transform: `translateX(${x + dx}px)`, width: prev.width + 'px' },
+                { transform: `translateX(${x}px)`, width: w + 'px' }],
+          { duration: 260, easing: E_CONTROL });
+}
+
+async function ir(destino) {
+  if (navegando || destino === PANTALLA) { if (destino === PANTALLA) window.scrollTo({ top: 0, behavior: MOV ? 'smooth' : 'auto' }); return; }
+  navegando = true;
+  const adelante = ORDEN_PANTALLAS.indexOf(destino) > ORDEN_PANTALLAS.indexOf(PANTALLA);
+  const vieja = $('#p-' + PANTALLA), nueva = $('#p-' + destino);
+
+  $$('.cinta__b').forEach(b => b.setAttribute('aria-current', b.dataset.ir === destino ? 'true' : 'false'));
+  moverIndicador($('#cintaNav'), $('#cintaInd'), $(`.cinta__b[data-ir="${destino}"]`));
+
+  await anima(vieja, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translateY(${adelante ? -10 : 10}px) scale(.995)` }],
+              { duration: 190, easing: E_SALIDA }).finished;
+  vieja.dataset.activa = 'no';
+  vieja.removeAttribute('data-activa');
+  nueva.dataset.activa = 'si';
+  window.scrollTo(0, 0);
+  PANTALLA = destino;
+  history.replaceState(null, '', '#' + destino);
+  al_entrar[destino] && al_entrar[destino]();
+
+  const zonas = $$('.zona', nueva);
+  zonas.forEach((z, i) => anima(z, [{ opacity: 0, transform: `translateY(${adelante ? 16 : -16}px)` }, { opacity: 1, transform: 'none' }],
+                               { duration: 340, delay: Math.min(i, 5) * 45, easing: E_LISTA, fill: 'backwards' }));
+  $$('[data-dibuja]', nueva).forEach((r, i) => anima(r, [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }],
+                                                     { duration: 420, delay: 120 + Math.min(i, 5) * 60, easing: E_LISTA, fill: 'backwards' }));
+  navegando = false;
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-ir]');
+  if (b) { e.preventDefault(); ir(b.dataset.ir); }
+});
+$('#btnMov').addEventListener('click', () => { MOV = !MOV; pintaMov(); toast(MOV ? 'Movimiento encendido.' : 'Movimiento apagado. Todo llega igual, sin animación.'); });
+
+/* =======================================================================
+   4 · PANTALLA 01 · PORTADA
+   ======================================================================= */
+const HUECOS_PORTADA = {
+  0: [['11:30', 'Barbería El Cangrejo', 'Corte + barba · 45 min', 'El Cangrejo'],
+      ['12:00', 'Barbería El Cangrejo', 'Corte clásico · 30 min', 'El Cangrejo'],
+      ['15:00', 'Nails & Lashes Obarrio', 'Diseño de cejas · 30 min', 'Obarrio'],
+      ['18:00', 'Spa Costa del Este', 'Ritual de espalda · 45 min', 'Costa del Este']],
+  1: [['09:15', 'Barbería El Cangrejo', 'Corte de niño · 30 min', 'El Cangrejo'],
+      ['10:45', 'Nails & Lashes Obarrio', 'Manicura semipermanente · 1 h 15', 'Obarrio'],
+      ['16:30', 'Nails & Lashes Obarrio', 'Pestañas pelo a pelo · 2 h', 'Obarrio'],
+      ['19:00', 'Spa Costa del Este', 'Masaje relajante · 1 h 30', 'Costa del Este']],
+  2: [['08:45', 'Barbería El Cangrejo', 'Corte clásico · 30 min', 'El Cangrejo'],
+      ['13:15', 'Spa Costa del Este', 'Limpieza facial profunda · 1 h 15', 'Costa del Este'],
+      ['17:45', 'Nails & Lashes Obarrio', 'Uñas acrílicas · 1 h 45', 'Obarrio'],
+      ['20:00', 'Spa Costa del Este', 'Drenaje linfático · 1 h', 'Costa del Este']]
+};
+let diaPortada = 0;
+
+function pintaDias(cont, activo, alElegir) {
+  cont.innerHTML = DIAS.map((d, i) => `
+    <button class="dia" data-i="${i}" aria-pressed="${i === activo}">
+      <b class="cifra" data-rueda="dia-${cont.id}-${i}">${d.n}</b>
+      <span>${i === 0 ? 'Hoy' : d.d}</span>
+    </button>`).join('');
+  $$('.dia', cont).forEach(b => b.addEventListener('click', () => alElegir(+b.dataset.i)));
+}
+
+function pintaHuecosPortada(primeraVez) {
+  const tira = $('#tiraHuecos');
+  const datos = HUECOS_PORTADA[diaPortada % 3];
+  const pintar = () => {
+    flip(tira, () => {
+      tira.innerHTML = datos.map(([h, n, s, z]) => `
+        <button class="hueco" data-ir="ficha">
+          <span class="hueco__h cifra">${h}</span>
+          <span class="hueco__n">${n}</span>
+          <span class="hueco__z">${s} · ${z}</span>
+        </button>`).join('');
+    });
+    $('#huecosPie').textContent = `${datos.length} huecos sueltos ${diaPortada === 0 ? 'para hoy' : 'para el ' + DIAS[diaPortada].largo}. Se actualiza cuando alguien reserva.`;
+  };
+  if (primeraVez) { pintar(); return; }
+  tira.innerHTML = Array.from({ length: 4 }, () => '<div class="hueso"><i></i><i></i><i></i></div>').join('');
+  $('#huecosPie').textContent = 'Consultando las agendas de la zona...';
+  clearTimeout(pintaHuecosPortada._t);
+  pintaHuecosPortada._t = setTimeout(pintar, MOV ? 620 : 0);
+}
+
+pintaDias($('#diasPortada'), 0, i => {
+  diaPortada = i;
+  $$('#diasPortada .dia').forEach((b, k) => b.setAttribute('aria-pressed', k === i));
+  $$('#diasPortada .dia b').forEach((b, k) => ponCifra(b, DIAS[k].n));
+  pintaHuecosPortada(false);
+});
+$$('#diasPortada .dia b').forEach((b, k) => ponCifra(b, DIAS[k].n));
+pintaHuecosPortada(true);
+$('#catsPortada').innerHTML = CATEGORIAS.map(([a, b]) => `<button class="cat" data-ir="resultados"><b>${a}</b><span>${b}</span></button>`).join('');
+
+/* =======================================================================
+   5 · PANTALLA 02 · RESULTADOS
+   ======================================================================= */
+let ordenRes = 'recomendados';
+const filtrosOn = new Set(['hoy']);
+
+function portadaDatos(salon) {
+  const cols = DIAS.slice(0, 7).map((d, i) => {
+    const r = rejilla(salon, i);
+    const total = r.cerrado ? 0 : r.huecos.length;
+    const libres = r.cerrado ? 0 : r.huecos.filter(h => h.libre).length;
+    const barras = Array.from({ length: 8 }, (_, k) => {
+      if (r.cerrado) return '<i style="height:2px"></i>';
+      const libre = k < Math.round(libres / total * 8);
+      return `<i class="${libre ? 'libre' : ''}" style="height:${100 / 8}%"></i>`;
+    }).join('');
+    return `<span class="pdatos__col">${barras}</span>`;
+  }).join('');
+  return `<div class="pdatos"><div class="pdatos__barras">${cols}</div><span class="pdatos__pie">Semana · verde = libre</span></div>`;
+}
+
+function caraSalon(s) {
+  return s.foto
+    ? `<img src="${s.foto}" alt="Interior de ${s.nombre}" loading="lazy">`
+    : portadaDatos(s);
+}
+
+function filaRes(s) {
+  const r = rejilla(s, 0);
+  const libres = r.huecos.filter(h => h.libre).slice(0, 3);
+  return `
+  <button class="fila-res" data-salon="${s.id}">
+    <span class="fila-res__cara">${caraSalon(s)}</span>
+    <span class="fila-res__cuerpo">
+      ${s.patrocinado ? '<span class="sello">Patrocinado</span>' : ''}
+      <h3>${s.nombre}</h3>
+      <span class="fila-res__meta">
+        <b class="cifra">${s.rating.toFixed(1)}</b> <span class="cifra">(${s.resenas} reseñas)</span>
+        <span>${s.zona}</span> <span class="cifra">${s.dist.toFixed(1)} km</span>
+      </span>
+      <span class="fila-res__horas">
+        ${libres.map(h => `<span class="h-mini cifra">${h.h}</span>`).join('')}
+        <span class="h-mini h-mini--mas cifra">+${Math.max(0, r.huecos.filter(h => h.libre).length - 3)} hoy</span>
+      </span>
+    </span>
+    <span class="fila-res__precio"><span>Desde</span><b class="cifra">${dinero(s.desde)}</b></span>
+  </button>`;
+}
+
+function calcularRes() {
+  let lista = SALONES.filter(s => {
+    if (filtrosOn.has('zona') && s.zona !== 'El Cangrejo') return false;
+    if (filtrosOn.has('pestanas') && !/pestañas/i.test(s.cat)) return false;
+    if (filtrosOn.has('barato') && s.desde >= 20) return false;
+    return true;
+  });
+  if (ordenRes === 'cerca')  lista = lista.slice().sort((a, b) => a.dist - b.dist);
+  if (ordenRes === 'precio') lista = lista.slice().sort((a, b) => a.desde - b.desde);
+  if (ordenRes === 'recomendados') lista = lista.slice().sort((a, b) => (b.patrocinado ? 1 : 0) - (a.patrocinado ? 1 : 0) || a.dist - b.dist);
+  return lista;
+}
+
+function pintaRes(conEspera) {
+  const cont = $('#listaRes');
+  const dibujar = () => {
+    const lista = calcularRes();
+    $('#contadorRes').textContent = lista.length === 1 ? '1 salón' : lista.length + ' salones';
+    if (!lista.length) {
+      cont.innerHTML = `
+        <div class="vacio">
+          <div class="vacio__marco trama" aria-hidden="true"></div>
+          <h3>No encontramos nada con eso</h3>
+          <p>Prueba otra palabra o quita el filtro de zona. En El Cangrejo todavía no hay salones de pestañas dados de alta.</p>
+          <button class="btn btn--tinta" id="btnQuitaFiltros">Quitar los filtros</button>
+        </div>`;
+      $('#btnQuitaFiltros').addEventListener('click', () => {
+        filtrosOn.clear(); filtrosOn.add('hoy');
+        $$('#filtros .chip').forEach(c => c.setAttribute('aria-pressed', c.dataset.filtro === 'hoy'));
+        pintaRes(false);
+      });
+      return;
+    }
+    flip(cont, () => {
+      const previos = new Map(Array.from(cont.children).map(h => [h.dataset.salon, h]));
+      cont.innerHTML = '';
+      lista.forEach(s => {
+        const anterior = previos.get(s.id);
+        if (anterior) { cont.appendChild(anterior); return; }
+        const t = document.createElement('template');
+        t.innerHTML = filaRes(s).trim();
+        cont.appendChild(t.content.firstChild);
+      });
+    });
+    $$('.fila-res', cont).forEach(f => f.addEventListener('click', () => abrirFicha(f.dataset.salon)));
+  };
+  if (!conEspera) return dibujar();
+  cont.innerHTML = Array.from({ length: 2 }, () => '<div class="hueso-fila"><i class="c"></i><span><i class="l1"></i><i class="l2"></i><i class="l3"></i></span></div>').join('');
+  clearTimeout(pintaRes._t);
+  pintaRes._t = setTimeout(dibujar, MOV ? 500 : 0);
+}
+
+$$('#filtros .chip').forEach(c => c.addEventListener('click', () => {
+  const f = c.dataset.filtro, on = c.getAttribute('aria-pressed') === 'true';
+  c.setAttribute('aria-pressed', String(!on));
+  if (on) filtrosOn.delete(f); else filtrosOn.add(f);
+  anima(c, [{ transform: 'scale(.94)' }, { transform: 'none' }], { duration: 220, easing: E_MUELLE });
+  pintaRes(true);
+}));
+$$('#orden .orden__b').forEach(b => b.addEventListener('click', () => {
+  ordenRes = b.dataset.orden;
+  $$('#orden .orden__b').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  moverIndicador($('#orden'), $('#ordenInd'), b);
+  pintaRes(false);
+}));
+pintaRes(false);
+</script>
+<script>
+"use strict";
+/* =======================================================================
+   6 · PANTALLA 03 · FICHA Y RESERVA
+   Tras elegir servicio: hora, hoja de confirmación y listo. Tres pantallas.
+   ======================================================================= */
+let salonActual = SALONES[0];
+let diaFicha = 0;
+let servicioSel = null;
+let horaSel = null;
+const ocupadasExtra = new Set();
+const clave = (s, d, h) => `${s}|${d}|${h}`;
+
+function abrirFicha(id) {
+  salonActual = SALONES.find(s => s.id === id) || SALONES[0];
+  diaFicha = 0; servicioSel = null; horaSel = null;
+  pintaFicha();
+  ir('ficha');
+}
+
+function pintaFicha() {
+  const s = salonActual;
+  $('#fichaCima').innerHTML = `
+    <div class="ficha__cima zona">
+      <div class="ficha__foto">${s.foto ? `<img src="${s.foto}" alt="Interior de ${s.nombre}">` : portadaDatos(s)}</div>
+      <div class="cont ficha__datos">
+        <h2>${s.nombre}</h2>
+        <div class="ficha__linea">
+          <span class="ficha__abierto"><i class="punto" aria-hidden="true"></i>Abierto hasta las ${s.cierre}</span>
+          <span><b class="cifra">${s.rating.toFixed(1)}</b> <span class="cifra">(${s.resenas} reseñas)</span></span>
+          <span>${s.cat}</span>
+          <span>${s.dir}, ${s.zona}</span>
+        </div>
+      </div>
+    </div>`;
+  $('#listaServicios').innerHTML = s.servicios.map((v, i) => `
+    <button class="servicio" data-srv="${i}" aria-pressed="false">
+      <span><b>${v.n}</b><span>${durar(v.d)}</span></span>
+      <span style="display:flex;align-items:center;gap:12px">
+        <span class="servicio__precio cifra">${dinero(v.p)}</span>
+        <span class="servicio__marca" aria-hidden="true">✓</span>
+      </span>
+    </button>`).join('');
+  $$('#listaServicios .servicio').forEach(b => b.addEventListener('click', () => elegirServicio(+b.dataset.srv)));
+  $('#equipoTxt').textContent = s.equipo;
+  $('#resenas').innerHTML = s.opiniones.map(o => `
+    <div class="ranura" style="align-items:flex-start;flex-direction:column;gap:6px;margin-bottom:2px">
+      <span style="display:flex;gap:10px;align-items:baseline"><b class="cifra">${o.e}.0</b><b>${o.a}</b><span class="t-micro">${o.f}</span></span>
+      <span class="t-cuerpo">${o.c}</span>
+    </div>`).join('');
+  pintaDias($('#diasFicha'), diaFicha, i => {
+    diaFicha = i; horaSel = null;
+    $$('#diasFicha .dia').forEach((b, k) => b.setAttribute('aria-pressed', k === i));
+    $$('#diasFicha .dia b').forEach((b, k) => ponCifra(b, DIAS[k].n));
+    pintaHoras(true);
+    pintaPie();
+  });
+  $$('#diasFicha .dia b').forEach((b, k) => ponCifra(b, DIAS[k].n));
+  pintaHoras(false);
+  pintaPie();
+}
+
+function pintaHoras(hayTick) {
+  const s = salonActual, z = $('#zonaHoras');
+  const r = rejilla(s, diaFicha);
+  const libres = r.huecos.filter(h => h.libre && !ocupadasExtra.has(clave(s.id, diaFicha, h.h)));
+  $('#huecosDia').textContent = r.cerrado ? 'Cerrado' : `${libres.length} libres de ${r.huecos.length}`;
+  if (r.cerrado || !libres.length) {
+    z.innerHTML = `
+      <div class="vacio" style="box-shadow:none;padding:24px 0">
+        <div class="vacio__marco trama--papel" aria-hidden="true"></div>
+        <h3>${r.cerrado ? 'El salón no abre ese día' : 'No quedan horas ese día'}</h3>
+        <p>Prueba otro de la fila de arriba. El ${DIAS[(diaFicha + 1) % 7].largo} tiene huecos.</p>
+        <button class="btn btn--tinta" id="btnOtroDia">Ver el ${DIAS[(diaFicha + 1) % 7].d.toLowerCase()} ${DIAS[(diaFicha + 1) % 7].n}</button>
+      </div>`;
+    $('#btnOtroDia').addEventListener('click', () => $$('#diasFicha .dia')[(diaFicha + 1) % 7].click());
+    return;
+  }
+  z.innerHTML = `<div class="horas" id="rejillaHoras"></div>`;
+  const rej = $('#rejillaHoras');
+  rej.innerHTML = r.huecos.map(h => {
+    const ocupada = !h.libre || ocupadasExtra.has(clave(s.id, diaFicha, h.h));
+    return `<button class="hora cifra" data-h="${h.h}" ${ocupada ? 'disabled aria-label="' + h.h + ', ocupada"' : 'aria-pressed="false"'}>${h.h}</button>`;
+  }).join('');
+  $$('.hora:not([disabled])', rej).forEach((b, i) => {
+    b.addEventListener('click', () => {
+      horaSel = b.dataset.h;
+      $$('.hora', rej).forEach(x => { if (!x.disabled) x.setAttribute('aria-pressed', String(x === b)); });
+      anima(b, [{ transform: 'translateY(3px)' }, { transform: 'none' }], { duration: 260, easing: E_MUELLE });
+      pintaPie();
+    });
+    if (hayTick) anima(b, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }],
+                       { duration: 260, delay: Math.min(i, 10) * 22, easing: E_LISTA, fill: 'backwards' });
+  });
+}
+
+function elegirServicio(i) {
+  servicioSel = servicioSel === i ? null : i;
+  $$('#listaServicios .servicio').forEach((b, k) => b.setAttribute('aria-pressed', String(k === servicioSel)));
+  pintaPie();
+}
+
+function pintaPie() {
+  const s = salonActual, v = servicioSel != null ? s.servicios[servicioSel] : null;
+  const btn = $('#btnReservar');
+  if (!v) {
+    $('#pieServicio').textContent = 'Elige un servicio';
+    $('#pieDetalle').textContent = 'Y después la hora que te sirva';
+    btn.disabled = true; btn.textContent = 'Reservar';
+    return;
+  }
+  $('#pieServicio').textContent = v.n;
+  $('#pieDetalle').innerHTML = `<span class="cifra">${durar(v.d)} · ${dinero(v.p)}${horaSel ? ' · ' + DIAS[diaFicha].d.toLowerCase() + ' ' + DIAS[diaFicha].n + ' a las ' + horaSel : ''}</span>`;
+  btn.disabled = !horaSel;
+  btn.textContent = horaSel ? 'Reservar a las ' + horaSel : 'Elige la hora';
+}
+
+/* ---- la hoja: sube con muelle, se va cayendo ---- */
+let cerrandoHoja = null;
+function abreHoja(html, alPintar) {
+  const hoja = $('#hoja'), velo = $('#velo');
+  velo.hidden = false; hoja.hidden = false;
+  $('#hojaCuerpo').innerHTML = html;
+  alPintar && alPintar();
+  anima(velo, [{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: E_SALIDA, fill: 'forwards' });
+  velo.style.opacity = 1;
+  anima(hoja, [{ transform: 'translateY(100%)' }, { transform: 'translateY(0)' }],
+        { duration: 520, easing: E_MUELLE });
+  document.body.style.overflow = 'hidden';
+  const primero = hoja.querySelector('button, input');
+  primero && primero.focus({ preventScroll: true });
+}
+async function cierraHoja() {
+  const hoja = $('#hoja'), velo = $('#velo');
+  if (hoja.hidden) return;
+  await Promise.all([
+    anima(hoja, [{ transform: 'none' }, { transform: 'translateY(100%)' }], { duration: 260, easing: E_SALIDA }).finished,
+    anima(velo, [{ opacity: 1 }, { opacity: 0 }], { duration: 260, easing: E_SALIDA }).finished
+  ]);
+  hoja.hidden = true; velo.hidden = true; document.body.style.overflow = '';
+}
+$('#velo').addEventListener('click', cierraHoja);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') cierraHoja(); });
+
+function hojaReserva() {
+  const s = salonActual, v = s.servicios[servicioSel];
+  abreHoja(`
+    <h3>Confirma tu reserva</h3>
+    <dl class="resumen">
+      <div class="resumen__f"><dt>Salón</dt><dd>${s.nombre}</dd></div>
+      <div class="resumen__f"><dt>Servicio</dt><dd>${v.n}</dd></div>
+      <div class="resumen__f"><dt>Quién atiende</dt><dd>Quien esté libre</dd></div>
+      <div class="resumen__f"><dt>Cuándo</dt><dd class="cifra">${DIAS[diaFicha].largo}, ${horaSel}</dd></div>
+      <div class="resumen__f resumen__f--total"><dt>Total</dt><dd class="cifra">${dinero(v.p)}</dd></div>
+    </dl>
+    <p class="nota-legal">Puedes cancelar o cambiar la hora tú misma hasta 2 horas antes. Después lo arregla el salón. Se paga en el salón.</p>
+    <label class="campo"><span>Tu teléfono</span><input type="tel" value="+507 6210-4477" inputmode="tel"></label>
+    <p class="t-micro" style="margin:-12px 0 20px">Te mandamos un código por WhatsApp. No hay contraseña que recordar.</p>
+    <button class="btn btn--voltio btn--ancho" id="btnConfirmar"><span class="btn__barrido" aria-hidden="true"></span><span style="position:relative">Confirmar la reserva</span></button>
+    <button class="btn btn--hueco btn--ancho" style="margin-top:8px" id="btnAtrasHoja">Volver a las horas</button>
+  `, () => {
+    $('#btnAtrasHoja').addEventListener('click', cierraHoja);
+    $('#btnConfirmar').addEventListener('click', confirmar);
+  });
+}
+
+async function confirmar() {
+  const btn = $('#btnConfirmar');
+  btn.disabled = true;
+  const barrido = $('.btn__barrido', btn);
+  await anima(barrido, [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }],
+              { duration: 620, easing: E_LISTA, fill: 'forwards' }).finished;
+  const trampa = salonActual.id === 'cangrejo' && diaFicha === 0 && horaSel === '11:30';
+  if (trampa) {
+    ocupadasExtra.add(clave(salonActual.id, diaFicha, horaSel));
+    anima($('#hoja'), [{ transform: 'translateX(0)' }, { transform: 'translateX(-8px)' }, { transform: 'translateX(6px)' }, { transform: 'translateX(0)' }],
+          { duration: 320, easing: E_SALIDA });
+    const r = rejilla(salonActual, diaFicha).huecos.filter(h => h.libre && !ocupadasExtra.has(clave(salonActual.id, diaFicha, h.h))).slice(0, 3);
+    $('#hojaCuerpo').innerHTML = `
+      <div class="aviso"><b>Ese horario se acaba de ocupar</b><p>Alguien lo confirmó mientras escribías. No se creó nada y no se cobró nada.</p></div>
+      <h3>Elige otra hora y lo confirmamos enseguida</h3>
+      <div class="horas" style="margin-top:16px">${r.map(h => `<button class="hora cifra" data-h="${h.h}">${h.h}</button>`).join('')}</div>
+      <button class="btn btn--hueco btn--ancho" style="margin-top:20px" id="btnVolverRejilla">Ver todas las horas</button>`;
+    $$('#hojaCuerpo .hora').forEach(b => b.addEventListener('click', () => { horaSel = b.dataset.h; pintaHoras(true); pintaPie(); hojaReserva(); }));
+    $('#btnVolverRejilla').addEventListener('click', async () => { await cierraHoja(); pintaHoras(true); pintaPie(); });
+    pintaHoras(true);
+    return;
+  }
+  const s = salonActual, v = s.servicios[servicioSel];
+  ocupadasExtra.add(clave(s.id, diaFicha, horaSel));
+  $('#hojaCuerpo').innerHTML = `
+    <div class="exito">
+      <div class="exito__sello" id="selloExito">
+        <b>Reserva confirmada</b>
+        <strong class="cifra">${DIAS[diaFicha].d.toLowerCase()} ${DIAS[diaFicha].n} · ${horaSel}</strong>
+      </div>
+      <dl class="resumen">
+        <div class="resumen__f"><dt>Código</dt><dd class="cifra">BK-4821</dd></div>
+        <div class="resumen__f"><dt>Salón</dt><dd>${s.nombre}</dd></div>
+        <div class="resumen__f"><dt>Servicio</dt><dd>${v.n} · <span class="cifra">${dinero(v.p)}</span></dd></div>
+      </dl>
+      <p class="t-micro" style="margin-bottom:20px">Te llega un recordatorio por WhatsApp el día antes. Si no puedes ir, cancela desde ahí.</p>
+      <button class="btn btn--tinta btn--ancho" id="btnCalendario">Añadir a mi calendario</button>
+      <button class="btn btn--hueco btn--ancho" style="margin-top:8px" id="btnListo">Listo</button>
+    </div>`;
+  anima($('#selloExito'), [{ transform: 'scale(.9) translateY(10px)', opacity: 0 }, { transform: 'none', opacity: 1 }],
+        { duration: 520, easing: E_MUELLE });
+  $('#btnCalendario').addEventListener('click', () => toast('Descargado el archivo .ics de la cita.'));
+  $('#btnListo').addEventListener('click', async () => { await cierraHoja(); horaSel = null; pintaHoras(true); pintaPie(); });
+}
+$('#btnReservar').addEventListener('click', () => { if (servicioSel != null && horaSel) hojaReserva(); });
+</script>
+<script>
+"use strict";
+/* =======================================================================
+   7 · PANTALLA 04 · AGENDA DEL SALÓN
+   ======================================================================= */
+/* reusa los nodos por clave: sin esto, reordenar es repintar y no hay viaje */
+function sincroniza(cont, items, claveDe, htmlDe) {
+  const previos = new Map(Array.from(cont.children).map(n => [n.dataset.k, n]));
+  const nuevos = items.map(it => {
+    const k = String(claveDe(it));
+    const t = document.createElement('template');
+    t.innerHTML = htmlDe(it).trim();
+    const fresco = t.content.firstElementChild;
+    const viejo = previos.get(k);
+    if (viejo) { viejo.className = fresco.className; viejo.innerHTML = fresco.innerHTML; return viejo; }
+    fresco.dataset.k = k;
+    return fresco;
+  });
+  cont.replaceChildren(...nuevos);
+  return nuevos;
+}
+function claseDe(it) {
+  if (it.libre) return 'libre-fila';
+  if (it.bloqueo) return 'bloqueo-fila';
+  return 'cita cita--' + it.e;
+}
+
+let profActual = 0, diaAgenda = 0;
+const citasDe = (p, dia) => {
+  if (dia === 0) return p.citas.map(c => ({ ...c }));
+  return p.citas
+    .filter((c, i) => ((i * 7 + dia * 3) % 10) < 7)
+    .map(c => ({ ...c, e: c.e === 'completada' || c.e === 'nollego' ? 'confirmada' : c.e }));
+};
+
+function filaAgendaHTML(it) {
+  const dentro = it.libre
+    ? `<span class="cifra">${it.libre}</span><span><b class="cifra">${it.dura} min libres</b><span> · nadie ha reservado</span></span><span class="btn btn--chico btn--tinta">Apuntar</span>`
+    : it.bloqueo
+      ? `<span class="cifra">${it.bloqueo}</span><span>${it.txt}</span>`
+      : `<span class="cita__h cifra">${it.i}<span>${it.f}</span></span>
+         <span class="cita__q"><b>${it.c}</b><span>${it.s}</span></span>
+         <span class="cita__e">${NOMBRE_ESTADO[it.e]}</span>`;
+  return `<button class="${claseDe(it)}">${dentro}</button>`;
+}
+
+function pintaAgenda(conEspera) {
+  const cont = $('#agenda'), p = EQUIPO[profActual];
+  const dibujar = () => {
+    const items = citasDe(p, diaAgenda);
+    const citas = items.filter(i => !i.libre && !i.bloqueo);
+    const libres = items.filter(i => i.libre).reduce((a, b) => a + b.dura, 0);
+    const porConfirmar = citas.filter(c => c.e === 'pendiente').length;
+    $('#resumenDia').innerHTML = `
+      <div><b class="cifra">${citas.length}</b><span>Citas</span></div>
+      <div><b class="cifra">${durar(libres)}</b><span>Libre</span></div>
+      <div><b class="cifra">${porConfirmar}</b><span>Por confirmar</span></div>`;
+    if (!citas.length) {
+      cont.replaceChildren();
+      cont.innerHTML = `
+        <div class="vacio">
+          <div class="vacio__marco trama" aria-hidden="true"></div>
+          <h3>No hay citas este día</h3>
+          <p>Cuando alguien reserve, aparece aquí. También puedes apuntar tú a quien llegue por la puerta.</p>
+          <button class="btn btn--tinta" data-walkin>Apuntar a alguien</button>
+        </div>`;
+      $('[data-walkin]', cont).addEventListener('click', () => toast('Aquí se abriría la hoja de apuntar a alguien que acaba de entrar.'));
+      return;
+    }
+    flip(cont, () => sincroniza(cont, items,
+      it => it.libre ? 'l' + it.libre : it.bloqueo ? 'b' + it.bloqueo : 'c' + it.c, filaAgendaHTML));
+    Array.from(cont.children).forEach((n, idx) => {
+      const it = items[idx];
+      n.onclick = () => {
+        if (it.libre) return toast('Aquí se abriría la hoja de apuntar a alguien a las ' + it.libre + '.');
+        if (it.bloqueo) return toast('Bloqueo del día. Se edita desde Horario.');
+        hojaCita(it);
+      };
+    });
+    $('#leyenda').innerHTML = Object.entries(NOMBRE_ESTADO).map(([k, v]) =>
+      `<div><i class="cita--${k}" aria-hidden="true"></i>${v}</div>`).join('');
+  };
+  if (!conEspera) return dibujar();
+  cont.replaceChildren();
+  cont.innerHTML = Array.from({ length: 3 }, () => '<div class="hueso-fila" style="grid-template-columns:64px 1fr"><span><i class="l1"></i><i class="l3"></i></span><span><i class="l1"></i><i class="l2"></i></span></div>').join('');
+  clearTimeout(pintaAgenda._t);
+  pintaAgenda._t = setTimeout(dibujar, MOV ? 420 : 0);
+}
+
+function hojaCita(it) {
+  const p = EQUIPO[profActual];
+  const hueco = p.citas.find(c => c.libre);
+  abreHoja(`
+    <h3>${it.c}</h3>
+    <dl class="resumen">
+      <div class="resumen__f"><dt>Cuándo</dt><dd class="cifra">${it.i} a ${it.f}</dd></div>
+      <div class="resumen__f"><dt>Servicio</dt><dd>${it.s}</dd></div>
+      <div class="resumen__f"><dt>Estado</dt><dd>${NOMBRE_ESTADO[it.e]}</dd></div>
+      <div class="resumen__f"><dt>Con</dt><dd>${p.nombre}</dd></div>
+    </dl>
+    <p class="t-micro" style="margin-bottom:20px">Segunda vez que viene. La última vez pidió el mismo servicio.</p>
+    ${hueco ? `<button class="btn btn--tinta btn--ancho" id="btnMover">Mover a las ${hueco.libre}</button>` : ''}
+    <button class="btn btn--hueco btn--ancho" style="margin-top:8px" id="btnCompletar">Marcar como completada</button>
+    <button class="btn btn--hueco btn--ancho" style="margin-top:8px" id="btnNoLlego">Marcar que no llegó</button>
+    <div class="zona-peligro">
+      <p class="t-micro">Cancelar avisa a la clienta y libera la hora. No se puede deshacer.</p>
+      <button class="btn btn--tinta btn--ancho mantener" id="btnCancelar">
+        <span class="mantener__relleno" aria-hidden="true"></span>
+        <span>Mantén pulsado para cancelar</span>
+      </button>
+    </div>
+  `, () => {
+    const mover = $('#btnMover');
+    mover && mover.addEventListener('click', async () => {
+      await cierraHoja();
+      const real = p.citas.find(c => c.c === it.c);
+      const idxHueco = p.citas.findIndex(c => c.libre);
+      const nuevoIni = p.citas[idxHueco].libre;
+      const dur = p.citas[idxHueco].dura;
+      p.citas[idxHueco] = { libre: real.i, dura: 45 };
+      real.i = nuevoIni;
+      real.f = sumaMin(nuevoIni, dur);
+      p.citas.sort((a, b) => hhmm(a.i || a.libre || a.bloqueo) - hhmm(b.i || b.libre || b.bloqueo));
+      pintaAgenda(false);
+      toast(`Cita de ${it.c} movida a las ${nuevoIni}. Se le avisa por WhatsApp.`);
+    });
+    $('#btnCompletar').addEventListener('click', () => cambiaEstado(it, 'completada', 'Marcada como completada.'));
+    $('#btnNoLlego').addEventListener('click', () => cambiaEstado(it, 'nollego', 'Marcada como que no llegó. Se le suma al contador.'));
+    mantenPulsado($('#btnCancelar'), () => cambiaEstado(it, 'cancelada', 'Cita cancelada. Se avisó a la clienta y la hora vuelve a estar libre.'));
+  });
+}
+const hhmm = t => +t.slice(0, 2) * 60 + +t.slice(3, 5);
+const sumaMin = (t, m) => { const v = hhmm(t) + m; return String(Math.floor(v / 60)).padStart(2, '0') + ':' + String(v % 60).padStart(2, '0'); };
+
+async function cambiaEstado(it, estado, msg) {
+  const real = EQUIPO[profActual].citas.find(c => c.c === it.c);
+  if (real) real.e = estado;
+  await cierraHoja();
+  pintaAgenda(false);
+  const fila = Array.from($('#agenda').children).find(n => n.dataset.k === 'c' + it.c);
+  if (fila) anima(fila, [{ transform: 'translateX(-10px)' }, { transform: 'none' }], { duration: 320, easing: E_MUELLE });
+  toast(msg);
+}
+
+/* mantener pulsado: la barra dice cuánto falta; soltar antes cancela */
+function mantenPulsado(btn, alCumplir) {
+  const relleno = $('.mantener__relleno', btn);
+  let an = null, hecho = false;
+  const empieza = e => {
+    e.preventDefault(); hecho = false;
+    if (!MOV) { alCumplir(); return; }
+    an = relleno.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 900, easing: 'linear', fill: 'forwards' });
+    an.onfinish = () => { hecho = true; alCumplir(); };
+  };
+  const acaba = () => { if (an && !hecho) { an.cancel(); } };
+  btn.addEventListener('pointerdown', empieza);
+  btn.addEventListener('pointerup', acaba);
+  btn.addEventListener('pointerleave', acaba);
+  btn.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); alCumplir(); } });
+}
+
+function pintaPestanas() {
+  const cont = $('#pestanas');
+  Array.from(cont.querySelectorAll('.pest')).forEach(n => n.remove());
+  EQUIPO.forEach((p, i) => {
+    const b = document.createElement('button');
+    b.className = 'pest';
+    b.setAttribute('aria-pressed', String(i === profActual));
+    const n = citasDe(p, diaAgenda).filter(c => !c.libre && !c.bloqueo).length;
+    b.innerHTML = `${p.nombre.split(' ')[0]} <span class="pest__c cifra">${n}</span>`;
+    b.addEventListener('click', () => {
+      if (i === profActual) return;
+      profActual = i;
+      $$('.pest', cont).forEach((x, k) => x.setAttribute('aria-pressed', String(k === i)));
+      moverIndicador(cont, $('#pestInd'), b);
+      pintaAgenda(true);
+    });
+    cont.appendChild(b);
+  });
+}
+function pintaFechaAgenda() {
+  ponCifra($('#agendaFecha'), DIAS[diaAgenda].n + ' sep');
+  $('#agendaDia').textContent = diaAgenda === 0 ? 'Hoy, miércoles' : DIAS[diaAgenda].largo.split(' ')[0];
+}
+$('#diaAtras').addEventListener('click', () => { if (diaAgenda > 0) { diaAgenda--; pintaFechaAgenda(); pintaPestanas(); pintaAgenda(true); moverIndicador($('#pestanas'), $('#pestInd'), $$('.pest')[profActual]); } });
+$('#diaAdelante').addEventListener('click', () => { if (diaAgenda < 6) { diaAgenda++; pintaFechaAgenda(); pintaPestanas(); pintaAgenda(true); moverIndicador($('#pestanas'), $('#pestInd'), $$('.pest')[profActual]); } });
+$('#btnWalkin') && $('#btnWalkin').addEventListener('click', () => toast('Aquí se abriría la hoja de apuntar a alguien que acaba de entrar.'));
+
+/* =======================================================================
+   8 · PANTALLA 05 · CONSOLA INTERNA
+   ======================================================================= */
+let ordenCons = { campo: 'citas', desc: true }, filtroCons = 'todos';
+const COLS = [['n', 'Negocio'], ['z', 'Zona'], ['e', 'Estado'], ['srv', 'Servicios'], ['citas', 'Citas 30 d'], ['r', 'Rating'], ['alta', 'Alta']];
+
+function negociosFiltrados() {
+  let l = NEGOCIOS.filter(n => filtroCons === 'todos' || n.e === filtroCons);
+  const c = ordenCons.campo;
+  l = l.slice().sort((a, b) => {
+    const va = a[c] == null ? -1 : a[c], vb = b[c] == null ? -1 : b[c];
+    if (typeof va === 'string') return ordenCons.desc ? vb.localeCompare(va, 'es') : va.localeCompare(vb, 'es');
+    return ordenCons.desc ? vb - va : va - vb;
+  });
+  return l;
+}
+const celdaEstado = e => `<span class="est est--${e}">${e === 'publicado' ? 'Publicado' : e === 'borrador' ? 'En borrador' : 'Suspendido'}</span>`;
+
+function pintaConsola() {
+  const l = negociosFiltrados();
+  $('#kpis').innerHTML = `
+    <div class="kpi"><b class="cifra">${NEGOCIOS.filter(n => n.e === 'publicado').length}</b><span>Publicados</span></div>
+    <div class="kpi"><b class="cifra">${NEGOCIOS.filter(n => n.e === 'borrador').length}</b><span>En borrador</span></div>
+    <div class="kpi"><b class="cifra">${NEGOCIOS.reduce((a, n) => a + n.citas, 0)}</b><span>Citas 30 días</span></div>
+    <div class="kpi"><b class="cifra">2</b><span>Reseñas por moderar</span></div>`;
+  const zona = $('#zonaTabla');
+  if (!l.length) {
+    zona.innerHTML = `
+      <div class="vacio" style="margin-top:2px">
+        <div class="vacio__marco trama" aria-hidden="true"></div>
+        <h3>Ningún negocio suspendido</h3>
+        <p>Aquí aparecen los que el equipo retira del marketplace. Se retira desde la ficha del negocio y siempre queda escrito quién lo hizo.</p>
+        <button class="btn btn--tinta" id="btnTodosCons">Ver todos los negocios</button>
+      </div>`;
+    $('#btnTodosCons').addEventListener('click', () => $$('#filtrosConsola .chip')[0].click());
+    return;
+  }
+  if (!$('#tbodyCons')) {
+    zona.innerHTML = `
+      <div class="tabla-envoltura">
+        <table class="tabla">
+          <thead><tr>${COLS.map(([c, t]) => `<th data-c="${c}" class="${['srv', 'citas', 'r'].includes(c) ? 'num' : ''}"><button data-orden-c="${c}">${t}<span aria-hidden="true">↕</span></button></th>`).join('')}</tr></thead>
+          <tbody id="tbodyCons"></tbody>
+        </table>
+      </div>
+      <div class="tabla-movil" id="cardsCons"></div>`;
+    $$('[data-orden-c]', zona).forEach(b => b.addEventListener('click', () => {
+      const c = b.dataset.ordenC;
+      ordenCons = { campo: c, desc: ordenCons.campo === c ? !ordenCons.desc : true };
+      pintaConsola();
+    }));
+  }
+  $$('#zonaTabla th').forEach(th => th.toggleAttribute('aria-sort', th.dataset.c === ordenCons.campo));
+  const tb = $('#tbodyCons'), cards = $('#cardsCons');
+  flip(tb, () => sincroniza(tb, l, n => n.n, n => `
+    <tr>
+      <td class="neg"><b>${n.n}</b><span>${n.e === 'borrador' ? 'Le falta foto para publicar' : 'Perfil completo'}</span></td>
+      <td>${n.z}</td><td>${celdaEstado(n.e)}</td>
+      <td class="num cifra">${n.srv}</td><td class="num cifra">${n.citas}</td>
+      <td class="num cifra">${n.r ? n.r.toFixed(1) : '&ndash;'}</td><td class="cifra">${n.alta}</td>
+    </tr>`));
+  flip(cards, () => sincroniza(cards, l, n => n.n, n => `
+    <button class="tarjeta-neg">
+      <span class="tarjeta-neg__cab"><span><b>${n.n}</b><span class="tarjeta-neg__zona">${n.z}</span></span>${celdaEstado(n.e)}</span>
+      <span class="tarjeta-neg__nums">
+        <span><span>Servicios</span><b class="cifra">${n.srv}</b></span>
+        <span><span>Citas 30 d</span><b class="cifra">${n.citas}</b></span>
+        <span><span>Rating</span><b class="cifra">${n.r ? n.r.toFixed(1) : '&ndash;'}</b></span>
+        <span><span>Alta</span><b class="cifra">${n.alta}</b></span>
+      </span>
+    </button>`));
+}
+$$('#filtrosConsola .chip').forEach(c => c.addEventListener('click', () => {
+  filtroCons = c.dataset.estado;
+  $$('#filtrosConsola .chip').forEach(x => x.setAttribute('aria-pressed', String(x === c)));
+  pintaConsola();
+}));
+$('#btnRanking').addEventListener('click', async () => {
+  const barra = $('#barraRanking'), btn = $('#btnRanking');
+  btn.disabled = true; $('#txtRanking').textContent = 'Recalculando el orden de 5 negocios...';
+  await anima(barra, [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 1400, easing: 'linear', fill: 'forwards' }).finished;
+  barra.style.transform = 'scaleX(1)';
+  $('#txtRanking').textContent = 'Pesos aplicados hace un momento';
+  btn.disabled = false;
+  ordenCons = { campo: 'citas', desc: true };
+  pintaConsola();
+  toast('Ranking recalculado. El orden del marketplace cambia en la próxima búsqueda.');
+});
+
+/* =======================================================================
+   9 · ARRANQUE
+   ======================================================================= */
+const al_entrar = {
+  agenda: () => { pintaFechaAgenda(); pintaPestanas(); pintaAgenda(false); requestAnimationFrame(() => moverIndicador($('#pestanas'), $('#pestInd'), $$('.pest')[profActual])); },
+  consola: () => pintaConsola(),
+  ficha: () => { }
+};
+pintaMov();
+pintaFicha();
+requestAnimationFrame(() => {
+  moverIndicador($('#cintaNav'), $('#cintaInd'), $('.cinta__b[data-ir="portada"]'));
+  moverIndicador($('#orden'), $('#ordenInd'), $('.orden__b[data-orden="recomendados"]'));
+  $$('#p-portada [data-dibuja]').forEach((r, i) => anima(r, [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 420, delay: 200 + i * 70, easing: E_LISTA, fill: 'backwards' }));
+});
+const inicial = location.hash.replace('#', '');
+if (ORDEN_PANTALLAS.includes(inicial) && inicial !== 'portada') { PANTALLA = 'portada'; ir(inicial); }
+</script>
+</body>
+</html>

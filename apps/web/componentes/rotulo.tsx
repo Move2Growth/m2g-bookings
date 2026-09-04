@@ -34,10 +34,12 @@ const OFICIO: Record<string, string> = {
 
 /** Los cuatro pares de la paleta. El orden es el del ritmo, no el de la importancia. */
 export const PARES = [
+  // Las tres alturas de la calle más el neón, que sale **una vez de cada cuatro**. Un saturado
+  // en todas las celdas deja de ser un acento y pasa a ser el color de fondo.
+  { fondo: 'var(--superficie-calle-alta)', tinta: 'var(--color-tinta)' },
+  { fondo: 'var(--superficie-local-alta)', tinta: 'var(--color-abre)' },
   { fondo: 'var(--color-acento)', tinta: 'var(--color-acento-texto)' },
-  { fondo: 'var(--color-tinta)', tinta: 'var(--color-papel)' },
-  { fondo: 'var(--color-abre)', tinta: 'var(--color-abre-texto)' },
-  { fondo: 'var(--color-lienzo)', tinta: 'var(--color-tinta)' },
+  { fondo: 'var(--superficie-calle-media)', tinta: 'var(--color-tinta-suave)' },
 ]
 
 /**

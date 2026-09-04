@@ -1,0 +1,1744 @@
+<!doctype html>
+<html lang="es-PA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bukeo · Dirección 1 · Noche de barrio panameño</title>
+<meta name="description" content="Prototipo navegable de la dirección de arte 1 para Bukeo: cinco pantallas, tinta de noche, un solo neón y la luz cálida del local.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Chivo:ital,wght@0,400;0,600;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   BUKEO · DIRECCIÓN 1 · «Noche de barrio panameño»
+   --------------------------------------------------------------------------
+   Tres mecanismos y nada más:
+     EL TUBO      un filete de 3 px de neón. Encendido = libre, activo, aquí.
+                  Apagado = existe pero no está en servicio.
+     EL GOLPE     lo que se pulsa se apoya en una base maciza desplazada, con
+                  cero desenfoque. Al pulsar, la pieza cae dentro de su base.
+     LA PERSIANA  donde no hay foto se baja la cortina metálica del local y el
+                  nombre va a tamaño de cartel. Franjas de canto vivo.
+   Tres ambientes: la CALLE (violeta frío), el LOCAL (ámbar cálido) y la
+   TRASTIENDA de M2G (casi negro, sin calidez). Cruzar de uno a otro es cruzar
+   una puerta, y el fondo se calienta o se enfría por el camino.
+   ========================================================================== */
+
+:root{
+  color-scheme: dark;
+
+  /* --- La calle: violeta frío --- */
+  --calle:        #0E0A11;
+  --calle-media:  #120D17;
+  --calle-alta:   #171021;
+  --calle-pers-a: #1C1425;
+  --calle-pers-b: #110C16;
+  --calle-borde:  #71627A;
+
+  /* --- El local: la bombilla de dentro --- */
+  --local:        #14100A;
+  --local-media:  #191308;
+  --local-alta:   #1F1810;
+  --local-pers-a: #251C11;
+  --local-pers-b: #17110A;
+  --local-borde:  #7E6C4E;
+
+  /* --- La trastienda de M2G --- */
+  --tras:         #07050A;
+  --tras-media:   #0B0810;
+  --tras-alta:    #100C14;
+  --tras-pers-a:  #150F1C;
+  --tras-pers-b:  #0A0710;
+  --tras-borde:   #71627A;
+
+  /* --- Luz --- */
+  --cal:          #F6EFE8;
+  --cal-suave:    #C3B4C0;
+  --cal-tenue:    #9C8CA0;
+
+  /* --- El único color saturado --- */
+  --neon:         #FF2D87;
+  --neon-apagado: #9B4E70;
+
+  /* --- El segundo tono: la bombilla --- */
+  --bombilla:     #FFC46B;
+
+  /* --- Semánticos, deliberadamente sobrios para no competir con el neón --- */
+  --jade:         #49D9A2;
+  --coral:        #FF7361;
+
+  /* --- Medidas --- */
+  --e1: 4px;  --e2: 8px;  --e3: 12px; --e4: 16px;
+  --e5: 24px; --e6: 32px; --e7: 48px; --e8: 64px;
+  --tubo: 3px;
+  --golpe: 4px;
+  --tactil: 44px;
+  --hora-alto: 92px;
+
+  --rapido: 120ms;
+  --medio: 240ms;
+  --largo: 340ms;
+  --curva: cubic-bezier(.2,.85,.25,1);
+}
+
+/* El ambiente por defecto es la calle. Cambiarlo cambia todo el juego de
+   superficies sin tocar un solo componente. */
+body{
+  --fondo:        var(--calle);
+  --fondo-media:  var(--calle-media);
+  --fondo-alta:   var(--calle-alta);
+  --borde:        var(--calle-borde);
+  --pers-a:       var(--calle-pers-a);
+  --pers-b:       var(--calle-pers-b);
+}
+body.amb-local{
+  --fondo:        var(--local);
+  --fondo-media:  var(--local-media);
+  --fondo-alta:   var(--local-alta);
+  --borde:        var(--local-borde);
+  --pers-a:       var(--local-pers-a);
+  --pers-b:       var(--local-pers-b);
+}
+body.amb-trastienda{
+  --fondo:        var(--tras);
+  --fondo-media:  var(--tras-media);
+  --fondo-alta:   var(--tras-alta);
+  --borde:        var(--tras-borde);
+  --pers-a:       var(--tras-pers-a);
+  --pers-b:       var(--tras-pers-b);
+}
+
+*, *::before, *::after{ box-sizing: border-box; }
+[hidden]{ display: none !important; }
+html{ background: var(--tras); }
+
+body{
+  margin: 0;
+  background: var(--fondo);
+  color: var(--cal);
+  font-family: "Chivo", "Helvetica Neue", Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  /* al cruzar la puerta, la calle se calienta hasta ser el local */
+  transition: background-color 320ms linear;
+}
+
+h1,h2,h3,h4,.display{
+  font-family: "Big Shoulders Display", "Chivo", "Arial Narrow", sans-serif;
+  font-weight: 800;
+  line-height: .88;
+  letter-spacing: .004em;
+  margin: 0;
+}
+p{ margin: 0 0 var(--e3); }
+img{ display: block; max-width: 100%; }
+button{ font: inherit; color: inherit; }
+:focus-visible{ outline: 3px solid var(--bombilla); outline-offset: 2px; }
+
+.oculto-visualmente{
+  position:absolute; width:1px; height:1px; margin:-1px; padding:0;
+  overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
+}
+
+.rotulillo{
+  font-size: 14px; font-weight: 800; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--cal-tenue);
+}
+.dato{ color: var(--cal-suave); font-size: 16px; }
+.tenue{ color: var(--cal-tenue); }
+.precio{ font-weight: 800; color: var(--bombilla); }
+.neon-txt{ color: var(--neon); }
+
+/* ==========================================================================
+   EL TUBO
+   ========================================================================== */
+.tubo{ display:block; height: var(--tubo); background: var(--neon); }
+.tubo--apagado{ background: var(--neon-apagado); }
+.tubo--calido{ background: var(--bombilla); }
+
+.en-escena .tubo--barrido{
+  transform-origin: left center;
+  animation: barrer var(--largo) var(--curva) both;
+}
+@keyframes barrer{ from{ transform: scaleX(0) } to{ transform: scaleX(1) } }
+
+/* El chispazo del letrero al encender. Una vez, nunca en bucle. */
+@keyframes enciende{
+  0%   { opacity: .06; transform: translateY(7px); }
+  34%  { opacity: 1;   transform: translateY(0); }
+  46%  { opacity: .28; }
+  58%  { opacity: 1; }
+  70%  { opacity: .58; }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes despliega{ from{ opacity:0; transform: translateY(10px) } to{ opacity:1; transform: translateY(0) } }
+@keyframes sube-cortina{ from{ transform: translateY(100%) } to{ transform: translateY(0) } }
+@keyframes aparece{ from{ opacity:0 } to{ opacity:1 } }
+@keyframes llena{ from{ transform: scaleX(0) } to{ transform: scaleX(1) } }
+@keyframes puerta-cierra{ from{ transform: translateX(-101%) } to{ transform: translateX(0) } }
+@keyframes puerta-abre{ from{ transform: translateX(0) } to{ transform: translateX(101%) } }
+@keyframes puerta-cierra-atras{ from{ transform: translateX(101%) } to{ transform: translateX(0) } }
+@keyframes puerta-abre-atras{ from{ transform: translateX(0) } to{ transform: translateX(-101%) } }
+
+/* La puerta del local: una hoja maciza con el canto de neón que cruza la
+   pantalla, se cierra detrás de ti y se abre delante. No es un fundido. */
+.puerta{
+  position: fixed; inset: 0; z-index: 90; pointer-events: none;
+  background: var(--tras);
+  border-left: var(--golpe) solid var(--neon);
+  border-right: var(--golpe) solid var(--neon);
+  transform: translateX(-101%);
+}
+.puerta.cierra{ animation: puerta-cierra 170ms cubic-bezier(.45,0,.85,.35) forwards; }
+.puerta.abre  { animation: puerta-abre 230ms cubic-bezier(.15,.6,.2,1) forwards; }
+.puerta.cierra.atras{ animation-name: puerta-cierra-atras; }
+.puerta.abre.atras  { animation-name: puerta-abre-atras; }
+
+/* ==========================================================================
+   EL GOLPE
+   ========================================================================== */
+.boton{
+  display:inline-flex; align-items:center; justify-content:center; gap: var(--e2);
+  min-height: var(--tactil);
+  padding: var(--e3) var(--e5);
+  border: 0; border-radius: 0;
+  font-weight: 800; font-size: 17px; letter-spacing: .01em;
+  cursor: pointer; text-decoration: none;
+  transition: transform var(--rapido) var(--curva), box-shadow var(--rapido) var(--curva), background-color var(--rapido) linear;
+}
+.boton--principal{ background: var(--neon);      color: var(--tras); box-shadow: var(--golpe) var(--golpe) 0 0 var(--neon-apagado); }
+.boton--calido   { background: var(--bombilla);  color: var(--tras); box-shadow: var(--golpe) var(--golpe) 0 0 var(--local-borde); }
+.boton--secundario{ background: var(--fondo-alta); color: var(--cal); box-shadow: var(--golpe) var(--golpe) 0 0 var(--borde); }
+.boton--peligro  { background: var(--fondo-alta); color: var(--coral); box-shadow: var(--golpe) var(--golpe) 0 0 var(--coral); }
+.boton--principal:hover { box-shadow: 6px 6px 0 0 var(--neon-apagado); }
+.boton--calido:hover    { box-shadow: 6px 6px 0 0 var(--local-borde); }
+.boton--secundario:hover{ box-shadow: 6px 6px 0 0 var(--borde); }
+.boton--peligro:hover   { box-shadow: 6px 6px 0 0 var(--coral); }
+.boton:hover { transform: translate(-2px,-2px); }
+.boton:active{ transform: translate(var(--golpe), var(--golpe)); box-shadow: 0 0 0 0 transparent; }
+.boton--ancho{ width: 100%; }
+.boton[disabled]{ cursor:not-allowed; background: var(--fondo-alta); color: var(--cal-tenue); box-shadow: none; transform:none; }
+
+.enlace{
+  color: var(--cal); text-decoration: none; font-weight: 600; cursor: pointer;
+  background: none; border: 0; border-bottom: 2px solid var(--neon);
+  padding: 0 0 1px; border-radius: 0;
+}
+.enlace:hover{ color: var(--neon); }
+
+.campo{
+  width: 100%; min-height: var(--tactil);
+  background: var(--fondo-alta); color: var(--cal);
+  border: 1px solid var(--borde);
+  border-bottom: var(--tubo) solid var(--neon-apagado);
+  border-radius: 0; padding: var(--e3) var(--e4); font: inherit;
+  transition: border-bottom-color var(--rapido) linear;
+}
+.campo::placeholder{ color: var(--cal-tenue); }
+.campo:focus{ border-bottom-color: var(--neon); }
+.etiqueta{ display:block; margin-bottom: var(--e2); }
+
+.filtro{
+  display:inline-flex; align-items:center; gap: var(--e2);
+  min-height: var(--tactil); padding: 0 var(--e4);
+  background: var(--fondo-alta); color: var(--cal-suave);
+  border: 1px solid var(--borde); border-radius: 0;
+  font-size: 16px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  transition: color var(--rapido) linear, border-color var(--rapido) linear, background-color var(--rapido) linear, box-shadow var(--rapido) linear;
+}
+.filtro:hover{ color: var(--cal); border-color: var(--cal-tenue); }
+.filtro[aria-pressed="true"]{
+  background: var(--tras); color: var(--cal);
+  border-color: var(--neon);
+  box-shadow: inset 0 calc(var(--tubo) * -1) 0 0 var(--neon);
+}
+
+/* ==========================================================================
+   LA PERSIANA
+   ========================================================================== */
+.persiana{
+  background-color: var(--pers-b);
+  background-image: repeating-linear-gradient(180deg, var(--pers-a) 0 5px, var(--pers-b) 5px 11px);
+}
+.rotulo{
+  position: relative; overflow: hidden;
+  display:flex; flex-direction: column; justify-content: flex-end;
+  padding: var(--e4); min-height: 140px;
+}
+.rotulo > .tubo{ position:absolute; inset: 0 0 auto 0; }
+.rotulo__nombre{
+  font-family: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  font-weight: 800; font-size: clamp(32px, 8.5vw, 46px); line-height: .84;
+  text-transform: uppercase; color: var(--cal); max-width: 11ch;
+}
+.rotulo__oficio{ margin-top: var(--e2); }
+
+/* ==========================================================================
+   SELLOS DE ESTADO
+   ========================================================================== */
+.sello{
+  display:inline-flex; align-items:center;
+  padding: 3px var(--e2) 4px;
+  font-size: 14px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase;
+  background: var(--tras); border-left: var(--tubo) solid currentColor;
+}
+.sello--pendiente { color: var(--bombilla); }
+.sello--confirmada{ color: var(--neon); }
+.sello--completada{ color: var(--jade); }
+.sello--noshow    { color: var(--coral); }
+.sello--cancelada { color: var(--cal-tenue); }
+
+/* ==========================================================================
+   ARMAZÓN
+   ========================================================================== */
+.conmutador{
+  position: sticky; top: 0; z-index: 40;
+  background: var(--tras); border-bottom: 1px solid var(--tras-borde);
+  padding: var(--e2) var(--e4) var(--e3);
+}
+.conmutador__titulo{ display:flex; flex-wrap:wrap; gap: var(--e2); align-items:baseline; margin-bottom: var(--e2); }
+.conmutador__titulo b{ font-size:14px; letter-spacing:.14em; text-transform:uppercase; color: var(--neon); }
+.conmutador__lista{ display:flex; flex-wrap:wrap; gap: var(--e1); }
+.conmutador__b{
+  flex: 1 1 128px; min-height: 42px; padding: 4px var(--e3) 6px;
+  background: transparent; border: 1px solid var(--tras-borde); border-radius: 0;
+  color: var(--cal-suave); cursor: pointer; text-align: left;
+  display:flex; flex-direction: column; justify-content: center;
+  transition: color var(--rapido) linear, border-color var(--rapido) linear;
+}
+.conmutador__b span{ font-size:14px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; }
+.conmutador__b small{ font-size:14px; color: var(--cal-tenue); line-height:1.15; }
+.conmutador__b:hover{ color: var(--cal); border-color: var(--cal-tenue); }
+.conmutador__b[aria-current="true"]{
+  color: var(--cal); border-color: var(--neon);
+  box-shadow: inset 0 calc(var(--tubo) * -1) 0 0 var(--neon);
+}
+.conmutador__b[aria-current="true"] small{ color: var(--cal-suave); }
+
+.pantalla{ display:none; }
+.pantalla.activa{ display:block; }
+
+.envoltorio{ padding: 0 var(--e4) var(--e8); }
+
+.marquesina{
+  display:flex; align-items:center; justify-content:space-between; gap: var(--e3);
+  padding: var(--e4);
+  background: var(--tras);
+}
+.marca{
+  font-family: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  font-weight: 800; font-size: 32px; line-height: 1; letter-spacing: .03em;
+  text-transform: uppercase; color: var(--cal);
+}
+.marca i{ color: var(--neon); font-style: normal; }
+
+.cabecera-app{ background: var(--tras); padding: var(--e4) var(--e4) 0; }
+.cabecera-app__fila{ display:flex; align-items:flex-start; justify-content:space-between; gap: var(--e3); }
+.cabecera-app h2{ font-size: 32px; }
+
+.pestanas{ position: relative; margin-top: var(--e4); }
+.pestanas__pista{ display:flex; gap: var(--e5); overflow-x:auto; scrollbar-width:none; border-bottom: 1px solid var(--borde); }
+.pestanas__pista::-webkit-scrollbar{ display:none; }
+.pestana{
+  background:none; border:0; border-radius:0; cursor:pointer;
+  padding: var(--e3) 0; min-height: var(--tactil);
+  color: var(--cal-tenue); font-weight: 800; font-size: 16px;
+  letter-spacing: .06em; text-transform: uppercase; white-space: nowrap;
+  transition: color var(--rapido) linear;
+}
+.pestana:hover{ color: var(--cal-suave); }
+.pestana[aria-selected="true"]{ color: var(--cal); }
+.pestanas__tubo{
+  position:absolute; bottom:-1px; left:0; height: var(--tubo); width: 0;
+  background: var(--neon);
+  transition: transform var(--medio) var(--curva), width var(--medio) var(--curva);
+}
+
+.bloque{ padding-top: var(--e7); }
+.bloque__titulo{ display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap: var(--e3); margin-bottom: var(--e4); }
+.bloque__titulo h3{ font-size: 32px; }
+
+/* ==========================================================================
+   PORTADA
+   ========================================================================== */
+.portada-cartel{ padding: var(--e6) var(--e4) var(--e7); background: var(--tras); }
+.portada-cartel h1{ font-size: clamp(48px, 15.5vw, 112px); max-width: 14ch; margin-bottom: var(--e4); }
+.portada-cartel h1 em{ font-style: normal; color: var(--neon); }
+.portada-cartel p{ max-width: 44ch; color: var(--cal-suave); font-size: 18px; }
+
+.buscador{ margin-top: var(--e5); border: 1px solid var(--borde); background: var(--fondo); padding: var(--e4); display:grid; gap: var(--e3); }
+.buscador__acciones{ display:flex; flex-wrap:wrap; gap: var(--e3); }
+.pastillas{ display:flex; flex-wrap:wrap; gap: var(--e2); }
+
+.tarjetas{ display:grid; gap: var(--e4); }
+.negocio{ border: 1px solid var(--borde); background: var(--fondo-alta); display:flex; flex-direction:column; min-width:0; }
+.en-escena .negocio{ animation: despliega 320ms var(--curva) both; animation-delay: calc(var(--i,0) * 70ms); }
+.negocio__foto{ width:100%; height: 176px; object-fit: cover; }
+.negocio__cuerpo{ padding: var(--e4); display:grid; gap: var(--e2); }
+.negocio__nombre{ font-size: 27px; }
+.negocio__pie{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap: var(--e3); padding: 0 var(--e4) var(--e4); margin-top:auto; }
+
+.hueco{
+  display:inline-flex; align-items:center; gap: var(--e2);
+  min-height: 40px; padding: 0 var(--e3);
+  background: var(--tras); color: var(--neon);
+  border: 1px solid var(--neon-apagado);
+  box-shadow: inset var(--tubo) 0 0 0 var(--neon);
+  font-weight: 800;
+}
+
+.pasos{ display:grid; gap: var(--e5); }
+.paso{ display:grid; grid-template-columns: 64px 1fr; gap: var(--e4); align-items:start; }
+.paso__n{ font-family:"Big Shoulders Display","Arial Narrow",sans-serif; font-weight:800; font-size: 64px; line-height:.8; color: var(--neon); }
+.paso h4{ font-size: 21px; margin-bottom: var(--e1); }
+.paso p{ color: var(--cal-suave); margin:0; }
+
+.aviso{ border-left: var(--tubo) solid var(--bombilla); background: var(--fondo-alta); padding: var(--e3) var(--e4); color: var(--cal-suave); }
+
+/* ==========================================================================
+   ESTADOS
+   ========================================================================== */
+.cargando{ padding: var(--e5) 0; }
+.cargando__barra{ height: var(--tubo); background: var(--fondo-alta); overflow:hidden; margin-top: var(--e3); }
+.cargando__barra i{ display:block; height:100%; background: var(--neon); transform-origin:left center; animation: llena var(--dur, 900ms) linear both; }
+.esqueleto{ display:grid; gap: var(--e3); margin-top: var(--e4); }
+.esqueleto div{ height: 15px; background: var(--fondo-alta); border-left: var(--tubo) solid var(--neon-apagado); }
+.esqueleto div:nth-child(2){ width: 72%; }
+.esqueleto div:nth-child(3){ width: 46%; }
+
+.vacio{ border: 1px solid var(--borde); background: var(--fondo-media); padding: var(--e5) var(--e4); display:grid; gap: var(--e3); justify-items: start; }
+.vacio h4{ font-size: 30px; }
+.vacio p{ color: var(--cal-suave); margin:0; max-width: 46ch; }
+.vacio .tubo{ width: 72px; }
+
+/* ==========================================================================
+   RESULTADOS
+   ========================================================================== */
+.resumen-busqueda{ display:flex; flex-wrap:wrap; align-items:baseline; gap: var(--e3); padding: var(--e4) 0 var(--e3); }
+.resumen-busqueda h2{ font-size: 36px; }
+.rail-filtros{ display:flex; gap: var(--e2); overflow-x:auto; padding-bottom: var(--e3); scrollbar-width:none; }
+.rail-filtros::-webkit-scrollbar{ display:none; }
+
+.resultado{
+  display:grid; grid-template-columns: 96px minmax(0,1fr); gap: var(--e4);
+  padding: var(--e4) 0; width:100%; text-align:left; cursor:pointer;
+  background:none; border:0; border-top: 1px solid var(--borde); border-radius:0;
+  color: var(--cal);
+  transition: background-color var(--rapido) linear, padding-left var(--rapido) var(--curva);
+}
+.en-escena .resultado{ animation: despliega 300ms var(--curva) both; animation-delay: calc(var(--i,0) * 55ms); }
+.resultado:hover{ background: var(--fondo-alta); padding-left: var(--e3); }
+.resultado:active{ transform: translateY(1px); }
+.resultado__sello{ position:relative; width:96px; height:96px; overflow:hidden; }
+.resultado__sello img{ width:100%; height:100%; object-fit: cover; }
+.resultado__sello > .tubo{ position:absolute; inset:0 0 auto 0; }
+.resultado__iniciales{
+  position:absolute; left: var(--e2); bottom: 2px;
+  font-family:"Big Shoulders Display","Arial Narrow",sans-serif; font-weight:800;
+  font-size: 42px; line-height:1; color: var(--cal);
+}
+.resultado__cuerpo{ min-width:0; display:grid; gap: 6px; align-content:start; }
+.resultado__nombre{ font-size: 26px; }
+.resultado__meta{ display:flex; flex-wrap:wrap; gap: var(--e3); align-items:center; }
+.marca-patrocinado{
+  font-size: 14px; font-weight:800; letter-spacing:.1em; text-transform:uppercase;
+  color: var(--bombilla); border: 1px solid var(--bombilla); padding: 1px 6px 2px;
+}
+
+/* ==========================================================================
+   FICHA
+   ========================================================================== */
+.ficha-cartel .rotulo{ min-height: 216px; }
+.ficha-datos{ padding: var(--e4) 0; display:grid; gap: var(--e2); }
+
+.servicio{
+  display:grid; grid-template-columns: minmax(0,1fr) auto; gap: var(--e3); align-items:center;
+  width:100%; text-align:left; cursor:pointer; min-height: 68px;
+  padding: var(--e3) var(--e4);
+  background: var(--fondo-alta); color: var(--cal);
+  border: 1px solid var(--borde); border-left: var(--tubo) solid var(--neon-apagado);
+  border-radius: 0;
+  transition: border-left-color var(--rapido) linear, background-color var(--rapido) linear;
+}
+.servicio + .servicio{ margin-top: var(--e2); }
+.servicio:hover{ background: var(--fondo-media); border-left-color: var(--neon); }
+.servicio[aria-pressed="true"]{ border-left-color: var(--neon); background: var(--tras); }
+.servicio__nombre{ font-weight: 600; }
+.servicio__dur{ color: var(--cal-tenue); font-size: 16px; }
+
+.dias{ display:flex; gap: var(--e2); overflow-x:auto; padding-bottom: var(--e2); scrollbar-width:none; }
+.dias::-webkit-scrollbar{ display:none; }
+.dia{
+  flex: 0 0 auto; width: 62px; min-height: 68px;
+  display:grid; place-content:center; gap:2px; text-align:center;
+  background: var(--fondo-alta); color: var(--cal-suave);
+  border: 1px solid var(--borde); border-radius:0; cursor:pointer;
+  transition: color var(--rapido) linear, border-color var(--rapido) linear;
+}
+.dia b{ font-size: 22px; font-weight: 800; }
+.dia small{ font-size: 14px; letter-spacing:.08em; text-transform:uppercase; }
+.dia:hover{ color: var(--cal); border-color: var(--cal-tenue); }
+.dia[aria-pressed="true"]{ background: var(--tras); color: var(--cal); border-color: var(--neon); box-shadow: inset 0 calc(var(--tubo) * -1) 0 0 var(--neon); }
+
+.rejilla-horas{ display:grid; grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); gap: var(--e2); margin-top: var(--e4); }
+.hora{
+  min-height: var(--tactil); padding: var(--e2) var(--e1);
+  background: var(--tras); color: var(--neon);
+  border: 1px solid var(--neon-apagado); border-radius: 0;
+  box-shadow: inset 0 var(--tubo) 0 0 var(--neon);
+  font-weight: 800; font-size: 17px; cursor: pointer;
+  transition: background-color var(--rapido) linear, color var(--rapido) linear,
+              border-color var(--rapido) linear, box-shadow var(--rapido) linear,
+              transform var(--rapido) var(--curva);
+}
+.rejilla-horas.en-escena .hora{ animation: enciende 480ms var(--curva) both; animation-delay: calc(var(--i,0) * 26ms); }
+.hora:hover{ background: var(--neon); color: var(--tras); }
+.hora:active{ transform: translateY(2px); }
+.hora[aria-pressed="true"]{ background: var(--neon); color: var(--tras); box-shadow: inset 0 var(--tubo) 0 0 var(--tras); border-color: var(--neon); }
+/* Elegida una hora, las demás bajan de intensidad: el letrero se queda
+   encendido solo donde importa. */
+.rejilla-horas.con-eleccion .hora:not([aria-pressed="true"]):not(.hora--ocupada){
+  color: var(--cal-tenue); border-color: var(--borde);
+  box-shadow: inset 0 var(--tubo) 0 0 var(--neon-apagado);
+}
+.hora--ocupada{
+  color: var(--cal-tenue); cursor: not-allowed; text-decoration: line-through;
+  border-color: var(--borde); box-shadow: none;
+  background-color: var(--pers-b);
+  background-image: repeating-linear-gradient(180deg, var(--pers-a) 0 3px, var(--pers-b) 3px 7px);
+}
+.hora--ocupada:hover{ background-color: var(--pers-b); color: var(--cal-tenue); }
+
+.telon{ position: fixed; inset:0; z-index: 60; background: rgba(7,5,10,.84); display:none; animation: aparece var(--rapido) linear both; }
+.telon.abierto{ display:block; }
+.cortina{
+  position: fixed; left:0; right:0; bottom:0; z-index: 61; display:none;
+  background: var(--fondo-alta); border-top: var(--tubo) solid var(--neon);
+  padding: var(--e5) var(--e4) var(--e6);
+  max-height: 86vh; overflow-y: auto;
+  animation: sube-cortina 280ms var(--curva) both;
+}
+.cortina.abierta{ display:block; }
+.cortina__marco{ max-width: 620px; margin: 0 auto; }
+.cortina h3{ font-size: 34px; margin-bottom: var(--e3); }
+.resumen{ display:grid; gap: var(--e2); padding: var(--e4) 0; border-top:1px solid var(--borde); border-bottom:1px solid var(--borde); margin-bottom: var(--e4); }
+.resumen div{ display:flex; justify-content:space-between; gap: var(--e3); }
+.acciones{ display:grid; gap: var(--e3); }
+.acciones--separadas{ margin-top: var(--e7); padding-top: var(--e4); border-top: 1px solid var(--borde); }
+.error{ border-left: var(--tubo) solid var(--coral); background: var(--tras); padding: var(--e3) var(--e4); margin-bottom: var(--e4); }
+.exito{ border-left: var(--tubo) solid var(--jade); background: var(--tras); padding: var(--e3) var(--e4); margin-bottom: var(--e4); }
+.paso-de{ font-size:14px; letter-spacing:.14em; text-transform:uppercase; color: var(--neon); font-weight:800; display:block; margin-bottom: var(--e2); }
+
+/* ==========================================================================
+   AGENDA DEL PANEL
+   ========================================================================== */
+.vistazo{
+  display:flex; flex-wrap:wrap; gap: var(--e5);
+  padding: var(--e4); margin: var(--e4) 0;
+  background: var(--fondo-alta); border-left: var(--tubo) solid var(--bombilla);
+}
+.vistazo div{ display:grid; gap:2px; }
+.vistazo b{ font-family:"Big Shoulders Display","Arial Narrow",sans-serif; font-weight:800; font-size: 38px; line-height:.9; }
+.vistazo small{ font-size:14px; letter-spacing:.1em; text-transform:uppercase; color: var(--cal-tenue); font-weight:800; }
+
+.barra-dia{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap: var(--e3); padding-bottom: var(--e4); }
+.grupo{ display:flex; gap: var(--e1); flex-wrap:wrap; }
+
+.agenda{ display:grid; grid-template-columns: 58px minmax(0,1fr); border-top: 1px solid var(--borde); }
+.agenda__horas{ padding-top: 33px; }
+.agenda__hora{
+  height: var(--hora-alto); padding: 3px var(--e2) 0 0;
+  display: grid; grid-template-columns: 1fr auto; gap: 3px; align-items: baseline;
+  border-top: 1px solid var(--borde);
+}
+.agenda__hora b{ font-size: 17px; font-weight: 800; color: var(--cal-suave); text-align: right; }
+.agenda__hora em{ font-size: 13px; font-style: normal; font-weight: 800; color: var(--cal-tenue); }
+.agenda__hora:first-child{ border-top: 0; }
+.agenda__columnas{ display:grid; grid-template-columns: minmax(0,1fr); min-width:0; }
+.agenda__col{ min-width:0; border-left: 1px solid var(--borde); }
+.agenda__col-cab{ padding: var(--e2) var(--e3); background: var(--fondo-media); border-bottom: 1px solid var(--borde); font-size:15px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color: var(--cal-suave); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.agenda__pista{ position: relative; }
+.agenda__linea{ height: var(--hora-alto); border-top: 1px solid var(--borde); }
+.agenda__linea:first-child{ border-top: 0; }
+.agenda__citas{ position:absolute; inset:0; }
+.agenda__ahora{ position:absolute; left:0; right:0; height:2px; background: var(--bombilla); z-index: 3; }
+.agenda__ahora::after{
+  content: attr(data-hora); position:absolute; right: 2px; top: -19px;
+  font-size: 14px; font-weight: 800; color: var(--tras); background: var(--bombilla); padding: 0 5px 1px;
+}
+
+.cita{
+  position:absolute; left: 3px; right: 3px;
+  display:grid; gap: 1px; align-content:start; overflow:hidden;
+  padding: 5px var(--e2) 5px var(--e3);
+  background: var(--fondo-alta); color: var(--cal);
+  border: 0; border-left: var(--tubo) solid var(--neon); border-radius: 0;
+  text-align:left; cursor:pointer;
+  transition: background-color var(--rapido) linear, transform var(--rapido) var(--curva);
+}
+.en-escena .cita{ animation: despliega 280ms var(--curva) both; animation-delay: calc(var(--i,0) * 40ms); }
+.cita:hover{ background: var(--fondo-media); transform: translateX(2px); }
+.cita:active{ transform: translateY(2px); }
+.cita b, .cita span{ overflow:hidden; text-overflow: ellipsis; white-space: nowrap; display:block; }
+.cita b{ font-size: 16px; font-weight: 800; line-height:1.15; }
+.cita span{ font-size: 15px; color: var(--cal-suave); line-height:1.2; }
+.cita time{ font-size: 14px; font-weight: 800; color: var(--cal-tenue); letter-spacing:.03em; }
+.cita--pendiente { border-left-color: var(--bombilla); }
+.cita--confirmada{ border-left-color: var(--neon); }
+.cita--completada{ border-left-color: var(--jade); }
+.cita--noshow    { border-left-color: var(--coral); }
+.cita--cancelada { border-left-color: var(--cal-tenue); background: var(--fondo-media); }
+.cita--cancelada b{ text-decoration: line-through; color: var(--cal-tenue); }
+.cita--bloqueo{
+  cursor: default; border-left-color: var(--borde);
+  background-color: var(--pers-b);
+  background-image: repeating-linear-gradient(180deg, var(--pers-a) 0 4px, var(--pers-b) 4px 9px);
+}
+.cita--bloqueo b{ color: var(--cal-suave); }
+.cita__punto{ width: 9px; height: 9px; display:inline-block; margin-right: 5px; vertical-align: 1px; }
+
+.lista-simple__fila{
+  display:grid; grid-template-columns: minmax(0,1fr) auto; gap: var(--e3); align-items:center;
+  padding: var(--e3) 0; border-top: 1px solid var(--borde); min-height: 62px;
+}
+.en-escena .lista-simple__fila{ animation: despliega 260ms var(--curva) both; animation-delay: calc(var(--i,0) * 45ms); }
+.panel-pestana{ display:none; }
+.panel-pestana.activa{ display:block; }
+
+/* ==========================================================================
+   CONSOLA
+   ========================================================================== */
+.franja-interna{ border-left: var(--tubo) solid var(--bombilla); background: var(--fondo-alta); color: var(--cal-suave); padding: var(--e3) var(--e4); margin: var(--e4) 0; font-size: 16px; }
+.metricas{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1px; background: var(--borde); border: 1px solid var(--borde); }
+.metrica{ background: var(--fondo); padding: var(--e4); display:grid; gap: 2px; }
+.en-escena .metrica{ animation: despliega 280ms var(--curva) both; animation-delay: calc(var(--i,0) * 60ms); }
+.metrica b{ font-family:"Big Shoulders Display","Arial Narrow",sans-serif; font-weight:800; font-size: 48px; line-height:.9; color: var(--cal); }
+.metrica--viva b{ color: var(--neon); }
+.metrica small{ font-size:14px; letter-spacing:.1em; text-transform:uppercase; color: var(--cal-tenue); font-weight:800; }
+
+.tabla{ width:100%; border-collapse: collapse; }
+.tabla th{ text-align:left; padding: var(--e2) var(--e3) var(--e2) 0; font-size:14px; letter-spacing:.1em; text-transform:uppercase; color: var(--cal-tenue); border-bottom: 1px solid var(--borde); white-space:nowrap; }
+.tabla td{ padding: var(--e3) var(--e3) var(--e3) 0; border-bottom: 1px solid var(--borde); vertical-align: top; }
+.en-escena .tabla tbody tr{ animation: despliega 260ms var(--curva) both; animation-delay: calc(var(--i,0) * 45ms); }
+.col-ancha{ display:none; }
+.negocio-consola{ display:grid; gap:2px; min-width:0; }
+.negocio-consola b{ font-size:18px; font-weight:800; }
+.acciones-fila{ display:flex; gap: var(--e2); flex-wrap:wrap; }
+.mini{ min-height: 38px; padding: 4px var(--e3) 6px; font-size:15px; }
+
+/* En el teléfono se ve la columna del profesional elegido, no las tres
+   apretadas. En cuanto hay sitio, se ven las tres a la vez. */
+@media (max-width: 759px){
+  .agenda[data-prof="0"] .agenda__col:not([data-i="0"]),
+  .agenda[data-prof="1"] .agenda__col:not([data-i="1"]),
+  .agenda[data-prof="2"] .agenda__col:not([data-i="2"]){ display: none; }
+}
+
+/* ==========================================================================
+   ANCHOS
+   ========================================================================== */
+@media (min-width: 760px){
+  .metricas{ grid-template-columns: repeat(4, minmax(0,1fr)); }
+  .tarjetas{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .resultado{ grid-template-columns: 132px minmax(0,1fr) auto; align-items:center; }
+  .resultado__sello{ width:132px; height:112px; }
+  .col-ancha{ display: table-cell; }
+  .agenda__columnas{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+  .paso{ grid-template-columns: 78px 1fr; }
+  .cortina{ padding: var(--e6) var(--e5) var(--e7); }
+  .solo-movil{ display: none !important; }
+  .pasos{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+
+@media (min-width: 1080px){
+  .envoltorio{ padding: 0 var(--e7) var(--e8); }
+  .marquesina, .cabecera-app, .portada-cartel{ padding-left: var(--e7); padding-right: var(--e7); }
+  .tarjetas{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+  .portada-cartel{ display:grid; grid-template-columns: minmax(0,1.3fr) minmax(320px,.9fr); gap: var(--e8); align-items: end; }
+  .portada-cartel .buscador{ margin-top: 0; }
+  .ficha-doble{ display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1.05fr); gap: var(--e8); align-items:start; }
+  .agenda{ grid-template-columns: 66px minmax(0,1fr); }
+}
+
+/* ==========================================================================
+   MOVIMIENTO APAGADO
+   Quien pide que no se mueva nada recibe el mismo estado final, sin recorrido.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{
+    animation-duration: .001ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .boton:hover, .resultado:hover, .cita:hover{ transform: none; }
+  .puerta{ display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="puerta" id="puerta" aria-hidden="true"></div>
+
+<!-- ======================================================================
+     Conmutador del prototipo. No es producto: es el mando del director.
+     ====================================================================== -->
+<nav class="conmutador" aria-label="Pantallas del prototipo">
+  <div class="conmutador__titulo">
+    <b>Dirección 1</b>
+    <span class="dato">Noche de barrio panameño · cinco pantallas, cuatro superficies</span>
+  </div>
+  <div class="conmutador__lista" id="conmutador">
+    <button class="conmutador__b" data-ir="portada"><span>Portada</span><small>la calle</small></button>
+    <button class="conmutador__b" data-ir="resultados"><span>Resultados</span><small>la calle</small></button>
+    <button class="conmutador__b" data-ir="ficha"><span>Ficha y reserva</span><small>clienta</small></button>
+    <button class="conmutador__b" data-ir="agenda"><span>Agenda</span><small>panel del salón</small></button>
+    <button class="conmutador__b" data-ir="consola"><span>Consola</span><small>interna de M2G</small></button>
+  </div>
+</nav>
+
+<main id="escenario">
+
+<!-- ======================================================================
+     1 · PORTADA
+     ====================================================================== -->
+<section class="pantalla" id="portada" aria-label="Portada pública">
+  <header class="marquesina">
+    <div class="marca">Buk<i>e</i>o</div>
+    <button class="boton boton--secundario" type="button">Entrar</button>
+  </header>
+  <span class="tubo tubo--barrido"></span>
+
+  <div class="portada-cartel">
+    <div>
+      <h1>Reserva en salones y <em>barberías</em> de Panamá</h1>
+      <p>Encuentra un sitio cerca, mira las horas libres de verdad y reserva. Sin llamar y sin esperar respuesta.</p>
+    </div>
+
+    <form class="buscador" onsubmit="return false">
+      <div>
+        <label class="etiqueta rotulillo" for="q">Qué necesitas</label>
+        <input class="campo" id="q" type="search" placeholder="Corte, balayage, manicura o el nombre del salón">
+      </div>
+      <div>
+        <label class="etiqueta rotulillo" for="z">Dónde</label>
+        <select class="campo" id="z">
+          <option>El Cangrejo</option>
+          <option>Bella Vista</option>
+          <option>Obarrio</option>
+          <option>San Francisco</option>
+          <option>Costa del Este</option>
+          <option>Juan Díaz</option>
+        </select>
+      </div>
+      <div class="buscador__acciones">
+        <button class="boton boton--principal" type="button" data-ir="resultados">Buscar cerca de mí</button>
+        <button class="boton boton--secundario" type="button" data-ir="resultados">Ver salones</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="envoltorio">
+    <section class="bloque" aria-labelledby="t-cerca">
+      <div class="bloque__titulo">
+        <h3 id="t-cerca">Abierto ahora en El Cangrejo</h3>
+        <span class="rotulillo">Jueves 11, 4:20 p.m.</span>
+      </div>
+
+      <!-- Estado de carga: una barra que se llena una vez y se va -->
+      <div class="cargando" id="carga-cerca">
+        <span class="rotulillo">Mirando qué salones tienen la persiana arriba</span>
+        <div class="cargando__barra"><i style="--dur:1000ms"></i></div>
+        <div class="esqueleto" aria-hidden="true"><div></div><div></div><div></div></div>
+      </div>
+
+      <div class="tarjetas" id="cerca" hidden>
+        <article class="negocio" style="--i:0">
+          <div class="rotulo persiana" style="min-height:176px">
+            <span class="tubo"></span>
+            <div class="rotulo__nombre">Barbería El Cangrejo</div>
+            <div class="rotulo__oficio rotulillo">Barbería · desde 2014</div>
+          </div>
+          <div class="negocio__cuerpo">
+            <span class="dato">El Cangrejo · a 350 m</span>
+            <span class="dato"><b class="neon-txt">4,7</b> · 41 reseñas · desde <span class="precio">$12.00</span></span>
+          </div>
+          <div class="negocio__pie">
+            <span class="hueco">Hoy 9:30 p.m.</span>
+            <button class="boton boton--principal" type="button" data-ir="ficha">Ver horas</button>
+          </div>
+        </article>
+
+        <article class="negocio" style="--i:1">
+          <img class="negocio__foto" src="../../../apps/web/public/fotos/unas.webp" alt="Manos con las uñas recién hechas en un salón">
+          <span class="tubo"></span>
+          <div class="negocio__cuerpo">
+            <h4 class="negocio__nombre">Nails &amp; Lashes Obarrio</h4>
+            <span class="dato">Obarrio · a 1,2 km</span>
+            <span class="dato"><b class="neon-txt">4,8</b> · 63 reseñas · desde <span class="precio">$18.00</span></span>
+          </div>
+          <div class="negocio__pie">
+            <span class="hueco">Hoy 8:15 p.m.</span>
+            <button class="boton boton--secundario" type="button" data-ir="resultados">Ver horas</button>
+          </div>
+        </article>
+
+        <article class="negocio" style="--i:2">
+          <img class="negocio__foto" src="../../../apps/web/public/fotos/spa.webp" alt="Sala de masaje con la camilla preparada">
+          <span class="tubo"></span>
+          <div class="negocio__cuerpo">
+            <h4 class="negocio__nombre">Spa Costa del Este</h4>
+            <span class="dato">Costa del Este · a 6,4 km</span>
+            <span class="dato"><b class="neon-txt">4,9</b> · 27 reseñas · desde <span class="precio">$45.00</span></span>
+          </div>
+          <div class="negocio__pie">
+            <span class="hueco">Mañana 10:00 a.m.</span>
+            <button class="boton boton--secundario" type="button" data-ir="resultados">Ver horas</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="bloque" aria-labelledby="t-cat">
+      <div class="bloque__titulo"><h3 id="t-cat">Por oficio</h3></div>
+      <div class="pastillas">
+        <button class="filtro" type="button" aria-pressed="true" data-ir="resultados">Barbería</button>
+        <button class="filtro" type="button" aria-pressed="false" data-ir="resultados">Peluquería y salón</button>
+        <button class="filtro" type="button" aria-pressed="false" data-ir="resultados">Uñas</button>
+        <button class="filtro" type="button" aria-pressed="false" data-ir="resultados">Pestañas y cejas</button>
+        <button class="filtro" type="button" aria-pressed="false" data-ir="resultados">Maquillaje</button>
+        <button class="filtro" type="button" aria-pressed="false" data-ir="resultados">Depilación</button>
+        <button class="filtro" type="button" aria-pressed="false" data-ir="resultados">Spa y masajes</button>
+        <button class="filtro" type="button" aria-pressed="false" data-ir="resultados">Estética</button>
+      </div>
+    </section>
+
+    <section class="bloque" aria-labelledby="t-como">
+      <div class="bloque__titulo"><h3 id="t-como">Cómo funciona</h3></div>
+      <div class="pasos">
+        <div class="paso">
+          <div class="paso__n">1</div>
+          <div><h4>Busca lo que necesitas</h4><p>Corte, balayage, manicura o el salón por su nombre. Filtra por tu zona.</p></div>
+        </div>
+        <div class="paso">
+          <div class="paso__n">2</div>
+          <div><h4>Mira las horas que quedan</h4><p>Las de verdad, las que el salón tiene libres ahora mismo.</p></div>
+        </div>
+        <div class="paso">
+          <div class="paso__n">3</div>
+          <div><h4>Reserva con tu teléfono</h4><p>Un código por WhatsApp y listo. No hay contraseña que recordar.</p></div>
+        </div>
+      </div>
+      <p class="aviso" style="margin-top:var(--e5)">Los patrocinados van marcados. Pagar sale más arriba, nunca sube la nota ni esconde a los demás.</p>
+    </section>
+  </div>
+</section>
+
+<!-- ======================================================================
+     2 · RESULTADOS
+     ====================================================================== -->
+<section class="pantalla" id="resultados" aria-label="Resultados de la búsqueda">
+  <header class="marquesina">
+    <div class="marca">Buk<i>e</i>o</div>
+    <button class="boton boton--secundario" type="button" data-ir="portada">Volver</button>
+  </header>
+  <span class="tubo tubo--barrido"></span>
+
+  <div class="envoltorio">
+    <div class="resumen-busqueda">
+      <h2>Barbería en El Cangrejo</h2>
+      <span class="dato" id="cuenta-resultados">4 salones</span>
+    </div>
+
+    <div class="rail-filtros" role="group" aria-label="Filtros">
+      <button class="filtro" type="button" aria-pressed="true" data-filtro="abierto">Abierto ahora</button>
+      <button class="filtro" type="button" aria-pressed="false" data-filtro="hoy">Con hueco hoy</button>
+      <button class="filtro" type="button" aria-pressed="false" data-filtro="rating">4,5 o más</button>
+      <button class="filtro" type="button" aria-pressed="false" data-filtro="barato">Hasta $20.00</button>
+      <button class="filtro" type="button" aria-pressed="false" data-filtro="depilacion">Depilación</button>
+    </div>
+
+    <div id="lista-resultados">
+      <button class="resultado" type="button" style="--i:0" data-ir="ficha">
+        <span class="resultado__sello persiana">
+          <span class="tubo"></span>
+          <span class="resultado__iniciales">EC</span>
+        </span>
+        <span class="resultado__cuerpo">
+          <span class="resultado__nombre display">Barbería El Cangrejo</span>
+          <span class="dato">El Cangrejo · a 350 m · abierto hasta las 9:30 p.m.</span>
+          <span class="resultado__meta">
+            <span class="dato"><b class="neon-txt">4,7</b> · 41 reseñas</span>
+            <span class="dato">Corte clásico desde <span class="precio">$12.00</span></span>
+          </span>
+        </span>
+        <span class="hueco">Hoy 9:30 p.m.</span>
+      </button>
+
+      <button class="resultado" type="button" style="--i:1" data-ir="ficha">
+        <span class="resultado__sello persiana">
+          <span class="tubo tubo--calido"></span>
+          <span class="resultado__iniciales">SB</span>
+        </span>
+        <span class="resultado__cuerpo">
+          <span class="resultado__meta"><span class="marca-patrocinado">Patrocinado</span></span>
+          <span class="resultado__nombre display">Studio Balayage Bella Vista</span>
+          <span class="dato">Bella Vista · a 1,8 km · abierto hasta las 8:00 p.m.</span>
+          <span class="resultado__meta">
+            <span class="dato"><b class="neon-txt">4,6</b> · 18 reseñas</span>
+            <span class="dato">Balayage desde <span class="precio">$85.00</span></span>
+          </span>
+        </span>
+        <span class="hueco">Mañana 9:00 a.m.</span>
+      </button>
+
+      <button class="resultado" type="button" style="--i:2" data-ir="ficha">
+        <span class="resultado__sello">
+          <img src="../../../apps/web/public/fotos/unas.webp" alt="Manos con las uñas recién hechas">
+          <span class="tubo"></span>
+        </span>
+        <span class="resultado__cuerpo">
+          <span class="resultado__nombre display">Nails &amp; Lashes Obarrio</span>
+          <span class="dato">Obarrio · a 1,2 km · abierto hasta las 8:30 p.m.</span>
+          <span class="resultado__meta">
+            <span class="dato"><b class="neon-txt">4,8</b> · 63 reseñas</span>
+            <span class="dato">Manicura semipermanente desde <span class="precio">$18.00</span></span>
+          </span>
+        </span>
+        <span class="hueco">Hoy 8:15 p.m.</span>
+      </button>
+
+      <button class="resultado" type="button" style="--i:3" data-ir="ficha">
+        <span class="resultado__sello persiana">
+          <span class="tubo"></span>
+          <span class="resultado__iniciales">DC</span>
+        </span>
+        <span class="resultado__cuerpo">
+          <span class="resultado__nombre display">Barbería Don Chichí</span>
+          <span class="dato">San Francisco · a 2,6 km · cierra a las 7:00 p.m.</span>
+          <span class="resultado__meta">
+            <span class="dato"><b class="neon-txt">4,5</b> · 22 reseñas</span>
+            <span class="dato">Corte clásico desde <span class="precio">$10.00</span></span>
+          </span>
+        </span>
+        <span class="hueco">Mañana 8:00 a.m.</span>
+      </button>
+    </div>
+
+    <!-- Estado vacío: se llega pulsando el filtro «Depilación» -->
+    <div class="vacio" id="vacio-resultados" hidden>
+      <span class="tubo tubo--apagado"></span>
+      <h4>Ningún salón de depilación por aquí</h4>
+      <p>No encontramos nada con eso. Prueba otra palabra o quita el filtro de zona.</p>
+      <button class="boton boton--secundario" type="button" data-limpiar="1">Quitar el filtro</button>
+    </div>
+
+    <p class="aviso" style="margin-top:var(--e6)">Los patrocinados van marcados y como mucho salen dos de cada diez. Nunca empujan a un salón fuera de la página.</p>
+  </div>
+</section>
+
+<!-- ======================================================================
+     3 · FICHA DEL SALÓN Y RESERVA  (aquí ya estás dentro: ambiente cálido)
+     ====================================================================== -->
+<section class="pantalla" id="ficha" aria-label="Ficha del salón y reserva">
+  <header class="marquesina">
+    <button class="boton boton--secundario" type="button" data-ir="resultados">Volver</button>
+    <div class="marca">Buk<i>e</i>o</div>
+  </header>
+  <span class="tubo tubo--barrido"></span>
+
+  <div class="ficha-cartel">
+    <div class="rotulo persiana">
+      <span class="tubo"></span>
+      <div class="rotulo__nombre">Barbería El Cangrejo</div>
+      <div class="rotulo__oficio rotulillo">Barbería · Calle Roberto Durán</div>
+    </div>
+  </div>
+
+  <div class="envoltorio">
+    <div class="ficha-doble">
+      <div>
+        <div class="ficha-datos">
+          <span class="dato"><b class="neon-txt">4,7</b> · 41 reseñas · El Cangrejo, Ciudad de Panamá</span>
+          <span class="dato">Hoy abierto hasta las 9:30 p.m. · Tres barberos</span>
+          <span class="dato">Efectivo, Yappy y tarjeta</span>
+        </div>
+
+        <div class="bloque" style="padding-top:var(--e5)">
+          <div class="bloque__titulo"><h3>Servicios</h3></div>
+          <button class="servicio" type="button" aria-pressed="false" data-servicio="Corte clásico" data-precio="$12.00" data-dur="30 min">
+            <span><span class="servicio__nombre">Corte clásico</span><br><span class="servicio__dur">30 min</span></span>
+            <span class="precio">$12.00</span>
+          </button>
+          <button class="servicio" type="button" aria-pressed="false" data-servicio="Corte + barba" data-precio="$18.00" data-dur="45 min">
+            <span><span class="servicio__nombre">Corte + barba</span><br><span class="servicio__dur">45 min</span></span>
+            <span class="precio">$18.00</span>
+          </button>
+          <button class="servicio" type="button" aria-pressed="false" data-servicio="Barba y perfilado" data-precio="$8.00" data-dur="30 min">
+            <span><span class="servicio__nombre">Barba y perfilado</span><br><span class="servicio__dur">30 min</span></span>
+            <span class="precio">$8.00</span>
+          </button>
+          <button class="servicio" type="button" aria-pressed="false" data-servicio="Corte niño" data-precio="$10.00" data-dur="30 min">
+            <span><span class="servicio__nombre">Corte niño</span><br><span class="servicio__dur">30 min</span></span>
+            <span class="precio">$10.00</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="bloque" id="bloque-horas">
+        <span class="paso-de">Paso 1 de 3 · Elige el día y la hora</span>
+
+        <!-- Antes de elegir servicio esto no es un hueco vacío: es una instrucción -->
+        <div class="vacio" id="sin-servicio">
+          <span class="tubo tubo--apagado"></span>
+          <h4>Elige un servicio</h4>
+          <p>En cuanto marques uno te encendemos las horas que le quedan libres a este salón.</p>
+        </div>
+
+        <div id="con-servicio" hidden>
+          <div class="bloque__titulo" style="margin-bottom:var(--e3)">
+            <h3 id="titulo-horas">Horas libres</h3>
+            <span class="rotulillo" id="eco-servicio"></span>
+          </div>
+
+          <div class="dias" id="dias" role="group" aria-label="Días"></div>
+
+          <div class="rejilla-horas" id="rejilla" aria-live="polite"></div>
+
+          <div class="vacio" id="dia-vacio" hidden style="margin-top:var(--e4)">
+            <span class="tubo tubo--apagado"></span>
+            <h4 id="dia-vacio-titulo">No quedan horas ese día</h4>
+            <p id="dia-vacio-texto">No quedan horas ese día. Prueba otro de la fila de arriba.</p>
+          </div>
+
+          <p class="aviso" style="margin-top:var(--e5)">Cancelas tú misma hasta dos horas antes, desde tu teléfono y sin dar explicaciones. Después ya solo lo puede mover el salón.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================================
+     4 · AGENDA DEL PANEL DEL SALÓN
+     ====================================================================== -->
+<section class="pantalla" id="agenda" aria-label="Agenda del panel del salón">
+  <header class="cabecera-app">
+    <div class="cabecera-app__fila">
+      <div>
+        <span class="rotulillo">Modo negocio</span>
+        <h2>Barbería El Cangrejo</h2>
+      </div>
+      <button class="boton boton--secundario mini" type="button" data-ir="portada">Salir</button>
+    </div>
+    <div class="pestanas">
+      <div class="pestanas__pista" role="tablist" aria-label="Secciones del panel">
+        <button class="pestana" role="tab" aria-selected="true" data-tab="pa-agenda">Agenda</button>
+        <button class="pestana" role="tab" aria-selected="false" data-tab="pa-servicios">Servicios</button>
+        <button class="pestana" role="tab" aria-selected="false" data-tab="pa-equipo">Equipo</button>
+        <button class="pestana" role="tab" aria-selected="false" data-tab="pa-clientas">Clientas</button>
+      </div>
+      <span class="pestanas__tubo" id="tubo-pestanas"></span>
+    </div>
+  </header>
+
+  <div class="envoltorio">
+
+    <!-- ---------- Pestaña Agenda ---------- -->
+    <div class="panel-pestana activa" id="pa-agenda" role="tabpanel">
+      <div class="vistazo">
+        <div><b id="v-citas">18</b><small>citas hoy</small></div>
+        <div><b id="v-huecos">7</b><small>huecos libres</small></div>
+        <div><b class="precio" id="v-caja">$286.00</b><small>por cobrar</small></div>
+      </div>
+
+      <div class="barra-dia">
+        <div class="grupo" role="group" aria-label="Día">
+          <button class="filtro" type="button" aria-pressed="false" data-dia-agenda="ayer">Ayer</button>
+          <button class="filtro" type="button" aria-pressed="true" data-dia-agenda="hoy">Hoy, jue 11</button>
+          <button class="filtro" type="button" aria-pressed="false" data-dia-agenda="manana">Mañana</button>
+        </div>
+        <button class="boton boton--calido" type="button" id="walkin">Apuntar a alguien</button>
+      </div>
+
+      <div class="grupo solo-movil" role="group" aria-label="Profesional" style="padding-bottom:var(--e4)">
+        <button class="filtro" type="button" aria-pressed="true" data-prof="0">Eliécer</button>
+        <button class="filtro" type="button" aria-pressed="false" data-prof="1">Ricardo</button>
+        <button class="filtro" type="button" aria-pressed="false" data-prof="2">Yaritza</button>
+      </div>
+
+      <div class="agenda" id="agenda-rejilla" data-prof="0">
+        <div class="agenda__horas" id="agenda-horas"></div>
+        <div class="agenda__columnas" id="agenda-columnas"></div>
+      </div>
+
+      <div class="vacio" id="agenda-vacia" hidden>
+        <span class="tubo tubo--apagado"></span>
+        <h4>Mañana está libre entero</h4>
+        <p>No hay citas este día. Cuando alguien reserve, aparece aquí.</p>
+        <button class="boton boton--calido" type="button" id="walkin2">Apuntar a alguien</button>
+      </div>
+
+      <div class="pastillas" style="margin-top:var(--e5)" aria-label="Leyenda de estados">
+        <span class="sello sello--pendiente">Pendiente</span>
+        <span class="sello sello--confirmada">Confirmada</span>
+        <span class="sello sello--completada">Completada</span>
+        <span class="sello sello--noshow">No vino</span>
+        <span class="sello sello--cancelada">Cancelada</span>
+      </div>
+    </div>
+
+    <!-- ---------- Pestaña Servicios ---------- -->
+    <div class="panel-pestana" id="pa-servicios" role="tabpanel">
+      <div class="bloque__titulo" style="padding-top:var(--e5)">
+        <h3>Cuatro servicios activos</h3>
+        <button class="boton boton--calido mini" type="button">Añadir servicio</button>
+      </div>
+      <div class="lista-simple">
+        <div class="lista-simple__fila" style="--i:0"><div><b>Corte clásico</b><br><span class="dato">30 min · sin margen extra</span></div><span class="precio">$12.00</span></div>
+        <div class="lista-simple__fila" style="--i:1"><div><b>Corte + barba</b><br><span class="dato">45 min · 5 min de margen después</span></div><span class="precio">$18.00</span></div>
+        <div class="lista-simple__fila" style="--i:2"><div><b>Barba y perfilado</b><br><span class="dato">30 min · sin margen extra</span></div><span class="precio">$8.00</span></div>
+        <div class="lista-simple__fila" style="--i:3"><div><b>Corte niño</b><br><span class="dato">30 min · solo Eliécer y Yaritza</span></div><span class="precio">$10.00</span></div>
+      </div>
+    </div>
+
+    <!-- ---------- Pestaña Equipo ---------- -->
+    <div class="panel-pestana" id="pa-equipo" role="tabpanel">
+      <div class="bloque__titulo" style="padding-top:var(--e5)"><h3>Tres en el equipo</h3></div>
+      <div class="lista-simple">
+        <div class="lista-simple__fila" style="--i:0"><div><b>Eliécer Him</b><br><span class="dato">Dueño · lunes a sábado, 9:00 a.m. a 9:30 p.m.</span></div><span class="sello sello--completada">Activo</span></div>
+        <div class="lista-simple__fila" style="--i:1"><div><b>Ricardo Bernal</b><br><span class="dato">Barbero · martes a sábado, 10:00 a.m. a 8:00 p.m.</span></div><span class="sello sello--completada">Activo</span></div>
+        <div class="lista-simple__fila" style="--i:2"><div><b>Yaritza Him</b><br><span class="dato">Barbera · miércoles a domingo, 11:00 a.m. a 9:00 p.m.</span></div><span class="sello sello--completada">Activo</span></div>
+      </div>
+    </div>
+
+    <!-- ---------- Pestaña Clientas: entra siempre cargando ---------- -->
+    <div class="panel-pestana" id="pa-clientas" role="tabpanel">
+      <div class="bloque__titulo" style="padding-top:var(--e5)"><h3>Tus clientas</h3></div>
+      <div class="cargando" id="carga-clientas">
+        <span class="rotulillo">Buscando en la ficha del salón</span>
+        <div class="cargando__barra"><i style="--dur:800ms"></i></div>
+        <div class="esqueleto" aria-hidden="true"><div></div><div></div><div></div></div>
+      </div>
+      <div class="lista-simple" id="lista-clientas" hidden>
+        <div class="lista-simple__fila" style="--i:0"><div><b>Anayansi Castillo</b><br><span class="dato">9 citas · última el 28 de agosto · sin faltas</span></div><span class="dato">6669 4412</span></div>
+        <div class="lista-simple__fila" style="--i:1"><div><b>Jhonatan Pinzón</b><br><span class="dato">4 citas · última el 4 de septiembre · sin faltas</span></div><span class="dato">6712 0938</span></div>
+        <div class="lista-simple__fila" style="--i:2"><div><b>Yariela Vega</b><br><span class="dato">3 citas · faltó una vez sin avisar</span></div><span class="sello sello--noshow">1 falta</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ======================================================================
+     5 · CONSOLA INTERNA DE M2G
+     ====================================================================== -->
+<section class="pantalla" id="consola" aria-label="Consola interna de M2G">
+  <header class="cabecera-app">
+    <div class="cabecera-app__fila">
+      <div>
+        <span class="rotulillo">M2G · consola interna</span>
+        <h2>Negocios</h2>
+      </div>
+      <button class="boton boton--secundario mini" type="button" data-ir="portada">Salir</button>
+    </div>
+    <div class="pestanas">
+      <div class="pestanas__pista" role="tablist" aria-label="Secciones de la consola">
+        <button class="pestana" role="tab" aria-selected="true">Negocios</button>
+        <button class="pestana" role="tab" aria-selected="false">Moderación</button>
+        <button class="pestana" role="tab" aria-selected="false">Métricas</button>
+        <button class="pestana" role="tab" aria-selected="false">Ranking</button>
+      </div>
+      <span class="pestanas__tubo" id="tubo-consola"></span>
+    </div>
+  </header>
+
+  <div class="envoltorio">
+    <p class="franja-interna">Sesión interna de M2G. Todo lo que hagas aquí queda en el registro de auditoría con tu nombre.</p>
+
+    <div class="metricas">
+      <div class="metrica" style="--i:0"><b>4</b><small>negocios</small></div>
+      <div class="metrica" style="--i:1"><b>3</b><small>publicados</small></div>
+      <div class="metrica metrica--viva" style="--i:2"><b>96</b><small>citas en 30 días</small></div>
+      <div class="metrica" style="--i:3"><b>2</b><small>reseñas por moderar</small></div>
+    </div>
+
+    <div class="rail-filtros" style="margin-top:var(--e5)" role="group" aria-label="Filtrar negocios">
+      <button class="filtro" type="button" aria-pressed="true" data-estado="todos">Todos</button>
+      <button class="filtro" type="button" aria-pressed="false" data-estado="publicado">Publicados</button>
+      <button class="filtro" type="button" aria-pressed="false" data-estado="borrador">En borrador</button>
+      <button class="filtro" type="button" aria-pressed="false" data-estado="suspendido">Suspendidos</button>
+    </div>
+
+    <div class="cargando" id="carga-consola">
+      <span class="rotulillo">Cargando el listado de negocios</span>
+      <div class="cargando__barra"><i style="--dur:900ms"></i></div>
+      <div class="esqueleto" aria-hidden="true"><div></div><div></div><div></div></div>
+    </div>
+
+    <div id="tabla-consola" hidden>
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Negocio</th>
+            <th class="col-ancha">Estado</th>
+            <th class="col-ancha">Citas 30 d.</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody id="cuerpo-consola"></tbody>
+      </table>
+    </div>
+
+    <div class="vacio" id="consola-vacia" hidden style="margin-top:var(--e4)">
+      <span class="tubo tubo--apagado"></span>
+      <h4>Ningún negocio suspendido</h4>
+      <p>No hay nada que revisar con ese filtro. Cuando suspendas un negocio, aparece aquí con quién lo suspendió y por qué.</p>
+      <button class="boton boton--secundario" type="button" data-estado-limpiar="1">Ver todos</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ====================== Cortinas (hojas modales) ====================== -->
+<div class="telon" id="telon"></div>
+
+<div class="cortina" id="cortina" role="dialog" aria-modal="true" aria-labelledby="cortina-titulo">
+  <div class="cortina__marco" id="cortina-cuerpo"></div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $  = (s, c = document) => c.querySelector(s);
+const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
+const reducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const PANTALLAS = ['portada', 'resultados', 'ficha', 'agenda', 'consola'];
+/* La calle es violeta, el local es ámbar, la trastienda de M2G casi negra. */
+const AMBIENTE = { portada:'calle', resultados:'calle', ficha:'local', agenda:'local', consola:'trastienda' };
+
+const puerta = $('#puerta');
+const telon  = $('#telon');
+const cortina = $('#cortina');
+const cuerpoCortina = $('#cortina-cuerpo');
+let actual = null;
+
+/* ------------------------------------------------------------------ *
+ *  Cruzar la puerta                                                   *
+ * ------------------------------------------------------------------ */
+function enEscena(el){
+  if (!el) return;
+  el.classList.remove('en-escena');
+  void el.offsetWidth;          /* fuerza el reflujo: la animación se repite */
+  el.classList.add('en-escena');
+}
+
+function pintar(destino){
+  $$('.pantalla').forEach(s => s.classList.toggle('activa', s.id === destino));
+  document.body.classList.remove('amb-local', 'amb-trastienda');
+  if (AMBIENTE[destino] === 'local')      document.body.classList.add('amb-local');
+  if (AMBIENTE[destino] === 'trastienda') document.body.classList.add('amb-trastienda');
+  $$('#conmutador .conmutador__b').forEach(b =>
+    b.setAttribute('aria-current', b.dataset.ir === destino ? 'true' : 'false'));
+  window.scrollTo(0, 0);
+  actual = destino;
+  enEscena($('#' + destino));
+  if (destino === 'portada')  cargarCerca();
+  if (destino === 'consola')  cargarConsola();
+  if (destino === 'agenda')   { pintarAgenda(); requestAnimationFrame(() => colocarTubo($('#pa-agenda').closest('.pantalla').querySelector('.pestanas'))); }
+  if (destino === 'ficha')    requestAnimationFrame(() => {});
+}
+
+function ir(destino){
+  if (!PANTALLAS.includes(destino) || destino === actual) return;
+  history.replaceState(null, '', '#' + destino);
+  const atras = PANTALLAS.indexOf(destino) < PANTALLAS.indexOf(actual);
+  cerrarCortina();
+  if (reducido || actual === null){ pintar(destino); return; }
+  puerta.className = 'puerta cierra' + (atras ? ' atras' : '');
+  setTimeout(() => {
+    pintar(destino);
+    puerta.className = 'puerta abre' + (atras ? ' atras' : '');
+  }, 172);
+}
+
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-ir]');
+  if (b){ e.preventDefault(); ir(b.dataset.ir); }
+});
+window.addEventListener('hashchange', () => {
+  const h = location.hash.slice(1);
+  if (PANTALLAS.includes(h) && h !== actual) ir(h);
+});
+
+/* ------------------------------------------------------------------ *
+ *  Cortinas                                                           *
+ * ------------------------------------------------------------------ */
+function abrirCortina(html){
+  cuerpoCortina.innerHTML = html;
+  telon.classList.add('abierto');
+  cortina.classList.add('abierta');
+  cortina.style.animation = 'none'; void cortina.offsetWidth; cortina.style.animation = '';
+  const foco = cortina.querySelector('button');
+  if (foco) foco.focus({ preventScroll:true });
+}
+function cerrarCortina(){
+  telon.classList.remove('abierto');
+  cortina.classList.remove('abierta');
+}
+telon.addEventListener('click', cerrarCortina);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrarCortina(); });
+cortina.addEventListener('click', (e) => { if (e.target.closest('[data-cerrar]')) cerrarCortina(); });
+
+/* ------------------------------------------------------------------ *
+ *  1 · PORTADA: el bloque «abierto ahora» entra cargando               *
+ * ------------------------------------------------------------------ */
+let tCerca;
+function cargarCerca(){
+  const carga = $('#carga-cerca'), lista = $('#cerca');
+  clearTimeout(tCerca);
+  carga.hidden = false; lista.hidden = true;
+  carga.querySelector('.cargando__barra').innerHTML = '<i style="--dur:1000ms"></i>';
+  tCerca = setTimeout(() => {
+    carga.hidden = true; lista.hidden = false; enEscena(lista);
+  }, reducido ? 0 : 1000);
+}
+
+/* ------------------------------------------------------------------ *
+ *  2 · RESULTADOS: el filtro que deja la lista vacía                   *
+ * ------------------------------------------------------------------ */
+const railResultados = $('#resultados .rail-filtros');
+railResultados.addEventListener('click', (e) => {
+  const b = e.target.closest('.filtro'); if (!b) return;
+  b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+  const vacia = $('[data-filtro="depilacion"]', railResultados).getAttribute('aria-pressed') === 'true';
+  $('#lista-resultados').hidden = vacia;
+  $('#vacio-resultados').hidden = !vacia;
+  $('#cuenta-resultados').textContent = vacia ? 'ningún salón' : '4 salones';
+  if (!vacia) enEscena($('#resultados'));
+});
+$('[data-limpiar]').addEventListener('click', () => {
+  $('[data-filtro="depilacion"]', railResultados).setAttribute('aria-pressed', 'false');
+  $('#lista-resultados').hidden = false;
+  $('#vacio-resultados').hidden = true;
+  $('#cuenta-resultados').textContent = '4 salones';
+  enEscena($('#resultados'));
+});
+
+/* ------------------------------------------------------------------ *
+ *  3 · FICHA: servicio, día, horas que se encienden, reserva           *
+ * ------------------------------------------------------------------ */
+const hhmm = (m) => {
+  const h24 = Math.floor(m / 60), mm = m % 60;
+  const suf = h24 < 12 ? 'a.m.' : 'p.m.';
+  let h = h24 % 12; if (h === 0) h = 12;
+  return h + ':' + String(mm).padStart(2, '0') + ' ' + suf;
+};
+const franja = (desde, hasta, ocupadas = []) => {
+  const out = [];
+  for (let m = desde; m <= hasta; m += 30){
+    const t = hhmm(m);
+    out.push({ h: t, ocupada: ocupadas.indexOf(t) !== -1 });
+  }
+  return out;
+};
+
+const DIAS = [
+  { id:'j11', n:'11', s:'jue', largo:'jueves 11', abierto:true,
+    horas: franja(17*60, 21*60, ['5:30 p.m.', '6:00 p.m.', '8:00 p.m.']) },
+  { id:'v12', n:'12', s:'vie', largo:'viernes 12', abierto:true,
+    horas: franja(9*60, 21*60, ['9:30 a.m.','10:00 a.m.','11:30 a.m.','1:00 p.m.','1:30 p.m.','3:00 p.m.','5:00 p.m.','5:30 p.m.','6:00 p.m.','7:30 p.m.']) },
+  { id:'s13', n:'13', s:'sáb', largo:'sábado 13', abierto:true, horas: [] },
+  { id:'d14', n:'14', s:'dom', largo:'domingo 14', abierto:false, horas: [] },
+  { id:'l15', n:'15', s:'lun', largo:'lunes 15', abierto:true,
+    horas: franja(9*60, 21*60, ['10:30 a.m.','11:00 a.m.','2:00 p.m.','6:30 p.m.']) },
+  { id:'m16', n:'16', s:'mar', largo:'martes 16', abierto:true,
+    horas: franja(9*60, 21*60, ['9:00 a.m.','12:00 p.m.','4:00 p.m.','4:30 p.m.']) },
+  { id:'x17', n:'17', s:'mié', largo:'miércoles 17', abierto:true,
+    horas: franja(9*60, 21*60, ['3:30 p.m.']) }
+];
+
+let servicio = null, diaActivo = 'j11', horaElegida = null;
+const rejilla = $('#rejilla');
+const diasCaja = $('#dias');
+
+diasCaja.innerHTML = DIAS.map(d =>
+  `<button class="dia" type="button" aria-pressed="${d.id === diaActivo}" data-dia="${d.id}">
+     <b>${d.n}</b><small>${d.s}</small>
+   </button>`).join('');
+
+function pintarDia(){
+  const d = DIAS.find(x => x.id === diaActivo);
+  horaElegida = null;
+  rejilla.classList.remove('con-eleccion');
+  $$('.dia', diasCaja).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.dia === diaActivo)));
+  $('#titulo-horas').textContent = 'Horas libres el ' + d.largo;
+
+  if (!d.abierto || d.horas.length === 0){
+    rejilla.innerHTML = '';
+    const v = $('#dia-vacio'); v.hidden = false;
+    if (!d.abierto){
+      $('#dia-vacio-titulo').textContent = 'Este salón no abre los domingos';
+      $('#dia-vacio-texto').textContent  = 'Prueba el lunes 15, que abre a las 9:00 a.m.';
+    } else {
+      $('#dia-vacio-titulo').textContent = 'No queda ni una hora el ' + d.largo;
+      $('#dia-vacio-texto').textContent  = 'No quedan horas ese día. Prueba otro de la fila de arriba.';
+    }
+    return;
+  }
+  $('#dia-vacio').hidden = true;
+  rejilla.innerHTML = d.horas.map((h, i) =>
+    `<button class="hora${h.ocupada ? ' hora--ocupada' : ''}" type="button" style="--i:${i}"
+      ${h.ocupada ? 'disabled aria-label="Ocupada a las ' + h.h + '"' : 'aria-pressed="false"'}>${h.h}</button>`).join('');
+  enEscena(rejilla);            /* el letrero se enciende otra vez */
+}
+
+$$('.servicio').forEach(b => b.addEventListener('click', () => {
+  $$('.servicio').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  servicio = { nombre: b.dataset.servicio, precio: b.dataset.precio, dur: b.dataset.dur };
+  $('#sin-servicio').hidden = true;
+  $('#con-servicio').hidden = false;
+  $('#eco-servicio').textContent = servicio.nombre + ' · ' + servicio.dur + ' · ' + servicio.precio;
+  pintarDia();
+}));
+
+diasCaja.addEventListener('click', (e) => {
+  const b = e.target.closest('.dia'); if (!b) return;
+  diaActivo = b.dataset.dia;
+  pintarDia();
+});
+
+rejilla.addEventListener('click', (e) => {
+  const b = e.target.closest('.hora');
+  if (!b || b.disabled) return;
+  $$('.hora', rejilla).forEach(x => { if (!x.disabled) x.setAttribute('aria-pressed', String(x === b)); });
+  rejilla.classList.add('con-eleccion');   /* las demás bajan, esta queda encendida */
+  horaElegida = b.textContent.trim();
+  setTimeout(abrirReserva, reducido ? 0 : 280);
+});
+
+function abrirReserva(){
+  const d = DIAS.find(x => x.id === diaActivo);
+  abrirCortina(`
+    <span class="paso-de">Paso 2 de 3 · Confirma</span>
+    <h3 id="cortina-titulo">Barbería El Cangrejo</h3>
+    <div class="resumen">
+      <div><span class="tenue">Servicio</span><b>${servicio.nombre}</b></div>
+      <div><span class="tenue">Con</span><b>Cualquiera disponible</b></div>
+      <div><span class="tenue">Cuándo</span><b>${d.largo}, ${horaElegida}</b></div>
+      <div><span class="tenue">Dura</span><b>${servicio.dur}</b></div>
+      <div><span class="tenue">Precio</span><b class="precio">${servicio.precio}</b></div>
+    </div>
+    <p class="aviso">Cancelas tú misma hasta dos horas antes. Después ya solo lo puede mover el salón.</p>
+    <div class="acciones" style="margin-top:var(--e5)">
+      <button class="boton boton--principal boton--ancho" type="button" data-confirmar="1">Confirmar la reserva</button>
+      <button class="boton boton--secundario boton--ancho" type="button" data-cerrar="1">Elegir otra hora</button>
+    </div>`);
+}
+
+cortina.addEventListener('click', (e) => {
+  if (e.target.closest('[data-confirmar]')) confirmarReserva();
+  if (e.target.closest('[data-otra]')){ cerrarCortina(); pintarDia(); }
+});
+
+function confirmarReserva(){
+  const d = DIAS.find(x => x.id === diaActivo);
+  const chocada = (diaActivo === 'j11' && horaElegida === '7:00 p.m.');
+  abrirCortina(`
+    <span class="paso-de">Paso 3 de 3</span>
+    <h3 id="cortina-titulo">Guardando tu reserva</h3>
+    <p class="dato">Comprobando que ese hueco siga libre.</p>
+    <div class="cargando__barra"><i style="--dur:820ms"></i></div>`);
+  setTimeout(() => {
+    if (chocada){
+      /* La hora se ocupó mientras confirmabas: se apaga en la rejilla. */
+      const h = d.horas.find(x => x.h === horaElegida);
+      if (h) h.ocupada = true;
+      abrirCortina(`
+        <span class="paso-de">Paso 3 de 3</span>
+        <h3 id="cortina-titulo">Esa hora se acaba de ocupar</h3>
+        <p class="error">Ese horario se acaba de ocupar. Elige otro y lo confirmamos enseguida.</p>
+        <p class="dato">No se creó nada y no se te cobró nada. La quitamos de la lista para que no vuelvas a pulsarla.</p>
+        <div class="acciones" style="margin-top:var(--e5)">
+          <button class="boton boton--principal boton--ancho" type="button" data-otra="1">Ver las horas que quedan</button>
+        </div>`);
+    } else {
+      abrirCortina(`
+        <span class="paso-de">Listo</span>
+        <h3 id="cortina-titulo">Quedaste para el ${d.largo}</h3>
+        <p class="exito">${servicio.nombre} a las ${horaElegida}, en Barbería El Cangrejo. Te mandamos la confirmación por WhatsApp.</p>
+        <div class="resumen">
+          <div><span class="tenue">Dirección</span><b>Calle Roberto Durán, El Cangrejo</b></div>
+          <div><span class="tenue">Precio</span><b class="precio">${servicio.precio}</b></div>
+        </div>
+        <div class="acciones">
+          <button class="boton boton--secundario boton--ancho" type="button" data-cerrar="1">Añadir a mi calendario</button>
+          <button class="boton boton--principal boton--ancho" type="button" data-cerrar="1">Cerrar</button>
+        </div>`);
+    }
+  }, reducido ? 0 : 840);
+}
+
+/* ------------------------------------------------------------------ *
+ *  4 · AGENDA DEL PANEL                                               *
+ * ------------------------------------------------------------------ */
+const APERTURA = 9 * 60, CIERRE = 21 * 60, ALTO = 92;
+const PROFES = ['Eliécer Him', 'Ricardo Bernal', 'Yaritza Him'];
+const c = (p, ini, dur, cliente, serv, estado) => ({ p, ini, dur, cliente, serv, estado });
+
+const CITAS = {
+  hoy: [
+    c(0, 9*60,      30, 'Anayansi Castillo', 'Corte clásico',     'completada'),
+    c(0, 10*60,     45, 'Jhonatan Pinzón',   'Corte + barba',     'completada'),
+    c(0, 11*60+30,  30, 'Kenia Batista',     'Barba y perfilado', 'completada'),
+    c(0, 13*60,     60, 'Almuerzo',          'Bloqueo del día',   'bloqueo'),
+    c(0, 14*60+30,  45, 'Aixa Rodríguez',    'Corte + barba',     'confirmada'),
+    c(0, 16*60,     30, 'Deyanira Sánchez',  'Corte niño',        'pendiente'),
+    c(0, 18*60+30,  45, 'Maylin Arosemena',  'Corte + barba',     'confirmada'),
+    c(0, 20*60+30,  30, 'Abdiel Mendieta',   'Corte clásico',     'confirmada'),
+    c(1, 10*60,     45, 'Rubén Him',         'Corte + barba',     'completada'),
+    c(1, 11*60,     30, 'Yariela Vega',      'Corte clásico',     'noshow'),
+    c(1, 12*60,     30, 'Omar Quintero',     'Corte clásico',     'completada'),
+    c(1, 15*60,     45, 'Luis Carlos Him',   'Corte + barba',     'confirmada'),
+    c(1, 17*60,     30, 'Anel Saldaña',      'Corte niño',        'cancelada'),
+    c(1, 19*60,     30, 'Kevin Ábrego',      'Corte clásico',     'confirmada'),
+    c(2, 11*60,     30, 'Mariela Solís',     'Corte clásico',     'completada'),
+    c(2, 12*60+30,  45, 'Iveth Guerra',      'Corte + barba',     'completada'),
+    c(2, 14*60,     30, 'Nadia Pérez',       'Corte niño',        'completada'),
+    c(2, 18*60,     45, 'Rosa Bethancourt',  'Corte + barba',     'confirmada'),
+    c(2, 20*60,     30, 'Génesis Barría',    'Corte clásico',     'pendiente')
+  ],
+  ayer: [
+    c(0, 9*60+30,   45, 'Rubén Him',         'Corte + barba',     'completada'),
+    c(0, 13*60,     60, 'Almuerzo',          'Bloqueo del día',   'bloqueo'),
+    c(0, 16*60,     30, 'Omar Quintero',     'Corte clásico',     'completada'),
+    c(0, 19*60,     45, 'Abdiel Mendieta',   'Corte + barba',     'completada'),
+    c(1, 11*60,     30, 'Génesis Barría',    'Corte clásico',     'noshow'),
+    c(1, 17*60+30,  30, 'Kenia Batista',     'Barba y perfilado', 'completada'),
+    c(2, 15*60,     45, 'Iveth Guerra',      'Corte + barba',     'completada'),
+    c(2, 18*60,     30, 'Nadia Pérez',       'Corte niño',        'completada')
+  ],
+  manana: []
+};
+const RESUMEN = {
+  hoy:    { citas: 18, huecos: 7,  caja: '$226.00' },
+  ayer:   { citas: 7,  huecos: 19, caja: '$96.00'  },
+  manana: { citas: 0,  huecos: 26, caja: '$0.00'   }
+};
+
+let diaAgenda = 'hoy';
+const cajaAgenda = $('#agenda-rejilla');
+const colHoras   = $('#agenda-horas');
+const colCitas   = $('#agenda-columnas');
+
+function pintarAgenda(){
+  const citas = CITAS[diaAgenda];
+  const r = RESUMEN[diaAgenda];
+  $('#v-citas').textContent = r.citas;
+  $('#v-huecos').textContent = r.huecos;
+  $('#v-caja').textContent = r.caja;
+
+  if (citas.length === 0){
+    cajaAgenda.hidden = true;
+    $('#agenda-vacia').hidden = false;
+    return;
+  }
+  cajaAgenda.hidden = false;
+  $('#agenda-vacia').hidden = true;
+
+  let horas = '';
+  for (let m = APERTURA; m < CIERRE; m += 60){
+    const t = hhmm(m).split(' ');
+    horas += `<div class="agenda__hora"><b>${t[0].replace(':00','')}</b><em>${t[1]}</em></div>`;
+  }
+  colHoras.innerHTML = horas;
+
+  const lineas = Array.from({ length: (CIERRE - APERTURA) / 60 }, () => '<div class="agenda__linea"></div>').join('');
+  colCitas.innerHTML = PROFES.map((nombre, i) => {
+    const mias = citas.filter(x => x.p === i);
+    const bloques = mias.map((x, j) => {
+      const top = (x.ini - APERTURA) / 60 * ALTO;
+      const alto = x.dur / 60 * ALTO - 4;
+      const corta = x.dur <= 30;
+      const etiqueta = x.estado === 'bloqueo' ? 'Bloqueo' : x.estado;
+      return `<button class="cita cita--${x.estado}" type="button" style="top:${top}px;height:${alto}px;--i:${j}"
+        ${x.estado === 'bloqueo' ? 'disabled' : `data-cita="${i}-${j}"`}
+        aria-label="${x.cliente}, ${x.serv}, ${hhmm(x.ini)}, ${etiqueta}">
+        <b>${x.cliente}</b>
+        ${corta ? `<time>${hhmm(x.ini)}</time>` : `<span>${x.serv}</span><time>${hhmm(x.ini)} · ${x.dur} min</time>`}
+      </button>`;
+    }).join('');
+    const ahora = (diaAgenda === 'hoy')
+      ? `<div class="agenda__ahora" data-hora="4:20 p.m." style="top:${(16*60+20-APERTURA)/60*ALTO}px"></div>` : '';
+    return `<div class="agenda__col" data-i="${i}">
+        <div class="agenda__col-cab">${nombre}</div>
+        <div class="agenda__pista">${lineas}<div class="agenda__citas">${bloques}${ahora}</div></div>
+      </div>`;
+  }).join('');
+
+  /* La columna de horas arranca donde arranca la pista, medido, no adivinado */
+  const cab = colCitas.querySelector('.agenda__col-cab');
+  if (cab) colHoras.style.paddingTop = cab.getBoundingClientRect().height + 'px';
+  enEscena($('#pa-agenda'));
+}
+
+$$('[data-dia-agenda]').forEach(b => b.addEventListener('click', () => {
+  $$('[data-dia-agenda]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  diaAgenda = b.dataset.diaAgenda;
+  pintarAgenda();
+}));
+$$('[data-prof]').forEach(b => b.addEventListener('click', () => {
+  $$('[data-prof]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  cajaAgenda.dataset.prof = b.dataset.prof;
+}));
+
+colCitas.addEventListener('click', (e) => {
+  const b = e.target.closest('.cita'); if (!b || !b.dataset.cita) return;
+  const [pi, ci] = b.dataset.cita.split('-').map(Number);
+  const cita = CITAS[diaAgenda].filter(x => x.p === pi)[ci];
+  const nombres = { pendiente:'Pendiente', confirmada:'Confirmada', completada:'Completada', noshow:'No vino', cancelada:'Cancelada' };
+  abrirCortina(`
+    <span class="paso-de">${hhmm(cita.ini)} · ${PROFES[pi].split(' ')[0]}</span>
+    <h3 id="cortina-titulo">${cita.cliente}</h3>
+    <div class="resumen">
+      <div><span class="tenue">Servicio</span><b>${cita.serv}</b></div>
+      <div><span class="tenue">Dura</span><b>${cita.dur} min</b></div>
+      <div><span class="tenue">Estado</span><span class="sello sello--${cita.estado}">${nombres[cita.estado]}</span></div>
+      <div><span class="tenue">Teléfono</span><b>6669 4412</b></div>
+    </div>
+    <div class="acciones">
+      <button class="boton boton--calido boton--ancho" type="button" data-cerrar="1">Marcar como completada</button>
+      <button class="boton boton--secundario boton--ancho" type="button" data-cerrar="1">Mover a otra hora</button>
+    </div>
+    <div class="acciones acciones--separadas">
+      <span class="rotulillo" style="display:block;margin-bottom:var(--e2)">Esto le llega a la clienta</span>
+      <button class="boton boton--secundario boton--ancho" type="button" data-cerrar="1">Marcar que no vino</button>
+      <button class="boton boton--peligro boton--ancho" type="button" data-cerrar="1">Cancelar la cita</button>
+    </div>`);
+});
+
+function walkin(){
+  abrirCortina(`
+    <span class="paso-de">Apuntar a alguien que entró por la puerta</span>
+    <h3 id="cortina-titulo">Cita de mostrador</h3>
+    <div class="acciones" style="margin-bottom:var(--e5)">
+      <div><label class="etiqueta rotulillo" for="w1">Nombre</label><input class="campo" id="w1" placeholder="Como te lo diga"></div>
+      <div><label class="etiqueta rotulillo" for="w2">Teléfono, si lo da</label><input class="campo" id="w2" placeholder="6xxx xxxx"></div>
+      <div><label class="etiqueta rotulillo" for="w3">Servicio</label>
+        <select class="campo" id="w3">
+          <option>Corte clásico · 30 min · $12.00</option>
+          <option>Corte + barba · 45 min · $18.00</option>
+          <option>Barba y perfilado · 30 min · $8.00</option>
+          <option>Corte niño · 30 min · $10.00</option>
+        </select></div>
+    </div>
+    <div class="acciones">
+      <button class="boton boton--calido boton--ancho" type="button" data-cerrar="1">Apuntar a las 4:30 p.m.</button>
+      <button class="boton boton--secundario boton--ancho" type="button" data-cerrar="1">Dejarlo</button>
+    </div>`);
+}
+$('#walkin').addEventListener('click', walkin);
+$('#walkin2').addEventListener('click', walkin);
+
+/* Pestañas del panel: el tubo se desliza */
+function colocarTubo(pestanas){
+  if (!pestanas) return;
+  const sel = pestanas.querySelector('.pestana[aria-selected="true"]');
+  const tubo = pestanas.querySelector('.pestanas__tubo');
+  if (!sel || !tubo) return;
+  tubo.style.width = sel.offsetWidth + 'px';
+  tubo.style.transform = 'translateX(' + (sel.offsetLeft - pestanas.querySelector('.pestanas__pista').scrollLeft) + 'px)';
+}
+$$('.pestanas').forEach(pest => {
+  pest.addEventListener('click', (e) => {
+    const b = e.target.closest('.pestana'); if (!b) return;
+    $$('.pestana', pest).forEach(x => x.setAttribute('aria-selected', String(x === b)));
+    colocarTubo(pest);
+    if (b.dataset.tab){
+      $$('.panel-pestana').forEach(p => p.classList.toggle('activa', p.id === b.dataset.tab));
+      const activo = $('#' + b.dataset.tab);
+      if (b.dataset.tab === 'pa-agenda') pintarAgenda();
+      else if (b.dataset.tab === 'pa-clientas') cargarClientas();
+      else enEscena(activo);
+    }
+  });
+  pest.querySelector('.pestanas__pista').addEventListener('scroll', () => colocarTubo(pest));
+});
+
+let tClientas;
+function cargarClientas(){
+  const carga = $('#carga-clientas'), lista = $('#lista-clientas');
+  clearTimeout(tClientas);
+  carga.hidden = false; lista.hidden = true;
+  carga.querySelector('.cargando__barra').innerHTML = '<i style="--dur:800ms"></i>';
+  tClientas = setTimeout(() => {
+    carga.hidden = true; lista.hidden = false; enEscena($('#pa-clientas'));
+  }, reducido ? 0 : 800);
+}
+
+/* ------------------------------------------------------------------ *
+ *  5 · CONSOLA                                                        *
+ * ------------------------------------------------------------------ */
+const NEGOCIOS = [
+  { n:'Barbería El Cangrejo',   z:'El Cangrejo · Barbería',      e:'publicado',  c:38, alta:'12 mar 2026' },
+  { n:'Nails & Lashes Obarrio', z:'Obarrio · Uñas',              e:'publicado',  c:41, alta:'3 may 2026'  },
+  { n:'Spa Costa del Este',     z:'Costa del Este · Spa',        e:'publicado',  c:17, alta:'21 jun 2026' },
+  { n:'Barbería Don Chichí',    z:'San Francisco · Barbería',    e:'borrador',   c:0,  alta:'1 sep 2026'  }
+];
+const SELLO = { publicado:'completada', borrador:'pendiente', suspendido:'noshow' };
+const NOMBRE_ESTADO = { publicado:'Publicado', borrador:'Borrador', suspendido:'Suspendido' };
+let estadoConsola = 'todos', tConsola;
+
+function filasConsola(){
+  const filtrados = NEGOCIOS.filter(x => estadoConsola === 'todos' || x.e === estadoConsola);
+  $('#consola-vacia').hidden = filtrados.length > 0;
+  $('#tabla-consola').hidden = filtrados.length === 0;
+  $('#cuerpo-consola').innerHTML = filtrados.map((x, i) => `
+    <tr style="--i:${i}">
+      <td><div class="negocio-consola"><b>${x.n}</b><span class="dato">${x.z}</span>
+        <span class="dato tenue">Alta el ${x.alta}</span></div></td>
+      <td class="col-ancha"><span class="sello sello--${SELLO[x.e]}">${NOMBRE_ESTADO[x.e]}</span></td>
+      <td class="col-ancha"><b>${x.c}</b></td>
+      <td><div class="acciones-fila">
+        <button class="boton boton--secundario mini" type="button">Ver</button>
+        <button class="boton boton--peligro mini" type="button">Suspender</button>
+      </div></td>
+    </tr>`).join('');
+  enEscena($('#consola'));
+}
+function cargarConsola(){
+  const carga = $('#carga-consola');
+  clearTimeout(tConsola);
+  carga.hidden = false;
+  $('#tabla-consola').hidden = true;
+  $('#consola-vacia').hidden = true;
+  carga.querySelector('.cargando__barra').innerHTML = '<i style="--dur:900ms"></i>';
+  tConsola = setTimeout(() => { carga.hidden = true; filasConsola(); }, reducido ? 0 : 900);
+}
+$$('[data-estado]').forEach(b => b.addEventListener('click', () => {
+  $$('[data-estado]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  estadoConsola = b.dataset.estado;
+  filasConsola();
+}));
+$('[data-estado-limpiar]').addEventListener('click', () => {
+  estadoConsola = 'todos';
+  $$('[data-estado]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.estado === 'todos')));
+  filasConsola();
+});
+
+/* ------------------------------------------------------------------ *
+ *  Arranque                                                           *
+ * ------------------------------------------------------------------ */
+const inicial = PANTALLAS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'portada';
+pintar(inicial);
+requestAnimationFrame(() => $$('.pestanas').forEach((p) => colocarTubo(p)));
+window.addEventListener('resize', () => $$('.pestanas').forEach((p) => colocarTubo(p)));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1160 @@
+<!doctype html>
+<html lang="es-PA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bukeo · Dirección 2 · Revista de oficio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   BUKEO · Dirección 2 · «Revista de oficio»
+   Papel con cuerpo, retícula asimétrica, verde de imprenta y lápiz rojo de
+   corrector. Nada redondeado, nada difuso, nada en bucle.
+   ========================================================================== */
+
+:root{
+  /* Tinta y papel */
+  --verde-tinta:#0F2A20;   /* texto y planchas oscuras */
+  --verde-monte:#1E5140;   /* segundo plano oscuro, filetes gruesos */
+  --verde-claro:#8FBFA6;   /* apoyo, solo sobre verde tinta */
+  --gris-verde:#3F5148;    /* texto secundario sobre papel */
+  --hueso:#F1EBDD;         /* papel base */
+  --hueso-claro:#FAF7F0;   /* papel montado encima */
+  --rojo-lapiz:#A32E1E;    /* marca de corrección, patrocinado, aviso */
+  --amarillo:#E8B93F;      /* marcador. Nunca es color de texto */
+
+  --filete:1px solid var(--verde-tinta);
+  --filete-fino:1px solid rgba(15,42,32,.28);
+  --margen:clamp(18px,5vw,72px);
+  --sumario-alto:58px;
+
+  --display:"Bodoni Moda",Didot,"Times New Roman",serif;
+  --texto:"Newsreader",Georgia,"Times New Roman",serif;
+  --dato:"Courier Prime",ui-monospace,"Courier New",monospace;
+
+  --paso:cubic-bezier(.2,.7,.2,1);
+}
+
+*{box-sizing:border-box;border-radius:0}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background-color:var(--hueso);
+  /* Grano de papel: ruido, no degradado. */
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='140' height='140' filter='url(%23g)' opacity='.055'/></svg>");
+  color:var(--verde-tinta);
+  font-family:var(--texto);
+  font-size:17px;
+  line-height:1.5;
+  font-optical-sizing:auto;
+}
+img{max-width:100%;display:block}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--rojo-lapiz);outline-offset:3px}
+
+/* ---------- Tipografía ---------------------------------------------------- */
+.display{font-family:var(--display);font-weight:500;line-height:.95;letter-spacing:-.015em}
+.dato{font-family:var(--dato);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase}
+.dato-baja{font-family:var(--dato);font-size:.82rem;letter-spacing:.02em}
+.folio{font-family:var(--dato);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gris-verde)}
+.entradilla{font-size:clamp(1.05rem,2.4vw,1.3rem);line-height:1.45;color:var(--gris-verde);max-width:46ch}
+.filete{border:0;border-top:var(--filete);margin:0}
+.filete-fino{border:0;border-top:var(--filete-fino);margin:0}
+.rojo{color:var(--rojo-lapiz)}
+.cursiva{font-style:italic}
+.marcador{background:var(--amarillo);box-shadow:0 0 0 3px var(--amarillo);color:var(--verde-tinta)}
+
+/* ---------- Cabecera y sumario ------------------------------------------- */
+.cabecera{
+  position:sticky;top:0;z-index:40;
+  background:var(--hueso-claro);
+  border-bottom:2px solid var(--verde-tinta);
+}
+.cabecera-fila{
+  display:flex;align-items:baseline;gap:14px;
+  padding:10px var(--margen) 8px;
+}
+.marca{font-family:var(--display);font-weight:700;font-size:1.55rem;letter-spacing:-.02em;line-height:1}
+.marca sup{font-family:var(--dato);font-size:.42em;letter-spacing:.14em;margin-left:.4em;vertical-align:super;color:var(--rojo-lapiz)}
+.cabecera-nota{margin-left:auto;text-align:right}
+.sumario{
+  display:flex;gap:0;overflow-x:auto;scrollbar-width:none;
+  border-top:var(--filete-fino);
+}
+.sumario::-webkit-scrollbar{display:none}
+.sumario button{
+  position:relative;flex:0 0 auto;
+  padding:11px clamp(12px,2.2vw,22px);
+  font-family:var(--dato);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gris-verde);white-space:nowrap;
+  border-right:var(--filete-fino);
+}
+.sumario button:first-child{padding-left:var(--margen)}
+.sumario button b{font-weight:400;color:var(--verde-tinta);margin-right:.55em}
+.sumario button[aria-current="page"]{color:var(--verde-tinta)}
+/* Subrayado a lápiz: se dibuja una vez al llegar, dice «estás aquí». */
+.sumario button[aria-current="page"]::after{
+  content:"";position:absolute;left:clamp(12px,2.2vw,22px);right:clamp(12px,2.2vw,22px);bottom:6px;
+  height:3px;background:var(--rojo-lapiz);
+  transform-origin:left;animation:trazo .26s var(--paso) both;
+}
+.sumario button:first-child[aria-current="page"]::after{left:var(--margen)}
+@keyframes trazo{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* ---------- La hoja y el paso de página ----------------------------------- */
+.hoja{position:relative;max-width:1340px;margin:0 auto;padding:0 var(--margen) 96px}
+.pantalla[hidden]{display:none}
+.pantalla{animation:entraHoja .34s var(--paso) both}
+@keyframes entraHoja{from{opacity:0;transform:translate3d(26px,0,0)}to{opacity:1;transform:none}}
+
+/* Canto de papel que cruza la pantalla al cambiar de sección. Una pasada. */
+#canto{position:fixed;inset:0 auto 0 0;width:120px;z-index:60;pointer-events:none;
+  background:var(--hueso-claro);border-right:2px solid var(--verde-tinta);
+  transform:translateX(-140px);opacity:0}
+#canto.pasa{animation:pasaCanto .42s var(--paso) both}
+@keyframes pasaCanto{
+  0%{transform:translateX(-140px);opacity:1}
+  100%{transform:translateX(100vw);opacity:1}
+}
+
+/* Titular en dos tiempos */
+.dos-tiempos .linea{display:block;overflow:hidden;padding-bottom:.1em;margin-bottom:-.1em}
+.dos-tiempos .linea > span{display:block;transform:translateY(103%);
+  animation:sube .5s var(--paso) both;animation-delay:var(--t,.06s)}
+@keyframes sube{to{transform:translateY(0)}}
+.tras-titular{animation:apunta .5s var(--paso) .34s both}
+@keyframes apunta{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ---------- Botones: gesto físico ----------------------------------------- */
+.boton{
+  display:inline-flex;align-items:center;gap:.6em;
+  padding:13px 22px;
+  font-family:var(--dato);font-size:.82rem;letter-spacing:.09em;text-transform:uppercase;
+  background:var(--verde-tinta);color:var(--hueso-claro);
+  border:1px solid var(--verde-tinta);
+  box-shadow:5px 5px 0 var(--verde-monte);
+  transition:transform .09s linear,box-shadow .09s linear;
+}
+.boton:active{transform:translate(5px,5px);box-shadow:0 0 0 var(--verde-monte)}
+.boton.papel{background:var(--hueso-claro);color:var(--verde-tinta);box-shadow:5px 5px 0 var(--rojo-lapiz)}
+.boton.papel:active{box-shadow:0 0 0 var(--rojo-lapiz)}
+.boton[disabled]{background:transparent;color:var(--gris-verde);border-style:dashed;
+  box-shadow:none;cursor:not-allowed;transform:none}
+.boton-menudo{padding:8px 14px;font-size:.74rem}
+
+/* ---------- Retícula asimétrica ------------------------------------------- */
+.reticula{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(16px,2.4vw,34px)}
+.col-7{grid-column:1/8}
+.col-4-der{grid-column:9/13}
+.col-5{grid-column:1/6}
+.col-6-der{grid-column:7/13}
+.col-8{grid-column:1/9}
+.col-todo{grid-column:1/13}
+.col-2-10{grid-column:3/11}
+
+/* ---------- Portada -------------------------------------------------------- */
+.cabecera-seccion{display:flex;align-items:baseline;gap:16px;padding:26px 0 12px}
+.cabecera-seccion .folio{flex:0 0 auto}
+.cabecera-seccion .filete{flex:1}
+.titular-portada{font-size:clamp(2.5rem,7.2vw,5.6rem);margin:.12em 0 0}
+.titular-portada em{font-style:italic;font-weight:400}
+.bloque-cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+.figura{position:relative;border:2px solid var(--verde-tinta);background:var(--hueso-claro)}
+.figura img{width:100%;height:100%;object-fit:cover;filter:saturate(.9) contrast(1.03)}
+.figura figcaption{
+  padding:9px 12px;border-top:2px solid var(--verde-tinta);
+  font-family:var(--dato);font-size:.72rem;line-height:1.35;letter-spacing:.03em;color:var(--gris-verde);
+  background:var(--hueso-claro);
+}
+.figura.alta img{aspect-ratio:3/4}
+.figura.banda img{aspect-ratio:16/7}
+.pie-numero{position:absolute;top:-2px;left:-2px;background:var(--verde-tinta);color:var(--hueso-claro);
+  font-family:var(--dato);font-size:.7rem;letter-spacing:.12em;padding:5px 9px}
+
+.pasos{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:2px solid var(--verde-tinta);border-bottom:2px solid var(--verde-tinta)}
+.paso{padding:22px 20px 26px;border-right:var(--filete-fino)}
+.paso:last-child{border-right:0}
+.paso .cifra{font-family:var(--display);font-size:3.4rem;line-height:.8;display:block;margin-bottom:14px}
+.paso h3{font-family:var(--texto);font-size:1.15rem;margin:0 0 6px;font-weight:600}
+.paso p{margin:0;color:var(--gris-verde);font-size:.97rem}
+
+.cita{font-family:var(--display);font-style:italic;font-size:clamp(1.7rem,4.6vw,3.2rem);line-height:1.06;margin:0}
+.cita-pie{margin-top:14px;max-width:38ch;color:var(--gris-verde)}
+
+.indice{list-style:none;margin:0;padding:0;columns:2;column-gap:34px}
+.indice li{break-inside:avoid;display:flex;gap:10px;align-items:baseline;padding:9px 0;border-bottom:var(--filete-fino)}
+.indice .n{font-family:var(--dato);font-size:.72rem;color:var(--rojo-lapiz)}
+.indice .z{margin-left:auto;font-family:var(--dato);font-size:.72rem;color:var(--gris-verde)}
+
+.plancha{background:var(--verde-tinta);color:var(--hueso-claro);padding:clamp(22px,3.4vw,40px)}
+.plancha .folio,.plancha .entradilla{color:var(--verde-claro)}
+.plancha a{color:var(--hueso-claro)}
+
+/* ---------- Estados (vacío, carga, aviso) ---------------------------------- */
+.estado{border:1px solid var(--rojo-lapiz);padding:18px 20px;background:var(--hueso-claro)}
+.estado .rotulo{font-family:var(--dato);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--rojo-lapiz);display:block;margin-bottom:7px}
+.estado p{margin:0;color:var(--gris-verde);max-width:52ch}
+.estado.neutro{border-color:var(--verde-tinta)}
+.estado.neutro .rotulo{color:var(--gris-verde)}
+.aviso{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--rojo-lapiz);border-left-width:6px;
+  padding:12px 14px;background:var(--hueso-claro)}
+.aviso p{margin:0;font-size:.95rem;color:var(--gris-verde)}
+.aviso button{font-family:var(--dato);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;margin-left:auto;color:var(--rojo-lapiz);text-decoration:underline}
+
+/* Carga: rayas de un formulario que se van rellenando. Una pasada, sin bucle. */
+.carga{border-top:var(--filete-fino)}
+.carga .linea-carga{display:flex;align-items:center;gap:14px;padding:18px 0;border-bottom:var(--filete-fino)}
+.carga .raya{height:11px;background:var(--verde-claro);transform-origin:left;animation:rellenaRaya .55s var(--paso) both}
+.carga .raya.corta{width:22%}
+.carga .raya.media{width:46%}
+.carga .raya.larga{width:68%}
+.carga .linea-carga:nth-child(2) .raya{animation-delay:.08s}
+.carga .linea-carga:nth-child(3) .raya{animation-delay:.16s}
+@keyframes rellenaRaya{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.carga .pie{font-family:var(--dato);font-size:.74rem;letter-spacing:.08em;color:var(--gris-verde);padding:12px 0}
+
+/* ---------- Buscador y resultados ------------------------------------------ */
+.buscador{display:grid;grid-template-columns:1.4fr 1fr auto;gap:0;border:2px solid var(--verde-tinta);background:var(--hueso-claro)}
+.campo{padding:12px 16px;border-right:var(--filete-fino)}
+.campo label{display:block;font-family:var(--dato);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gris-verde);margin-bottom:3px}
+.campo .valor{font-size:1.12rem}
+.buscador .boton{box-shadow:none;border:0;justify-content:center}
+.buscador .boton:active{transform:none;background:var(--verde-monte)}
+
+.filtros{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 6px}
+.chip{padding:7px 13px;border:1px solid var(--verde-tinta);font-family:var(--dato);font-size:.74rem;letter-spacing:.05em;
+  background:var(--hueso-claro);transition:transform .09s linear}
+.chip:active{transform:translate(1px,1px)}
+.chip[aria-pressed="true"]{background:var(--verde-tinta);color:var(--hueso-claro)}
+
+.resultado{display:grid;grid-template-columns:auto 1fr auto;gap:clamp(14px,2vw,28px);
+  padding:24px 0;border-bottom:var(--filete-fino);align-items:start}
+.resultado .orden{font-family:var(--display);font-size:2.2rem;line-height:.85;color:var(--gris-verde)}
+.resultado h3{font-family:var(--display);font-size:clamp(1.5rem,3.2vw,2.05rem);font-weight:600;margin:0 0 4px;line-height:1}
+.resultado .meta{font-family:var(--dato);font-size:.76rem;letter-spacing:.03em;color:var(--gris-verde);margin:0 0 12px}
+.resultado .precio{font-family:var(--dato);font-size:.95rem;text-align:right;white-space:nowrap}
+.resultado .precio b{display:block;font-size:1.25rem;font-weight:700}
+.marca-patro{display:inline-block;background:var(--rojo-lapiz);color:var(--hueso-claro);
+  font-family:var(--dato);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;padding:3px 7px;margin-left:8px;vertical-align:middle}
+.horas-linea{display:flex;flex-wrap:wrap;gap:7px}
+.hora-menuda{border:1px solid var(--verde-tinta);padding:6px 10px;font-family:var(--dato);font-size:.85rem;background:var(--hueso-claro)}
+
+/* ---------- Ficha del salón y rejilla de horas ----------------------------- */
+.servicio{display:flex;gap:14px;align-items:baseline;width:100%;text-align:left;
+  padding:14px 12px 14px 0;border-bottom:var(--filete-fino);transition:background .12s linear}
+.servicio:hover{background:var(--hueso-claro)}
+.servicio .nom{font-size:1.05rem}
+.servicio .dur{font-family:var(--dato);font-size:.74rem;color:var(--gris-verde);display:block;margin-top:2px}
+.servicio .pre{margin-left:auto;font-family:var(--dato);font-size:1rem;white-space:nowrap}
+.servicio[aria-pressed="true"]{background:var(--verde-tinta);color:var(--hueso-claro);padding-left:12px}
+.servicio[aria-pressed="true"] .dur{color:var(--verde-claro)}
+
+.dias{display:flex;gap:0;border:1px solid var(--verde-tinta);overflow-x:auto;scrollbar-width:none}
+.dias::-webkit-scrollbar{display:none}
+.dia{flex:1 0 auto;padding:9px 14px;border-right:var(--filete-fino);font-family:var(--dato);font-size:.76rem;text-align:center;line-height:1.5}
+.dia:last-child{border-right:0}
+.dia b{display:block;font-size:1.05rem;font-weight:700}
+.dia[aria-pressed="true"]{background:var(--verde-tinta);color:var(--hueso-claro)}
+
+.rejilla{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;margin-top:14px}
+.hora{position:relative;padding:12px 6px 14px;border:1px solid var(--verde-tinta);background:var(--hueso-claro);
+  font-family:var(--dato);font-size:1rem;text-align:center;transition:transform .09s linear}
+.hora::after{content:"";position:absolute;left:10px;right:10px;bottom:7px;height:2px;background:var(--verde-tinta);
+  transform-origin:left;transform:scaleX(1)}
+.hora:active{transform:translate(1px,1px)}
+.hora[aria-pressed="true"]{background:var(--amarillo);border-color:var(--verde-tinta);font-weight:700}
+.hora.ocupada{color:var(--gris-verde);background:transparent;border-style:dashed;text-decoration:line-through;cursor:default}
+.hora.ocupada::after{display:none}
+.hora .ocup{display:block;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;margin-top:3px}
+/* Se rellenan como un formulario a mano: primero la cifra, luego el trazo. */
+.rejilla.escribiendo .hora:not(.ocupada){animation:apareceHora .3s var(--paso) both;animation-delay:calc(var(--i)*28ms)}
+.rejilla.escribiendo .hora:not(.ocupada)::after{animation:trazo .22s var(--paso) both;animation-delay:calc(var(--i)*28ms + .14s)}
+@keyframes apareceHora{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+.boleta{border:2px solid var(--verde-tinta);background:var(--hueso-claro);padding:20px}
+.boleta dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:9px 16px;align-items:baseline}
+.boleta dt{font-family:var(--dato);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gris-verde)}
+.boleta dd{margin:0;text-align:right;font-size:1.02rem}
+.boleta .total{border-top:var(--filete);padding-top:12px;margin-top:12px;display:flex;align-items:baseline}
+.boleta .total b{margin-left:auto;font-family:var(--dato);font-size:1.35rem}
+.confirmada{border:2px solid var(--verde-tinta);background:var(--verde-tinta);color:var(--hueso-claro);padding:20px}
+.confirmada .folio{color:var(--verde-claro)}
+.confirmada h3{font-family:var(--display);font-size:1.7rem;margin:6px 0 8px;font-weight:600}
+.confirmada p{margin:0;color:var(--verde-claro)}
+.aparece{animation:apunta .34s var(--paso) both}
+
+/* ---------- Agenda del panel ----------------------------------------------- */
+.agenda{display:grid;grid-template-columns:64px repeat(3,1fr);border:1px solid var(--verde-tinta);background:var(--hueso-claro)}
+.agenda .cabeza{padding:10px 12px;border-bottom:2px solid var(--verde-tinta);border-right:var(--filete-fino);
+  font-family:var(--dato);font-size:.74rem;letter-spacing:.05em;background:var(--hueso-claro);position:sticky;top:var(--sumario-alto);z-index:5}
+.agenda .cabeza b{display:block;font-family:var(--texto);font-size:1rem;letter-spacing:0;font-weight:600}
+.agenda .horas-col{border-right:var(--filete-fino)}
+.agenda .marca-hora{height:80px;padding:4px 8px;font-family:var(--dato);font-size:.7rem;color:var(--gris-verde);border-bottom:var(--filete-fino)}
+.agenda .columna{border-right:var(--filete-fino);position:relative}
+.agenda .columna:last-child{border-right:0}
+.agenda .hueco{height:80px;border-bottom:var(--filete-fino)}
+.cita-bloque{position:absolute;left:4px;right:4px;border:1px solid var(--verde-tinta);background:var(--verde-tinta);
+  color:var(--hueso-claro);padding:6px 9px;overflow:hidden}
+.cita-bloque .quien{font-size:.95rem;line-height:1.15}
+.cita-bloque .que{font-family:var(--dato);font-size:.68rem;color:var(--verde-claro);margin-top:3px;display:block;line-height:1.3}
+.cita-bloque.pendiente{background:var(--hueso-claro);color:var(--verde-tinta);border-style:dashed}
+.cita-bloque.pendiente .que{color:var(--gris-verde)}
+.cita-bloque.fallada{background:var(--rojo-lapiz);border-color:var(--rojo-lapiz)}
+.cita-bloque.fallada .que{color:var(--hueso-claro)}
+.leyenda{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px;font-family:var(--dato);font-size:.72rem;color:var(--gris-verde)}
+.leyenda span{display:flex;align-items:center;gap:7px}
+.leyenda i{width:13px;height:13px;display:inline-block;border:1px solid var(--verde-tinta)}
+
+/* ---------- Consola -------------------------------------------------------- */
+.tabla{width:100%;border-collapse:collapse;font-size:.95rem}
+.tabla th{text-align:left;font-family:var(--dato);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gris-verde);padding:10px 12px;border-bottom:2px solid var(--verde-tinta);white-space:nowrap}
+.tabla td{padding:14px 12px;border-bottom:var(--filete-fino);vertical-align:baseline}
+.tabla tbody tr:hover{background:var(--hueso-claro)}
+.tabla .nombre{font-family:var(--display);font-size:1.15rem;font-weight:600}
+.tabla .num{font-family:var(--dato);text-align:right}
+.tabla th.num{text-align:right}
+.sello{font-family:var(--dato);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;padding:3px 7px;border:1px solid var(--verde-tinta);white-space:nowrap}
+.sello.publicado{background:var(--verde-tinta);color:var(--hueso-claro)}
+.sello.borrador{border-style:dashed;color:var(--gris-verde)}
+.sello.patro{background:var(--rojo-lapiz);color:var(--hueso-claro);border-color:var(--rojo-lapiz)}
+.ficha-mod{border:1px solid var(--verde-tinta);padding:16px;background:var(--hueso-claro)}
+.ficha-mod blockquote{margin:10px 0;font-style:italic;border-left:3px solid var(--rojo-lapiz);padding-left:12px;color:var(--gris-verde)}
+
+/* ---------- Pie ------------------------------------------------------------ */
+.pie-revista{border-top:2px solid var(--verde-tinta);margin-top:56px;padding-top:16px;
+  display:flex;flex-wrap:wrap;gap:14px;align-items:baseline}
+.pie-revista .folio{margin-left:auto}
+
+/* ---------- 390 px: la columna donde vive esto ----------------------------- */
+@media (max-width:900px){
+  body{font-size:16px}
+  .reticula{grid-template-columns:1fr;gap:20px}
+  .col-7,.col-4-der,.col-5,.col-6-der,.col-8,.col-todo,.col-2-10{grid-column:1/-1}
+  .pasos{grid-template-columns:1fr}
+  .paso{border-right:0;border-bottom:var(--filete-fino);padding:18px 0}
+  .paso:last-child{border-bottom:0}
+  .indice{columns:1}
+  .buscador{grid-template-columns:1fr}
+  .campo{border-right:0;border-bottom:var(--filete-fino)}
+  .resultado{grid-template-columns:auto 1fr;row-gap:10px}
+  .resultado .precio{grid-column:2;text-align:left}
+  .resultado .precio b{display:inline;font-size:1rem}
+  .rejilla{grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:6px}
+  .agenda{grid-template-columns:52px 1fr}
+  .agenda .cabeza.oculta-movil,.agenda .columna.oculta-movil{display:none}
+  .tabla thead{display:none}
+  .tabla tr{display:block;border-bottom:var(--filete);padding:14px 0}
+  .tabla td{display:flex;justify-content:space-between;gap:16px;border:0;padding:4px 0;text-align:right}
+  .tabla td::before{content:attr(data-rotulo);font-family:var(--dato);font-size:.66rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--gris-verde);text-align:left;flex:0 0 auto}
+  /* El nombre del negocio manda: rótulo arriba y la falta en su propia línea */
+  .tabla td:first-child{display:block;text-align:left}
+  .tabla td:first-child::before{display:block;margin-bottom:2px}
+  .tabla .nombre{font-size:1.25rem}
+  /* Los rótulos de sección no empujan la página a lo ancho */
+  .cabecera-seccion{flex-wrap:wrap;row-gap:6px;padding-top:20px}
+  .cabecera-seccion .filete{min-width:32px}
+  .cabecera-fila{flex-wrap:wrap;gap:6px}
+  .cabecera-nota{width:100%;text-align:left;margin-left:0}
+  .figura.banda img{aspect-ratio:4/3}
+}
+
+/* ---------- Sin movimiento -------------------------------------------------- */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-delay:0ms!important;transition-duration:.001ms!important}
+  .dos-tiempos .linea > span{transform:none}
+  #canto{display:none}
+}
+</style>
+</head>
+<body>
+<div id="canto" aria-hidden="true"></div>
+
+<header class="cabecera">
+  <div class="cabecera-fila">
+    <span class="marca">Bukeo<sup>PA</sup></span>
+    <span class="folio">Reservas de belleza y bienestar · Panamá</span>
+    <span class="cabecera-nota folio">Gratis para el salón · Sin tarjeta</span>
+  </div>
+  <nav class="sumario" aria-label="Sumario">
+    <button data-ir="portada" aria-current="page"><b>01</b> Portada</button>
+    <button data-ir="buscar"><b>02</b> Buscar</button>
+    <button data-ir="salon"><b>03</b> Salón</button>
+    <button data-ir="agenda"><b>04</b> Agenda del salón</button>
+    <button data-ir="consola"><b>05</b> Consola M2G</button>
+  </nav>
+</header>
+
+<main class="hoja">
+
+<!-- ====================== 01 · PORTADA ====================== -->
+<section class="pantalla" id="portada" aria-labelledby="t-portada">
+  <div class="cabecera-seccion">
+    <span class="folio">Uno · Portada</span>
+    <hr class="filete">
+    <span class="folio">Ciudad de Panamá</span>
+  </div>
+
+  <div class="reticula">
+    <div class="col-8">
+      <h1 class="display titular-portada dos-tiempos" id="t-portada">
+        <span class="linea" style="--t:.06s"><span>Reserva en salones</span></span>
+        <span class="linea" style="--t:.13s"><span>y barberías</span></span>
+        <span class="linea" style="--t:.28s"><span><em>de Panamá</em></span></span>
+      </h1>
+      <div class="tras-titular">
+        <p class="entradilla" style="margin-top:26px">Encuentra un sitio cerca, mira las horas libres de verdad y reserva. Sin llamar y sin esperar respuesta.</p>
+        <div class="bloque-cta">
+          <button class="boton" data-ir="buscar">Buscar cerca de mí</button>
+          <button class="boton papel" data-ir="buscar">Ver salones</button>
+        </div>
+      </div>
+    </div>
+
+    <figure class="figura alta col-4-der tras-titular" style="margin:0;align-self:end">
+      <span class="pie-numero">Fig. 1</span>
+      <img src="../../../apps/web/public/fotos/unas.webp" alt="Manicurista aplicando esmalte en un salón de uñas">
+      <figcaption>Manicura semipermanente en Nails &amp; Lashes, Obarrio. Una hora y quince minutos, $28.00.</figcaption>
+    </figure>
+  </div>
+
+  <div class="cabecera-seccion" style="margin-top:46px"><span class="folio">Cómo funciona</span><hr class="filete"></div>
+  <div class="pasos">
+    <article class="paso">
+      <span class="cifra display">1</span>
+      <h3>Busca lo que necesitas</h3>
+      <p>Corte, balayage, manicura o el salón por su nombre. Filtra por tu zona.</p>
+    </article>
+    <article class="paso">
+      <span class="cifra display">2</span>
+      <h3>Mira las horas que quedan</h3>
+      <p>Las de verdad, las que el salón tiene libres ahora mismo.</p>
+    </article>
+    <article class="paso">
+      <span class="cifra display">3</span>
+      <h3>Reserva con tu teléfono</h3>
+      <p>Un código por WhatsApp y listo. No hay contraseña que recordar.</p>
+    </article>
+  </div>
+
+  <div class="reticula" style="margin-top:46px;align-items:start">
+    <div class="col-5">
+      <p class="cita">«Horas reales,<br>no una solicitud.»</p>
+      <p class="cita-pie">Lo que ves libre está libre. Nadie te escribe al día siguiente para decirte que ya no hay. Cancelas tú misma hasta dos horas antes, desde tu teléfono y sin dar explicaciones.</p>
+    </div>
+    <figure class="figura banda col-6-der" style="margin:0">
+      <span class="pie-numero">Fig. 2</span>
+      <img src="../../../apps/web/public/fotos/spa.webp" alt="Masaje en camilla junto a una ventana con persiana de bambú">
+      <figcaption>Masaje descontracturante de sesenta minutos en Spa Costa del Este, $65.00.</figcaption>
+    </figure>
+  </div>
+
+  <div class="cabecera-seccion" style="margin-top:46px"><span class="folio">Índice de categorías</span><hr class="filete"><span class="folio">Zona</span></div>
+  <ul class="indice">
+    <li><span class="n">01</span> Barbería <span class="z">El Cangrejo</span></li>
+    <li><span class="n">02</span> Peluquería y salón <span class="z">Bella Vista</span></li>
+    <li><span class="n">03</span> Uñas <span class="z">Obarrio</span></li>
+    <li><span class="n">04</span> Pestañas y cejas <span class="z">Obarrio</span></li>
+    <li><span class="n">05</span> Maquillaje <span class="z">Marbella</span></li>
+    <li><span class="n">06</span> Depilación <span class="z">San Francisco</span></li>
+    <li><span class="n">07</span> Spa y masajes <span class="z">Costa del Este</span></li>
+    <li><span class="n">08</span> Estética <span class="z">Juan Díaz</span></li>
+  </ul>
+
+  <div class="reticula" style="margin-top:34px">
+    <div class="col-5">
+      <div class="estado neutro">
+        <span class="rotulo">Zona sin salones todavía</span>
+        <p>En Juan Díaz aún no hay ningún salón publicado. Si tienes uno, ábrelo tú y sales el mismo día.</p>
+      </div>
+    </div>
+    <div class="col-6-der plancha">
+      <span class="folio">Para el salón</span>
+      <h2 class="display" style="font-size:clamp(1.7rem,3.6vw,2.6rem);margin:.2em 0 .3em">Tu agenda, gratis.</h2>
+      <p class="entradilla" style="font-size:1.02rem">Sin tarjeta para registrarte, sin mensualidad y sin comisión por cita. Tardas menos de diez minutos en dejarlo funcionando desde el teléfono.</p>
+      <div class="bloque-cta"><button class="boton papel" data-ir="agenda">Ver el panel del salón</button></div>
+    </div>
+  </div>
+
+  <div class="pie-revista">
+    <span class="folio">Bukeo · Panamá</span>
+    <span class="folio">Los patrocinados van marcados. Pagar sale más arriba, nunca sube la nota.</span>
+    <span class="folio">01</span>
+  </div>
+</section>
+
+<!-- ====================== 02 · BUSCAR ====================== -->
+<section class="pantalla" id="buscar" hidden aria-labelledby="t-buscar">
+  <div class="cabecera-seccion">
+    <span class="folio">Dos · Resultados</span>
+    <hr class="filete">
+    <span class="folio" id="cuenta-resultados">Cuatro salones</span>
+  </div>
+
+  <div class="reticula" style="align-items:start">
+    <div class="col-8">
+      <h1 class="display dos-tiempos" style="font-size:clamp(2rem,5.4vw,3.6rem);margin:0" id="t-buscar">
+        <span class="linea"><span>Uñas en Obarrio,</span></span>
+        <span class="linea" style="--t:.24s"><span><em>hoy</em></span></span>
+      </h1>
+    </div>
+    <div class="col-4-der tras-titular">
+      <p class="dato-baja" style="color:var(--gris-verde);margin:0">Martes 8 de septiembre · Se muestran solo salones publicados con horas libres.</p>
+    </div>
+  </div>
+
+  <div class="tras-titular" style="margin-top:24px">
+    <div class="buscador">
+      <div class="campo"><label for="q">Qué buscas</label><div class="valor" id="q">Manicura y uñas</div></div>
+      <div class="campo"><label for="z">Dónde</label><div class="valor" id="z">Obarrio, Ciudad de Panamá</div></div>
+      <button class="boton">Buscar</button>
+    </div>
+
+    <div class="filtros" role="group" aria-label="Filtros">
+      <button class="chip" aria-pressed="true" data-filtro="hoy">Hoy</button>
+      <button class="chip" aria-pressed="false" data-filtro="abierto">Abierto ahora</button>
+      <button class="chip" aria-pressed="false" data-filtro="precio">Hasta $30.00</button>
+      <button class="chip" aria-pressed="false" data-filtro="vacio">Antes de las 8:00</button>
+      <button class="chip" aria-pressed="false" data-filtro="nota">Nota 4,5 o más</button>
+    </div>
+  </div>
+
+  <!-- Estado de carga: se rellena una vez y resuelve -->
+  <div class="carga" id="carga-buscar" hidden>
+    <div class="linea-carga"><span class="raya larga"></span></div>
+    <div class="linea-carga"><span class="raya media"></span></div>
+    <div class="linea-carga"><span class="raya corta"></span></div>
+    <p class="pie">Consultando las horas libres de hoy en Obarrio…</p>
+  </div>
+
+  <!-- Estado vacío -->
+  <div id="vacio-buscar" hidden style="margin-top:24px">
+    <div class="estado">
+      <span class="rotulo">Sin resultados</span>
+      <p>No encontramos nada con eso. Ningún salón de Obarrio abre antes de las 8:00. Prueba otra palabra o quita el filtro.</p>
+      <div class="bloque-cta"><button class="boton papel boton-menudo" data-quitar-filtros>Quitar los filtros</button></div>
+    </div>
+  </div>
+
+  <div id="lista-buscar" style="margin-top:8px">
+    <article class="resultado">
+      <span class="orden display">01</span>
+      <div>
+        <h3>Salón Marbella <span class="marca-patro">Patrocinado</span></h3>
+        <p class="meta">Peluquería y salón · Calle Uruguay, Marbella · 4,7 de 5 en 33 reseñas · 1,2 km</p>
+        <div class="horas-linea">
+          <span class="hora-menuda">11:30</span><span class="hora-menuda">13:00</span>
+          <span class="hora-menuda">16:15</span><span class="hora-menuda">17:45</span>
+        </div>
+      </div>
+      <p class="precio">desde<b>$25.00</b></p>
+    </article>
+
+    <article class="resultado">
+      <span class="orden display">02</span>
+      <div>
+        <h3><button data-ir="salon" style="text-align:left;font:inherit;text-decoration:underline;text-underline-offset:4px">Nails &amp; Lashes Obarrio</button></h3>
+        <p class="meta">Uñas, pestañas y cejas · Calle 53 Este, Obarrio · 4,9 de 5 en 41 reseñas · 350 m</p>
+        <div class="horas-linea">
+          <span class="hora-menuda">9:30</span><span class="hora-menuda">11:15</span>
+          <span class="hora-menuda">14:15</span><span class="hora-menuda">18:00</span>
+        </div>
+      </div>
+      <p class="precio">desde<b>$18.00</b></p>
+    </article>
+
+    <article class="resultado">
+      <span class="orden display">03</span>
+      <div>
+        <h3>Barbería El Cangrejo</h3>
+        <p class="meta">Barbería · Vía Argentina con Calle D, El Cangrejo · 4,8 de 5 en 24 reseñas · 900 m</p>
+        <div class="horas-linea">
+          <span class="hora-menuda">10:15</span><span class="hora-menuda">11:00</span>
+          <span class="hora-menuda">14:30</span><span class="hora-menuda">16:45</span>
+        </div>
+      </div>
+      <p class="precio">desde<b>$12.00</b></p>
+    </article>
+
+    <article class="resultado">
+      <span class="orden display">04</span>
+      <div>
+        <h3>Spa Costa del Este</h3>
+        <p class="meta">Spa y masajes · Boulevard Costa del Este · 4,7 de 5 en 18 reseñas · 6,4 km</p>
+        <div class="horas-linea">
+          <span class="hora-menuda">12:00</span><span class="hora-menuda">15:30</span>
+          <span class="hora-menuda">17:00</span>
+        </div>
+      </div>
+      <p class="precio">desde<b>$45.00</b></p>
+    </article>
+
+    <p class="dato-baja" style="color:var(--gris-verde);margin-top:22px">El patrocinado va marcado y ocupa un sitio, no esconde a los demás. El orden de los otros tres es por cercanía, nota y actividad reciente.</p>
+  </div>
+
+  <div class="pie-revista">
+    <span class="folio">Bukeo · Buscar</span>
+    <span class="folio">Obarrio · Martes 8 de septiembre</span>
+    <span class="folio">02</span>
+  </div>
+</section>
+
+<!-- ====================== 03 · FICHA DEL SALÓN ====================== -->
+<section class="pantalla" id="salon" hidden aria-labelledby="t-salon">
+  <div class="cabecera-seccion">
+    <span class="folio">Tres · Ficha del salón</span>
+    <hr class="filete">
+    <span class="folio">Obarrio</span>
+  </div>
+
+  <div class="reticula" style="align-items:end">
+    <div class="col-7">
+      <p class="dato" style="color:var(--gris-verde);margin:0 0 8px">Uñas, pestañas y cejas</p>
+      <h1 class="display dos-tiempos" style="font-size:clamp(2.2rem,6vw,4.2rem);margin:0" id="t-salon">
+        <span class="linea"><span>Nails &amp; Lashes</span></span>
+        <span class="linea" style="--t:.24s"><span><em>Obarrio</em></span></span>
+      </h1>
+      <p class="dato-baja tras-titular" style="color:var(--gris-verde);margin:16px 0 0">
+        Calle 53 Este, Obarrio · 4,9 de 5 en 41 reseñas · Abre hoy de 9:00 a 19:00<br>
+        Yappy y tarjeta · Estacionamiento en el edificio · Se atiende en español e inglés
+      </p>
+    </div>
+    <figure class="figura col-4-der tras-titular" style="margin:0">
+      <span class="pie-numero">Fig. 3</span>
+      <img src="../../../apps/web/public/fotos/unas.webp" alt="Detalle de una manicura en Nails and Lashes Obarrio" style="aspect-ratio:4/3">
+      <figcaption>Yaritza Moreno trabajando un semipermanente. Equipo de tres profesionales.</figcaption>
+    </figure>
+  </div>
+
+  <div class="reticula" style="margin-top:44px;align-items:start">
+    <div class="col-5">
+      <div class="cabecera-seccion" style="padding-top:0"><span class="folio">Servicios</span><hr class="filete"></div>
+      <button class="servicio" aria-pressed="true" data-servicio="Manicura semipermanente" data-dur="1 h 15 min" data-precio="28.00">
+        <span><span class="nom">Manicura semipermanente</span><span class="dur">1 h 15 min · con Yaritza, Dayana o Anayansi</span></span>
+        <span class="pre">$28.00</span>
+      </button>
+      <button class="servicio" aria-pressed="false" data-servicio="Manicura tradicional" data-dur="45 min" data-precio="18.00">
+        <span><span class="nom">Manicura tradicional</span><span class="dur">45 min</span></span><span class="pre">$18.00</span>
+      </button>
+      <button class="servicio" aria-pressed="false" data-servicio="Pedicura spa" data-dur="1 h" data-precio="30.00">
+        <span><span class="nom">Pedicura spa</span><span class="dur">1 h</span></span><span class="pre">$30.00</span>
+      </button>
+      <button class="servicio" aria-pressed="false" data-servicio="Pestañas pelo a pelo" data-dur="2 h" data-precio="65.00">
+        <span><span class="nom">Extensión de pestañas pelo a pelo</span><span class="dur">2 h · solo con Anayansi</span></span><span class="pre">$65.00</span>
+      </button>
+      <button class="servicio" aria-pressed="false" data-servicio="Diseño de cejas con henna" data-dur="40 min" data-precio="22.00">
+        <span><span class="nom">Diseño de cejas con henna</span><span class="dur">40 min</span></span><span class="pre">$22.00</span>
+      </button>
+      <p class="dato-baja" style="color:var(--gris-verde);margin-top:16px">Puedes cancelar o cambiar la cita hasta dos horas antes desde tu teléfono. Después de esa hora lo arregla el salón.</p>
+    </div>
+
+    <div class="col-6-der">
+      <div class="cabecera-seccion" style="padding-top:0"><span class="folio">Horas libres</span><hr class="filete"><span class="folio" id="dia-rotulo">Martes 8</span></div>
+
+      <div class="dias" role="group" aria-label="Elige el día">
+        <button class="dia" data-dia="lun" aria-pressed="false">lun<b>7</b></button>
+        <button class="dia" data-dia="mar" aria-pressed="true">mar<b>8</b></button>
+        <button class="dia" data-dia="mie" aria-pressed="false">mié<b>9</b></button>
+        <button class="dia" data-dia="jue" aria-pressed="false">jue<b>10</b></button>
+        <button class="dia" data-dia="vie" aria-pressed="false">vie<b>11</b></button>
+        <button class="dia" data-dia="sab" aria-pressed="false">sáb<b>12</b></button>
+        <button class="dia" data-dia="dom" aria-pressed="false">dom<b>13</b></button>
+      </div>
+
+      <div id="rejilla" class="rejilla"></div>
+      <div id="sin-horas" hidden style="margin-top:14px">
+        <div class="estado">
+          <span class="rotulo">Día sin huecos</span>
+          <p>No quedan horas ese día. El salón cierra los domingos. Prueba otro de la fila de arriba.</p>
+        </div>
+      </div>
+      <div id="pisada" hidden style="margin-top:14px">
+        <div class="aviso" role="status">
+          <p><b>Ese horario se acaba de ocupar.</b> Elige otro y lo confirmamos enseguida.</p>
+          <button data-cerrar-aviso>Cerrar</button>
+        </div>
+      </div>
+
+      <div id="boleta" class="boleta" style="margin-top:22px">
+        <span class="folio">Tu reserva</span>
+        <dl style="margin-top:12px">
+          <dt>Servicio</dt><dd id="b-servicio">Manicura semipermanente</dd>
+          <dt>Duración</dt><dd id="b-dur">1 h 15 min</dd>
+          <dt>Profesional</dt><dd>Yaritza Moreno</dd>
+          <dt>Día y hora</dt><dd id="b-hora">Elige una hora</dd>
+        </dl>
+        <div class="total"><span class="dato">Total en el salón</span><b id="b-total">$28.00</b></div>
+        <div class="bloque-cta"><button class="boton" id="b-confirmar" disabled>Reservar con mi teléfono</button></div>
+        <p class="dato-baja" style="color:var(--gris-verde);margin:14px 0 0">Te mandamos un código por WhatsApp. No hay contraseña que recordar.</p>
+      </div>
+
+      <div id="confirmada" class="confirmada aparece" hidden style="margin-top:22px">
+        <span class="folio">Reserva BK 2609 0148</span>
+        <h3>Lista. Te esperamos.</h3>
+        <p id="c-detalle">Manicura semipermanente con Yaritza Moreno, martes 8 de septiembre a las 11:15. Te llegó la confirmación por WhatsApp.</p>
+        <div class="bloque-cta"><button class="boton papel boton-menudo" id="otra">Reservar otra hora</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pie-revista">
+    <span class="folio">Bukeo · Nails &amp; Lashes Obarrio</span>
+    <span class="folio">bukeo.com/nails-and-lashes-obarrio</span>
+    <span class="folio">03</span>
+  </div>
+</section>
+
+<!-- ====================== 04 · AGENDA DEL SALÓN ====================== -->
+<section class="pantalla" id="agenda" hidden aria-labelledby="t-agenda">
+  <div class="cabecera-seccion">
+    <span class="folio">Cuatro · Panel del salón</span>
+    <hr class="filete">
+    <span class="folio">Nails &amp; Lashes Obarrio</span>
+  </div>
+
+  <div class="reticula" style="align-items:end">
+    <div class="col-7">
+      <h1 class="display dos-tiempos" style="font-size:clamp(2rem,5.2vw,3.4rem);margin:0" id="t-agenda">
+        <span class="linea"><span>Agenda del día</span></span>
+        <span class="linea" style="--t:.24s"><span id="t-agenda-dia"><em>Martes 8 de septiembre</em></span></span>
+      </h1>
+    </div>
+    <div class="col-4-der tras-titular">
+      <div class="dias" role="group" aria-label="Elige el día de la agenda" id="dias-agenda">
+        <button class="dia" data-dia-ag="lun" aria-pressed="false">lun<b>7</b></button>
+        <button class="dia" data-dia-ag="mar" aria-pressed="true">mar<b>8</b></button>
+        <button class="dia" data-dia-ag="mie" aria-pressed="false">mié<b>9</b></button>
+        <button class="dia" data-dia-ag="dom" aria-pressed="false">dom<b>13</b></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tras-titular" style="margin-top:20px">
+    <div class="aviso" id="sin-cobertura" role="status">
+      <p><b>Se cortó la conexión hace un momento.</b> Estás viendo la agenda guardada en el teléfono. Vuelve a intentarlo, no se creó nada.</p>
+      <button data-cerrar-aviso>Cerrar</button>
+    </div>
+  </div>
+
+  <div class="chips-prof filtros" id="chips-prof" style="margin-top:18px" role="group" aria-label="Profesional">
+    <button class="chip" data-prof="0" aria-pressed="true">Yaritza</button>
+    <button class="chip" data-prof="1" aria-pressed="false">Dayana</button>
+    <button class="chip" data-prof="2" aria-pressed="false">Anayansi</button>
+  </div>
+
+  <div class="agenda" id="tabla-agenda" style="margin-top:14px">
+    <div class="cabeza"><span class="folio">Hora</span></div>
+    <div class="cabeza" data-cab="0"><b>Yaritza Moreno</b><span>3 citas</span></div>
+    <div class="cabeza" data-cab="1"><b>Dayana Sánchez</b><span>2 citas</span></div>
+    <div class="cabeza" data-cab="2"><b>Anayansi Pérez</b><span>2 citas</span></div>
+
+    <div class="horas-col" id="col-horas"></div>
+    <div class="columna" data-col="0"></div>
+    <div class="columna" data-col="1"></div>
+    <div class="columna" data-col="2"></div>
+  </div>
+
+  <div id="agenda-vacia" hidden style="margin-top:18px">
+    <div class="estado neutro">
+      <span class="rotulo">Día sin citas</span>
+      <p>No hay citas este día. Cuando alguien reserve, aparece aquí. El domingo el salón está cerrado en tu horario.</p>
+      <div class="bloque-cta"><button class="boton papel boton-menudo">Añadir cita a mano</button></div>
+    </div>
+  </div>
+
+  <div class="leyenda">
+    <span><i style="background:var(--verde-tinta)"></i> Confirmada</span>
+    <span><i style="background:var(--hueso-claro);border-style:dashed"></i> Pendiente de confirmar</span>
+    <span><i style="background:var(--rojo-lapiz);border-color:var(--rojo-lapiz)"></i> No vino</span>
+  </div>
+
+  <div class="reticula" style="margin-top:34px">
+    <div class="col-5">
+      <div class="estado neutro">
+        <span class="rotulo">Falta para publicar</span>
+        <p>Para publicar el perfil falta una foto del local. Lo demás ya está: cinco servicios, horario y ubicación.</p>
+      </div>
+    </div>
+    <div class="col-6-der">
+      <p class="dato-baja" style="color:var(--gris-verde);margin:0">Dos clientas no pueden quedarse con la misma hora aunque confirmen a la vez. Cada profesional ve su agenda; la caja y la configuración son del dueño.</p>
+    </div>
+  </div>
+
+  <div class="pie-revista">
+    <span class="folio">Bukeo · Panel</span>
+    <span class="folio">Zona horaria de Panamá</span>
+    <span class="folio">04</span>
+  </div>
+</section>
+
+<!-- ====================== 05 · CONSOLA M2G ====================== -->
+<section class="pantalla" id="consola" hidden aria-labelledby="t-consola">
+  <div class="cabecera-seccion">
+    <span class="folio">Cinco · Consola interna M2G</span>
+    <hr class="filete">
+    <span class="folio">Sesión de Luis Gómez · Superadmin</span>
+  </div>
+
+  <div class="reticula" style="align-items:end">
+    <div class="col-7">
+      <h1 class="display dos-tiempos" style="font-size:clamp(2rem,5.2vw,3.4rem);margin:0" id="t-consola">
+        <span class="linea"><span>Negocios</span></span>
+        <span class="linea" style="--t:.24s"><span><em>en Bukeo</em></span></span>
+      </h1>
+    </div>
+    <div class="col-4-der tras-titular">
+      <p class="dato-baja" style="color:var(--gris-verde);margin:0">Publicar, suspender y entrar como el negocio queda registrado en la auditoría, con aviso al salón.</p>
+    </div>
+  </div>
+
+  <div class="filtros tras-titular" role="group" aria-label="Filtrar negocios">
+    <button class="chip" data-estado="todos" aria-pressed="true">Todos</button>
+    <button class="chip" data-estado="publicado" aria-pressed="false">Publicados</button>
+    <button class="chip" data-estado="borrador" aria-pressed="false">Borradores</button>
+    <button class="chip" data-estado="suspendido" aria-pressed="false">Suspendidos</button>
+  </div>
+
+  <div class="carga" id="carga-consola" hidden>
+    <div class="linea-carga"><span class="raya larga"></span></div>
+    <div class="linea-carga"><span class="raya media"></span></div>
+    <p class="pie">Cargando la lista de negocios…</p>
+  </div>
+
+  <div id="vacio-consola" hidden style="margin-top:20px">
+    <div class="estado neutro">
+      <span class="rotulo">Nada por aquí</span>
+      <p>No hay negocios suspendidos. Aquí aparecen los que el equipo baja del marketplace, con el motivo y quién lo hizo.</p>
+    </div>
+  </div>
+
+  <div id="tabla-consola">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Negocio</th><th>Zona</th><th>Estado</th><th class="num">Servicios</th><th class="num">Equipo</th><th class="num">Reservas 30 d</th><th class="num">Alta</th>
+        </tr>
+      </thead>
+      <tbody id="filas-consola"></tbody>
+    </table>
+    <p class="dato-baja" id="cuenta-consola" style="color:var(--gris-verde);margin-top:16px"></p>
+  </div>
+
+  <div class="reticula" style="margin-top:44px;align-items:start">
+    <div class="col-5">
+      <div class="cabecera-seccion" style="padding-top:0"><span class="folio">Moderación</span><hr class="filete"><span class="folio">2 sin resolver</span></div>
+      <div class="ficha-mod" style="margin-top:14px">
+        <span class="folio">Reseña reportada · Salón Marbella</span>
+        <blockquote>«Llegué a la hora y me atendieron cuarenta minutos tarde. El corte quedó bien pero el trato no.»</blockquote>
+        <p class="dato-baja" style="color:var(--gris-verde);margin:0 0 12px">Reportada por el negocio como falsa. La reserva existe y está completada el 29 de agosto.</p>
+        <div class="bloque-cta"><button class="boton boton-menudo">Mantener</button><button class="boton papel boton-menudo">Quitar</button></div>
+      </div>
+      <div class="ficha-mod" style="margin-top:14px;border-top:0">
+        <span class="folio">Foto reportada · Estudio de Cejas Bella Vista</span>
+        <p class="dato-baja" style="color:var(--gris-verde);margin:10px 0 12px">Foto de portada con marca de agua de otro estudio. Sin resolver desde el 30 de agosto.</p>
+        <div class="bloque-cta"><button class="boton boton-menudo">Pedir cambio</button><button class="boton papel boton-menudo">Ver perfil</button></div>
+      </div>
+    </div>
+    <div class="col-6-der">
+      <div class="cabecera-seccion" style="padding-top:0"><span class="folio">Configuración sin desplegar</span><hr class="filete"></div>
+      <div class="boleta" style="margin-top:14px">
+        <dl>
+          <dt>Plan Gratis</dt><dd>$0.00 al mes</dd>
+          <dt>Comisión por reserva</dt><dd>Ninguna</dd>
+          <dt>Destacado por zona, 7 días</dt><dd>$35.00</dd>
+          <dt>Patrocinados por página</dt><dd>2 de 10</dd>
+          <dt>Antelación mínima</dt><dd>1 hora</dd>
+          <dt>Plazo para cancelar</dt><dd>2 horas antes</dd>
+        </dl>
+        <p class="dato-baja" style="color:var(--gris-verde);margin:16px 0 0">Subir el plan a $1.00 es cambiar este valor y una fecha efectiva. No es un despliegue.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pie-revista">
+    <span class="folio">Bukeo · Consola M2G</span>
+    <span class="folio">Toda acción queda en la auditoría</span>
+    <span class="folio">05</span>
+  </div>
+</section>
+
+</main>
+
+<script>
+(() => {
+  'use strict';
+  const $  = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const espera = quieto ? 0 : 1;
+
+  /* ---------- Paso de página ------------------------------------------- */
+  const PANTALLAS = ['portada', 'buscar', 'salon', 'agenda', 'consola'];
+  const canto = $('#canto');
+
+  function reanimar(sec) {
+    const trozos = [sec, ...$$('.dos-tiempos .linea > span, .tras-titular', sec)];
+    trozos.forEach(e => { e.style.animation = 'none'; void e.offsetHeight; e.style.animation = ''; });
+  }
+
+  function mostrar(id, conCanto) {
+    if (!PANTALLAS.includes(id)) id = 'portada';
+    PANTALLAS.forEach(p => { $('#' + p).hidden = p !== id; });
+    $$('.sumario button').forEach(b => {
+      if (b.dataset.ir === id) b.setAttribute('aria-current', 'page');
+      else b.removeAttribute('aria-current');
+    });
+    if (conCanto && !quieto) {
+      canto.classList.remove('pasa'); void canto.offsetHeight; canto.classList.add('pasa');
+    }
+    const sec = $('#' + id);
+    reanimar(sec);
+    window.scrollTo(0, 0);
+    if (id === 'buscar')  cargarBusqueda();
+    if (id === 'salon')   pintarHoras();
+    if (id === 'agenda')  pintarAgenda();
+    if (id === 'consola') cargarConsola();
+  }
+
+  function ir(id) {
+    if (location.hash === '#/' + id) { mostrar(id, true); return; }
+    location.hash = '#/' + id;
+  }
+  addEventListener('hashchange', () => mostrar(location.hash.replace('#/', ''), true));
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-ir]');
+    if (b) { e.preventDefault(); ir(b.dataset.ir); }
+    const cerrar = e.target.closest('[data-cerrar-aviso]');
+    if (cerrar) cerrar.closest('.aviso').parentElement.hidden = true;
+  });
+
+  /* ---------- 02 · Buscar ------------------------------------------------ */
+  const carga = $('#carga-buscar'), lista = $('#lista-buscar'), vacio = $('#vacio-buscar');
+  let tempo = null;
+
+  function cargarBusqueda() {
+    const sinResultados = $('.chip[data-filtro="vacio"]').getAttribute('aria-pressed') === 'true';
+    clearTimeout(tempo);
+    carga.hidden = false; lista.hidden = true; vacio.hidden = true;
+    $$('.raya', carga).forEach(r => { r.style.animation = 'none'; void r.offsetHeight; r.style.animation = ''; });
+    tempo = setTimeout(() => {
+      carga.hidden = true;
+      lista.hidden = sinResultados;
+      vacio.hidden = !sinResultados;
+      $('#cuenta-resultados').textContent = sinResultados ? 'Ningún salón' : 'Cuatro salones';
+    }, 700 * espera);
+  }
+
+  $$('.chip[data-filtro]').forEach(c => c.addEventListener('click', () => {
+    c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+    cargarBusqueda();
+  }));
+  $('[data-quitar-filtros]').addEventListener('click', () => {
+    $$('.chip[data-filtro]').forEach(c => c.setAttribute('aria-pressed', c.dataset.filtro === 'hoy' ? 'true' : 'false'));
+    cargarBusqueda();
+  });
+
+  /* ---------- 03 · Ficha del salón --------------------------------------- */
+  const DIAS = {
+    lun: { rotulo: 'Lunes 7',   libres: ['9:00','9:45','10:30','13:15','14:00','16:30','17:15'], ocupadas: ['11:15','12:00','15:45'] },
+    mar: { rotulo: 'Martes 8',  libres: ['9:30','11:15','12:45','14:15','15:00','16:45','18:00'], ocupadas: ['10:30','12:00','13:30','17:15'] },
+    mie: { rotulo: 'Miércoles 9', libres: ['9:00','10:15','11:00','15:30','16:15'], ocupadas: ['12:30','13:15','14:00','17:00','17:45'] },
+    jue: { rotulo: 'Jueves 10', libres: ['10:00','11:45','13:00','14:30','18:15'], ocupadas: ['9:15','12:15','16:00'] },
+    vie: { rotulo: 'Viernes 11', libres: ['9:15','13:45','15:15'], ocupadas: ['10:00','11:30','12:45','14:30','16:00','17:30','18:15'] },
+    sab: { rotulo: 'Sábado 12', libres: ['8:45','9:30','11:00'], ocupadas: ['10:15','12:00','13:00','14:15','15:30'] },
+    dom: { rotulo: 'Domingo 13', libres: [], ocupadas: [] },
+  };
+  let dia = 'mar', hora = null;
+  const rejilla = $('#rejilla');
+
+  function pintarHoras() {
+    const d = DIAS[dia];
+    $('#dia-rotulo').textContent = d.rotulo;
+    $('#sin-horas').hidden = d.libres.length > 0;
+    $('#pisada').hidden = true;
+    rejilla.classList.remove('escribiendo');
+    const todas = [...d.libres.map(h => ({ h, libre: true })), ...d.ocupadas.map(h => ({ h, libre: false }))]
+      .sort((a, b) => (+a.h.split(':')[0] * 60 + +a.h.split(':')[1]) - (+b.h.split(':')[0] * 60 + +b.h.split(':')[1]));
+    rejilla.innerHTML = todas.map((s, i) => s.libre
+      ? `<button class="hora" style="--i:${i}" aria-pressed="false" data-hora="${s.h}">${s.h}</button>`
+      : `<button class="hora ocupada" style="--i:${i}" data-ocupada="1">${s.h}<span class="ocup">ocupado</span></button>`
+    ).join('');
+    if (!quieto && d.libres.length) {
+      void rejilla.offsetHeight;
+      rejilla.classList.add('escribiendo');
+    }
+  }
+
+  rejilla.addEventListener('click', e => {
+    const b = e.target.closest('.hora'); if (!b) return;
+    if (b.dataset.ocupada) { $('#pisada').hidden = false; return; }
+    $$('.hora', rejilla).forEach(h => h.setAttribute && h.getAttribute('aria-pressed') !== null && h.setAttribute('aria-pressed', 'false'));
+    b.setAttribute('aria-pressed', 'true');
+    hora = b.dataset.hora;
+    $('#pisada').hidden = true;
+    $('#b-hora').textContent = DIAS[dia].rotulo + ', ' + hora;
+    $('#b-confirmar').disabled = false;
+  });
+
+  $$('.dia[data-dia]').forEach(b => b.addEventListener('click', () => {
+    $$('.dia[data-dia]').forEach(o => o.setAttribute('aria-pressed', 'false'));
+    b.setAttribute('aria-pressed', 'true');
+    dia = b.dataset.dia; hora = null;
+    $('#b-hora').textContent = 'Elige una hora';
+    $('#b-confirmar').disabled = true;
+    $('#confirmada').hidden = true; $('#boleta').hidden = false;
+    pintarHoras();
+  }));
+
+  $$('.servicio').forEach(s => s.addEventListener('click', () => {
+    $$('.servicio').forEach(o => o.setAttribute('aria-pressed', 'false'));
+    s.setAttribute('aria-pressed', 'true');
+    $('#b-servicio').textContent = s.dataset.servicio;
+    $('#b-dur').textContent = s.dataset.dur;
+    $('#b-total').textContent = '$' + s.dataset.precio;
+  }));
+
+  $('#b-confirmar').addEventListener('click', () => {
+    $('#c-detalle').textContent = `${$('#b-servicio').textContent} con Yaritza Moreno, ${DIAS[dia].rotulo.toLowerCase()} de septiembre a las ${hora}. Te llegó la confirmación por WhatsApp.`;
+    $('#boleta').hidden = true;
+    const c = $('#confirmada'); c.hidden = false;
+    c.style.animation = 'none'; void c.offsetHeight; c.style.animation = '';
+  });
+  $('#otra').addEventListener('click', () => {
+    $('#confirmada').hidden = true; $('#boleta').hidden = false;
+    $('#b-confirmar').disabled = true; $('#b-hora').textContent = 'Elige una hora';
+    hora = null; pintarHoras();
+  });
+
+  /* ---------- 04 · Agenda del salón --------------------------------------- */
+  const ALTO = 80, INICIO = 9 * 60;
+  const CITAS = {
+    lun: [
+      [{ h: '10:00', min: 60, quien: 'Ariadne Vega', que: 'Pedicura spa · $30.00' }],
+      [{ h: '9:00', min: 45, quien: 'Katherine Him', que: 'Manicura tradicional · $18.00' },
+       { h: '13:00', min: 75, quien: 'Maricel Quintero', que: 'Manicura semipermanente · $28.00' }],
+      [{ h: '11:30', min: 120, quien: 'Nitzia Barría', que: 'Pestañas pelo a pelo · $65.00' }],
+    ],
+    mar: [
+      [{ h: '9:00', min: 75, quien: 'Maricel Quintero', que: 'Manicura semipermanente · $28.00' },
+       { h: '11:00', min: 60, quien: 'Ariadne Vega', que: 'Retoque de pestañas · $40.00' },
+       { h: '14:00', min: 60, quien: 'Kenia Ruiz', que: 'Pedicura spa · $30.00' }],
+      [{ h: '9:30', min: 45, quien: 'Katherine Him', que: 'Manicura tradicional · $18.00', clase: 'pendiente', nota: 'sin confirmar' },
+       { h: '12:00', min: 120, quien: 'Nitzia Barría', que: 'Pestañas pelo a pelo · $65.00' }],
+      [{ h: '10:00', min: 40, quien: 'Lorena Castillo', que: 'Cejas con henna · $22.00' },
+       { h: '13:30', min: 75, quien: 'Yarisel Ábrego', que: 'Semipermanente · no vino', clase: 'fallada' }],
+    ],
+    mie: [
+      [{ h: '9:45', min: 75, quien: 'Kenia Ruiz', que: 'Manicura semipermanente · $28.00' }],
+      [{ h: '12:00', min: 60, quien: 'Lorena Castillo', que: 'Pedicura spa · $30.00', clase: 'pendiente', nota: 'sin confirmar' }],
+      [{ h: '10:30', min: 120, quien: 'Maricel Quintero', que: 'Pestañas pelo a pelo · $65.00' }],
+    ],
+    dom: [[], [], []],
+  };
+  const ROTULOS = { lun: 'Lunes 7 de septiembre', mar: 'Martes 8 de septiembre', mie: 'Miércoles 9 de septiembre', dom: 'Domingo 13 de septiembre' };
+  let diaAg = 'mar', prof = 0;
+  const movil = matchMedia('(max-width: 900px)');
+
+  function pintarAgenda() {
+    const dat = CITAS[diaAg];
+    $('#t-agenda-dia').innerHTML = '<em>' + ROTULOS[diaAg] + '</em>';
+    const vacia = dat.every(c => c.length === 0);
+    $('#agenda-vacia').hidden = !vacia;
+    $('#tabla-agenda').hidden = vacia;
+
+    $('#col-horas').innerHTML = Array.from({ length: 7 },
+      (_, i) => `<div class="marca-hora">${9 + i}:00</div>`).join('');
+
+    dat.forEach((citas, i) => {
+      const col = $(`.columna[data-col="${i}"]`);
+      const huecos = Array.from({ length: 7 }, () => '<div class="hueco"></div>').join('');
+      const bloques = citas.map(c => {
+        const [hh, mm] = c.h.split(':').map(Number);
+        const top = (hh * 60 + mm - INICIO) / 60 * ALTO;
+        const alto = c.min / 60 * ALTO - 5;
+        return `<div class="cita-bloque ${c.clase || ''}" style="top:${top}px;height:${alto}px">
+          <span class="quien">${c.h} · ${c.quien}</span><span class="que">${c.que}${c.nota ? ' · ' + c.nota : ''}</span></div>`;
+      }).join('');
+      col.innerHTML = huecos + bloques;
+      const cab = $(`.cabeza[data-cab="${i}"] span`);
+      if (cab) cab.textContent = citas.length === 0 ? 'sin citas' : citas.length === 1 ? '1 cita' : citas.length + ' citas';
+    });
+    ajustarMovil();
+  }
+
+  function ajustarMovil() {
+    const esMovil = movil.matches;
+    $('#chips-prof').hidden = !esMovil;
+    [0, 1, 2].forEach(i => {
+      const oculta = esMovil && i !== prof;
+      $(`.cabeza[data-cab="${i}"]`).hidden = oculta;
+      $(`.columna[data-col="${i}"]`).hidden = oculta;
+    });
+  }
+  movil.addEventListener('change', ajustarMovil);
+  $$('.chip[data-prof]').forEach(c => c.addEventListener('click', () => {
+    $$('.chip[data-prof]').forEach(o => o.setAttribute('aria-pressed', 'false'));
+    c.setAttribute('aria-pressed', 'true');
+    prof = +c.dataset.prof; ajustarMovil();
+  }));
+  $$('.dia[data-dia-ag]').forEach(b => b.addEventListener('click', () => {
+    $$('.dia[data-dia-ag]').forEach(o => o.setAttribute('aria-pressed', 'false'));
+    b.setAttribute('aria-pressed', 'true');
+    diaAg = b.dataset.diaAg; pintarAgenda();
+  }));
+
+  /* ---------- 05 · Consola ------------------------------------------------ */
+  const NEGOCIOS = [
+    { n: 'Salón Marbella', z: 'Marbella', e: 'publicado', patro: true, s: 12, q: 5, r: 78, a: '21 ago' },
+    { n: 'Nails & Lashes Obarrio', z: 'Obarrio', e: 'publicado', s: 9, q: 3, r: 61, a: '14 ago' },
+    { n: 'Barbería El Cangrejo', z: 'El Cangrejo', e: 'publicado', s: 6, q: 3, r: 34, a: '12 ago' },
+    { n: 'Spa Costa del Este', z: 'Costa del Este', e: 'publicado', s: 7, q: 4, r: 22, a: '19 ago' },
+    { n: 'Barbería San Francisco', z: 'San Francisco', e: 'publicado', s: 5, q: 2, r: 9, a: '27 ago' },
+    { n: 'Estudio de Cejas Bella Vista', z: 'Bella Vista', e: 'borrador', falta: 'Falta una foto para publicar', s: 3, q: 1, r: 0, a: '28 ago' },
+    { n: 'Uñas Juan Díaz', z: 'Juan Díaz', e: 'borrador', falta: 'Falta el horario y la ubicación', s: 2, q: 1, r: 0, a: '1 sep' },
+  ];
+  let filtro = 'todos', tempoC = null;
+
+  function cargarConsola() {
+    clearTimeout(tempoC);
+    $('#carga-consola').hidden = false;
+    $('#tabla-consola').hidden = true;
+    $('#vacio-consola').hidden = true;
+    $$('.raya', $('#carga-consola')).forEach(r => { r.style.animation = 'none'; void r.offsetHeight; r.style.animation = ''; });
+    tempoC = setTimeout(() => {
+      const filas = NEGOCIOS.filter(x => filtro === 'todos' || x.e === filtro);
+      $('#carga-consola').hidden = true;
+      $('#tabla-consola').hidden = filas.length === 0;
+      $('#vacio-consola').hidden = filas.length > 0;
+      $('#filas-consola').innerHTML = filas.map(x => `<tr>
+        <td data-rotulo="Negocio"><span class="nombre">${x.n}</span>${x.falta ? `<br><span class="dato-baja rojo">${x.falta}</span>` : ''}</td>
+        <td data-rotulo="Zona">${x.z}</td>
+        <td data-rotulo="Estado"><span class="sello ${x.e}">${x.e}</span>${x.patro ? ' <span class="sello patro">Patrocinado</span>' : ''}</td>
+        <td data-rotulo="Servicios" class="num">${x.s}</td>
+        <td data-rotulo="Equipo" class="num">${x.q}</td>
+        <td data-rotulo="Reservas 30 d" class="num">${x.r}</td>
+        <td data-rotulo="Alta" class="num">${x.a}</td></tr>`).join('');
+      $('#cuenta-consola').textContent = filas.length === 1
+        ? '1 negocio en la lista.'
+        : `${filas.length} negocios en la lista. Los borradores no salen en el marketplace hasta que cumplen el mínimo para publicar.`;
+    }, 650 * espera);
+  }
+
+  $$('.chip[data-estado]').forEach(c => c.addEventListener('click', () => {
+    $$('.chip[data-estado]').forEach(o => o.setAttribute('aria-pressed', 'false'));
+    c.setAttribute('aria-pressed', 'true');
+    filtro = c.dataset.estado; cargarConsola();
+  }));
+
+  /* ---------- Arranque ---------------------------------------------------- */
+  const inicial = location.hash.replace('#/', '') || 'portada';
+  if (!location.hash) location.hash = '#/portada';
+  mostrar(inicial, false);
+})();
+</script>
+</body>
+</html>
