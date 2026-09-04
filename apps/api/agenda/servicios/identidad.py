@@ -94,10 +94,33 @@ async def solicitar_otp(
 
     # Emitir uno nuevo invalida los anteriores: si no, el código viejo seguiría sirviendo y la
     # ventana de ataque sería la suma de todas las ventanas.
+    #
+    # Se invalidan **todos los vivos**, no solo los de la ventana de envíos. El índice
+    # `uq_otp_codes_vivo` cubre cualquier código vivo del mismo destino y finalidad, así que uno
+    # emitido hace media hora y nunca usado hacía chocar al nuevo con una violación de unicidad
+    # que salía como **500 en la pantalla de acceso**. La lista de recientes sirve para contar
+    # el límite de envíos; para invalidar hace falta mirar más atrás.
     ahora = datetime.now(UTC)
-    for anterior in recientes:
-        if anterior.consumed_at is None and anterior.invalidated_at is None:
-            anterior.invalidated_at = ahora
+    vivos = (
+        (
+            await sesion.execute(
+                select(OtpCode).where(
+                    OtpCode.destination == telefono,
+                    OtpCode.purpose == proposito,
+                    OtpCode.consumed_at.is_(None),
+                    OtpCode.invalidated_at.is_(None),
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for anterior in vivos:
+        anterior.invalidated_at = ahora
+    # El `UPDATE` tiene que llegar a la base antes del `INSERT` o el índice parcial sigue viendo
+    # el código viejo como vivo.
+    if vivos:
+        await sesion.flush()
 
     codigo = _codigo_nuevo()
     sesion.add(

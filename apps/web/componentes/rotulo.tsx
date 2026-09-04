@@ -2,68 +2,39 @@
  * El rótulo de un salón.
  *
  * Es **la forma por defecto de presentar un salón**, no un parche para cuando falta la foto.
- * Cuando hay fotografía, la fotografía manda; cuando no la hay, esto es la pieza normal del
- * sistema. Antes había una inicial sobre un rectángulo de color, que es lo que Luis llamó
- * vaguería y tenía razón: una inicial es un avatar, y un nombre grande es un rótulo.
+ * Cuando hay fotografía, la fotografía manda; cuando no la hay, esto es la pieza normal.
  *
- * Tres ingredientes y ninguno pesa:
+ * Sigue el rótulo de la dirección «Noche de barrio panameño»: fondo de una de las superficies,
+ * el nombre en versales condensadas ocupando la pieza, el oficio debajo en pequeño, y **el tubo
+ * de neón encendido arriba**, que es lo que hace que un rótulo apagado y uno encendido se
+ * distingan sin leer nada.
  *
- * · **El nombre entero** a tamaño de cartel, en versales y ancho de rótulo. Es lo único que
- *   distingue a un salón de otro, así que ocupa la pieza entera.
- * · **La trama del oficio**, dibujada a trazo y aplicada como máscara, así que hereda el color
- *   del bloque igual que el logotipo hereda con `currentColor`. Distingue el oficio y no el
- *   negocio, y eso está bien: dos barberías comparten el poste rojiblanco y nadie las confunde.
- * · **El par de colores**, elegido por la posición en la lista. Con seis tramas y cuatro pares
- *   hay veinticuatro combinaciones para once salones.
- *
- * Todo el sistema pesa 1.369 bytes comprimido, que es el 2,4 % de una sola fotografía, y no
- * añade ni una petición de red.
+ * El prototipo que manda es `docs/marca/revision-3/direccion-1.html`.
  */
 
-/** De la categoría del salón a la trama que se dibuja detrás. */
+/** De la categoría del salón al oficio que se escribe debajo del nombre. */
 const OFICIO: Record<string, string> = {
-  barberia: 'barberia',
-  peluqueria: 'barberia',
-  unas: 'unas',
-  'pestanas-cejas': 'cejas',
-  maquillaje: 'maquillaje',
-  depilacion: 'cejas',
-  'spa-masajes': 'spa',
-  estetica: 'spa',
+  barberia: 'Barbería',
+  peluqueria: 'Peluquería',
+  unas: 'Uñas',
+  'pestanas-cejas': 'Pestañas y cejas',
+  maquillaje: 'Maquillaje',
+  depilacion: 'Depilación',
+  'spa-masajes': 'Spa y masajes',
+  estetica: 'Estética',
 }
 
-/** Los cuatro pares de la paleta. El orden es el del ritmo, no el de la importancia. */
+/**
+ * Las cuatro superficies del rótulo. **El neón sale una de cada cuatro**: si saliera en todas
+ * dejaría de ser un acento y pasaría a ser el color de fondo del producto.
+ */
 export const PARES = [
-  // Las tres alturas de la calle más el neón, que sale **una vez de cada cuatro**. Un saturado
-  // en todas las celdas deja de ser un acento y pasa a ser el color de fondo.
-  { fondo: 'var(--superficie-calle-alta)', tinta: 'var(--color-tinta)' },
-  { fondo: 'var(--superficie-local-alta)', tinta: 'var(--color-abre)' },
-  { fondo: 'var(--color-acento)', tinta: 'var(--color-acento-texto)' },
-  { fondo: 'var(--superficie-calle-media)', tinta: 'var(--color-tinta-suave)' },
+  { fondo: 'var(--superficie-calle-alta)', tubo: 'tubo' },
+  { fondo: 'var(--superficie-local-alta)', tubo: 'tubo tubo--calido' },
+  { fondo: 'var(--superficie-calle-media)', tubo: 'tubo tubo--apagado' },
+  { fondo: 'var(--superficie-trastienda-alta)', tubo: 'tubo' },
 ]
 
-/**
- * La talla la decide **la palabra más larga**, no el ancho de la pantalla.
- *
- * Así estrecha el letrero un rotulista: manda el nombre. Se cuenta aquí, en el servidor, porque
- * calcularlo con unidades de contenedor se muerde la cola —el ancho del rótulo depende del
- * texto que hay que medir—.
- */
-function talla(nombre: string) {
-  const masLarga = Math.max(...nombre.split(/\s+/).map((p) => p.length))
-  if (masLarga >= 10) return 'rotulo--larga'
-  if (masLarga >= 7) return 'rotulo--media'
-  return 'rotulo--corta'
-}
-
-/**
- * El par de colores que le toca a una posición.
- *
- * Se exporta porque hay un caso en el que el color tiene que estar **en el propio elemento** y
- * no en el rótulo: cuando el nombre se escribe encima. Si el color vive en un hermano, el texto
- * queda sin fondo real, y eso no es solo un problema de verificación: es que basta con que el
- * rótulo no cargue para que el nombre desaparezca.
- */
 export function parDeRotulo(indice: number) {
   return PARES[indice % PARES.length]
 }
@@ -72,33 +43,36 @@ export function Rotulo({
   nombre,
   categoria,
   indice = 0,
-  talla: variante = 'cartel',
+  talla = 'cartel',
   className = '',
 }: {
   nombre: string
-  /** Slug de la categoría principal. Si no llega, se usa la trama de horas, que vale para todo. */
   categoria?: string | null
-  /** Posición en la lista: es lo que reparte los colores para que la rejilla tenga ritmo. */
+  /** Posición en la lista: es lo que reparte las superficies para que la rejilla tenga ritmo. */
   indice?: number
+  /** `cartel` en una cabecera, `sello` en una lista, `fondo` donde el nombre ya está escrito. */
   talla?: 'cartel' | 'sello' | 'fondo'
   className?: string
 }) {
-  const par = PARES[indice % PARES.length]
-  const oficio = OFICIO[categoria ?? ''] ?? 'horas'
+  const par = parDeRotulo(indice)
+  const oficio = OFICIO[categoria ?? '']
 
   return (
     <span
-      className={`rotulo rotulo--${variante} oficio--${oficio} ${variante === 'cartel' ? talla(nombre) : ''} ${className}`}
-      style={{ ['--rotulo-fondo' as string]: par.fondo, ['--rotulo-tinta' as string]: par.tinta }}
+      className={`rotulo rotulo--${talla} ${className}`}
+      style={{ background: par.fondo }}
       // El nombre ya está escrito al lado en todos los sitios donde se usa esto, así que
       // repetirlo para un lector de pantalla es ruido.
       aria-hidden="true"
     >
-      {/* La talla «fondo» solo pinta color y trama: se usa donde el nombre ya está escrito
-          encima, como en las celdas de categoría de la portada. Meter ahí el texto del rótulo
-          lo escribiría dos veces y a un tamaño que no cabe en 132 px de alto. */}
-      {variante !== 'fondo' && (
-        <span className="rotulo__texto">{variante === 'sello' ? nombre.trim().charAt(0) : nombre}</span>
+      <span className={par.tubo} />
+      {talla !== 'fondo' && (
+        <>
+          <span className="rotulo__nombre">
+            {talla === 'sello' ? nombre.trim().charAt(0) : nombre}
+          </span>
+          {oficio && talla === 'cartel' && <span className="rotulo__oficio tenue">{oficio}</span>}
+        </>
       )}
     </span>
   )

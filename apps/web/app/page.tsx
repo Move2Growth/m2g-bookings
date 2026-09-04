@@ -162,10 +162,7 @@ export default function Portada() {
                     style={
                       c.foto
                         ? undefined
-                        : {
-                            background: parDeRotulo(i).fondo,
-                            color: parDeRotulo(i).tinta,
-                          }
+                        : { background: parDeRotulo(i).fondo }
                     }
                   >
                     {!c.foto && (

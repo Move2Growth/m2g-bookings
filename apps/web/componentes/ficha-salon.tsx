@@ -81,6 +81,7 @@ export function FichaSalon({
           )}
         </span>
 
+        <span className="resultado__cuerpo">
         <span className="resultado__nombre">
           {salon.patrocinado && (
             /* Un patrocinado va etiquetado siempre y encima del nombre, donde se lee antes de
@@ -117,6 +118,7 @@ export function FichaSalon({
             <small>{cerrado ? 'cerrado' : 'ver horas'}</small>
           </span>
         )}
+        </span>
       </Link>
 
       {onGuardar && salon.negocio_id && (

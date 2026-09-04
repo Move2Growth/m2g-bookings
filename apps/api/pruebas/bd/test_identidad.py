@@ -239,3 +239,48 @@ async def test_un_refresco_caducado_no_vale():
     finally:
         await sesion.close()
         await motor.dispose()
+
+
+async def test_un_codigo_vivo_y_antiguo_no_impide_pedir_otro():
+    """Pedir un código con uno vivo de hace rato **no puede reventar**.
+
+    El índice `uq_otp_codes_vivo` deja como mucho un código vivo por destino y finalidad. La
+    invalidación miraba solo los emitidos dentro de la ventana de envíos, así que uno de hace
+    media hora, nunca usado, seguía vivo y hacía chocar al nuevo con una violación de unicidad.
+
+    Salía como **500 en la pantalla de acceso**, que es la primera pantalla del producto, y solo
+    le pasaba a quien pide un código, lo deja, y vuelve un rato después. O sea, a mucha gente.
+    """
+    sesion, motor = await _sesion()
+    telefono = f"+5076{uuid.uuid4().int % 10**7:07d}"
+    try:
+        async with sesion.begin():
+            await servicio.solicitar_otp(sesion, telefono=telefono)
+            # Se envejece el código fuera de la ventana de envíos, dejándolo vivo: es
+            # exactamente el estado que rompía.
+            await sesion.execute(
+                text(
+                    "UPDATE otp_codes SET created_at = :antes "
+                    "WHERE destination = :tel AND consumed_at IS NULL "
+                    "AND invalidated_at IS NULL"
+                ),
+                {"antes": datetime.now(UTC) - timedelta(hours=1), "tel": telefono},
+            )
+
+            segundo = await servicio.solicitar_otp(sesion, telefono=telefono)
+            credenciales = await servicio.verificar_otp(sesion, telefono=telefono, codigo=segundo)
+            assert credenciales.usuario_id is not None
+
+            vivos = (
+                await sesion.execute(
+                    text(
+                        "SELECT count(*) FROM otp_codes WHERE destination = :tel "
+                        "AND consumed_at IS NULL AND invalidated_at IS NULL"
+                    ),
+                    {"tel": telefono},
+                )
+            ).scalar_one()
+            assert vivos == 0, "Al canjear el código no puede quedar ninguno vivo."
+    finally:
+        await sesion.close()
+        await motor.dispose()
