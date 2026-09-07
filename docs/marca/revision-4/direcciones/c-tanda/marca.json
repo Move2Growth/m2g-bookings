@@ -1,0 +1,49 @@
+{
+  "nombre": "Tanda",
+  "escritura": "TANDA",
+  "direccion": "C",
+  "semilla": "La plataforma es un escaparate y no debería robarle la marca al salón",
+  "frase": "Tanda es el marco. El salón es el cuadro.",
+  "por_que_el_nombre": [
+    "En Panamá una tanda es la función de una hora exacta. No dice «belleza» ni «agenda»:",
+    "dice «a las tres, con ella». Dos sílabas, cinco letras, sin hache muda, sin ll y sin",
+    "acento: se dice por teléfono una vez y se entiende."
+  ],
+
+  "tintas": {
+    "papel":  { "hex": "#FBF8F2", "para": "el fondo de todo; no existe una pantalla que no arranque aquí", "proporcion_pct": 63 },
+    "hueso":  { "hex": "#EFE8DA", "para": "lo que se apoya sobre el papel: celdas, hora ocupada, botón inhabilitado", "ratio_sobre_papel": 1.15, "prohibido_como_texto": true, "proporcion_pct": 18 },
+    "tinta":  { "hex": "#17140F", "para": "todo el texto principal, el marco y los filetes fuertes", "ratio_sobre_papel": 17.33, "nivel": "AAA", "proporcion_pct": 11 },
+    "gris":   { "hex": "#6E6559", "para": "texto secundario; sobre hueso baja a 4,70:1 y ahí se para", "ratio_sobre_papel": 5.40, "ratio_sobre_hueso": 4.70, "nivel": "AA", "proporcion_pct": 3 },
+    "rojo":   { "hex": "#B31226", "para": "la acción de la plataforma: reservar. Nunca la usa un local", "ratio_sobre_papel": 6.54, "nivel": "AA", "proporcion_pct": 2 },
+    "azul":   { "hex": "#123C63", "para": "lo que lleva a otro sitio y el anillo de foco de teclado. NO los nombres de persona", "ratio_sobre_papel": 10.70, "nivel": "AAA", "proporcion_pct": 1 }
+  },
+
+  "septima_tinta": {
+    "que_es": "La sube el local. El sistema le respeta el tono y le impone lo demás.",
+    "filtro_de_vitrina": "oklch(0.50, clamp(C, 0.06, 0.16), fuera(H, 3°–43°))",
+    "por_que_la_franja": [
+      "El rojo de reservar está en oklch(0.490, 0.189, 23.4). Sin prohibir esa franja, un local",
+      "que subiera cualquier rojo obtendría #AC3035, que al lado del botón es el mismo rojo, y la",
+      "regla de que el botón no cede se rompería sola. El rojo que suba sale por el borde más",
+      "cercano —#A72E5A o #A93900—: sigue siendo su rojo a ojo y ya no es el nuestro.",
+      "No se separan por contraste, que es idéntico a propósito: se separan por tono."
+    ],
+    "peor_caso_del_circulo": { "ratio": 4.70, "tono": 192, "nota": "en los dos sentidos; el contraste no tiene dirección" },
+    "tope_de_superficie_pct": 6,
+    "donde_pinta": ["el filo de su ficha", "el fondo de su sello", "el subrayado de su nombre", "la trama de su cabecera"]
+  },
+
+  "tipografia": {
+    "Archivo": { "foundry": "Omnibus-Type · Buenos Aires", "para": "rótulo, datos y botones", "pesos": [500, 700], "anchuras_pct": [100, 106, 112, 125] },
+    "Alegreya Sans": { "foundry": "Huerta Tipográfica · Argentina", "para": "todo lo que se lee", "pesos": [400, 500, 700], "cursiva": true }
+  },
+
+  "reglas_que_no_se_rompen": [
+    "La tipografía nunca cede: el local pone color, rótulo y fotos; la letra es de la casa. Y los símbolos también: la estrella va dibujada, no es el glifo del sistema.",
+    "Cifras siempre tabulares: una agenda con cifras que bailan es ilegible de un vistazo.",
+    "Nada por debajo de 12 px en pantalla, y el cuerpo base de la app es 15 px, no 14: se lee de pie y con el sol encima.",
+    "El sello toma la tinta del salón de la pantalla, nunca de la persona: media profesión trabaja en dos sitios.",
+    "El subrayado del nombre dice «esto se pulsa» y no puede depender de que el local haya subido color."
+  ]
+}

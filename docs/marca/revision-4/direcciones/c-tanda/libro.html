@@ -171,6 +171,7 @@ em{font-style:italic}
 .ficha{border:1.5px solid var(--tinta);background:var(--papel);display:flex;position:relative}
 .ficha > .filo{width:6px;flex:none}
 
+.est{width:.78em;height:.78em;vertical-align:baseline;display:inline-block}
 .llamada{position:relative;font-size:11px;line-height:1.32;color:var(--tinta);
   border-left:2px solid var(--rojo);padding-left:9px}
 .llamada > b:first-child{font-family:var(--exp);font-stretch:100%;font-weight:700;font-size:9px;
@@ -767,7 +768,7 @@ em{font-style:italic}
           <div style="border-top:1.5px solid var(--tinta);padding:10px 15px 11px">
             <div class="nota" style="font-size:10.5px">
               Las iniciales van en Archivo 700 al 118 % de anchura, a un tercio del lado del cuadro.
-              Papel sobre tinta filtrada: nunca por debajo de <b>4,98:1</b>.
+              Papel sobre tinta filtrada: nunca por debajo de <b>4,70:1</b>.
             </div>
           </div>
         </div>
@@ -854,7 +855,7 @@ em{font-style:italic}
           <div style="display:grid;grid-template-columns:56px 1fr 84px 118px 62px;gap:0 12px;
                       align-items:center;padding:9px 0;border-bottom:1.5px solid var(--tinta)">
             <div style="height:38px;background:#123C63"></div>
-            <div><b style="font-size:13.5px">Azul canal</b><div class="nota" style="font-size:10.5px">La persona: su nombre enlazado, y el anillo de foco de teclado.</div></div>
+            <div><b style="font-size:13.5px">Azul canal</b><div class="nota" style="font-size:10.5px">Lo que lleva a otro sitio —«otro día», «ver el salón»— y el anillo de foco de teclado. <b>No los nombres:</b> esos son tinta, y su subrayado es la tinta del local.</div></div>
             <div class="dato" style="font-size:11.5px">#123C63</div>
             <div class="dato" style="font-size:11.5px">18 · 60 · 99</div>
             <div class="dato" style="font-size:11.5px;text-align:right">10,70:1</div>
@@ -898,12 +899,15 @@ em{font-style:italic}
             </div>
             <div class="dato" style="margin-top:9px;background:var(--hueso);padding:9px 11px;
                         font-size:12px;line-height:1.5;border-left:3px solid var(--rojo)">
-              oklch(<b>0.50</b>, clamp(C, <b>0.06</b>, <b>0.16</b>), H<sub>suyo</sub>)
+              oklch(<b>0.50</b>, clamp(C, <b>0.06</b>, <b>0.16</b>), fuera(H<sub>suyo</sub>, <b>3°–43°</b>))
             </div>
             <div class="nota" style="font-size:10.5px;margin-top:7px">
-              Luminosidad fija y croma acotado: por eso un fucsia de uñas y un azul de barbería
-              pesan exactamente lo mismo en una lista. El tono, que es lo que la dueña reconoce
-              como «su color», no se toca.
+              Luminosidad fija y croma acotado: un fucsia de uñas y un azul de barbería pesan lo
+              mismo en una lista. Del tono solo se prohíbe <b>la franja del rojo de reservar</b>:
+              sin ella, una barbería de rótulo rojo pintaría su filo y su sello del color exacto
+              del botón. El rojo que suba sale por el borde: <b class="dato">#A72E5A</b> o
+              <b class="dato">#A93900</b>. No se separan por contraste —pesan lo mismo, que es el
+              objetivo— sino <b>por tono</b>.
             </div>
           </div>
 
@@ -926,8 +930,9 @@ em{font-style:italic}
           <div style="border-top:1.5px solid var(--tinta);padding:11px 15px 12px">
             <div class="epigrafe" style="color:var(--rojo);font-size:8.5px">La garantía, barrida sobre los 360 tonos</div>
             <div style="font-size:12.5px;margin-top:5px;line-height:1.35">
-              Peor caso de todo el círculo cromático: <b class="dato">4,70:1</b> de la tinta del
-              local sobre papel y <b class="dato">4,98:1</b> con papel encima. <b>Ningún color que
+              Peor caso de todo el círculo cromático: <b class="dato">4,70:1</b> entre la tinta
+              del local y el papel, <b>en los dos sentidos</b> —el contraste no tiene dirección, y
+              escribir dos números para el mismo par era inventarse uno—. <b>Ningún color que
               suba nadie puede bajar de AA.</b>
             </div>
             <div class="nota" style="font-size:10px;margin-top:6px">
@@ -1029,7 +1034,7 @@ em{font-style:italic}
           </div>
           <div style="display:grid;grid-template-columns:1fr 176px;gap:0 16px;align-items:end;
                       padding:10px 0 0">
-            <div class="dato" style="font-size:23px">3:30 · B/. 28,00 · ★ 4,9</div>
+            <div class="dato" style="font-size:23px">3:30 · B/. 28,00 · <svg class="est" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0.4 7.7 4.4 12 4.7 8.7 7.5 9.7 11.6 6 9.3 2.3 11.6 3.3 7.5 0 4.7 4.3 4.4Z" fill="currentColor"/></svg> 4,9</div>
             <div class="nota dato" style="font-size:10px;text-align:right">Archivo 500 · 100 %<br>cifras tabulares</div>
           </div>
         </div>
@@ -1039,7 +1044,7 @@ em{font-style:italic}
             <div class="epigrafe">Espécimen: el párrafo real</div>
             <div style="font-size:13.5px;line-height:1.45;margin-top:7px">
               Yaritza lleva seis años haciendo uñas en Bella Vista. Ha atendido a
-              <span class="dato">1.240</span> personas por aquí y tiene <b>★ 4,9</b> de
+              <span class="dato">1.240</span> personas por aquí y tiene <b><svg class="est" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0.4 7.7 4.4 12 4.7 8.7 7.5 9.7 11.6 6 9.3 2.3 11.6 3.3 7.5 0 4.7 4.3 4.4Z" fill="currentColor"/></svg> 4,9</b> de
               <span class="dato">312</span> reseñas. Hoy le quedan tres tandas libres:
               <span class="dato">3:30</span>, <span class="dato">4:45</span> y
               <span class="dato">6:15</span>. <em>Puedes reservar sin llamar.</em>
@@ -1049,7 +1054,9 @@ em{font-style:italic}
             <div class="epigrafe" style="color:var(--rojo)">Las tres reglas que no se rompen</div>
             <div style="font-size:12px;line-height:1.4;margin-top:8px">
               <b>1 · La tipografía nunca cede.</b> El local pone color, rótulo y fotos; la letra
-              es de la casa siempre. Un salón no sube su fuente.<br><br>
+              es de la casa siempre. Un salón no sube su fuente. <b>Y los símbolos tampoco:</b> la
+              estrella de las notas va dibujada, no es el glifo del sistema. Con el glifo, el signo
+              más repetido del producto lo ponía macOS y cambiaba de forma en cada teléfono.<br><br>
               <b>2 · Cifras siempre tabulares.</b> Horas y precios en columna tienen que alinearse:
               una agenda con cifras que bailan es ilegible de un vistazo.<br><br>
               <b>3 · Nada por debajo de 12 px</b> en pantalla, ni 10,5 px en este libro. Y el cuerpo
@@ -1264,7 +1271,7 @@ em{font-style:italic}
           día es exactamente esto.
         </div>
       </div>
-      <div class="filete" style="margin:9px 0 11px"></div>
+      <div class="filete" style="margin:7px 0 8px"></div>
 
       <div style="flex:1;display:flex;gap:24px">
 
@@ -1322,7 +1329,7 @@ em{font-style:italic}
                       <div style="font-size:16.5px;font-weight:700;line-height:1.15">
                         <span style="box-shadow:inset 0 -3px 0 var(--l1)">Yaritza Him</span></div>
                       <div style="font-size:13px;color:var(--gris);margin-top:2px">Uñas Ávila · a 400 m</div>
-                      <div class="dato" style="font-size:12.5px;margin-top:3px">★ 4,9 (312) · 1.240 atendidas</div>
+                      <div class="dato" style="font-size:12.5px;margin-top:3px"><svg class="est" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0.4 7.7 4.4 12 4.7 8.7 7.5 9.7 11.6 6 9.3 2.3 11.6 3.3 7.5 0 4.7 4.3 4.4Z" fill="currentColor"/></svg> 4,9 (312) · 1.240 atendidas</div>
                     </div>
                     <div style="text-align:right;flex:none">
                       <div class="dato" style="border:2px solid var(--tinta);padding:4px 8px;font-size:15px">3:30</div>
@@ -1339,7 +1346,7 @@ em{font-style:italic}
                       <div style="font-size:16.5px;font-weight:700;line-height:1.15">
                         <span style="box-shadow:inset 0 -3px 0 var(--l2)">Kevin Barría</span></div>
                       <div style="font-size:13px;color:var(--gris);margin-top:2px">Barbería El Chorrillo · a 900 m</div>
-                      <div class="dato" style="font-size:12.5px;margin-top:3px">★ 4,8 (196) · 870 atendidos</div>
+                      <div class="dato" style="font-size:12.5px;margin-top:3px"><svg class="est" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0.4 7.7 4.4 12 4.7 8.7 7.5 9.7 11.6 6 9.3 2.3 11.6 3.3 7.5 0 4.7 4.3 4.4Z" fill="currentColor"/></svg> 4,8 (196) · 870 atendidos</div>
                     </div>
                     <div style="text-align:right;flex:none">
                       <div class="dato" style="border:2px solid var(--tinta);padding:4px 8px;font-size:15px">4:00</div>
@@ -1356,7 +1363,7 @@ em{font-style:italic}
                       <div style="font-size:16.5px;font-weight:700;line-height:1.15">
                         <span style="box-shadow:inset 0 -3px 0 var(--l3)">Dayra Castillo</span></div>
                       <div style="font-size:13px;color:var(--gris);margin-top:2px">Spa Ancón · a 1,2 km</div>
-                      <div class="dato" style="font-size:12.5px;margin-top:3px">★ 5,0 (74) · 410 atendidas</div>
+                      <div class="dato" style="font-size:12.5px;margin-top:3px"><svg class="est" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0.4 7.7 4.4 12 4.7 8.7 7.5 9.7 11.6 6 9.3 2.3 11.6 3.3 7.5 0 4.7 4.3 4.4Z" fill="currentColor"/></svg> 5,0 (74) · 410 atendidas</div>
                     </div>
                     <div style="text-align:right;flex:none">
                       <div class="dato" style="border:2px solid var(--tinta);padding:4px 8px;font-size:15px">5:15</div>
@@ -1366,11 +1373,11 @@ em{font-style:italic}
                 </div>
 
                 <div class="ficha">
-                  <div class="filo trama t0" style="--tt:var(--linea);background-color:var(--papel)"></div>
+                  <div class="filo trama t0" style="--tt:var(--gris);background-color:var(--papel)"></div>
                   <div style="flex:1;padding:11px 12px;display:flex;gap:11px;align-items:flex-start">
-                    <div class="sello vacio trama t0" style="--tt:var(--linea);width:54px;height:54px;font-size:19px;background-color:var(--papel)">MG</div>
+                    <div class="sello vacio trama t0" style="--tt:var(--gris);width:54px;height:54px;font-size:19px;background-color:var(--papel)">MG</div>
                     <div style="flex:1;min-width:0">
-                      <div style="font-size:16.5px;font-weight:700;line-height:1.15">Milagros Grajales</div>
+                      <div style="font-size:16.5px;font-weight:700;line-height:1.15;box-shadow:inset 0 -3px 0 var(--tinta)">Milagros Grajales</div>
                       <div style="font-size:13px;color:var(--gris);margin-top:2px">Estudio Vía Argentina · a 1,4 km</div>
                       <div class="dato" style="font-size:12.5px;margin-top:3px">Nueva aquí · 0 reseñas</div>
                     </div>
@@ -1389,7 +1396,7 @@ em{font-style:italic}
                       <div style="font-size:16.5px;font-weight:700;line-height:1.15">
                         <span style="box-shadow:inset 0 -3px 0 var(--l5)">Aracelly Pinzón</span></div>
                       <div style="font-size:13px;color:var(--gris);margin-top:2px">Pestañas Obarrio · a 1,6 km</div>
-                      <div class="dato" style="font-size:12.5px;margin-top:3px">★ 4,9 (523) · 2.100 atendidas</div>
+                      <div class="dato" style="font-size:12.5px;margin-top:3px"><svg class="est" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0.4 7.7 4.4 12 4.7 8.7 7.5 9.7 11.6 6 9.3 2.3 11.6 3.3 7.5 0 4.7 4.3 4.4Z" fill="currentColor"/></svg> 4,9 (523) · 2.100 atendidas</div>
                     </div>
                     <div style="text-align:right;flex:none">
                       <div class="dato" style="border:2px solid var(--tinta);padding:4px 8px;font-size:15px">6:30</div>
@@ -1449,7 +1456,7 @@ em{font-style:italic}
 
               <div style="display:flex;border:1.5px solid var(--tinta);margin-top:15px">
                 <div style="flex:1;padding:8px 0;text-align:center;border-right:1px solid var(--linea)">
-                  <div class="dato" style="font-size:17px">★ 4,9</div><div class="nota" style="font-size:11px">312 reseñas</div></div>
+                  <div class="dato" style="font-size:17px"><svg class="est" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0.4 7.7 4.4 12 4.7 8.7 7.5 9.7 11.6 6 9.3 2.3 11.6 3.3 7.5 0 4.7 4.3 4.4Z" fill="currentColor"/></svg> 4,9</div><div class="nota" style="font-size:11px">312 reseñas</div></div>
                 <div style="flex:1;padding:8px 0;text-align:center;border-right:1px solid var(--linea)">
                   <div class="dato" style="font-size:17px">1.240</div><div class="nota" style="font-size:11px">atendidas</div></div>
                 <div style="flex:1;padding:8px 0;text-align:center">
@@ -1566,9 +1573,9 @@ em{font-style:italic}
                 <div style="display:flex;gap:10px">
                   <div class="dato" style="width:46px;flex:none;font-size:14px;padding-top:11px;text-align:right;color:var(--gris)">11:00</div>
                   <div class="ficha" style="flex:1">
-                    <div class="filo" style="background:var(--l3)"></div>
+                    <div class="filo" style="background:var(--l1)"></div>
                     <div style="flex:1;padding:9px 11px;display:flex;gap:9px;align-items:center">
-                      <div class="sello" style="width:38px;height:38px;background:var(--l3);font-size:14px">DC</div>
+                      <div class="sello" style="width:38px;height:38px;background:var(--l1);font-size:14px">MR</div>
                       <div style="flex:1">
                         <div style="font-size:14.5px;font-weight:700">Melquiades Ruiz</div>
                         <div class="nota" style="font-size:12px">Pedicura spa · 1 h</div>
@@ -1643,8 +1650,9 @@ em{font-style:italic}
           </div>
           <div class="llamada">
             <b>2 · El local que no subió nada</b>
-            Sin color y sin foto: trama 00 en el filo y en el sello, iniciales en tinta de la casa.
-            Digno, y distinto del vecino, sin haber hecho nada.
+            Trama 00 en gris de la casa —la línea, a 1,44:1, no se ve— y el nombre <b>subrayado en
+            tinta</b>: eso dice «se pulsa» y no puede depender del color. El sello toma la tinta del
+            salón de la pantalla, no de la persona.
           </div>
           <div class="llamada">
             <b>3 · La cabecera sí es suya</b>
@@ -1653,15 +1661,14 @@ em{font-style:italic}
           </div>
           <div class="llamada">
             <b>4 · La persona, también aquí</b>
-            En la agenda del negocio cada tanda lleva el sello de <em>quién</em> la atiende,
-            no solo la hora.
+            Cada tanda lleva el sello de <em>quién</em> la atiende, no solo la hora.
           </div>
           <div style="border:1.5px solid var(--tinta);padding:9px 11px;margin-top:2px">
             <div class="epigrafe" style="font-size:8.5px">Lo que jamás cede</div>
             <div class="nota" style="font-size:10px;margin-top:4px;color:var(--tinta)">
               El fondo, la letra, la altura de los controles, el precio, la hora, el estado
-              libre/ocupada y el <b>botón rojo de reservar</b>. Todo eso lo compara la clienta
-              entre locales: si cambiara, dejaría de poder compararse.
+              libre/ocupada y el <b>botón rojo de reservar</b>: lo que la clienta compara entre
+              locales.
             </div>
           </div>
         </div>
@@ -1729,7 +1736,7 @@ em{font-style:italic}
                 <div style="font-family:'Archivo';font-stretch:112%;font-weight:700;font-size:16px;margin-top:7px">
                   <span style="box-shadow:inset 0 -3px 0 var(--l1)">Yaritza Him</span></div>
                 <div class="nota" style="font-size:10.5px;margin-top:2px">Uñas · Bella Vista, Panamá</div>
-                <div class="dato" style="font-size:10.5px;margin-top:4px">★ 4,9 · 1.240 atendidas</div>
+                <div class="dato" style="font-size:10.5px;margin-top:4px"><svg class="est" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0.4 7.7 4.4 12 4.7 8.7 7.5 9.7 11.6 6 9.3 2.3 11.6 3.3 7.5 0 4.7 4.3 4.4Z" fill="currentColor"/></svg> 4,9 · 1.240 atendidas</div>
                 <div style="margin-top:9px;height:30px;background:var(--rojo);color:var(--papel);display:grid;
                             place-items:center;font-family:'Archivo';font-stretch:106%;font-weight:700;
                             font-size:9.5px;letter-spacing:.07em;box-shadow:3px 3px 0 var(--tinta)">RESERVAR CON YARITZA</div>
