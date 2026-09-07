@@ -16,9 +16,19 @@
 | **Mapa** | Los salones del rectángulo visible, con nota y número de reseñas, y la ficha al tocar | `GET /publico/mapa` |
 | **Aceptar una invitación** | Quien recibe el correo entra, ve a qué salón y con qué papel, y acepta | `POST /invitaciones/ver` y `/aceptar` |
 
-**El mapa necesita una decisión de Luis:** la consulta es nuestra y no cuesta nada, pero
-**dibujar las baldosas** necesita un proveedor (Mapbox o Google) y su clave. Es la decisión D8,
-abierta desde el 1 de septiembre por coste.
+**El mapa necesita una decisión de Luis**, pero conviene saber que **no es una decisión de pagar
+o no hacerlo**. La consulta es nuestra y no cuesta nada; lo que necesita proveedor es dibujar las
+baldosas, y ahí hay tres caminos distintos:
+
+| Camino | Qué implica |
+|---|---|
+| **Teselas de OpenStreetMap** | Sin clave y sin coste. Su política de uso pide no cargarles tráfico serio, así que sirve para verlo funcionando y para una demo, **no para producción** |
+| **Mapbox o Google** | Clave y factura por cargas de mapa. Es la decisión D8, abierta desde el 1 de septiembre |
+| **Teselas propias** | Sin coste por carga y sin límite de uso, pero hay que servirlas |
+
+Lo importante: **el primer camino permite construir la pantalla entera hoy** y cambiar de
+proveedor el día que se decida, porque lo que cambia es una URL de teselas. No hace falta elegir
+para empezar; hace falta elegir para publicar.
 
 ## Del profesional
 
