@@ -131,7 +131,7 @@ function Contenido() {
     setEnviando(true)
     setError(null)
     try {
-      await conSesion('/api/v1/mi/reservas', {
+      const creada = await conSesion<{ id: string }>('/api/v1/mi/reservas', {
         metodo: 'POST',
         token: sesion.acceso,
         cuerpo: {
@@ -142,7 +142,9 @@ function Contenido() {
           nombre: nombreCliente || undefined,
         },
       })
-      router.push('/mis-reservas?nueva=1')
+      // Con el identificador de la cita recién creada, para que la lista pueda decir «esta es
+      // la que acabas de reservar» y no dejar a la persona preguntándose si se guardó.
+      router.push(`/mi/citas?nueva=${creada.id}`)
     } catch (fallo) {
       // El caso que importa: alguien confirmó ese hueco mientras esta persona decidía. El
       // mensaje viene del servidor y se enseña tal cual, con el enlace para volver a elegir.

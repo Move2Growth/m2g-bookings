@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useCallback, useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useCallback, useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Error as BloqueDeError, Esqueleto, Vacio } from '@/componentes/estados'
 import { Hoja } from '@/componentes/hoja'
 import { Iconos } from '@/componentes/pestanas'
@@ -16,6 +16,10 @@ import { conSesion, leerSesion, type Sesion } from '@/lib/sesion'
  *
  * Quién puede cancelar lo decide el servidor, no esta pantalla: si lo calculara el navegador,
  * un reloj mal puesto daría permiso donde no lo hay.
+ *
+ * Y llega aquí con `?nueva=<id>` justo después de reservar. Sin eso, el final del flujo era una
+ * lista igual a la de siempre y la pregunta que se hace todo el mundo —«¿se guardó o no?»—
+ * quedaba sin responder en el momento en que más se hace.
  */
 
 type Cita = {
@@ -44,8 +48,34 @@ const ETIQUETA: Record<string, string> = {
   cancelada_negocio: 'El salón canceló esta cita',
 }
 
+/** Cuándo es una cita, en la zona del salón y no en la del teléfono. */
+function cuandoEs(cita: Cita) {
+  return new Intl.DateTimeFormat('es-PA', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: cita.zona_horaria,
+  }).format(new Date(cita.inicio))
+}
+
+/**
+ * `useSearchParams` obliga a un límite de suspensión: sin él Next no puede prerenderizar esta
+ * página y el build falla.
+ */
 export default function MisCitas() {
+  return (
+    <Suspense fallback={<div className="contenedor seccion" aria-hidden="true" />}>
+      <Contenido />
+    </Suspense>
+  )
+}
+
+function Contenido() {
   const router = useRouter()
+  const parametros = useSearchParams()
   const [sesion, setSesion] = useState<Sesion | null>(null)
   const [resenando, setResenando] = useState<Cita | null>(null)
   const [repitiendo, setRepitiendo] = useState<string | null>(null)
@@ -114,12 +144,23 @@ export default function MisCitas() {
     }
   }
 
+  // La que se acaba de reservar, si se llegó desde el flujo de reserva.
+  const reciente = (citas ?? []).find((c) => c.id === parametros.get('nueva')) ?? null
+
   const proximas = (citas ?? []).filter((c) => ['pendiente', 'confirmada'].includes(c.estado))
   const pasadas = (citas ?? []).filter((c) => !['pendiente', 'confirmada'].includes(c.estado))
 
   return (
     <div className="contenedor seccion">
       <h1 style={{ fontSize: 'var(--tipografia-tamano-titulo-2)' }}>Mis citas</h1>
+
+      {reciente && (
+        <p role="status" className="aviso aviso--exito" style={{ marginTop: 'var(--espacio-4)' }}>
+          Cita confirmada en <strong>{reciente.negocio}</strong>, el{' '}
+          <span className="cifras primera-mayuscula">{cuandoEs(reciente)}</span>. Puedes cancelarla
+          desde aquí.
+        </p>
+      )}
 
       {error && (
         <div style={{ marginTop: 'var(--espacio-4)' }}>
@@ -294,15 +335,7 @@ function Grupo({
       <h2 className="etiqueta">{titulo}</h2>
       <ul className="citas escalona">
         {citas.map((cita) => {
-          const cuando = new Intl.DateTimeFormat('es-PA', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-            timeZone: cita.zona_horaria,
-          }).format(new Date(cita.inicio))
+          const cuando = cuandoEs(cita)
 
           return (
             <li key={cita.id} className="cita">

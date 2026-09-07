@@ -529,29 +529,10 @@ button{ font: inherit; color: inherit; }
 
 .cabecera-app h2{ font-size: 32px; }
 
-.pestanas{ position: relative; margin-top: var(--espacio-4); }
-
-.pestanas__pista{ display:flex; gap: var(--espacio-5); overflow-x:auto; scrollbar-width:none; border-bottom: 1px solid var(--superficie-calle-borde); }
-
-.pestanas__pista::-webkit-scrollbar{ display:none; }
-
-.pestana{
-  background:none; border:0; border-radius:0; cursor:pointer;
-  padding: var(--espacio-3) 0; min-height: var(--espacio-toque-minimo);
-  color: var(--color-tinta-tenue); font-weight: 800; font-size: 16px;
-  letter-spacing: .06em; text-transform: uppercase; white-space: nowrap;
-  transition: color var(--movimiento-rapido) linear;
-}
-
-.pestana:hover{ color: var(--color-tinta-suave); }
-
-.pestana[aria-selected="true"]{ color: var(--color-tinta); }
-
-.pestanas__tubo{
-  position:absolute; bottom:-1px; left:0; height: var(--neon-tubo); width: 0;
-  background: var(--color-acento);
-  transition: transform var(--movimiento-normal) var(--movimiento-curva), width var(--movimiento-normal) var(--movimiento-curva);
-}
+/* Aquí vivía otro componente de pestañas —`.pestanas__pista`, `.pestanas__tubo`— de una
+   dirección anterior que ya no está en ninguna pantalla. Se va entero, y no por limpieza: su
+   `.pestanas { position: relative }` ganaba por especificidad igual y orden posterior a lo que
+   viene abajo, y era lo que impedía que la barra de abajo fuera una barra. */
 
 .bloque{ padding-top: var(--espacio-7); }
 
@@ -1290,6 +1271,19 @@ a:has(> svg) {
 }
 
 /* ── Pestañas ──────────────────────────────────────────────────────────────── */
+
+/* La barra de pestañas del teléfono: **fija abajo**, que es donde llega el pulgar.
+   Falta le hacía: sin `position: fixed` el `nav` se quedaba dentro de la rejilla ocupando la
+   fila de `1fr` —504 px de alto— y empujaba el contenido media pantalla hacia abajo. El hueco
+   que `.app__cuerpo` reserva por debajo estaba escrito para esta barra desde el principio. */
+.pestanas {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 30;
+  background: var(--color-lienzo);
+  border-top: 1px solid var(--color-borde-fuerte);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
 
 .pestanas__lista {
   display: flex;
