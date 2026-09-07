@@ -147,8 +147,20 @@ function Contenido() {
   // La que se acaba de reservar, si se llegó desde el flujo de reserva.
   const reciente = (citas ?? []).find((c) => c.id === parametros.get('nueva')) ?? null
 
-  const proximas = (citas ?? []).filter((c) => ['pendiente', 'confirmada'].includes(c.estado))
-  const pasadas = (citas ?? []).filter((c) => !['pendiente', 'confirmada'].includes(c.estado))
+  // **Próxima es la que aún no ha pasado, no la que aún no han cerrado.** Repartir por estado
+  // sacaba a la pantalla a mentir: cerrar la cita la hace el salón a mano —a propósito, nada
+  // cambia de estado solo—, así que una cita de esta mañana sigue «confirmada» toda la tarde y
+  // se colaba en «Próximas», debajo de las de pasado mañana. Visto en vivo a las 19:42 con
+  // «Lunes, 7 de septiembre, 10:00» anunciado como lo siguiente que le tocaba.
+  //
+  // El reparto mira las dos cosas: sigue viva **y** todavía no ha empezado. Lo que ya pasó baja
+  // a «Anteriores», donde además tiene el botón de reservar otra vez, que es justo lo que se
+  // busca al abrir la cita de ayer.
+  const ahora = Date.now()
+  const sigueViva = (c: Cita) => ['pendiente', 'confirmada'].includes(c.estado)
+  const yaEmpezo = (c: Cita) => new Date(c.inicio).getTime() <= ahora
+  const proximas = (citas ?? []).filter((c) => sigueViva(c) && !yaEmpezo(c))
+  const pasadas = (citas ?? []).filter((c) => !sigueViva(c) || yaEmpezo(c))
 
   return (
     <div className="contenedor seccion">

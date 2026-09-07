@@ -273,7 +273,24 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
             </ul>
           </section>
 
-          {servicio && (
+          {/* **Un salón sin nadie en el equipo no tiene horas ningún día, y decirle a quien mira
+              «prueba otro día» es mandarlo a recorrer una semana entera para nada.** Pasa de
+              verdad: publicar exige un servicio, horario, ubicación y una foto (D11), no un
+              profesional, y el alta invita a saltarse el paso de las personas —«si trabajas
+              sola, salta este paso»—. Ese salón se publica y el calendario sale vacío los siete
+              días. Aquí se dice lo que hay y se ofrece la única salida que existe: escribirle. */}
+          {servicio && perfil.equipo.length === 0 ? (
+            <section className="bloque-horas" id="horas">
+              <h2>Horas libres para {servicio.nombre}</h2>
+              <p className="aviso aviso--info">
+                Este salón todavía no tiene a nadie en el equipo, así que no puede dar horas por
+                aquí.{' '}
+                {perfil.tiene_whatsapp
+                  ? 'Escríbele por WhatsApp con el botón de arriba y pídele la cita.'
+                  : 'Todavía está montando su agenda; vuelve en unos días.'}
+              </p>
+            </section>
+          ) : servicio && (
             <section className="bloque-horas" id="horas">
               <h2>Horas libres para {servicio.nombre}</h2>
 
