@@ -11,8 +11,6 @@ que permite que el día que el precio pase a un dólar el camino ya esté recorr
 
 from __future__ import annotations
 
-import re
-import unicodedata
 import uuid
 from datetime import UTC, datetime, time
 from typing import Annotated
@@ -29,6 +27,7 @@ from agenda.api.dependencias import (
     exigir_dueno,
     identidad_actual,
 )
+from agenda.dominio.textos import slug_desde
 from agenda.errores import FaltaMinimoParaPublicar, NoAutorizado
 from agenda.modelos.base import nuevo_id
 from agenda.modelos.catalogo import Service, ServiceCategory
@@ -41,6 +40,7 @@ from agenda.modelos.negocio import (
     BusinessSettings,
     Location,
 )
+from agenda.servicios import profesionales as servicio_profesionales
 
 router = APIRouter(prefix="/api/v1", tags=["alta de negocio"])
 
@@ -90,18 +90,11 @@ SLUGS_RESERVADOS = frozenset(
 def _slug(nombre: str) -> str:
     """URL amigable a partir del nombre (NEG-4). Se puede cambiar después.
 
-    Las tildes y la eñe **se transliteran**, no se tiran: «Barbería La Cresta» tiene que dar
-    `barberia-la-cresta` y no `barber-a-la-cresta`. Es una URL pública que se comparte por
-    WhatsApp y se pone en la bio de Instagram; que salga rota es una primera impresión mala y
-    permanente.
+    La transliteración vive en `agenda.dominio.textos` porque la comparten el slug del negocio
+    y el del profesional: si cada uno tuviera el suyo, un día uno transliteraría las tildes y
+    el otro no, y las dos URL públicas dejarían de parecerse.
     """
-    sin_tildes = (
-        unicodedata.normalize("NFKD", nombre.replace("ñ", "n").replace("Ñ", "N"))
-        .encode("ascii", "ignore")
-        .decode()
-    )
-    limpio = re.sub(r"[^a-z0-9]+", "-", sin_tildes.lower().strip())
-    return re.sub(r"-+", "-", limpio).strip("-") or "negocio"
+    return slug_desde(nombre, por_defecto="negocio")
 
 
 class AltaDeNegocio(BaseModel):
@@ -324,7 +317,14 @@ async def crear_profesional(alta: AltaDeProfesional, sesion_negocio: SesionNegoc
     sesion, identidad = sesion_negocio
     exigir_dueno(identidad)
 
-    profesional = StaffProfile(business_id=identidad.negocio_id, display_name=alta.nombre)
+    profesional = StaffProfile(
+        business_id=identidad.negocio_id,
+        display_name=alta.nombre,
+        # Nace con su URL pública puesta. Dejarla para «cuando edite su perfil» sería crear
+        # gente sin perfil público en el momento exacto en que el salón se está montando, que
+        # es cuando nadie va a volver a entrar a arreglarlo.
+        slug=await servicio_profesionales.slug_libre(sesion, identidad.negocio_id, alta.nombre),
+    )
     sesion.add(profesional)
     await sesion.flush()
 

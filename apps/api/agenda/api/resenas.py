@@ -34,6 +34,7 @@ from agenda.api.dependencias import (
 )
 from agenda.bd import sesion_sin_tenant
 from agenda.errores import NoExiste, YaExiste
+from agenda.modelos.equipo import StaffProfile
 from agenda.modelos.identidad import User
 from agenda.modelos.negocio import Business
 from agenda.modelos.reservas import Booking
@@ -236,7 +237,7 @@ async def resenas_del_negocio(
 
     return ResenasDelPerfil(
         resumen=await _resumen(sesion, negocio.id),
-        resenas=await _pintar_publicas(sesion, list(filas)),
+        resenas=await pintar_publicas(sesion, list(filas)),
     )
 
 
@@ -266,7 +267,7 @@ async def resenas_del_panel(
         )
 
     filas = list((await sesion.execute(consulta)).scalars().all())
-    publicas = await _pintar_publicas(sesion, filas, con_rol_de_negocio=True)
+    publicas = await pintar_publicas(sesion, filas, con_rol_de_negocio=True)
 
     reportes: dict[uuid.UUID, int] = {}
     if filas:
@@ -433,7 +434,7 @@ async def _resumen(sesion: AsyncSession, negocio_id: uuid.UUID) -> ResumenDeRese
     )
 
 
-async def _pintar_publicas(
+async def pintar_publicas(
     sesion: AsyncSession, filas: list[Review], *, con_rol_de_negocio: bool = False
 ) -> list[ResenaPublica]:
     """Serializador público. Tres consultas para la página entera, no tres por reseña."""
@@ -465,6 +466,7 @@ async def _pintar_publicas(
         fotos.setdefault(foto.review_id, []).append(foto)
 
     nombres = await _nombres_de_autores(sesion, filas, con_rol_de_negocio=con_rol_de_negocio)
+    profesionales = await _nombres_de_profesionales(sesion, filas)
 
     return [
         ResenaPublica(
@@ -473,6 +475,7 @@ async def _pintar_publicas(
             texto=f.body,
             fecha=f.created_at,
             autor=nombres.get(f.author_user_id, "Cliente"),
+            profesional=profesionales.get(f.staff_id),
             nota_al_profesional=f.staff_rating,
             fotos=[
                 FotoDeResena(id=m.id, url=url_de_media(m.storage_key) or "")
@@ -486,6 +489,33 @@ async def _pintar_publicas(
         )
         for f in filas
     ]
+
+
+async def _nombres_de_profesionales(
+    sesion: AsyncSession, filas: list[Review]
+) -> dict[uuid.UUID, str]:
+    """Quién atendió esa cita, para poder pintar «Marielys» junto a la reseña.
+
+    El campo existía en el contrato desde el principio y venía siempre vacío. Ahora que el
+    profesional es una entidad de primera tiene sentido llenarlo: es la mitad del dato en una
+    reseña que dice «me encantó el color» — con quién.
+
+    Si la ficha está oculta en el marketplace, el rol público **no la ve** y el campo vuelve a
+    ser nulo. Eso es lo correcto: ocultar a alguien tiene que ocultarlo también aquí.
+    """
+    staff_ids = [f.staff_id for f in filas if f.staff_id is not None]
+    if not staff_ids:
+        return {}
+    return {
+        staff_id: nombre
+        for staff_id, nombre in (
+            await sesion.execute(
+                select(StaffProfile.id, StaffProfile.display_name).where(
+                    StaffProfile.id.in_(staff_ids)
+                )
+            )
+        ).all()
+    }
 
 
 async def _nombres_de_autores(

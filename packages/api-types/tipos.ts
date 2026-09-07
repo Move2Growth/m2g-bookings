@@ -605,6 +605,67 @@ export interface paths {
         patch: operations["editar_perfil_api_v1_mi_perfil_patch"];
         trace?: never;
     };
+    "/api/v1/mi/perfil-profesional": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Mi ficha pública (encargo 2026-09-07 §3) */
+        get: operations["leer_mi_perfil_api_v1_mi_perfil_profesional_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Editar mi ficha (encargo 2026-09-07 §3)
+         * @description Cada quien edita **su** ficha. La de la compañera la bloquea la base, no este código.
+         *
+         *     Si alguien llegara aquí con el identificador de otra persona, el `UPDATE` no encontraría
+         *     la fila y la respuesta sería un `403`, no un cambio silencioso: lo traduce el manejador
+         *     global de `main.py`.
+         */
+        patch: operations["editar_mi_perfil_api_v1_mi_perfil_profesional_patch"];
+        trace?: never;
+    };
+    "/api/v1/mi/perfil-profesional/fotos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Mis fotos (encargo 2026-09-07 §3) */
+        get: operations["listar_mis_fotos_api_v1_mi_perfil_profesional_fotos_get"];
+        put?: never;
+        /** Subir una foto mía (encargo 2026-09-07 §3) */
+        post: operations["anadir_mi_foto_api_v1_mi_perfil_profesional_fotos_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mi/perfil-profesional/fotos/{foto_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Quitar una foto mía */
+        delete: operations["quitar_mi_foto_api_v1_mi_perfil_profesional_fotos__foto_id__delete"];
+        options?: never;
+        head?: never;
+        /** Asignar mi foto a un servicio del salón (encargo 2026-09-07 §3) */
+        patch: operations["editar_mi_foto_api_v1_mi_perfil_profesional_fotos__foto_id__patch"];
+        trace?: never;
+    };
     "/api/v1/mi/reservas": {
         parameters: {
             query?: never;
@@ -1099,6 +1160,48 @@ export interface paths {
         patch: operations["editar_profesional_api_v1_negocio_profesionales__profesional_id__patch"];
         trace?: never;
     };
+    "/api/v1/negocio/profesionales/{profesional_id}/fotos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Las fotos de alguien del equipo (STF-1)
+         * @description Leer sí puede cualquiera del salón: hace falta para pintar la ficha de un servicio.
+         */
+        get: operations["listar_fotos_del_equipo_api_v1_negocio_profesionales__profesional_id__fotos_get"];
+        put?: never;
+        /**
+         * Subir una foto de alguien del equipo (STF-1)
+         * @description El dueño sube el trabajo de su equipo: es lo normal cuando el barbero no usa la app.
+         */
+        post: operations["anadir_foto_del_equipo_api_v1_negocio_profesionales__profesional_id__fotos_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/negocio/profesionales/{profesional_id}/fotos/{foto_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Quitar la foto de alguien del equipo (STF-1) */
+        delete: operations["quitar_foto_del_equipo_api_v1_negocio_profesionales__profesional_id__fotos__foto_id__delete"];
+        options?: never;
+        head?: never;
+        /** Asignar la foto de alguien a un servicio (STF-1) */
+        patch: operations["editar_foto_del_equipo_api_v1_negocio_profesionales__profesional_id__fotos__foto_id__patch"];
+        trace?: never;
+    };
     "/api/v1/negocio/profesionales/{profesional_id}/horario": {
         parameters: {
             query?: never;
@@ -1564,6 +1667,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/publico/negocios/{slug}/profesionales": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * El equipo visible de un salón (STF-2, encargo 2026-09-07 §3)
+         * @description Quién trabaja aquí, con su titular, su nota y cuánto lleva atendido.
+         *
+         *     Qué fichas salen **no lo decide esta función**: lo decide la política del rol público, que
+         *     exige negocio publicado, ficha activa y visible en el marketplace. Ocultar a alguien del
+         *     marketplace lo saca de aquí sin tocar ni una línea de código.
+         */
+        get: operations["equipo_del_negocio_api_v1_publico_negocios__slug__profesionales_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/publico/negocios/{slug}/profesionales/{profesional}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Perfil público de un profesional (encargo 2026-09-07 §3)
+         * @description La ficha de una persona: descripción, fotos, servicios, reseñas, redes y su nota.
+         *
+         *     `profesional` admite **el slug o el identificador**. El slug es lo que se comparte y lo que
+         *     indexa Google; el identificador es la salida de emergencia para una ficha que todavía no
+         *     tiene slug, para que un nulo en una columna no deje a nadie sin perfil.
+         *
+         *     Cuánta gente ha atendido se cuenta **al leer** y no sale de ningún contador guardado: un
+         *     contador se desincroniza el primer día que alguien toca una cita a mano en la base.
+         */
+        get: operations["perfil_del_profesional_api_v1_publico_negocios__slug__profesionales__profesional__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/publico/negocios/{slug}/reviews": {
         parameters: {
             query?: never;
@@ -1580,6 +1734,59 @@ export interface paths {
          *     la base no se lo permitiría.
          */
         get: operations["resenas_del_negocio_api_v1_publico_negocios__slug__reviews_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/publico/profesionales": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Buscar profesionales (encargo 2026-09-07 §3)
+         * @description Buscar **personas**, que es por donde entra quien ya sabe con quién quiere ir.
+         *
+         *     Es la mitad que faltaba del encargo: quien busca «una barbería cerca» sigue usando
+         *     `/publico/buscar`, y quien busca «Yaris» entra por aquí.
+         *
+         *     **No trae cuántas clientas ha atendido**, y es deliberado: cada resultado puede ser de un
+         *     salón distinto y ese número se cuenta sobre `bookings`, que no es público. Contarlo aquí
+         *     costaría abrir una conexión por negocio en la consulta que más se va a repetir. Está en el
+         *     perfil, que es donde alguien lo mira de verdad.
+         */
+        get: operations["buscar_profesionales_api_v1_publico_profesionales_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/publico/profesionales/{profesional_id}/disponibilidad": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Huecos de un profesional concreto (AGD-1, encargo 2026-09-07 §3)
+         * @description El tercer paso del camino nuevo: profesional → servicio suyo → **hora**.
+         *
+         *     Es la misma respuesta que `/publico/negocios/{slug}/disponibilidad?profesional=…` y sale
+         *     del **mismo motor**; lo que cambia es que aquí no hace falta saber en qué salón trabaja,
+         *     porque eso lo resuelve el servidor a partir de la ficha. Quien entra por la persona no
+         *     tiene por qué haber visto nunca el nombre del local.
+         */
+        get: operations["disponibilidad_del_profesional_api_v1_publico_profesionales__profesional_id__disponibilidad_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1875,6 +2082,51 @@ export interface components {
             /** Telefono */
             telefono?: string | null;
         };
+        /**
+         * CambioDeFoto
+         * @description Reasignar una foto a otro servicio, quitarle el servicio o moverla de sitio.
+         */
+        CambioDeFoto: {
+            /** Descripcion */
+            descripcion?: string | null;
+            /** Posicion */
+            posicion?: number | null;
+            /**
+             * Quitar Servicio
+             * @description Devuelve la foto a la galería. Va aparte porque `servicio_id: null` significa «no lo cambies», no «quítalo»
+             * @default false
+             */
+            quitar_servicio: boolean;
+            /** Servicio Id */
+            servicio_id?: string | null;
+        };
+        /**
+         * CambioDeMiPerfil
+         * @description Lo que una persona puede cambiar de su propia ficha. **Ni `activo` ni `visible`.**
+         *
+         *     Los campos que no se mandan no se tocan; mandar `null` en una red **la borra**, que es la
+         *     forma en que alguien quita un enlace que ya no quiere.
+         */
+        CambioDeMiPerfil: {
+            /** Anos De Experiencia */
+            anos_de_experiencia?: number | null;
+            /** Descripcion */
+            descripcion?: string | null;
+            /** Facebook */
+            facebook?: string | null;
+            /** Foto */
+            foto?: string | null;
+            /** Instagram */
+            instagram?: string | null;
+            /** Nombre */
+            nombre?: string | null;
+            /** Slug */
+            slug?: string | null;
+            /** Titular */
+            titular?: string | null;
+            /** X */
+            x?: string | null;
+        };
         /** CambioDePerfil */
         CambioDePerfil: {
             /** Correo */
@@ -1882,22 +2134,41 @@ export interface components {
             /** Nombre */
             nombre?: string | null;
         };
-        /** CambioDeProfesional */
+        /**
+         * CambioDeProfesional
+         * @description Lo que el dueño puede cambiar de una ficha del equipo.
+         *
+         *     Lleva **más** campos que `CambioDeMiPerfil` porque `activo`, `visible en el marketplace` y
+         *     el orden son suyos: quién trabaja y quién sale en el marketplace lo decide quien lleva el
+         *     salón, no cada quien sobre sí mismo (STF-3).
+         */
         CambioDeProfesional: {
             /** Acepta Cualquiera */
             acepta_cualquiera?: boolean | null;
             /** Activo */
             activo?: boolean | null;
+            /** Anos De Experiencia */
+            anos_de_experiencia?: number | null;
             /** Bio */
             bio?: string | null;
+            /** Facebook */
+            facebook?: string | null;
             /** Foto */
             foto?: string | null;
+            /** Instagram */
+            instagram?: string | null;
             /** Nombre */
             nombre?: string | null;
             /** Orden */
             orden?: number | null;
+            /** Slug */
+            slug?: string | null;
+            /** Titular */
+            titular?: string | null;
             /** Visible En Marketplace */
             visible_en_marketplace?: boolean | null;
+            /** X */
+            x?: string | null;
         };
         /**
          * CambioDeServicio
@@ -2286,6 +2557,49 @@ export interface components {
             /** Url */
             url: string;
         };
+        /** FotoDelPortafolio */
+        FotoDelPortafolio: {
+            /** Descripcion */
+            descripcion?: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Moderacion
+             * @description pendiente | aprobada | rechazada
+             */
+            moderacion: string;
+            /**
+             * Posicion
+             * @default 0
+             */
+            posicion: number;
+            /** Servicio Id */
+            servicio_id?: string | null;
+            /** Url */
+            url: string;
+        };
+        /**
+         * FotoDelProfesional
+         * @description Una foto suya. Si trae servicio, es un **trabajo**: «esto lo hizo esta persona».
+         */
+        FotoDelProfesional: {
+            /** Descripcion */
+            descripcion?: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Servicio */
+            servicio?: string | null;
+            /** Servicio Id */
+            servicio_id?: string | null;
+            /** Url */
+            url: string;
+        };
         /** FotoDeResena */
         FotoDeResena: {
             /**
@@ -2439,6 +2753,61 @@ export interface components {
             /** Telefono Verificado */
             telefono_verificado: boolean;
         };
+        /**
+         * MiPerfilProfesional
+         * @description La ficha pública de una persona, tal y como la ve quien la edita.
+         */
+        MiPerfilProfesional: {
+            /** Activo */
+            activo: boolean;
+            /** Anos De Experiencia */
+            anos_de_experiencia: number | null;
+            /**
+             * Citas Atendidas
+             * @default 0
+             */
+            citas_atendidas: number;
+            /**
+             * Clientes Atendidos
+             * @default 0
+             */
+            clientes_atendidos: number;
+            /**
+             * Descripcion
+             * @description La bio larga
+             */
+            descripcion?: string | null;
+            /** Facebook */
+            facebook: string | null;
+            /** Facebook Url */
+            facebook_url: string | null;
+            /** Foto */
+            foto: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Instagram */
+            instagram: string | null;
+            /** Instagram Url */
+            instagram_url: string | null;
+            /** Nombre */
+            nombre: string;
+            /** Slug */
+            slug: string | null;
+            /**
+             * Titular
+             * @description La descripción de una línea
+             */
+            titular?: string | null;
+            /** Visible En Marketplace */
+            visible_en_marketplace: boolean;
+            /** X */
+            x: string | null;
+            /** X Url */
+            x_url: string | null;
+        };
         /** NegocioCreado */
         NegocioCreado: {
             /** Estado */
@@ -2552,6 +2921,28 @@ export interface components {
             /** Zona */
             zona: string | null;
         };
+        /**
+         * NuevaFoto
+         * @description Se recibe **una clave**, no un fichero.
+         *
+         *     Es la misma limitación que tiene `POST /negocio/fotos` y por el mismo motivo: sin
+         *     almacenamiento de objetos decidido, un endpoint de subida sería prometer algo que no
+         *     funciona. Hoy la clave es una ruta servible o una URL absoluta; el día que haya
+         *     almacenamiento, cambia lo que la rellena y no esta tabla.
+         */
+        NuevaFoto: {
+            /** Clave */
+            clave: string;
+            /** Descripcion */
+            descripcion?: string | null;
+            /**
+             * Posicion
+             * @default 0
+             */
+            posicion: number;
+            /** Servicio Id */
+            servicio_id?: string | null;
+        };
         /** NuevaResena */
         NuevaResena: {
             /**
@@ -2662,6 +3053,80 @@ export interface components {
             tasa_completado?: number | null;
             /** Techo Reservas */
             techo_reservas?: number | null;
+        };
+        /**
+         * PerfilDelProfesional
+         * @description La ficha completa: quién es, qué hace, qué ha hecho y qué dicen de ella.
+         */
+        PerfilDelProfesional: {
+            /** Anos De Experiencia */
+            anos_de_experiencia?: number | null;
+            /** Catalogo */
+            catalogo?: components["schemas"]["ServicioPublico"][];
+            /**
+             * Citas Atendidas
+             * @default 0
+             */
+            citas_atendidas: number;
+            /**
+             * Clientes Atendidos
+             * @default 0
+             */
+            clientes_atendidos: number;
+            /**
+             * Descripcion
+             * @description La bio larga
+             */
+            descripcion?: string | null;
+            /** Direccion */
+            direccion?: string | null;
+            /** Distancia Metros */
+            distancia_metros?: number | null;
+            /** Foto */
+            foto?: string | null;
+            /** Galeria */
+            galeria?: components["schemas"]["FotoDelProfesional"][];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Negocio */
+            negocio?: string | null;
+            /**
+             * Negocio Id
+             * Format: uuid
+             */
+            negocio_id: string;
+            /** Negocio Slug */
+            negocio_slug?: string | null;
+            /** Nombre */
+            nombre: string;
+            /** Nota */
+            nota?: number | null;
+            /**
+             * Numero Resenas
+             * @default 0
+             */
+            numero_resenas: number;
+            redes: components["schemas"]["RedesDelProfesional"];
+            /** Resenas */
+            resenas?: components["schemas"]["ResenaPublica"][];
+            /** Servicios */
+            servicios?: string[];
+            /** Slug */
+            slug?: string | null;
+            /**
+             * Titular
+             * @description La descripción de una línea
+             */
+            titular?: string | null;
+            /** Trabajos */
+            trabajos?: components["schemas"]["FotoDelProfesional"][];
+            /** Zona */
+            zona?: string | null;
+            /** Zona Horaria */
+            zona_horaria: string;
         };
         /** PerfilPublico */
         PerfilPublico: {
@@ -2940,6 +3405,61 @@ export interface components {
             /** Vigente Hasta */
             vigente_hasta: string | null;
         };
+        /**
+         * ProfesionalDelEquipo
+         * @description En la lista del equipo de un salón sí se puede decir cuánto lleva atendido.
+         *
+         *     Se calcula con una consulta agrupada sobre las citas **completadas** de ese salón. En la
+         *     búsqueda suelta no viene, y no es un olvido: ahí los resultados son de salones distintos y
+         *     contarlo costaría una consulta por negocio en la ruta más caliente del producto.
+         */
+        ProfesionalDelEquipo: {
+            /** Anos De Experiencia */
+            anos_de_experiencia?: number | null;
+            /**
+             * Citas Atendidas
+             * @default 0
+             */
+            citas_atendidas: number;
+            /**
+             * Clientes Atendidos
+             * @default 0
+             */
+            clientes_atendidos: number;
+            /** Distancia Metros */
+            distancia_metros?: number | null;
+            /** Foto */
+            foto?: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Negocio */
+            negocio?: string | null;
+            /** Negocio Slug */
+            negocio_slug?: string | null;
+            /** Nombre */
+            nombre: string;
+            /** Nota */
+            nota?: number | null;
+            /**
+             * Numero Resenas
+             * @default 0
+             */
+            numero_resenas: number;
+            /** Servicios */
+            servicios?: string[];
+            /** Slug */
+            slug?: string | null;
+            /**
+             * Titular
+             * @description La descripción de una línea
+             */
+            titular?: string | null;
+            /** Zona */
+            zona?: string | null;
+        };
         /** ProfesionalDelPanel */
         ProfesionalDelPanel: {
             /**
@@ -2949,10 +3469,14 @@ export interface components {
             acepta_cualquiera: boolean;
             /** Activo */
             activo: boolean;
+            /** Anos De Experiencia */
+            anos_de_experiencia?: number | null;
             /** Bio */
             bio: string | null;
             /** Citas Futuras */
             citas_futuras: number;
+            /** Facebook */
+            facebook?: string | null;
             /** Foto */
             foto: string | null;
             /** Horario */
@@ -2962,22 +3486,76 @@ export interface components {
              * Format: uuid
              */
             id: string;
+            /** Instagram */
+            instagram?: string | null;
             /** Nombre */
             nombre: string;
             /** Orden */
             orden: number;
             /** Servicios */
             servicios: string[];
+            /** Slug */
+            slug?: string | null;
             /**
              * Tiene Cuenta
              * @description Si la persona ya aceptó la invitación; sin cuenta también se le agenda
              */
             tiene_cuenta: boolean;
+            /** Titular */
+            titular?: string | null;
             /** Visible En Marketplace */
             visible_en_marketplace: boolean;
+            /** X */
+            x?: string | null;
+        };
+        /**
+         * ProfesionalEnLista
+         * @description Lo que cabe en una tarjeta de equipo o de resultado de búsqueda.
+         *
+         *     Sin teléfono y sin correo, como todo lo público. El nombre que sale es el **de trabajo**
+         *     (`display_name`), que es el que la propia persona puso para que la llamen.
+         */
+        ProfesionalEnLista: {
+            /** Anos De Experiencia */
+            anos_de_experiencia?: number | null;
+            /** Distancia Metros */
+            distancia_metros?: number | null;
+            /** Foto */
+            foto?: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Negocio */
+            negocio?: string | null;
+            /** Negocio Slug */
+            negocio_slug?: string | null;
+            /** Nombre */
+            nombre: string;
+            /** Nota */
+            nota?: number | null;
+            /**
+             * Numero Resenas
+             * @default 0
+             */
+            numero_resenas: number;
+            /** Servicios */
+            servicios?: string[];
+            /** Slug */
+            slug?: string | null;
+            /**
+             * Titular
+             * @description La descripción de una línea
+             */
+            titular?: string | null;
+            /** Zona */
+            zona?: string | null;
         };
         /** ProfesionalPublico */
         ProfesionalPublico: {
+            /** Foto */
+            foto?: string | null;
             /**
              * Id
              * Format: uuid
@@ -2985,6 +3563,13 @@ export interface components {
             id: string;
             /** Nombre */
             nombre: string;
+            /** Slug */
+            slug?: string | null;
+            /**
+             * Titular
+             * @description La descripción de una línea
+             */
+            titular?: string | null;
         };
         /** PuntoDeSerie */
         PuntoDeSerie: {
@@ -2995,6 +3580,28 @@ export interface components {
             dia: string;
             /** Valor */
             valor: number;
+        };
+        /**
+         * RedesDelProfesional
+         * @description Las tres redes, con **el usuario y la dirección compuesta al servir**.
+         *
+         *     La dirección no se guarda: se compone aquí a partir del usuario, así que siempre apunta al
+         *     dominio correcto. Guardar la URL entera sería aceptar un enlace a cualquier sitio metido
+         *     desde un formulario, y un perfil público es exactamente donde eso se aprovecha.
+         */
+        RedesDelProfesional: {
+            /** Facebook */
+            facebook?: string | null;
+            /** Facebook Url */
+            facebook_url?: string | null;
+            /** Instagram */
+            instagram?: string | null;
+            /** Instagram Url */
+            instagram_url?: string | null;
+            /** X */
+            x?: string | null;
+            /** X Url */
+            x_url?: string | null;
         };
         /**
          * ReporteEnCola
@@ -3348,6 +3955,8 @@ export interface components {
              * @description fijo | desde | consultar
              */
             tipo_de_precio: string;
+            /** Trabajos */
+            trabajos?: components["schemas"]["TrabajoDeProfesional"][];
         };
         /** SesionAbierta */
         SesionAbierta: {
@@ -3389,6 +3998,31 @@ export interface components {
         Suspension: {
             /** Motivo */
             motivo: string;
+        };
+        /**
+         * TrabajoDeProfesional
+         * @description Una foto de este servicio **hecha por alguien del equipo**.
+         *
+         *     Es lo que pidió Luis con una frase: «que se vea quién hizo qué». Sin el nombre al lado, la
+         *     foto es decoración; con él, es la razón por la que alguien elige a una persona concreta.
+         */
+        TrabajoDeProfesional: {
+            /** Descripcion */
+            descripcion?: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Profesional */
+            profesional: string;
+            /**
+             * Profesional Id
+             * Format: uuid
+             */
+            profesional_id: string;
+            /** Url */
+            url: string;
         };
         /**
          * TramoDeHorario
@@ -4540,6 +5174,206 @@ export interface operations {
             };
         };
     };
+    leer_mi_perfil_api_v1_mi_perfil_profesional_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiPerfilProfesional"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    editar_mi_perfil_api_v1_mi_perfil_profesional_patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CambioDeMiPerfil"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiPerfilProfesional"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_mis_fotos_api_v1_mi_perfil_profesional_fotos_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FotoDelPortafolio"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    anadir_mi_foto_api_v1_mi_perfil_profesional_fotos_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NuevaFoto"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FotoDelPortafolio"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    quitar_mi_foto_api_v1_mi_perfil_profesional_fotos__foto_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                foto_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    editar_mi_foto_api_v1_mi_perfil_profesional_fotos__foto_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                foto_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CambioDeFoto"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FotoDelPortafolio"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     mis_reservas_api_v1_mi_reservas_get: {
         parameters: {
             query?: never;
@@ -5525,6 +6359,149 @@ export interface operations {
             };
         };
     };
+    listar_fotos_del_equipo_api_v1_negocio_profesionales__profesional_id__fotos_get: {
+        parameters: {
+            query?: {
+                /** @description Solo las atadas a este servicio */
+                solo_servicio?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                profesional_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FotoDelPortafolio"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    anadir_foto_del_equipo_api_v1_negocio_profesionales__profesional_id__fotos_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                profesional_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NuevaFoto"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FotoDelPortafolio"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    quitar_foto_del_equipo_api_v1_negocio_profesionales__profesional_id__fotos__foto_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                foto_id: string;
+                profesional_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    editar_foto_del_equipo_api_v1_negocio_profesionales__profesional_id__fotos__foto_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                foto_id: string;
+                profesional_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CambioDeFoto"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FotoDelPortafolio"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     leer_horario_del_profesional_api_v1_negocio_profesionales__profesional_id__horario_get: {
         parameters: {
             query?: never;
@@ -6295,6 +7272,69 @@ export interface operations {
             };
         };
     };
+    equipo_del_negocio_api_v1_publico_negocios__slug__profesionales_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfesionalDelEquipo"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    perfil_del_profesional_api_v1_publico_negocios__slug__profesionales__profesional__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profesional: string;
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PerfilDelProfesional"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     resenas_del_negocio_api_v1_publico_negocios__slug__reviews_get: {
         parameters: {
             query?: {
@@ -6315,6 +7355,82 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ResenasDelPerfil"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    buscar_profesionales_api_v1_publico_profesionales_get: {
+        parameters: {
+            query?: {
+                /** @description Slug de un salón concreto */
+                negocio?: string | null;
+                orden?: string;
+                pagina?: number;
+                /** @description Slug de una categoría global, por ejemplo «barberia» */
+                servicio?: string | null;
+                /** @description Nombre o titular: «Yaris», «colorista» */
+                texto?: string | null;
+                /** @description Slug de zona, por ejemplo «el-cangrejo» */
+                zona?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfesionalEnLista"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    disponibilidad_del_profesional_api_v1_publico_profesionales__profesional_id__disponibilidad_get: {
+        parameters: {
+            query: {
+                desde: string;
+                hasta: string;
+                /** @description En el orden en que se encadenan */
+                servicios: string[];
+            };
+            header?: never;
+            path: {
+                profesional_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaDisponibilidad"];
                 };
             };
             /** @description Validation Error */

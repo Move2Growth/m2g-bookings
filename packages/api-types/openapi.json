@@ -805,6 +805,168 @@
         "title": "CambioDeFichaDeCliente",
         "type": "object"
       },
+      "CambioDeFoto": {
+        "description": "Reasignar una foto a otro servicio, quitarle el servicio o moverla de sitio.",
+        "properties": {
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion"
+          },
+          "posicion": {
+            "anyOf": [
+              {
+                "maximum": 999.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Posicion"
+          },
+          "quitar_servicio": {
+            "default": false,
+            "description": "Devuelve la foto a la galería. Va aparte porque `servicio_id: null` significa «no lo cambies», no «quítalo»",
+            "title": "Quitar Servicio",
+            "type": "boolean"
+          },
+          "servicio_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Servicio Id"
+          }
+        },
+        "title": "CambioDeFoto",
+        "type": "object"
+      },
+      "CambioDeMiPerfil": {
+        "additionalProperties": false,
+        "description": "Lo que una persona puede cambiar de su propia ficha. **Ni `activo` ni `visible`.**\n\nLos campos que no se mandan no se tocan; mandar `null` en una red **la borra**, que es la\nforma en que alguien quita un enlace que ya no quiere.",
+        "properties": {
+          "anos_de_experiencia": {
+            "anyOf": [
+              {
+                "maximum": 80.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anos De Experiencia"
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion"
+          },
+          "facebook": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Facebook"
+          },
+          "foto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Foto"
+          },
+          "instagram": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instagram"
+          },
+          "nombre": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nombre"
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          },
+          "titular": {
+            "anyOf": [
+              {
+                "maxLength": 140,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Titular"
+          },
+          "x": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "X"
+          }
+        },
+        "title": "CambioDeMiPerfil",
+        "type": "object"
+      },
       "CambioDePerfil": {
         "properties": {
           "correo": {
@@ -837,6 +999,7 @@
         "type": "object"
       },
       "CambioDeProfesional": {
+        "description": "Lo que el dueño puede cambiar de una ficha del equipo.\n\nLleva **más** campos que `CambioDeMiPerfil` porque `activo`, `visible en el marketplace` y\nel orden son suyos: quién trabaja y quién sale en el marketplace lo decide quien lleva el\nsalón, no cada quien sobre sí mismo (STF-3).",
         "properties": {
           "acepta_cualquiera": {
             "anyOf": [
@@ -860,6 +1023,19 @@
             ],
             "title": "Activo"
           },
+          "anos_de_experiencia": {
+            "anyOf": [
+              {
+                "maximum": 80.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anos De Experiencia"
+          },
           "bio": {
             "anyOf": [
               {
@@ -871,6 +1047,17 @@
             ],
             "title": "Bio"
           },
+          "facebook": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Facebook"
+          },
           "foto": {
             "anyOf": [
               {
@@ -881,6 +1068,17 @@
               }
             ],
             "title": "Foto"
+          },
+          "instagram": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instagram"
           },
           "nombre": {
             "anyOf": [
@@ -908,6 +1106,30 @@
             ],
             "title": "Orden"
           },
+          "slug": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          },
+          "titular": {
+            "anyOf": [
+              {
+                "maxLength": 140,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Titular"
+          },
           "visible_en_marketplace": {
             "anyOf": [
               {
@@ -918,6 +1140,17 @@
               }
             ],
             "title": "Visible En Marketplace"
+          },
+          "x": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "X"
           }
         },
         "title": "CambioDeProfesional",
@@ -1887,6 +2120,113 @@
         "title": "FotoDelNegocio",
         "type": "object"
       },
+      "FotoDelPortafolio": {
+        "properties": {
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "moderacion": {
+            "description": "pendiente | aprobada | rechazada",
+            "title": "Moderacion",
+            "type": "string"
+          },
+          "posicion": {
+            "default": 0,
+            "title": "Posicion",
+            "type": "integer"
+          },
+          "servicio_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Servicio Id"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "url",
+          "moderacion"
+        ],
+        "title": "FotoDelPortafolio",
+        "type": "object"
+      },
+      "FotoDelProfesional": {
+        "description": "Una foto suya. Si trae servicio, es un **trabajo**: «esto lo hizo esta persona».",
+        "properties": {
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "servicio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Servicio"
+          },
+          "servicio_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Servicio Id"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "url"
+        ],
+        "title": "FotoDelProfesional",
+        "type": "object"
+      },
       "GrupoDeAtributos": {
         "description": "Un grupo filtrable del catálogo global (NEG-2, ADM-4): «tipo de cabello», «pagos».",
         "properties": {
@@ -2178,6 +2518,178 @@
           "idioma"
         ],
         "title": "MiPerfil",
+        "type": "object"
+      },
+      "MiPerfilProfesional": {
+        "description": "La ficha pública de una persona, tal y como la ve quien la edita.",
+        "properties": {
+          "activo": {
+            "title": "Activo",
+            "type": "boolean"
+          },
+          "anos_de_experiencia": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anos De Experiencia"
+          },
+          "citas_atendidas": {
+            "default": 0,
+            "title": "Citas Atendidas",
+            "type": "integer"
+          },
+          "clientes_atendidos": {
+            "default": 0,
+            "title": "Clientes Atendidos",
+            "type": "integer"
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "La bio larga",
+            "title": "Descripcion"
+          },
+          "facebook": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Facebook"
+          },
+          "facebook_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Facebook Url"
+          },
+          "foto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Foto"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "instagram": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instagram"
+          },
+          "instagram_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instagram Url"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          },
+          "titular": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "La descripción de una línea",
+            "title": "Titular"
+          },
+          "visible_en_marketplace": {
+            "title": "Visible En Marketplace",
+            "type": "boolean"
+          },
+          "x": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "X"
+          },
+          "x_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "X Url"
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "nombre",
+          "foto",
+          "anos_de_experiencia",
+          "instagram",
+          "instagram_url",
+          "facebook",
+          "facebook_url",
+          "x",
+          "x_url",
+          "activo",
+          "visible_en_marketplace"
+        ],
+        "title": "MiPerfilProfesional",
         "type": "object"
       },
       "NegocioCreado": {
@@ -2511,6 +3023,53 @@
           "abierto_ahora"
         ],
         "title": "NegocioFavorito",
+        "type": "object"
+      },
+      "NuevaFoto": {
+        "description": "Se recibe **una clave**, no un fichero.\n\nEs la misma limitación que tiene `POST /negocio/fotos` y por el mismo motivo: sin\nalmacenamiento de objetos decidido, un endpoint de subida sería prometer algo que no\nfunciona. Hoy la clave es una ruta servible o una URL absoluta; el día que haya\nalmacenamiento, cambia lo que la rellena y no esta tabla.",
+        "properties": {
+          "clave": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Clave",
+            "type": "string"
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion"
+          },
+          "posicion": {
+            "default": 0,
+            "maximum": 999.0,
+            "minimum": 0.0,
+            "title": "Posicion",
+            "type": "integer"
+          },
+          "servicio_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Servicio Id"
+          }
+        },
+        "required": [
+          "clave"
+        ],
+        "title": "NuevaFoto",
         "type": "object"
       },
       "NuevaResena": {
@@ -2919,6 +3478,215 @@
           }
         },
         "title": "NuevosPesos",
+        "type": "object"
+      },
+      "PerfilDelProfesional": {
+        "description": "La ficha completa: quién es, qué hace, qué ha hecho y qué dicen de ella.",
+        "properties": {
+          "anos_de_experiencia": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anos De Experiencia"
+          },
+          "catalogo": {
+            "items": {
+              "$ref": "#/components/schemas/ServicioPublico"
+            },
+            "title": "Catalogo",
+            "type": "array"
+          },
+          "citas_atendidas": {
+            "default": 0,
+            "title": "Citas Atendidas",
+            "type": "integer"
+          },
+          "clientes_atendidos": {
+            "default": 0,
+            "title": "Clientes Atendidos",
+            "type": "integer"
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "La bio larga",
+            "title": "Descripcion"
+          },
+          "direccion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Direccion"
+          },
+          "distancia_metros": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distancia Metros"
+          },
+          "foto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Foto"
+          },
+          "galeria": {
+            "items": {
+              "$ref": "#/components/schemas/FotoDelProfesional"
+            },
+            "title": "Galeria",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "negocio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Negocio"
+          },
+          "negocio_id": {
+            "format": "uuid",
+            "title": "Negocio Id",
+            "type": "string"
+          },
+          "negocio_slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Negocio Slug"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "nota": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nota"
+          },
+          "numero_resenas": {
+            "default": 0,
+            "title": "Numero Resenas",
+            "type": "integer"
+          },
+          "redes": {
+            "$ref": "#/components/schemas/RedesDelProfesional"
+          },
+          "resenas": {
+            "items": {
+              "$ref": "#/components/schemas/ResenaPublica"
+            },
+            "title": "Resenas",
+            "type": "array"
+          },
+          "servicios": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Servicios",
+            "type": "array"
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          },
+          "titular": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "La descripción de una línea",
+            "title": "Titular"
+          },
+          "trabajos": {
+            "items": {
+              "$ref": "#/components/schemas/FotoDelProfesional"
+            },
+            "title": "Trabajos",
+            "type": "array"
+          },
+          "zona": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zona"
+          },
+          "zona_horaria": {
+            "title": "Zona Horaria",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "nombre",
+          "redes",
+          "negocio_id",
+          "zona_horaria"
+        ],
+        "title": "PerfilDelProfesional",
         "type": "object"
       },
       "PerfilPublico": {
@@ -3580,6 +4348,149 @@
         "title": "PlanEnConsola",
         "type": "object"
       },
+      "ProfesionalDelEquipo": {
+        "description": "En la lista del equipo de un salón sí se puede decir cuánto lleva atendido.\n\nSe calcula con una consulta agrupada sobre las citas **completadas** de ese salón. En la\nbúsqueda suelta no viene, y no es un olvido: ahí los resultados son de salones distintos y\ncontarlo costaría una consulta por negocio en la ruta más caliente del producto.",
+        "properties": {
+          "anos_de_experiencia": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anos De Experiencia"
+          },
+          "citas_atendidas": {
+            "default": 0,
+            "title": "Citas Atendidas",
+            "type": "integer"
+          },
+          "clientes_atendidos": {
+            "default": 0,
+            "title": "Clientes Atendidos",
+            "type": "integer"
+          },
+          "distancia_metros": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distancia Metros"
+          },
+          "foto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Foto"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "negocio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Negocio"
+          },
+          "negocio_slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Negocio Slug"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "nota": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nota"
+          },
+          "numero_resenas": {
+            "default": 0,
+            "title": "Numero Resenas",
+            "type": "integer"
+          },
+          "servicios": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Servicios",
+            "type": "array"
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          },
+          "titular": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "La descripción de una línea",
+            "title": "Titular"
+          },
+          "zona": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zona"
+          }
+        },
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "title": "ProfesionalDelEquipo",
+        "type": "object"
+      },
       "ProfesionalDelPanel": {
         "properties": {
           "acepta_cualquiera": {
@@ -3590,6 +4501,17 @@
           "activo": {
             "title": "Activo",
             "type": "boolean"
+          },
+          "anos_de_experiencia": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anos De Experiencia"
           },
           "bio": {
             "anyOf": [
@@ -3605,6 +4527,17 @@
           "citas_futuras": {
             "title": "Citas Futuras",
             "type": "integer"
+          },
+          "facebook": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Facebook"
           },
           "foto": {
             "anyOf": [
@@ -3629,6 +4562,17 @@
             "title": "Id",
             "type": "string"
           },
+          "instagram": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instagram"
+          },
           "nombre": {
             "title": "Nombre",
             "type": "string"
@@ -3645,14 +4589,47 @@
             "title": "Servicios",
             "type": "array"
           },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          },
           "tiene_cuenta": {
             "description": "Si la persona ya aceptó la invitación; sin cuenta también se le agenda",
             "title": "Tiene Cuenta",
             "type": "boolean"
           },
+          "titular": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Titular"
+          },
           "visible_en_marketplace": {
             "title": "Visible En Marketplace",
             "type": "boolean"
+          },
+          "x": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "X"
           }
         },
         "required": [
@@ -3672,8 +4649,152 @@
         "title": "ProfesionalDelPanel",
         "type": "object"
       },
+      "ProfesionalEnLista": {
+        "description": "Lo que cabe en una tarjeta de equipo o de resultado de búsqueda.\n\nSin teléfono y sin correo, como todo lo público. El nombre que sale es el **de trabajo**\n(`display_name`), que es el que la propia persona puso para que la llamen.",
+        "properties": {
+          "anos_de_experiencia": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anos De Experiencia"
+          },
+          "distancia_metros": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distancia Metros"
+          },
+          "foto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Foto"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "negocio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Negocio"
+          },
+          "negocio_slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Negocio Slug"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "nota": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nota"
+          },
+          "numero_resenas": {
+            "default": 0,
+            "title": "Numero Resenas",
+            "type": "integer"
+          },
+          "servicios": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Servicios",
+            "type": "array"
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          },
+          "titular": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "La descripción de una línea",
+            "title": "Titular"
+          },
+          "zona": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zona"
+          }
+        },
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "title": "ProfesionalEnLista",
+        "type": "object"
+      },
       "ProfesionalPublico": {
         "properties": {
+          "foto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Foto"
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
@@ -3682,6 +4803,29 @@
           "nombre": {
             "title": "Nombre",
             "type": "string"
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          },
+          "titular": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "La descripción de una línea",
+            "title": "Titular"
           }
         },
         "required": [
@@ -3708,6 +4852,79 @@
           "valor"
         ],
         "title": "PuntoDeSerie",
+        "type": "object"
+      },
+      "RedesDelProfesional": {
+        "description": "Las tres redes, con **el usuario y la dirección compuesta al servir**.\n\nLa dirección no se guarda: se compone aquí a partir del usuario, así que siempre apunta al\ndominio correcto. Guardar la URL entera sería aceptar un enlace a cualquier sitio metido\ndesde un formulario, y un perfil público es exactamente donde eso se aprovecha.",
+        "properties": {
+          "facebook": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Facebook"
+          },
+          "facebook_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Facebook Url"
+          },
+          "instagram": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instagram"
+          },
+          "instagram_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instagram Url"
+          },
+          "x": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "X"
+          },
+          "x_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "X Url"
+          }
+        },
+        "title": "RedesDelProfesional",
         "type": "object"
       },
       "ReporteEnCola": {
@@ -4597,6 +5814,13 @@
             "description": "fijo | desde | consultar",
             "title": "Tipo De Precio",
             "type": "string"
+          },
+          "trabajos": {
+            "items": {
+              "$ref": "#/components/schemas/TrabajoDeProfesional"
+            },
+            "title": "Trabajos",
+            "type": "array"
           }
         },
         "required": [
@@ -4694,6 +5918,48 @@
           "motivo"
         ],
         "title": "Suspension",
+        "type": "object"
+      },
+      "TrabajoDeProfesional": {
+        "description": "Una foto de este servicio **hecha por alguien del equipo**.\n\nEs lo que pidió Luis con una frase: «que se vea quién hizo qué». Sin el nombre al lado, la\nfoto es decoración; con él, es la razón por la que alguien elige a una persona concreta.",
+        "properties": {
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "profesional": {
+            "title": "Profesional",
+            "type": "string"
+          },
+          "profesional_id": {
+            "format": "uuid",
+            "title": "Profesional Id",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "url",
+          "profesional_id",
+          "profesional"
+        ],
+        "title": "TrabajoDeProfesional",
         "type": "object"
       },
       "TramoDeHorario": {
@@ -6794,6 +8060,342 @@
         ]
       }
     },
+    "/api/v1/mi/perfil-profesional": {
+      "get": {
+        "operationId": "leer_mi_perfil_api_v1_mi_perfil_profesional_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MiPerfilProfesional"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Mi ficha pública (encargo 2026-09-07 §3)",
+        "tags": [
+          "perfil del profesional"
+        ]
+      },
+      "patch": {
+        "description": "Cada quien edita **su** ficha. La de la compañera la bloquea la base, no este código.\n\nSi alguien llegara aquí con el identificador de otra persona, el `UPDATE` no encontraría\nla fila y la respuesta sería un `403`, no un cambio silencioso: lo traduce el manejador\nglobal de `main.py`.",
+        "operationId": "editar_mi_perfil_api_v1_mi_perfil_profesional_patch",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CambioDeMiPerfil"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MiPerfilProfesional"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Editar mi ficha (encargo 2026-09-07 §3)",
+        "tags": [
+          "perfil del profesional"
+        ]
+      }
+    },
+    "/api/v1/mi/perfil-profesional/fotos": {
+      "get": {
+        "operationId": "listar_mis_fotos_api_v1_mi_perfil_profesional_fotos_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FotoDelPortafolio"
+                  },
+                  "title": "Response Listar Mis Fotos Api V1 Mi Perfil Profesional Fotos Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Mis fotos (encargo 2026-09-07 §3)",
+        "tags": [
+          "perfil del profesional"
+        ]
+      },
+      "post": {
+        "operationId": "anadir_mi_foto_api_v1_mi_perfil_profesional_fotos_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NuevaFoto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FotoDelPortafolio"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Subir una foto mía (encargo 2026-09-07 §3)",
+        "tags": [
+          "perfil del profesional"
+        ]
+      }
+    },
+    "/api/v1/mi/perfil-profesional/fotos/{foto_id}": {
+      "delete": {
+        "operationId": "quitar_mi_foto_api_v1_mi_perfil_profesional_fotos__foto_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "foto_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Foto Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Quitar una foto mía",
+        "tags": [
+          "perfil del profesional"
+        ]
+      },
+      "patch": {
+        "operationId": "editar_mi_foto_api_v1_mi_perfil_profesional_fotos__foto_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "foto_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Foto Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CambioDeFoto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FotoDelPortafolio"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Asignar mi foto a un servicio del salón (encargo 2026-09-07 §3)",
+        "tags": [
+          "perfil del profesional"
+        ]
+      }
+    },
     "/api/v1/mi/reservas": {
       "get": {
         "description": "El historial de la persona, en todos los salones donde ha reservado.\n\nSe apoya en `client_user_id`, que está desnormalizado a propósito: si hubiera que cruzar\nlas fichas de cliente de cada negocio, la pantalla de inicio de la app haría una consulta\npor salón (ADR sobre el modelo, §8.1).",
@@ -8668,6 +10270,296 @@
         ]
       }
     },
+    "/api/v1/negocio/profesionales/{profesional_id}/fotos": {
+      "get": {
+        "description": "Leer sí puede cualquiera del salón: hace falta para pintar la ficha de un servicio.",
+        "operationId": "listar_fotos_del_equipo_api_v1_negocio_profesionales__profesional_id__fotos_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "profesional_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Profesional Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Solo las atadas a este servicio",
+            "in": "query",
+            "name": "solo_servicio",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Solo las atadas a este servicio",
+              "title": "Solo Servicio"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FotoDelPortafolio"
+                  },
+                  "title": "Response Listar Fotos Del Equipo Api V1 Negocio Profesionales  Profesional Id  Fotos Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Las fotos de alguien del equipo (STF-1)",
+        "tags": [
+          "perfil del profesional"
+        ]
+      },
+      "post": {
+        "description": "El dueño sube el trabajo de su equipo: es lo normal cuando el barbero no usa la app.",
+        "operationId": "anadir_foto_del_equipo_api_v1_negocio_profesionales__profesional_id__fotos_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "profesional_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Profesional Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NuevaFoto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FotoDelPortafolio"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Subir una foto de alguien del equipo (STF-1)",
+        "tags": [
+          "perfil del profesional"
+        ]
+      }
+    },
+    "/api/v1/negocio/profesionales/{profesional_id}/fotos/{foto_id}": {
+      "delete": {
+        "operationId": "quitar_foto_del_equipo_api_v1_negocio_profesionales__profesional_id__fotos__foto_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "profesional_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Profesional Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "foto_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Foto Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Quitar la foto de alguien del equipo (STF-1)",
+        "tags": [
+          "perfil del profesional"
+        ]
+      },
+      "patch": {
+        "operationId": "editar_foto_del_equipo_api_v1_negocio_profesionales__profesional_id__fotos__foto_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "profesional_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Profesional Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "foto_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Foto Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CambioDeFoto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FotoDelPortafolio"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Asignar la foto de alguien a un servicio (STF-1)",
+        "tags": [
+          "perfil del profesional"
+        ]
+      }
+    },
     "/api/v1/negocio/profesionales/{profesional_id}/horario": {
       "get": {
         "operationId": "leer_horario_del_profesional_api_v1_negocio_profesionales__profesional_id__horario_get",
@@ -10294,6 +12186,105 @@
         ]
       }
     },
+    "/api/v1/publico/negocios/{slug}/profesionales": {
+      "get": {
+        "description": "Quién trabaja aquí, con su titular, su nota y cuánto lleva atendido.\n\nQué fichas salen **no lo decide esta función**: lo decide la política del rol público, que\nexige negocio publicado, ficha activa y visible en el marketplace. Ocultar a alguien del\nmarketplace lo saca de aquí sin tocar ni una línea de código.",
+        "operationId": "equipo_del_negocio_api_v1_publico_negocios__slug__profesionales_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "title": "Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ProfesionalDelEquipo"
+                  },
+                  "title": "Response Equipo Del Negocio Api V1 Publico Negocios  Slug  Profesionales Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "El equipo visible de un salón (STF-2, encargo 2026-09-07 §3)",
+        "tags": [
+          "profesionales"
+        ]
+      }
+    },
+    "/api/v1/publico/negocios/{slug}/profesionales/{profesional}": {
+      "get": {
+        "description": "La ficha de una persona: descripción, fotos, servicios, reseñas, redes y su nota.\n\n`profesional` admite **el slug o el identificador**. El slug es lo que se comparte y lo que\nindexa Google; el identificador es la salida de emergencia para una ficha que todavía no\ntiene slug, para que un nulo en una columna no deje a nadie sin perfil.\n\nCuánta gente ha atendido se cuenta **al leer** y no sale de ningún contador guardado: un\ncontador se desincroniza el primer día que alguien toca una cita a mano en la base.",
+        "operationId": "perfil_del_profesional_api_v1_publico_negocios__slug__profesionales__profesional__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "title": "Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "profesional",
+            "required": true,
+            "schema": {
+              "title": "Profesional",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerfilDelProfesional"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Perfil público de un profesional (encargo 2026-09-07 §3)",
+        "tags": [
+          "profesionales"
+        ]
+      }
+    },
     "/api/v1/publico/negocios/{slug}/reviews": {
       "get": {
         "description": "Las reseñas publicadas de un salón, con su respuesta y el agregado bayesiano.\n\nSale por la sesión pública, que **no tiene permiso** sobre reservas ni sobre fichas de\ncliente: aunque este código quisiera cruzar la reseña con la cita para enseñar qué se hizo,\nla base no se lo permitiría.",
@@ -10345,6 +12336,217 @@
         "summary": "Reseñas del perfil (REV-1, REV-5)",
         "tags": [
           "reseñas"
+        ]
+      }
+    },
+    "/api/v1/publico/profesionales": {
+      "get": {
+        "description": "Buscar **personas**, que es por donde entra quien ya sabe con quién quiere ir.\n\nEs la mitad que faltaba del encargo: quien busca «una barbería cerca» sigue usando\n`/publico/buscar`, y quien busca «Yaris» entra por aquí.\n\n**No trae cuántas clientas ha atendido**, y es deliberado: cada resultado puede ser de un\nsalón distinto y ese número se cuenta sobre `bookings`, que no es público. Contarlo aquí\ncostaría abrir una conexión por negocio en la consulta que más se va a repetir. Está en el\nperfil, que es donde alguien lo mira de verdad.",
+        "operationId": "buscar_profesionales_api_v1_publico_profesionales_get",
+        "parameters": [
+          {
+            "description": "Nombre o titular: «Yaris», «colorista»",
+            "in": "query",
+            "name": "texto",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Nombre o titular: «Yaris», «colorista»",
+              "title": "Texto"
+            }
+          },
+          {
+            "description": "Slug de una categoría global, por ejemplo «barberia»",
+            "in": "query",
+            "name": "servicio",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Slug de una categoría global, por ejemplo «barberia»",
+              "title": "Servicio"
+            }
+          },
+          {
+            "description": "Slug de zona, por ejemplo «el-cangrejo»",
+            "in": "query",
+            "name": "zona",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Slug de zona, por ejemplo «el-cangrejo»",
+              "title": "Zona"
+            }
+          },
+          {
+            "description": "Slug de un salón concreto",
+            "in": "query",
+            "name": "negocio",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Slug de un salón concreto",
+              "title": "Negocio"
+            }
+          },
+          {
+            "in": "query",
+            "name": "orden",
+            "required": false,
+            "schema": {
+              "default": "relevancia",
+              "pattern": "^(relevancia|nota|nombre)$",
+              "title": "Orden",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pagina",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Pagina",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ProfesionalEnLista"
+                  },
+                  "title": "Response Buscar Profesionales Api V1 Publico Profesionales Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Buscar profesionales (encargo 2026-09-07 §3)",
+        "tags": [
+          "profesionales"
+        ]
+      }
+    },
+    "/api/v1/publico/profesionales/{profesional_id}/disponibilidad": {
+      "get": {
+        "description": "El tercer paso del camino nuevo: profesional → servicio suyo → **hora**.\n\nEs la misma respuesta que `/publico/negocios/{slug}/disponibilidad?profesional=…` y sale\ndel **mismo motor**; lo que cambia es que aquí no hace falta saber en qué salón trabaja,\nporque eso lo resuelve el servidor a partir de la ficha. Quien entra por la persona no\ntiene por qué haber visto nunca el nombre del local.",
+        "operationId": "disponibilidad_del_profesional_api_v1_publico_profesionales__profesional_id__disponibilidad_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "profesional_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Profesional Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "En el orden en que se encadenan",
+            "in": "query",
+            "name": "servicios",
+            "required": true,
+            "schema": {
+              "description": "En el orden en que se encadenan",
+              "items": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "title": "Servicios",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "desde",
+            "required": true,
+            "schema": {
+              "format": "date-time",
+              "title": "Desde",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "hasta",
+            "required": true,
+            "schema": {
+              "format": "date-time",
+              "title": "Hasta",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespuestaDisponibilidad"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Huecos de un profesional concreto (AGD-1, encargo 2026-09-07 §3)",
+        "tags": [
+          "profesionales"
         ]
       }
     },

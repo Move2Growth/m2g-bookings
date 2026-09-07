@@ -27,8 +27,10 @@ from agenda.api import (
     negocio_equipo,
     negocio_ficha,
     onboarding,
+    perfil_profesional,
     profesional,
     publico,
+    publico_profesionales,
     resenas,
 )
 from agenda.errores import CarreraEnLaBase, ErrorDeDominio, NoAutorizado
@@ -135,6 +137,7 @@ app.add_middleware(
 # no comparte prefijo, ni dependencia de sesión, ni rol de base de datos con ninguna de ellas.
 app.include_router(acceso.router)
 app.include_router(publico.router)
+app.include_router(publico_profesionales.router)
 app.include_router(onboarding.router)
 app.include_router(negocio.router)
 app.include_router(negocio_catalogo.router)
@@ -144,6 +147,7 @@ app.include_router(negocio_ficha.router)
 app.include_router(negocio_clientes.router)
 app.include_router(cliente.router)
 app.include_router(profesional.router)
+app.include_router(perfil_profesional.router)
 app.include_router(favoritos.router)
 app.include_router(resenas.router)
 app.include_router(consola.router)
