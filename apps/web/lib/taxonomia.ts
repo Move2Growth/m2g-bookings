@@ -33,3 +33,7 @@ export const CATEGORIAS: [string, string][] = [
 export function nombreDeZona(slug: string | undefined) {
   return ZONAS.find(([, s]) => s === slug)?.[0]
 }
+
+export function nombreDeCategoria(slug: string | undefined) {
+  return CATEGORIAS.find(([, s]) => s === slug)?.[0]
+}

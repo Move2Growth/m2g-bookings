@@ -5,6 +5,7 @@ import { Buscador } from '@/componentes/buscador'
 import { Cabecera } from '@/componentes/cabecera'
 import { Vacio } from '@/componentes/estados'
 import { ListaSalones } from '@/componentes/lista-salones'
+import { ModoDeBusqueda } from '@/componentes/modo-busqueda'
 import { Iconos } from '@/componentes/pestanas'
 import { PestanasClienteSiHaySesion } from '@/componentes/pestanas-cliente'
 import { Pie } from '@/componentes/pie'
@@ -88,6 +89,13 @@ export default async function Buscar({ searchParams }: Props) {
         <div className="cabecera-buscar">
           <div className="contenedor">
             <h1>{nombreZona ? `Salones en ${nombreZona}` : 'Salones y barberías en Ciudad de Panamá'}</h1>
+
+            {/* El conmutador va **encima** del buscador de salones, no dentro: decidir si
+                buscas un local o a una persona es anterior a escribir qué buscas, y meterlo
+                entre los filtros lo convertiría en un filtro más de los salones. */}
+            <div style={{ marginBottom: 'var(--espacio-3)' }}>
+              <ModoDeBusqueda modo="locales" consulta={filtros.texto} />
+            </div>
 
             <Suspense fallback={<div style={{ height: 132 }} />}>
               <Buscador />

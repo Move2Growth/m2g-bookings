@@ -20,16 +20,45 @@
 import { chromium } from 'playwright'
 import { createHmac } from 'node:crypto'
 
-const BASE = 'http://localhost:3100'
+//: El 3100 es el entorno de `make arriba`. Se puede apuntar a otro con `BASE=…`, que es lo que
+//: hace falta para barrer un árbol de trabajo levantado en otro puerto **antes** de fusionarlo.
+//: Si se cambia, el puerto tiene que estar en `ORIGENES_PERMITIDOS` de la API o las pantallas
+//: con sesión cargan enteras y no sale ni una petición.
+const BASE = process.env.BASE ?? 'http://localhost:3100'
 const API = 'http://localhost:8000'
 //: 390 es un iPhone y es donde vive esto; 1440 es un portátil. Se barren los dos porque los
 //: fallos son distintos: en el teléfono desborda, en el escritorio se estira sin límite.
 const ANCHOS = [390, 1440]
 let ANCHO = ANCHOS[0]
 
-const PUBLICAS = ['/', '/buscar', '/barberia-el-cangrejo', '/como-funciona', '/para-negocios', '/entrar']
+const PUBLICAS = [
+  '/',
+  '/buscar',
+  //: La búsqueda de personas convive con la de locales: son dos listas y dos URL, y las dos
+  //: tienen que aguantar el barrido.
+  '/buscar/personas',
+  '/buscar/personas?texto=barbero',
+  '/barberia-el-cangrejo',
+  //: El perfil de una persona. Es la pantalla con más piezas del marketplace —datos, servicios,
+  //: horas, fotos y reseñas— y la que más fácil desborda a lo ancho.
+  '/barberia-el-cangrejo/kevin-ortega',
+  //: Una dirección que no existe: comprueba que el 404 tiene salida y no es una página en blanco.
+  '/barberia-el-cangrejo/no-existe-esta-persona',
+  '/como-funciona',
+  '/para-negocios',
+  '/entrar',
+]
 const CLIENTA = ['/mi/citas', '/mi/favoritos', '/mi/perfil']
 const NEGOCIO = ['/panel', '/panel/agenda', '/panel/servicios', '/panel/equipo', '/panel/clientes', '/panel/ficha']
+//: Lo del profesional, que no es lo del dueño: su ficha pública, sus fotos y su fichaje. Se
+//: barren con una cuenta de profesional porque con la del dueño ni siquiera cargan igual.
+const PROFESIONAL = [
+  '/panel/agenda',
+  '/panel/horario',
+  '/panel/mi-perfil',
+  '/panel/mis-fotos',
+  '/panel/fichar',
+]
 const CONSOLA = ['/consola', '/consola/negocios', '/consola/moderacion', '/consola/metricas', '/consola/ranking']
 
 //: La cuenta de consola de la semilla. Vive solo en local y su secreto está en `semilla.py`;
@@ -86,11 +115,17 @@ async function barrer(titulo, rutas, sesion, llave = 'agenda.sesion') {
     errores.length = 0
     const respuesta = await pagina.goto(BASE + ruta, { waitUntil: 'networkidle' }).catch(() => null)
     await pagina.waitForTimeout(900)
+    //: Un 404 se espera en las rutas que se barren justamente para ver su página de «no está».
+    const seEsperaUn404 = ruta.includes('no-existe')
     const estado = respuesta?.status() ?? 0
     const ancho = await pagina.evaluate(() => document.documentElement.scrollWidth)
     const texto = await pagina.locator('body').innerText().catch(() => '')
     const roto = /Application error|Internal Server Error|Algo salió mal/i.test(texto)
-    const bien = estado === 200 && ancho <= ANCHO && !roto && errores.length === 0
+    const bien =
+      (estado === 200 || (seEsperaUn404 && estado === 404)) &&
+      ancho <= ANCHO &&
+      !roto &&
+      errores.length === 0
     console.log(`${bien ? 'OK  ' : 'MAL '} ${ruta.padEnd(26)} ${estado} · ancho ${ancho}${errores.length ? ` · ${errores[0]}` : ''}${roto ? ' · PANTALLA ROTA' : ''}`)
     if (!bien) fallos.push(`${titulo} ${ruta}: estado ${estado}, ancho ${ancho}${errores.length ? `, ${errores[0]}` : ''}${roto ? ', pantalla rota' : ''}`)
   }
@@ -118,6 +153,21 @@ await barrer('Dueña de salón', NEGOCIO, {
   ...conNegocio,
   negocio_nombre: negocios[0].nombre,
   negocio_rol: negocios[0].rol,
+})
+
+//: Un profesional del salón, que ve otras pestañas y otras pantallas. `/panel/fichar` sale
+//: apagado mientras el dueño no le active el fichaje, y eso también hay que verlo cargar.
+const profesional = await sesionDe('pro.barberia-el-cangrejo@demo.pa')
+const suyos = await fetch(`${API}/api/v1/mi/negocios`, { headers: { Authorization: `Bearer ${profesional.acceso}` } }).then((r) => r.json())
+const proEnNegocio = await fetch(`${API}/api/v1/auth/modo-negocio`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${profesional.acceso}` },
+  body: JSON.stringify({ negocio_id: suyos[0].id }),
+}).then((r) => r.json())
+await barrer('Profesional del salón', PROFESIONAL, {
+  ...proEnNegocio,
+  negocio_nombre: suyos[0].nombre,
+  negocio_rol: suyos[0].rol,
 })
 
 // La consola es otro sistema de acceso entero: otras tablas, otro rol de base de datos y

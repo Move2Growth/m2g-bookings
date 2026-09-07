@@ -22,7 +22,14 @@ export type Servicio = {
   tipo_de_precio: 'fijo' | 'desde' | 'consultar'
 }
 
-export type Profesional = { id: string; nombre: string }
+export type Profesional = {
+  id: string
+  nombre: string
+  /** Su URL pública. Nulo mientras nadie le haya puesto uno: entonces se enlaza por `id`. */
+  slug?: string | null
+  titular?: string | null
+  foto?: string | null
+}
 
 export type NegocioEnLista = {
   slug: string
@@ -81,6 +88,160 @@ export type Disponibilidad = {
   zona: string
   duracion_minutos: number
   slots: Slot[]
+}
+
+/* ── El profesional como entidad de primera (encargo 2026-09-07 §3) ──────────────────────── */
+
+/** Una foto de trabajo. Cuando lleva `servicio`, es lo que hace visible **quién hizo qué**. */
+export type FotoDeProfesional = {
+  id: string
+  url: string
+  descripcion: string | null
+  servicio: string | null
+  servicio_id: string | null
+}
+
+export type RedesDelProfesional = {
+  instagram?: string | null
+  instagram_url?: string | null
+  facebook?: string | null
+  facebook_url?: string | null
+  x?: string | null
+  x_url?: string | null
+}
+
+/** Un profesional tal y como sale en una lista: el suyo, su salón y su nota. */
+export type ProfesionalEnLista = {
+  id: string
+  slug: string | null
+  nombre: string
+  titular: string | null
+  foto: string | null
+  anos_de_experiencia: number | null
+  nota: number | null
+  numero_resenas: number
+  /** Los identificadores de los servicios que hace. Sirven para pedirle sus horas libres. */
+  servicios: string[]
+  negocio: string | null
+  negocio_slug: string | null
+  zona: string | null
+  distancia_metros: number | null
+  /** **No viene de la API**: lo compone la página sondeando el motor de disponibilidad. */
+  proxima_hora?: string | null
+}
+
+/** Un servicio del catálogo de esa persona, con las fotos que ella ató a ese servicio. */
+export type ServicioDelProfesional = Servicio & {
+  trabajos: { id: string; url: string; descripcion: string | null }[]
+}
+
+export type PerfilDeProfesional = ProfesionalEnLista & {
+  descripcion: string | null
+  citas_atendidas: number
+  clientes_atendidos: number
+  redes: RedesDelProfesional
+  negocio_id: string
+  zona_horaria: string
+  direccion: string | null
+  catalogo: ServicioDelProfesional[]
+  /** Las fotos sueltas, sin servicio atado. */
+  galeria: FotoDeProfesional[]
+  /** Todas sus fotos, con y sin servicio. */
+  trabajos: FotoDeProfesional[]
+  resenas: ResenaPublica[]
+}
+
+/** La búsqueda de personas. Convive con la de salones: son dos listas, no una con un filtro. */
+export function buscarProfesionales(
+  filtros: Record<string, string | undefined>,
+): Promise<ProfesionalEnLista[]> {
+  const ADMITIDOS = ['texto', 'servicio', 'zona', 'negocio', 'orden', 'pagina']
+  const parametros = new URLSearchParams()
+  for (const clave of ADMITIDOS) {
+    const valor = filtros[clave]
+    if (valor) parametros.set(clave, valor)
+  }
+  const cadena = parametros.toString()
+  return pedir<ProfesionalEnLista[]>(
+    `/api/v1/publico/profesionales${cadena ? `?${cadena}` : ''}`,
+    { revalidar: 60 },
+  )
+}
+
+/** El perfil de una persona. `quien` admite su slug o, si todavía no tiene, su identificador. */
+export function verPerfilDeProfesional(
+  slug: string,
+  quien: string,
+): Promise<PerfilDeProfesional> {
+  return pedir<PerfilDeProfesional>(
+    `/api/v1/publico/negocios/${encodeURIComponent(slug)}/profesionales/${encodeURIComponent(quien)}`,
+    { revalidar: 60 },
+  )
+}
+
+/** Las horas libres **de esa persona**, no las del salón. */
+export function verDisponibilidadDeProfesional(
+  profesionalId: string,
+  servicios: string[],
+  desde: Date,
+  hasta: Date,
+  /**
+   * Segundos de caché. **Cero en la pantalla donde se reserva**: ofrecer un hueco ya cogido es
+   * la peor mentira que puede contar esta pantalla. En una lista, donde la hora es un reclamo
+   * y no un botón de reservar, un minuto de retraso no engaña a nadie y ahorra una petición
+   * por fila en cada visita.
+   */
+  revalidar = 0,
+): Promise<Disponibilidad> {
+  const parametros = new URLSearchParams()
+  for (const servicio of servicios) parametros.append('servicios', servicio)
+  parametros.set('desde', desde.toISOString())
+  parametros.set('hasta', hasta.toISOString())
+
+  return pedir<Disponibilidad>(
+    `/api/v1/publico/profesionales/${encodeURIComponent(profesionalId)}/disponibilidad?${parametros}`,
+    { revalidar },
+  )
+}
+
+/**
+ * La próxima hora libre de cada persona de la lista.
+ *
+ * **No viene de la API**: `ProfesionalEnLista` no la trae, así que se sondea el motor una vez
+ * por persona con su servicio más corto y dos días de ventana. Se hace en paralelo y **para
+ * toda la página**, no para las primeras: media lista con hora y media sin ella se lee como si
+ * a las de abajo no les quedara ninguna, que es justo lo contrario de lo que pasa.
+ *
+ * Sale a cuenta porque cada sonda se cachea un minuto: la primera visita del minuto paga las
+ * veinte peticiones —medido en local, 432 ms para doce en paralelo— y el resto no paga nada.
+ * Quien falla se queda sin hora y la fila dice «ver horas»; ni una sola persona desaparece de
+ * la lista por eso.
+ */
+export async function conProximaHora(
+  personas: ProfesionalEnLista[],
+): Promise<ProfesionalEnLista[]> {
+  const desde = new Date()
+  const hasta = new Date(desde.getTime() + 2 * 24 * 60 * 60 * 1000)
+
+  const horas = await Promise.all(
+    personas.map(async (persona) => {
+      if (persona.servicios.length === 0) return null
+      try {
+        const libre = await verDisponibilidadDeProfesional(
+          persona.id,
+          [persona.servicios[0]],
+          desde,
+          hasta,
+          60,
+        )
+        return libre.slots[0]?.inicio ?? null
+      } catch {
+        return null
+      }
+    }),
+  )
+
+  return personas.map((persona, indice) => ({ ...persona, proxima_hora: horas[indice] }))
 }
 
 /** Un error que la interfaz puede enseñar tal cual, con el código estable para ramificar. */

@@ -1,4 +1,4 @@
-# Tareas: Frontend Web — **Estado: sin iniciar**
+# Tareas: Frontend Web — **Estado: en proceso**
 
 > Derivadas de la guía de lanzamiento por fase (`../README.md` §3). **Ninguna pantalla se construye antes de que el Mockuper la haya prototipado**, y **ninguna del bloque 1.e antes de que Luis haya visto el motor de disponibilidad** (puerta de parada).
 > Estados de tarea: `pendiente` · `en curso` · `bloqueada` · `hecha` · `validada`.
@@ -18,3 +18,19 @@
 | FE-T010 | **El flujo de reserva del cliente** (RSV-1): negocio → servicio → profesional o «cualquiera» → fecha y hora → confirmar, en **como mucho tres pantallas** tras elegir servicio, con la **política de cancelación visible antes de reservar** y el teléfono verificado obligatorio (D9) | 2 | apps/web | pendiente | FE-T007, BE-T010, MCK-T005 | Alguien que no conoce el producto **reserva sin ayuda**; se cuentan **tres pantallas**, no cinco; si el hueco se acaba de ocupar, el mensaje se entiende y **no se reintenta solo** |
 | FE-T011 | **Reviews y favoritos** (REV-1 a REV-3, MKT-5): dejar una review solo con reserva completada, ver la respuesta del negocio, guardar favoritos y compartir el perfil | 2 | apps/web | pendiente | FE-T010, BE-T019 | No hay ninguna vía en la interfaz para dejar una review sin haber ido; el rating que se pinta es **el bayesiano**, no la media simple |
 | FE-T012 | **Los resultados patrocinados** (MKT-4): etiquetados **«Patrocinado»**, intercalados, **como mucho 2 de cada 10** y **sin desplazar a un orgánico fuera de la página** | 2 | apps/web | pendiente | FE-T008, BE-T018 | Se cuentan en pantalla: nunca más de 2 por cada 10, siempre etiquetados, y **el orgánico que estaba en la página sigue en la página** |
+
+## Las pantallas del encargo del 7 de septiembre
+
+> Salen de [`../../producto/PANTALLAS-PENDIENTES.md`](../../producto/PANTALLAS-PENDIENTES.md), secciones «Del cliente» y «Del profesional». **Las del dueño y el mapa no son de este bloque.**
+>
+> Se construyen con el vocabulario de clases que ya existe y con las variables de `packages/tokens`: **la dirección visual está en revisión y se sustituye entera**, así que aquí se juega la estructura, el comportamiento y los estados, que es lo que sobrevive al cambio de estilo.
+
+| ID | Descripción | Zona | Estado | Depende de | Criterio de aceptación |
+|---|---|---|---|---|---|
+| FE-T013 | **El perfil público de una persona** en `/[salón]/[persona]` (encargo §3): foto, titular, descripción, años, cuánta gente ha atendido, nota y reseñas, sus servicios, sus fotos de trabajo, sus redes y su calendario. Renderizado en servidor con `generateMetadata` y datos estructurados `Person` | apps/web | **hecha** | BE-T032 | El contenido está en el HTML **sin JavaScript**; el enlace admite **slug o identificador**, para que una ficha sin slug no se quede sin página; una persona sin servicios sale igual y dice quién se los asigna |
+| FE-T014 | **Buscar personas y no locales** en `/buscar/personas` (encargo §3), con su salón y su **próxima hora libre**. **Convive con `/buscar`**, no la sustituye: dos URL y un conmutador entre ellas | apps/web | **hecha** | FE-T013, BE-T033 | Se busca **sin JavaScript** (formulario GET); la próxima hora se sonda para **toda la página**, no para las primeras; quien no tenga hora sale igual y lo dice |
+| FE-T015 | **Reservar empezando por la persona** (encargo §3): profesional → uno de **sus** servicios → hora. El camino de siempre —negocio → servicio → profesional— **se queda intacto** | apps/web | **hecha** | FE-T013 | La persona **viaja explícita** en la reserva, no «cualquiera»; son **dos pantallas** tras elegir servicio; la cita se crea y la pantalla siguiente dice que quedó hecha |
+| FE-T016 | **Aceptar una invitación** en `/invitacion/[token]` — **la ruta que escribe el correo** | apps/web | **hecha** | BE-T039 | Se ve a qué salón y con qué papel **antes** de aceptar; **dos formularios distintos** según `cuenta_con_contrasena`; un token gastado da mensaje y salida, no una página en blanco |
+| FE-T017 | **La ficha del profesional, editada por él** en `/panel/mi-perfil` (encargo §3): titular, descripción, años y redes | apps/web | **hecha** | BE-T032 | Las redes se guardan **por usuario**, y una URL entera pegada se recorta sola; un dueño que no atiende recibe un mensaje, no un formulario que falla al guardar |
+| FE-T018 | **Sus fotos** en `/panel/mis-fotos`, con **atarlas a un servicio del salón** (encargo §3), que es lo que hace que se vea quién hizo qué | apps/web | **hecha** | BE-T032 | Una foto atada a un servicio **aparece en la página pública con el nombre del servicio**; quitar está separado de retocar; **se dice que subir un archivo todavía no está montado** en vez de enseñar un botón que no sube |
+| FE-T019 | **Fichar** en `/panel/fichar` (encargo §6), **solo si el dueño se lo activó** | apps/web | **hecha** | BE-T036 | Con el fichaje apagado **no hay pestaña ni botón**, solo de quién depende encenderlo; un botón único que dice si toca entrar o salir; el parte agrupa por día y avisa de que **no se puede corregir** |
