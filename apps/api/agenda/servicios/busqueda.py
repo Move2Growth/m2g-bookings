@@ -129,15 +129,21 @@ async def buscar(
     )
 
     if texto:
-        patron = f"%{texto.strip()}%"
-        # Un `ILIKE` sobre nombre y servicios es suficiente para el volumen de v1 y no arrastra
-        # la complejidad de un índice de texto completo. Cuando haga falta, será un ADR nuevo.
+        # **Sin tildes en los dos lados.** Escribir la tilde en el teclado de un teléfono cuesta
+        # una pulsación larga y casi nadie la escribe: hasta la migración 0011, buscar
+        # «barberia» devolvía cero resultados y «barbería» devolvía dos. El buscador funcionaba
+        # solo para quien ya escribía perfecto.
+        #
+        # `sin_tildes` es una envoltura inmutable de `unaccent` y está indexada con trigramas,
+        # así que esto sigue usando índice y no recorre la tabla entera.
+        patron = func.sin_tildes(func.lower(f"%{texto.strip()}%"))
         consulta = consulta.where(
             or_(
-                Business.display_name.ilike(patron),
+                func.sin_tildes(func.lower(Business.display_name)).like(patron),
                 Business.id.in_(
                     select(Service.business_id).where(
-                        Service.name.ilike(patron), Service.active.is_(True)
+                        func.sin_tildes(func.lower(Service.name)).like(patron),
+                        Service.active.is_(True),
                     )
                 ),
             )

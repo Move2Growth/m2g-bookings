@@ -13,6 +13,7 @@ el rol del negocio taparía cualquier permiso que falte.
 
 from __future__ import annotations
 
+import unicodedata
 import uuid
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -306,3 +307,32 @@ async def test_la_ventana_de_una_fecha_se_calcula_en_la_zona_del_negocio():
     )
     assert desde == datetime(2026, 9, 4, 5, 0, tzinfo=UTC)
     assert hasta == desde + timedelta(days=1)
+
+
+async def test_buscar_sin_tildes_encuentra_lo_que_las_lleva():
+    """«barberia» tiene que encontrar «Barbería».
+
+    Escribir la tilde en el teclado de un teléfono cuesta una pulsación larga, así que casi
+    nadie la escribe. Antes de la migración 0011 esta búsqueda devolvía **cero**: el buscador
+    funcionaba solo para quien ya escribía perfecto, y eso en un marketplace en español es la
+    mitad de las búsquedas cayendo al vacío.
+    """
+    salon = await montar_salon()  # se llama «Barbería El Cangrejo <marca>»
+    # El mismo nombre escrito como lo escribe cualquiera con prisa: sin tildes y en minúscula.
+    sin_tildes = (
+        unicodedata.normalize("NFKD", salon.nombre).encode("ascii", "ignore").decode().lower()
+    )
+    assert sin_tildes != salon.nombre, "Si el nombre no llevara tilde, la prueba no probaría nada."
+
+    async with _sesion_publica() as sesion:
+        con_tilde = await busqueda.buscar(sesion, texto=salon.nombre)
+        sin_tilde = await busqueda.buscar(sesion, texto=sin_tildes)
+
+    ids_con = {r.negocio_id for r in con_tilde}
+    ids_sin = {r.negocio_id for r in sin_tilde}
+    assert salon.negocio_id in ids_con, "Con tilde tiene que encontrarlo."
+    assert salon.negocio_id in ids_sin, (
+        "Sin tilde tiene que encontrar exactamente lo mismo: es como se escribe de verdad "
+        "en un teléfono."
+    )
+    assert ids_con == ids_sin
