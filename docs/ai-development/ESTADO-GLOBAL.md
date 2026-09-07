@@ -131,23 +131,20 @@
 | Fase 0 · documentación | Modelo de datos · plan de fases y preguntas abiertas · flujos y design system · método de trabajo | `docs/arquitectura`, `docs/diseno`, `docs/ai-development` | ✅ cerrado y commiteado | Ninguno: zonas disjuntas, un archivo por agente |
 | Fase 0 · esquema | Migración inicial, modelos y seed | `apps/api/agenda/modelos`, `apps/api/migraciones`, `apps/api/agenda/semilla.py` | ✅ cerrado | — |
 | Fase 1 · notificaciones | Cola idempotente, proveedores y worker | `apps/api/agenda/notificaciones`, `apps/api/agenda/trabajos` | ✅ cerrado | — |
-| **Marca · revisión 4** | Tres brandbooks en PDF a ciegas (Buenamano, Cupo, Tanda) + logotipo generado + nombre nuevo | `docs/marca/revision-4/direcciones/` | 🔄 en vuelo | Ninguno: una carpeta por dirección |
-| **Encargo 07-09 · A y B** | El profesional como entidad pública y elegir profesional primero | `apps/api` (árbol de trabajo aparte, base `agenda_pruebas_w1`) | 🔄 en vuelo | **Migración `0009_profesional_entidad`** |
-| **Encargo 07-09 · C, D y E** | Portal del dueño, mapa por rectángulo y asignar personas al local | `apps/api` (árbol de trabajo aparte, base `agenda_pruebas_w2`) | 🔄 en vuelo | **Migración `0010_portal_del_dueno`: nace con `down_revision = 0008` y hay que re-encadenarla a `0009` al fusionar** |
+| **Marca · revisión 4** | Tres brandbooks en PDF a ciegas (Buenamano, Cupo, Tanda), con logotipo generado y nombre propio cada uno | `docs/marca/revision-4/` | ✅ **cerrado · elige Luis** | — |
+| **Encargo 07-09 · A y B** | El profesional como entidad pública y elegir profesional primero | `apps/api` | ✅ fusionado | — |
+| **Encargo 07-09 · C, D y E** | Portal del dueño, mapa por rectángulo y asignar personas al local | `apps/api` | ✅ fusionado | — |
+| **Encargo 07-09 · pantallas** | Las pantallas del cliente y del profesional, y las del portal del dueño | `apps/web` (dos árboles de trabajo aparte) | 🔄 en vuelo | Los dos añaden sus rutas a `scripts/barrer-pantallas.mjs` |
 
-### La cadena de migraciones, que hay que rehacer al fusionar
+### La cadena de migraciones, ya rehecha
 
-Tres migraciones se escribieron a la vez y **dos apuntan provisionalmente a la `0008`** porque su
-predecesora todavía no existía en `development`. Al fusionar hay que dejarlas así y volver a
-migrar desde cero para comprobarlo:
+Tres migraciones se escribieron a la vez y dos apuntaban provisionalmente a la `0008`. Al fusionar
+se reencadenaron y se renumeraron para que la cadena se lea en orden, y se comprobó **migrando
+desde cero sobre una base recién creada**, no leyéndola:
 
 ```
-0008_acceso_contrasena → 0009_profesional_entidad → 0010_portal_del_dueno → 0011_busqueda_sin_tildes
+0008_acceso_contrasena → 0009_profesional_entidad → 0010_busqueda_sin_tildes → 0011_portal_del_dueno
 ```
-
-La `0011` ya está en `development` con `down_revision = 0008` y **el comentario que lo dice en el
-propio archivo**. Sin este apunte, la primera persona que monte el entorno desde cero se
-encuentra tres cabezas de Alembic y ningún motivo escrito.
 
 > **Zonas serializadas de este proyecto** —nunca dos agentes a la vez, ni con worktree—: `apps/api/migraciones`, `apps/api/disponibilidad`, `packages/tokens`, `docs/arquitectura/adr/`, y este mismo archivo.
 
