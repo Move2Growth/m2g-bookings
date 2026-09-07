@@ -941,7 +941,6 @@ button{ font: inherit; color: inherit; }
    estas líneas, y aquí se ve de un vistazo qué es cada cosa.
    ══════════════════════════════════════════════════════════════════════════ */
 
-.boton--primario { composes: boton--principal; }
 .boton--primario,
 .boton--principal { background: var(--color-acento); color: var(--color-acento-texto); }
 .boton--cierra,
