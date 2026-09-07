@@ -47,8 +47,9 @@ La lista entera, con los once salones y qué hacer si algo no entra, en
 pruebas en verde** —la mayoría contra un PostgreSQL de verdad, porque lo que hay que probar son
 restricciones de exclusión, seguridad por fila y PostGIS— y **26 pantallas**.
 
-Del encargo del 7 de septiembre está **toda la API y ninguna pantalla nueva**, y es a propósito:
-las pantallas esperan a que elijas dirección visual.
+Del encargo del 7 de septiembre está **todo, API y pantallas**. Lo que espera a que elijas
+dirección visual no es que existan, sino **cómo se ven**: el estilo se sustituye entero, y por eso
+se construyeron con el vocabulario que ya había en vez de inventar aspecto dos veces.
 
 | Lo que pediste | Dónde está |
 |---|---|
@@ -57,9 +58,10 @@ las pantallas esperan a que elijas dirección visual.
 | **Precio opcional** | Ya existía en el modelo y en la pantalla. Se arregló el 500 que daba crear un servicio con precio incoherente |
 | **Alta del local en tres pasos** | API entera, con las invitaciones por correo y la regla de que un salón no se queda sin dueño |
 | **Portal del dueño** | API entera: todos los calendarios en columnas, finanzas, publicidad flash, fichaje que se enciende persona a persona, y mejor del mes por importe o por número de servicios |
-| **Mapa con reseñas** | La consulta por rectángulo. Dibujarlo necesita una decisión tuya (§4) |
+| **Mapa con reseñas** | Hecho, con pantalla. Las baldosas son de OpenStreetMap y no piden clave; **elegir con qué se publica sigue siendo tuyo**, pero es cambiar una URL |
 
-Lo que falta pantalla a pantalla, en [`producto/PANTALLAS-PENDIENTES.md`](producto/PANTALLAS-PENDIENTES.md).
+El detalle de cada pantalla, y lo que sobrevive al rediseño para no volver a descubrirlo a
+golpes, en [`producto/PANTALLAS-PENDIENTES.md`](producto/PANTALLAS-PENDIENTES.md).
 
 ## 3. Qué mirar para creerte que funciona
 
@@ -68,9 +70,10 @@ make barrer     # entra como clienta, como dueña y en la consola, y recorre las
 make pruebas    # 281 contra un PostgreSQL real
 ```
 
-`make barrer` no comprueba que algo se vea bonito: comprueba que **carga, que no revienta y que
-no desborda a lo ancho**, a 390 px y a 1440. Con él salió que el panel del salón medía 562 px
-dentro de una pantalla de 390.
+`make barrer` no comprueba que algo se vea bonito: comprueba que **carga, que no revienta, que no
+enseña su propio error y que no desborda a lo ancho**, a 390 px y a 1440. Con él salió que el
+panel del salón medía 562 px dentro de una pantalla de 390. Lo de «no enseña su propio error» se
+añadió después, y no era teórico: ocho pantallas pasaban diciendo «Failed to fetch».
 
 Y hay tres recorridos que se ejecutan solos, en un navegador de verdad:
 
@@ -87,8 +90,9 @@ tres los criticó alguien que no los hizo, y los tres corrigieron lo que se les 
 que elijas, no se rehacen las pantallas**, y con ellas viene también el nombre: «Bukeo» está
 descartado y cada dirección trae el suyo.
 
-**El proveedor de mapas** (decisión D8, abierta desde el 1 de septiembre). La consulta es nuestra
-y no cuesta nada; dibujar las baldosas necesita una clave de Mapbox o de Google.
+**El proveedor de mapas** (decisión D8). Ya no bloquea nada: el mapa está construido con teselas
+de OpenStreetMap, que no piden clave. Lo que hay que decidir es **con qué se publica**, porque su
+política de uso no admite tráfico serio. Cambiar de proveedor es una URL en `app/mapa/page.tsx`.
 
 **El proveedor de correo.** Sin él la invitación al equipo llega al buzón de desarrollo y no a
 una bandeja. Y hay algo más de fondo que hay que decidir con él: hoy los mensajes viajan con el
