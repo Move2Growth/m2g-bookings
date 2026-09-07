@@ -1,0 +1,1497 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Buenamano · libro de marca</title>
+<link rel="stylesheet" href="./fuentes/fuentes.css">
+<style>
+/* ─────────────────────────────────────────────────────────────────────────
+   BUENAMANO · sistema
+   Tintas, medidas y piezas. Todo cuadrado salvo el retrato: el círculo
+   significa persona y no se usa para otra cosa.
+   ───────────────────────────────────────────────────────────────────────── */
+:root{
+  --papel:#F7F2E9;
+  --bruma:#E0D7C8;
+  --ceniza:#6B6157;
+  --tinta:#14100D;
+  --anil:#1D3FB0;
+  --achiote:#B23320;
+  --pag-x:56px;
+  --lin:1px solid var(--bruma);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#8f8779}
+body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+
+.pagina{
+  position:relative;width:1122.5px;height:793.7px;overflow:hidden;
+  background:var(--papel);color:var(--tinta);
+  page-break-after:always;break-after:page;
+}
+.pagina + .pagina{margin-top:0}
+
+/* ── mecánica tipográfica ───────────────────────────────────────────────── */
+.rotulo{font-size:8.5px;font-weight:600;font-stretch:118%;letter-spacing:.17em;
+        text-transform:uppercase;color:var(--ceniza);line-height:1}
+.rotulo.tinta{color:var(--tinta)}
+.rotulo.anil{color:var(--anil)}
+.serif{font-family:'Alegreya',Georgia,serif}
+.display{font-family:'Alegreya',Georgia,serif;font-weight:800;letter-spacing:-.022em;line-height:.9}
+.h1{font-family:'Alegreya',Georgia,serif;font-weight:700;font-size:34px;line-height:1.04;letter-spacing:-.015em}
+.h2{font-size:15.5px;font-weight:600;font-stretch:108%;line-height:1.2;letter-spacing:-.005em}
+.p{font-size:12px;line-height:1.55;color:var(--tinta)}
+.p.gris{color:var(--ceniza)}
+.mini{font-size:10px;line-height:1.45;color:var(--ceniza)}
+.dato{font-weight:500;font-stretch:92%;font-variant-numeric:tabular-nums}
+
+/* ── muebles de página ──────────────────────────────────────────────────── */
+.cabecera{position:absolute;left:var(--pag-x);right:var(--pag-x);top:38px;
+  display:flex;justify-content:space-between;align-items:flex-end;
+  padding-bottom:9px;border-bottom:var(--lin)}
+.pie{position:absolute;left:var(--pag-x);right:var(--pag-x);bottom:34px;
+  display:flex;justify-content:space-between;align-items:flex-end;
+  padding-top:9px;border-top:var(--lin)}
+.lienzo{position:absolute;left:var(--pag-x);right:var(--pag-x);top:84px;bottom:80px}
+.folio{font-family:'Alegreya',Georgia,serif;font-weight:700;font-size:20px;line-height:1;
+  letter-spacing:-.02em}
+/* la cinta del libro: diez muescas, la de esta página en achiote */
+.cinta-libro{display:flex;gap:3px;align-items:flex-end;height:11px}
+.cinta-libro i{display:block;width:9px;height:2px;background:var(--bruma)}
+.cinta-libro i.aqui{height:9px;background:var(--achiote);width:9px}
+
+/* ── el canto: todo elemento interactivo se apoya en una regla de 2 px ──── */
+.btn{
+  position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-family:'Archivo';font-size:12.5px;font-weight:600;font-stretch:104%;letter-spacing:.005em;
+  height:38px;padding:0 18px;border:0;border-radius:0;cursor:pointer;
+  background:var(--anil);color:var(--papel);
+  box-shadow:inset 0 -2px 0 0 #14318C;
+  text-decoration:none;white-space:nowrap;
+}
+.btn.sec{background:transparent;color:var(--tinta);box-shadow:inset 0 0 0 1.5px var(--tinta), inset 0 -3px 0 0 var(--tinta)}
+.btn.fan{background:transparent;color:var(--anil);box-shadow:inset 0 -2px 0 0 var(--bruma);padding:0 10px}
+.btn.urg{background:var(--achiote);color:var(--papel);box-shadow:inset 0 -2px 0 0 #7E2316}
+
+/* estados dibujados a mano, no heredados del navegador */
+.e-encima.btn{background:#173397;box-shadow:inset 0 -4px 0 0 #14318C}
+.e-encima.btn.sec{background:transparent;box-shadow:inset 0 0 0 2.5px var(--tinta), inset 0 -5px 0 0 var(--tinta)}
+.e-encima.btn.fan{background:transparent;color:#14318C;box-shadow:inset 0 -4px 0 0 var(--anil)}
+.e-encima.btn.urg{background:#9C2C1C;box-shadow:inset 0 -4px 0 0 #7E2316}
+.e-pulsado.btn{background:#14318C;box-shadow:none;transform:translateY(2px)}
+.e-pulsado.btn.sec{background:var(--tinta);color:var(--papel);box-shadow:none;transform:translateY(3px)}
+.e-pulsado.btn.fan{background:var(--bruma);color:var(--tinta);box-shadow:inset 0 0 0 1.5px var(--ceniza);transform:translateY(2px)}
+.e-pulsado.btn.urg{background:#7E2316;box-shadow:none;transform:translateY(2px)}
+.e-carga.btn{background:#14318C;color:var(--papel);
+  box-shadow:inset 0 -3px 0 0 var(--papel);
+  background-image:linear-gradient(0deg,transparent calc(100% - 3px),transparent 0),
+                   repeating-linear-gradient(90deg,#14318C 0 7px,#7EA0FF 7px 14px);
+  background-size:100% 100%, 100% 3px;background-position:0 0, 0 100%;background-repeat:no-repeat}
+.e-carga.btn.sec{background:transparent;color:var(--ceniza);box-shadow:inset 0 0 0 1.5px var(--bruma);
+  background-image:repeating-linear-gradient(90deg,var(--ceniza) 0 7px,transparent 7px 14px);
+  background-size:100% 3px;background-position:0 100%;background-repeat:no-repeat}
+.e-carga.btn.fan{background:transparent;color:var(--ceniza);box-shadow:none;
+  background-image:repeating-linear-gradient(90deg,var(--ceniza) 0 7px,transparent 7px 14px);
+  background-size:100% 3px;background-position:0 100%;background-repeat:no-repeat}
+.e-carga.btn.urg{background:#7E2316;color:var(--papel);box-shadow:none;
+  background-image:repeating-linear-gradient(90deg,#7E2316 0 7px,#E8A79A 7px 14px);
+  background-size:100% 3px;background-position:0 100%;background-repeat:no-repeat}
+.e-inh.btn,.e-inh.btn.sec,.e-inh.btn.fan,.e-inh.btn.urg{
+  background:var(--papel);color:var(--ceniza);cursor:not-allowed;
+  box-shadow:inset 0 0 0 1.5px var(--bruma);
+  background-image:repeating-linear-gradient(-45deg,var(--bruma) 0 1.5px,transparent 1.5px 7px)}
+.e-foco.btn{outline:2.5px solid var(--tinta);outline-offset:3px}
+.e-foco.btn.sec{outline:2.5px solid var(--anil);outline-offset:3px}
+.e-foco.btn.fan{outline:2.5px solid var(--tinta);outline-offset:3px}
+.e-foco.btn.urg{outline:2.5px solid var(--tinta);outline-offset:3px}
+
+/* el giro de carga se dibuja: un anillo abierto, no un gif */
+.giro{width:13px;height:13px;flex:0 0 13px}
+.giro circle{fill:none;stroke-width:2.6}
+
+/* ── campo, selector, chip ──────────────────────────────────────────────── */
+.campo{width:100%;height:40px;background:var(--papel);border:0;border-radius:0;
+  box-shadow:inset 0 0 0 1.5px var(--bruma), inset 0 -2px 0 0 var(--ceniza);
+  font-family:'Archivo';font-size:12.5px;color:var(--tinta);padding:0 12px;display:flex;align-items:center}
+.campo.c-encima{box-shadow:inset 0 0 0 1.5px var(--ceniza), inset 0 -3px 0 0 var(--tinta)}
+.campo.c-activo{box-shadow:inset 0 0 0 1.5px var(--tinta), inset 0 -3px 0 0 var(--anil)}
+.campo.c-lleno{box-shadow:inset 0 0 0 1.5px var(--bruma), inset 0 -2px 0 0 var(--tinta);font-weight:500}
+.campo.c-error{box-shadow:inset 0 0 0 1.5px var(--achiote), inset 0 -3px 0 0 var(--achiote)}
+.campo.c-inh{background:var(--papel);color:var(--ceniza);box-shadow:inset 0 0 0 1.5px var(--bruma);
+  background-image:repeating-linear-gradient(-45deg,var(--bruma) 0 1.5px,transparent 1.5px 7px)}
+.campo.c-foco{outline:2.5px solid var(--tinta);outline-offset:3px}
+.campo .marca{color:var(--ceniza)}
+
+.chip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;
+  font-size:10.5px;font-weight:600;font-stretch:104%;letter-spacing:.02em;
+  background:transparent;color:var(--tinta);box-shadow:inset 0 0 0 1.5px var(--bruma), inset 0 -2px 0 0 var(--bruma)}
+.chip.on{background:var(--tinta);color:var(--papel);box-shadow:inset 0 -2px 0 0 var(--anil)}
+.chip.hora{color:var(--anil);box-shadow:inset 0 0 0 1.5px var(--anil), inset 0 -2px 0 0 var(--anil)}
+.chip.hora.on{background:var(--anil);color:var(--papel);box-shadow:inset 0 -2px 0 0 #14318C}
+.chip.lleno{color:var(--ceniza);box-shadow:inset 0 0 0 1.5px var(--bruma);text-decoration:line-through}
+
+/* selector de hora: una cinta de muescas, no un desplegable */
+.selector{display:flex;background:var(--papel);box-shadow:inset 0 0 0 1.5px var(--bruma)}
+.selector div{flex:1;height:34px;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:600;font-stretch:100%;color:var(--tinta);
+  box-shadow:inset -1px 0 0 0 var(--bruma), inset 0 -2px 0 0 var(--bruma)}
+.selector div:last-child{box-shadow:inset 0 -2px 0 0 var(--bruma)}
+.selector div.on{background:var(--anil);color:var(--papel);box-shadow:inset 0 -2px 0 0 #14318C}
+.selector div.no{color:var(--ceniza);text-decoration:line-through;
+  background-image:repeating-linear-gradient(-45deg,var(--bruma) 0 1.5px,transparent 1.5px 7px)}
+
+/* ── retrato: el único redondo del sistema ─────────────────────────────── */
+.retrato{border-radius:50%;overflow:hidden;flex:0 0 auto;background:#EFE7D9;
+  display:flex;align-items:center;justify-content:center;position:relative}
+.retrato.con-foto{background:var(--bruma)}
+
+
+/* ── pantallas de producto: se dibujan a 390 px y se reducen al 70 % ───── */
+.tel{width:273px;height:532px;overflow:hidden;box-shadow:inset 0 0 0 1.5px var(--tinta);background:var(--papel)}
+.tel-in{width:390px;height:760px;transform:scale(.7);transform-origin:top left;background:var(--papel);
+        display:flex;flex-direction:column;font-size:15px;color:var(--tinta)}
+.tel-in .rot{font-size:11px;font-weight:600;font-stretch:118%;letter-spacing:.14em;text-transform:uppercase;color:var(--ceniza)}
+.tel-in .nom{font-family:'Alegreya',Georgia,serif;font-weight:700;font-size:23px;line-height:1.05;letter-spacing:-.015em}
+.tel-in .sub{font-size:13px;color:var(--ceniza);line-height:1.35}
+.tel-in .num{font-weight:500;font-stretch:92%;font-variant-numeric:tabular-nums}
+.estado{height:26px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;
+        font-size:12px;font-weight:600;color:var(--tinta);border-bottom:1px solid var(--bruma)}
+.nav{height:66px;border-top:1.5px solid var(--tinta);display:flex;background:var(--papel);margin-top:auto}
+.nav div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+         font-size:10.5px;font-weight:600;font-stretch:110%;letter-spacing:.06em;text-transform:uppercase;color:var(--ceniza)}
+.nav div.on{color:var(--anil);box-shadow:inset 0 3px 0 0 var(--anil)}
+.pfila{display:flex;gap:12px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--bruma)}
+.busto{width:100%;height:100%}
+
+/* ── utilidades ─────────────────────────────────────────────────────────── */
+.fila{display:flex}
+.col{display:flex;flex-direction:column}
+.regla{height:1px;background:var(--bruma)}
+.regla-tinta{height:2px;background:var(--tinta)}
+</style>
+</head>
+<body>
+
+<!-- ═══ 01 · PORTADA ═════════════════════════════════════════════════════ -->
+<section class="pagina">
+  <!-- sello enorme, recortado por el canto derecho -->
+  <div style="position:absolute;right:0;top:92px;width:452px;height:560px;overflow:hidden">
+    <img src="./logo/principal.svg" alt="" style="width:560px;height:560px;display:block">
+  </div>
+  <div style="position:absolute;left:56px;top:44px;right:56px;display:flex;justify-content:space-between">
+    <span class="rotulo">Libro de marca · dirección A · septiembre de 2026</span>
+    <span class="rotulo">01</span>
+  </div>
+
+  <div style="position:absolute;left:56px;top:150px;width:640px">
+    <div class="display" style="font-size:126px">buenamano</div>
+    <div style="height:2px;background:var(--tinta);width:640px;margin:22px 0 20px"></div>
+    <div class="serif" style="font-size:30px;font-weight:500;line-height:1.18;letter-spacing:-.01em;max-width:560px">
+      Reservas con la persona que te atiende,<br>no con el local.
+    </div>
+    <div class="p gris" style="margin-top:16px;max-width:470px;font-size:13px">
+      Agenda y directorio de belleza, barbería y bienestar en la Ciudad de Panamá.
+      Gratis para el salón: el negocio no paga por trabajar.
+    </div>
+    <div class="fila" style="margin-top:34px;align-items:center;gap:14px;padding-top:16px;border-top:var(--lin);max-width:470px">
+      <div class="retrato" style="width:52px;height:52px"><div class="huella" data-nombre="Yaris Batista" data-tam="52" data-tinta="#1D3FB0"></div></div>
+      <div class="col" style="gap:3px">
+        <span class="serif" style="font-size:19px;font-weight:700;line-height:1">Yaris Batista</span>
+        <span class="mini">Trenzas y extensiones · Salón Kalú, Bella Vista · atendió a 412 personas</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- la cinta de horas: el otro signo de la marca -->
+  <div style="position:absolute;left:56px;bottom:56px;right:56px">
+    <div class="fila" style="justify-content:space-between;align-items:flex-end;margin-bottom:10px">
+      <span class="rotulo tinta">Hoy · Bella Vista</span>
+      <span class="rotulo">Ocupado en tinta · libre en papel · lo próximo en achiote</span>
+    </div>
+    <div class="cinta" data-cinta="9-20" data-ocupado="9-11.5,12-13,14.5-16.5,17.5-19" data-proximo="16.5" data-etiqueta="4:30 pm libre" style="height:48px"></div>
+  </div>
+</section>
+
+<!-- ═══ 02 · ESTRATEGIA ══════════════════════════════════════════════════ -->
+<section class="pagina">
+  <div class="cabecera"><span class="rotulo tinta">02 · Estrategia</span><span class="rotulo">buenamano · libro de marca</span></div>
+  <div class="lienzo">
+    <div class="fila" style="gap:44px;height:262px">
+      <div style="width:96px;flex:0 0 96px;padding-top:6px">
+        <img src="./logo/principal.svg" alt="" style="width:74px;display:block">
+      </div>
+      <div style="flex:1">
+        <span class="rotulo anil">La marca en una idea</span>
+        <div class="display" style="font-size:52px;margin-top:14px;max-width:900px;line-height:1.02">
+          Aquí no se reserva un sitio: se reserva<br>a alguien. La agenda es de una persona<br>con nombre, y la marca la pone delante.
+        </div>
+        <div class="p gris" style="margin-top:20px;max-width:730px">
+          El salón es la dirección donde ocurre. Quien decide es la clienta que quiere a Yaris, y quien
+          se gana la reserva es Yaris. Todo el sistema visual está construido para caber en una ficha
+          de persona: retrato, nombre, oficio, cuánta gente ha atendido y a qué hora tiene hueco.
+        </div>
+      </div>
+    </div>
+
+    <div class="regla-tinta" style="margin:26px 0 22px"></div>
+
+    <div class="fila" style="gap:34px">
+      <div style="flex:1">
+        <div class="fila" style="align-items:baseline;gap:10px">
+          <span class="display" style="font-size:40px;color:var(--anil)">01</span>
+          <span class="h2">La persona antes que el local</span>
+        </div>
+        <div class="p" style="margin-top:12px">
+          El listado devuelve profesionales, no direcciones. Cada uno tiene retrato, oficio, historial y
+          calendario propio. Un salón es una página de equipo: seis personas con seis agendas, no una sola.
+        </div>
+        <div class="mini" style="margin-top:12px;padding-top:10px;border-top:var(--lin)">
+          Se ve en: buscador, ficha, tarjeta, rótulo de la silla.
+        </div>
+      </div>
+      <div style="width:1px;background:var(--bruma)"></div>
+      <div style="flex:1">
+        <div class="fila" style="align-items:baseline;gap:10px">
+          <span class="display" style="font-size:40px;color:var(--anil)">02</span>
+          <span class="h2">La hora es la mercancía</span>
+        </div>
+        <div class="p" style="margin-top:12px">
+          Lo que se compra es un hueco en el día de alguien. Por eso el segundo signo de la marca es una
+          cinta de medias horas, y por eso el sello lleva una barra: una persona, marcada a una hora.
+        </div>
+        <div class="mini" style="margin-top:12px;padding-top:10px;border-top:var(--lin)">
+          Se ve en: cinta de horas, chips de hora, agenda del dueño.
+        </div>
+      </div>
+      <div style="width:1px;background:var(--bruma)"></div>
+      <div style="flex:1">
+        <div class="fila" style="align-items:baseline;gap:10px">
+          <span class="display" style="font-size:40px;color:var(--anil)">03</span>
+          <span class="h2">Panameña y sin peaje</span>
+        </div>
+        <div class="p" style="margin-top:12px">
+          Hecha para un teléfono en la mano y datos móviles, en el español que se habla aquí. El salón no
+          paga por gestionar su agenda y eso se dice en la portada, no en la letra pequeña.
+        </div>
+        <div class="mini" style="margin-top:12px;padding-top:10px;border-top:var(--lin)">
+          Se ve en: pie de la agenda, rótulo de calle, alta del salón.
+        </div>
+      </div>
+    </div>
+    <div class="regla" style="margin:26px 0 18px"></div>
+    <span class="rotulo tinta">Tres casos que el sistema tiene que saber pintar</span>
+    <div class="fila" style="gap:22px;margin-top:14px">
+      <div class="fila" style="flex:1;gap:14px;align-items:flex-start">
+        <div class="retrato" style="width:46px;height:46px"><div class="huella" data-nombre="Keila Montenegro" data-tam="46"></div></div>
+        <div class="col" style="gap:4px">
+          <span class="h2" style="font-size:13px">No ha subido foto</span>
+          <span class="mini">Se le calcula una huella a partir de su nombre. No es un monigote gris: es suya y no se repite.</span>
+        </div>
+      </div>
+      <div style="width:1px;background:var(--bruma)"></div>
+      <div class="fila" style="flex:1;gap:14px;align-items:flex-start">
+        <div style="flex:0 0 46px;padding-top:2px">
+          <div class="fila" style="gap:-6px;margin-left:0">
+            <div class="retrato" style="width:26px;height:26px;box-shadow:0 0 0 2px var(--papel)"><div class="huella" data-nombre="Ana R" data-tam="26"></div></div>
+            <div class="retrato" style="width:26px;height:26px;margin-left:-8px;box-shadow:0 0 0 2px var(--papel)"><div class="huella" data-nombre="Luis O" data-tam="26"></div></div>
+            <div class="retrato" style="width:26px;height:26px;margin-left:-8px;box-shadow:0 0 0 2px var(--papel)"><div class="huella" data-nombre="Sol B" data-tam="26"></div></div>
+          </div>
+          <span class="rotulo" style="display:block;margin-top:6px">+3 más</span>
+        </div>
+        <div class="col" style="gap:4px">
+          <span class="h2" style="font-size:13px">Sola o en equipo de seis</span>
+          <span class="mini">Una persona sola lleva su retrato y el sello «trabaja sola». Un equipo se pinta apilado, y cada cara abre su propia agenda.</span>
+        </div>
+      </div>
+      <div style="width:1px;background:var(--bruma)"></div>
+      <div class="fila" style="flex:1;gap:14px;align-items:flex-start">
+        <div class="retrato" style="width:46px;height:46px;box-shadow:0 0 0 2.5px var(--achiote)"><div class="huella" data-nombre="Dayra Q" data-tam="46" data-tinta="#1D3FB0"></div></div>
+        <div class="col" style="gap:4px">
+          <span class="h2" style="font-size:13px">Se dio de alta ayer</span>
+          <span class="mini">Cero reseñas y cero historial se dicen tal cual, con el aro de achiote de «recién llegada». Nunca se inventan estrellas.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pie">
+    <span class="rotulo">Estrategia</span>
+    <div class="fila" style="gap:16px;align-items:flex-end">
+      <div class="cinta-libro"><i></i><i class="aqui"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <span class="folio">02</span>
+    </div>
+  </div>
+</section>
+
+<!-- === 03 . MOODBOARD ==================================================== -->
+<section class="pagina">
+  <div class="cabecera"><span class="rotulo tinta">03 · Moodboard</span><span class="rotulo">Seis piezas dibujadas · ni una fotografía</span></div>
+  <div class="lienzo">
+    <div class="fila" style="gap:24px">
+
+      <div style="width:320px">
+        <div style="height:224px;background:#EFE7D9;padding:18px;display:flex;align-items:center;justify-content:space-around">
+          <div class="huella" data-nombre="Yaris Batista" data-tam="92"></div>
+          <div class="huella" data-nombre="Abdiel Sáez" data-tam="92"></div>
+          <div class="huella" data-nombre="Keila Montenegro" data-tam="92"></div>
+        </div>
+        <div style="padding-top:9px;border-top:2px solid var(--tinta);margin-top:8px">
+          <span class="rotulo tinta">01 · La huella</span>
+          <div class="mini" style="margin-top:6px">Cada profesional tiene un dibujo propio, calculado con su nombre. Es lo que se ve cuando no hay foto.</div>
+        </div>
+      </div>
+
+      <div style="width:320px">
+        <div style="height:224px;background:#EFE7D9;padding:18px;display:flex;flex-direction:column;justify-content:center;gap:22px">
+          <div class="cinta" data-cinta="9-20" data-ocupado="9-10.5,11-13,15-16.5" data-proximo="13" style="height:44px"></div>
+          <div class="cinta" data-cinta="9-20" data-ocupado="10-12.5,13-14,16-19" data-proximo="14" data-dura="1" style="height:44px"></div>
+          <div class="cinta" data-cinta="9-20" data-ocupado="9-9.5,12-16" data-proximo="16" data-dura="1.5" style="height:44px"></div>
+        </div>
+        <div style="padding-top:9px;border-top:2px solid var(--tinta);margin-top:8px">
+          <span class="rotulo tinta">02 · La cinta de horas</span>
+          <div class="mini" style="margin-top:6px">El día de una persona en medias horas: lo ocupado en tinta maciza, el hueco en papel y con aro de achiote.</div>
+        </div>
+      </div>
+
+      <div style="width:320px">
+        <div style="height:224px;background:#EFE7D9;overflow:hidden">
+          <svg width="320" height="224" viewBox="0 0 320 224" aria-hidden="true">
+            <defs>
+              <pattern id="cruz" width="13" height="13" patternUnits="userSpaceOnUse">
+                <path d="M3.5 3.5 L9.5 9.5 M9.5 3.5 L3.5 9.5" stroke="#1D3FB0" stroke-width="1.7" fill="none"/>
+              </pattern>
+              <pattern id="cruz2" width="13" height="13" patternUnits="userSpaceOnUse">
+                <path d="M3.5 3.5 L9.5 9.5 M9.5 3.5 L3.5 9.5" stroke="#B23320" stroke-width="1.7" fill="none"/>
+              </pattern>
+            </defs>
+            <rect width="320" height="224" fill="url(#cruz)"/>
+            <rect x="52" y="26" width="216" height="52" fill="#EFE7D9"/><rect x="52" y="26" width="216" height="52" fill="url(#cruz2)"/>
+            <rect x="0" y="100" width="320" height="26" fill="#EFE7D9"/>
+            <rect x="0" y="100" width="320" height="3" fill="#14100D"/>
+            <rect x="0" y="123" width="320" height="3" fill="#14100D"/>
+            <rect x="91" y="148" width="138" height="52" fill="#EFE7D9"/><rect x="91" y="148" width="138" height="52" fill="url(#cruz2)"/>
+          </svg>
+        </div>
+        <div style="padding-top:9px;border-top:2px solid var(--tinta);margin-top:8px">
+          <span class="rotulo tinta">03 · Punto de pollera</span>
+          <div class="mini" style="margin-top:6px">La trama viene del bordado de la pollera: puntada contada, azul y rojo sobre crudo. Al 8 % y nunca bajo texto.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fila" style="gap:24px;margin-top:22px">
+
+      <div style="width:320px">
+        <div style="height:224px;background:#EFE7D9;padding:16px;display:flex;flex-direction:column;gap:8px">
+          <div style="flex:1;background:var(--papel);box-shadow:inset 0 0 0 1px var(--bruma);display:flex;align-items:flex-end;padding:9px">
+            <span class="rotulo">Papel · 60</span></div>
+          <div class="fila" style="height:58px;gap:6px">
+            <div style="flex:18;background:var(--tinta);display:flex;align-items:flex-end;padding:6px"><span class="rotulo" style="color:var(--papel)">Tinta 18</span></div>
+            <div style="flex:10;background:var(--bruma);display:flex;align-items:flex-end;padding:6px"><span class="rotulo tinta">Bruma 10</span></div>
+            <div style="flex:8;background:var(--anil);display:flex;align-items:flex-end;padding:6px"><span class="rotulo" style="color:var(--papel)">Añil 8</span></div>
+            <div style="flex:3;background:var(--ceniza)"></div>
+            <div style="flex:1;background:var(--achiote)"></div>
+          </div>
+          <div class="fila" style="justify-content:flex-end;gap:10px"><span class="rotulo">Ceniza 3</span><span class="rotulo" style="color:var(--achiote)">Achiote 1</span></div>
+        </div>
+        <div style="padding-top:9px;border-top:2px solid var(--tinta);margin-top:8px">
+          <span class="rotulo tinta">04 · Proporción de tinta</span>
+          <div class="mini" style="margin-top:6px">Sesenta de papel y una sola parte de achiote. El color señala, no decora: dos achiotes en pantalla es uno de más.</div>
+        </div>
+      </div>
+
+      <div style="width:320px">
+        <div style="height:224px;background:#EFE7D9;display:flex;align-items:center;justify-content:center;gap:22px">
+          <svg width="118" height="118" viewBox="0 0 124 124" aria-hidden="true">
+            <path d="M6 120 L6 6 L120 6" stroke="#14100D" stroke-width="8" fill="none"/>
+            <path d="M30 46 L30 30 L46 30" stroke="#B23320" stroke-width="3" fill="none"/>
+            <text x="38" y="70" font-family="Archivo" font-size="16" font-weight="600" fill="#14100D">0 px</text>
+          </svg>
+          <svg width="118" height="118" viewBox="0 0 124 124" aria-hidden="true">
+            <circle cx="62" cy="62" r="57" stroke="#1D3FB0" stroke-width="8" fill="none"/>
+            <text x="62" y="68" text-anchor="middle" font-family="Archivo" font-size="15" font-weight="600" fill="#1D3FB0">persona</text>
+          </svg>
+        </div>
+        <div style="padding-top:9px;border-top:2px solid var(--tinta);margin-top:8px">
+          <span class="rotulo tinta">05 · La esquina viva</span>
+          <div class="mini" style="margin-top:6px">Todo va a cero de radio. El único redondo es el retrato, y por eso un círculo quiere decir «aquí hay alguien».</div>
+        </div>
+      </div>
+
+      <div style="width:320px">
+        <div style="height:224px;background:#EFE7D9;overflow:hidden">
+          <svg width="320" height="224" viewBox="0 0 320 224" aria-hidden="true">
+            <g stroke="#D6CCBB" stroke-width="1">
+              <path d="M0 18H320M0 36H320M0 54H320M0 72H320M0 90H320M0 108H320M0 126H320M0 144H320M0 162H320M0 180H320M0 198H320M0 216H320"/>
+            </g>
+            <rect x="34" y="44" width="252" height="46" fill="#14100D"/>
+            <rect x="34" y="136" width="252" height="46" fill="#14100D"/>
+            <rect x="126" y="90" width="68" height="46" fill="#F7F2E9"/>
+            <rect x="128" y="92" width="64" height="42" fill="none" stroke="#B23320" stroke-width="2.5"/>
+            <text x="160" y="119" text-anchor="middle" font-family="Archivo" font-size="14" font-weight="700" fill="#B23320">4:30</text>
+          </svg>
+        </div>
+        <div style="padding-top:9px;border-top:2px solid var(--tinta);margin-top:8px">
+          <span class="rotulo tinta">06 · El hueco</span>
+          <div class="mini" style="margin-top:6px">El día lleno es un bloque negro; lo que vale es el papel entre medias. Todo está dibujado para verlo primero.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pie">
+    <span class="rotulo">Moodboard</span>
+    <div class="fila" style="gap:16px;align-items:flex-end">
+      <div class="cinta-libro"><i></i><i></i><i class="aqui"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <span class="folio">03</span>
+    </div>
+  </div>
+</section>
+
+<!-- === 04 . LOGOTIPO ===================================================== -->
+<section class="pagina">
+  <div class="cabecera"><span class="rotulo tinta">04 · Logotipo</span><span class="rotulo">Sello generado en vectorial · el nombre se compone en Alegreya</span></div>
+  <div class="lienzo">
+    <div class="fila" style="gap:24px;height:352px">
+
+      <!-- el bloque principal, con su aire marcado -->
+      <div style="flex:1;background:#EFE7D9;position:relative;display:flex;align-items:center;justify-content:center">
+        <div style="position:absolute;left:22px;top:18px"><span class="rotulo tinta">Bloque principal</span></div>
+        <div style="position:relative;padding:56px 62px;outline:1.5px dashed #C4B8A5">
+          <div class="fila" style="align-items:center;gap:26px">
+            <img src="./logo/principal.svg" alt="Sello de Buenamano" style="width:112px;height:112px;display:block">
+            <span class="display" style="font-size:76px;line-height:.78">buenamano</span>
+          </div>
+          <!-- cotas -->
+          <div style="position:absolute;left:0;top:0;width:56px;height:1.5px;background:var(--achiote)"></div>
+          <div style="position:absolute;left:26px;top:-16px"><span class="rotulo" style="color:var(--achiote)">½ ø</span></div>
+        </div>
+        <div style="position:absolute;left:22px;bottom:18px;right:22px" class="mini">
+          El aire alrededor del bloque es medio diámetro del sello (½ ø) por los cuatro lados. La separación entre sello
+          y nombre es un cuarto de diámetro. La altura de la barra del sello iguala la altura de la «b».
+        </div>
+      </div>
+
+      <!-- las tres versiones -->
+      <div style="width:330px;display:flex;flex-direction:column;gap:10px">
+        <div style="flex:1;background:var(--papel);box-shadow:inset 0 0 0 1.5px var(--bruma);display:flex;align-items:center;gap:14px;padding:0 18px">
+          <img src="./logo/principal.svg" alt="" style="width:46px;height:46px">
+          <div class="col" style="gap:2px">
+            <span class="display" style="font-size:26px;line-height:.9;color:var(--anil)">buenamano</span>
+            <span class="rotulo">Principal · añil sobre papel</span>
+          </div>
+        </div>
+        <div style="flex:1;background:var(--tinta);display:flex;align-items:center;gap:14px;padding:0 18px">
+          <img src="./logo/papel.svg" alt="" style="width:46px;height:46px">
+          <div class="col" style="gap:2px">
+            <span class="display" style="font-size:26px;line-height:.9;color:var(--papel)">buenamano</span>
+            <span class="rotulo" style="color:#BDB2A4">Invertida · papel sobre tinta</span>
+          </div>
+        </div>
+        <div style="flex:1;background:var(--papel);box-shadow:inset 0 0 0 1.5px var(--bruma);display:flex;align-items:center;gap:14px;padding:0 18px">
+          <img src="./logo/una-tinta.svg" alt="" style="width:46px;height:46px">
+          <div class="col" style="gap:2px">
+            <span class="display" style="font-size:26px;line-height:.9">buenamano</span>
+            <span class="rotulo">Una tinta · sello y prensa</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fila" style="justify-content:space-between;align-items:flex-end;margin:22px 0 12px">
+      <span class="rotulo tinta">Lo que nunca se le hace al sello</span>
+      <span class="mini">Seis maneras de romperlo. Ninguna es negociable.</span>
+    </div>
+
+    <div class="fila" style="gap:14px">
+      <div style="flex:1">
+        <div style="height:162px;background:#EFE7D9;display:flex;align-items:center;justify-content:center;position:relative">
+          <img src="./logo/principal.svg" alt="" style="width:74px;transform:rotate(19deg)">
+          <div style="position:absolute;left:0;top:0;width:18px;height:18px;background:var(--achiote);color:var(--papel);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">✕</div>
+        </div>
+        <div class="mini" style="margin-top:8px">No se gira. La barra es una hora en la regla y va siempre a plomo.</div>
+      </div>
+      <div style="flex:1">
+        <div style="height:162px;background:#EFE7D9;display:flex;align-items:center;justify-content:center;position:relative">
+          <img src="./logo/principal.svg" alt="" style="width:74px;transform:scaleX(1.55)">
+          <div style="position:absolute;left:0;top:0;width:18px;height:18px;background:var(--achiote);color:var(--papel);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">✕</div>
+        </div>
+        <div class="mini" style="margin-top:8px">No se estira. Se escala en proporción o no se escala.</div>
+      </div>
+      <div style="flex:1">
+        <div style="height:162px;background:#EFE7D9;display:flex;align-items:center;justify-content:center;position:relative">
+          <img src="./logo/principal.svg" alt="" style="width:74px;filter:hue-rotate(115deg) saturate(2.4)">
+          <div style="position:absolute;left:0;top:0;width:18px;height:18px;background:var(--achiote);color:var(--papel);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">✕</div>
+        </div>
+        <div class="mini" style="margin-top:8px">No se pinta de otro color. Añil, papel o tinta: no hay una cuarta.</div>
+      </div>
+      <div style="flex:1">
+        <div style="height:162px;background:#EFE7D9;display:flex;align-items:center;justify-content:center;position:relative">
+          <div style="background:linear-gradient(140deg,#7BA6FF,#B23320);padding:12px;border-radius:26px">
+            <img src="./logo/invertida.svg" alt="" style="width:56px;border-radius:20px">
+          </div>
+          <div style="position:absolute;left:0;top:0;width:18px;height:18px;background:var(--achiote);color:var(--papel);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">✕</div>
+        </div>
+        <div class="mini" style="margin-top:8px">No entra en cajita redondeada ni sobre degradado. Cero de radio.</div>
+      </div>
+      <div style="flex:1">
+        <div style="height:162px;background:#EFE7D9;display:flex;align-items:center;justify-content:center;position:relative">
+          <img src="./logo/principal.svg" alt="" style="width:74px;filter:drop-shadow(6px 8px 4px rgba(20,16,13,.55))">
+          <div style="position:absolute;left:0;top:0;width:18px;height:18px;background:var(--achiote);color:var(--papel);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">✕</div>
+        </div>
+        <div class="mini" style="margin-top:8px">No lleva sombra. Es una marca impresa, no un botón flotando.</div>
+      </div>
+      <div style="flex:1">
+        <div style="height:162px;background:#EFE7D9;display:flex;align-items:center;justify-content:center;gap:8px;position:relative">
+          <img src="./logo/principal.svg" alt="" style="width:52px">
+          <span style="font-family:Georgia,'Times New Roman',serif;font-size:21px;font-weight:400;font-style:italic">Buenamano</span>
+          <div style="position:absolute;left:0;top:0;width:18px;height:18px;background:var(--achiote);color:var(--papel);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">✕</div>
+        </div>
+        <div class="mini" style="margin-top:8px">El nombre no se compone en otra letra ni con mayúscula inicial.</div>
+      </div>
+    </div>
+  </div>
+  <div class="pie">
+    <span class="rotulo">Logotipo</span>
+    <div class="fila" style="gap:16px;align-items:flex-end">
+      <div class="cinta-libro"><i></i><i></i><i></i><i class="aqui"></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <span class="folio">04</span>
+    </div>
+  </div>
+</section>
+
+<!-- === 05 . ICONO ======================================================= -->
+<section class="pagina">
+  <div class="cabecera"><span class="rotulo tinta">05 · Ícono</span><span class="rotulo">Tres tallas, tres dibujos · lo que se cae en cada escalón</span></div>
+  <div class="lienzo">
+
+    <!-- tamaño real, sin trucos -->
+    <div style="background:#EFE7D9;padding:18px 22px;display:flex;align-items:center;gap:40px">
+      <div class="col" style="gap:4px;width:150px">
+        <span class="rotulo tinta">A tamaño real</span>
+        <span class="mini">Así se ve impreso aquí. Sin ampliar.</span>
+      </div>
+      <div class="fila" style="align-items:flex-end;gap:44px">
+        <div class="col" style="align-items:center;gap:8px"><img src="./logo/principal.svg" alt="" style="width:48px;height:48px"><span class="rotulo">48 px</span></div>
+        <div class="col" style="align-items:center;gap:8px"><img src="./logo/icono-32.svg" alt="" style="width:32px;height:32px"><span class="rotulo">32 px</span></div>
+        <div class="col" style="align-items:center;gap:8px"><img src="./logo/icono-16.svg" alt="" style="width:16px;height:16px"><span class="rotulo">16 px</span></div>
+      </div>
+      <div style="width:1px;height:56px;background:var(--bruma)"></div>
+      <div class="fila" style="align-items:center;gap:10px">
+        <img src="./logo/icono-16.svg" alt="" style="width:16px;height:16px">
+        <span class="p" style="font-size:12px">buenamano · Bella Vista, hoy 4:30</span>
+        <span class="mini" style="margin-left:8px">← pestaña del navegador, a 16 px de verdad</span>
+      </div>
+    </div>
+
+    <div class="fila" style="gap:22px;margin-top:22px">
+
+      <div style="flex:1">
+        <div style="background:#EFE7D9;height:250px;display:flex;align-items:center;justify-content:center">
+          <img src="./logo/px-48.png" alt="Sello a 48 píxeles ampliado" style="width:192px;height:192px;image-rendering:pixelated">
+        </div>
+        <div class="fila" style="align-items:baseline;gap:10px;margin-top:12px;padding-top:9px;border-top:2px solid var(--tinta)">
+          <span class="display" style="font-size:26px">48</span><span class="rotulo tinta">Sello completo</span>
+        </div>
+        <div class="p" style="margin-top:8px">
+          Tres anillos y la barra. Es el sello íntegro, el mismo vectorial del logotipo. Vale de 48 px para arriba:
+          ícono de aplicación, avatar del salón, sello de la agenda.
+        </div>
+        <div class="mini" style="margin-top:9px;padding-top:8px;border-top:var(--lin)">No se cae nada.</div>
+      </div>
+
+      <div style="flex:1">
+        <div style="background:#EFE7D9;height:250px;display:flex;align-items:center;justify-content:center">
+          <img src="./logo/px-32.png" alt="Sello a 32 píxeles ampliado" style="width:192px;height:192px;image-rendering:pixelated">
+        </div>
+        <div class="fila" style="align-items:baseline;gap:10px;margin-top:12px;padding-top:9px;border-top:2px solid var(--tinta)">
+          <span class="display" style="font-size:26px">32</span><span class="rotulo tinta">Dos anillos</span>
+        </div>
+        <div class="p" style="margin-top:8px">
+          Se retira el anillo interior. A 32 px el hueco entre el segundo y el tercero baja de un píxel y se emplasta,
+          así que el dibujo cambia en vez de encogerse.
+        </div>
+        <div class="mini" style="margin-top:9px;padding-top:8px;border-top:var(--lin)">Se cae: el anillo interior.</div>
+      </div>
+
+      <div style="flex:1">
+        <div style="background:#EFE7D9;height:250px;display:flex;align-items:center;justify-content:center;gap:24px">
+          <div class="col" style="align-items:center;gap:10px">
+            <img src="./logo/px-16.png" alt="Sello reducido a 16 píxeles ampliado" style="width:160px;height:160px;image-rendering:pixelated">
+            <span class="rotulo tinta">El que se usa</span>
+          </div>
+          <div class="col" style="align-items:center;gap:10px">
+            <div style="position:relative">
+              <img src="./logo/px-16-mal.png" alt="Sello completo forzado a 16 píxeles" style="width:160px;height:160px;image-rendering:pixelated;opacity:.55">
+              <div style="position:absolute;left:0;top:0;width:18px;height:18px;background:var(--achiote);color:var(--papel);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">✕</div>
+            </div>
+            <span class="rotulo">Sin reducir</span>
+          </div>
+        </div>
+        <div class="fila" style="align-items:baseline;gap:10px;margin-top:12px;padding-top:9px;border-top:2px solid var(--tinta)">
+          <span class="display" style="font-size:26px">16</span><span class="rotulo tinta">Un anillo y la barra</span>
+        </div>
+        <div class="p" style="margin-top:8px">
+          Queda el anillo de fuera y la barra: sigue siendo una persona marcada a una hora. Forzar el sello entero a esta
+          talla da la mancha de la derecha, que ya no es nada.
+        </div>
+        <div class="mini" style="margin-top:9px;padding-top:8px;border-top:var(--lin)">Se caen: los dos anillos interiores y el punto.</div>
+      </div>
+    </div>
+
+    <div class="fila" style="margin-top:22px;gap:22px;align-items:stretch">
+      <div style="flex:1.15;background:#EFE7D9;padding:16px 20px;display:flex;align-items:center;gap:26px">
+        <div class="col" style="gap:4px;width:132px">
+          <span class="rotulo tinta">Talla mínima</span>
+          <span class="mini">Por debajo de 14 px no se pone el sello: se pone la barra sola.</span>
+        </div>
+        <div class="fila" style="align-items:flex-end;gap:22px">
+          <div class="col" style="align-items:center;gap:7px"><img src="./logo/icono-16.svg" alt="" style="width:14px;height:14px"><span class="rotulo">14 · mínimo</span></div>
+          <div class="col" style="align-items:center;gap:7px"><div style="width:4px;height:14px;background:var(--anil)"></div><span class="rotulo" style="color:var(--achiote)">&lt; 14 · solo barra</span></div>
+        </div>
+      </div>
+      <div style="flex:1.5;background:#EFE7D9;padding:16px 20px;display:flex;align-items:center;gap:22px">
+        <div class="col" style="gap:4px;width:132px">
+          <span class="rotulo tinta">Fondos admitidos</span>
+          <span class="mini">Cuatro. Sobre foto o sobre trama, nunca.</span>
+        </div>
+        <div class="fila" style="gap:12px;align-items:center">
+          <div style="width:74px;height:74px;background:var(--papel);box-shadow:inset 0 0 0 1px var(--bruma);display:flex;align-items:center;justify-content:center"><img src="./logo/principal.svg" alt="" style="width:48px"></div>
+          <div style="width:74px;height:74px;background:var(--anil);display:flex;align-items:center;justify-content:center"><img src="./logo/papel.svg" alt="" style="width:48px"></div>
+          <div style="width:74px;height:74px;background:var(--tinta);display:flex;align-items:center;justify-content:center"><img src="./logo/papel.svg" alt="" style="width:48px"></div>
+          <div style="width:74px;height:74px;background:var(--bruma);display:flex;align-items:center;justify-content:center;position:relative">
+            <img src="./logo/una-tinta.svg" alt="" style="width:48px">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pie">
+    <span class="rotulo">Ícono</span>
+    <div class="fila" style="gap:16px;align-items:flex-end">
+      <div class="cinta-libro"><i></i><i></i><i></i><i></i><i class="aqui"></i><i></i><i></i><i></i><i></i><i></i></div>
+      <span class="folio">05</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- === 06 . COLOR ======================================================= -->
+<section class="pagina">
+  <div class="cabecera"><span class="rotulo tinta">06 · Color</span><span class="rotulo">Seis tintas · cada ratio medido sobre su fondo, no estimado</span></div>
+  <div class="lienzo">
+    <div class="fila" style="gap:12px;height:352px">
+
+      <div class="col" style="flex:1">
+        <div style="flex:1;background:#F7F2E9;box-shadow:inset 0 0 0 1.5px var(--bruma);position:relative">
+          <span style="position:absolute;left:12px;bottom:11px;font-size:12px;font-weight:500;color:var(--tinta)">Ññ Aa 12 px</span>
+        </div>
+        <div style="padding-top:10px;border-top:2px solid var(--tinta);margin-top:10px">
+          <div class="h2">Papel</div>
+          <div class="dato" style="font-size:11.5px;margin-top:6px">#F7F2E9<br>247 · 242 · 233</div>
+          <div class="mini" style="margin-top:8px;padding-top:7px;border-top:var(--lin)">Fondo de todo. El producto arranca claro y el oscuro es un tema aparte, no el estado normal.</div>
+        </div>
+      </div>
+
+      <div class="col" style="flex:1">
+        <div style="flex:1;background:#E0D7C8;position:relative">
+          <span style="position:absolute;left:12px;bottom:11px;font-size:12px;font-weight:500;color:var(--tinta)">Ññ Aa 12 px</span>
+        </div>
+        <div style="padding-top:10px;border-top:2px solid var(--tinta);margin-top:10px">
+          <div class="h2">Bruma</div>
+          <div class="dato" style="font-size:11.5px;margin-top:6px">#E0D7C8<br>224 · 215 · 200</div>
+          <div class="mini" style="margin-top:8px;padding-top:7px;border-top:var(--lin)">Líneas, separadores y estado inhabilitado. <b style="color:var(--achiote)">Nunca es color de texto:</b> 1,28:1 sobre papel.</div>
+        </div>
+      </div>
+
+      <div class="col" style="flex:1">
+        <div style="flex:1;background:#6B6157;position:relative">
+          <span style="position:absolute;left:12px;bottom:11px;font-size:12px;font-weight:500;color:#F7F2E9">Ññ Aa 12 px</span>
+        </div>
+        <div style="padding-top:10px;border-top:2px solid var(--tinta);margin-top:10px">
+          <div class="h2">Ceniza</div>
+          <div class="dato" style="font-size:11.5px;margin-top:6px">#6B6157<br>107 · 97 · 87</div>
+          <div class="mini" style="margin-top:8px;padding-top:7px;border-top:var(--lin)">Texto secundario y rótulos. <b>5,42:1</b> sobre papel. Sobre bruma baja a 4,24:1 y ahí no se usa.</div>
+        </div>
+      </div>
+
+      <div class="col" style="flex:1">
+        <div style="flex:1;background:#14100D;position:relative">
+          <span style="position:absolute;left:12px;bottom:11px;font-size:12px;font-weight:500;color:#F7F2E9">Ññ Aa 12 px</span>
+        </div>
+        <div style="padding-top:10px;border-top:2px solid var(--tinta);margin-top:10px">
+          <div class="h2">Tinta</div>
+          <div class="dato" style="font-size:11.5px;margin-top:6px">#14100D<br>20 · 16 · 13</div>
+          <div class="mini" style="margin-top:8px;padding-top:7px;border-top:var(--lin)">Texto principal, nombres y bloques de hora ocupada. <b>16,97:1</b> sobre papel.</div>
+        </div>
+      </div>
+
+      <div class="col" style="flex:1">
+        <div style="flex:1;background:#1D3FB0;position:relative">
+          <span style="position:absolute;left:12px;bottom:11px;font-size:12px;font-weight:500;color:#F7F2E9">Ññ Aa 12 px</span>
+        </div>
+        <div style="padding-top:10px;border-top:2px solid var(--tinta);margin-top:10px">
+          <div class="h2" style="color:var(--anil)">Añil</div>
+          <div class="dato" style="font-size:11.5px;margin-top:6px">#1D3FB0<br>29 · 63 · 176</div>
+          <div class="mini" style="margin-top:8px;padding-top:7px;border-top:var(--lin)">La marca y la acción: sello, botón de reservar, hora elegida. <b>7,88:1</b> sobre papel y al revés.</div>
+        </div>
+      </div>
+
+      <div class="col" style="flex:1">
+        <div style="flex:1;background:#B23320;position:relative">
+          <span style="position:absolute;left:12px;bottom:11px;font-size:12px;font-weight:500;color:#F7F2E9">Ññ Aa 12 px</span>
+        </div>
+        <div style="padding-top:10px;border-top:2px solid var(--tinta);margin-top:10px">
+          <div class="h2" style="color:var(--achiote)">Achiote</div>
+          <div class="dato" style="font-size:11.5px;margin-top:6px">#B23320<br>178 · 51 · 32</div>
+          <div class="mini" style="margin-top:8px;padding-top:7px;border-top:var(--lin)">Una parte de mil: el próximo hueco, cancelar, recién llegada. <b>5,56:1</b> sobre papel y al revés.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fila" style="gap:26px;margin-top:24px">
+
+      <div style="flex:1.25">
+        <div class="fila" style="justify-content:space-between;align-items:baseline">
+          <span class="rotulo tinta">Proporción de uso</span>
+          <span class="mini">Medida sobre la pantalla de búsqueda, que es la más cargada</span>
+        </div>
+        <div class="fila" style="height:52px;margin-top:11px">
+          <div style="flex:60;background:var(--papel);box-shadow:inset 0 0 0 1.5px var(--bruma);display:flex;align-items:center;padding-left:10px"><span class="rotulo tinta">Papel 60</span></div>
+          <div style="flex:18;background:var(--tinta);display:flex;align-items:center;padding-left:10px"><span class="rotulo" style="color:var(--papel)">Tinta 18</span></div>
+          <div style="flex:10;background:var(--bruma);display:flex;align-items:center;padding-left:8px"><span class="rotulo tinta">10</span></div>
+          <div style="flex:8;background:var(--anil);display:flex;align-items:center;padding-left:8px"><span class="rotulo" style="color:var(--papel)">8</span></div>
+          <div style="flex:3;background:var(--ceniza)"></div>
+          <div style="flex:1;background:var(--achiote)"></div>
+        </div>
+        <div class="p" style="margin-top:14px">
+          El añil no puede pasar del 8 % de la superficie: en cuanto se reparte por botones secundarios, iconos y
+          separadores deja de significar «pulsa aquí». El achiote es uno por pantalla; si hay dos, uno está de adorno.
+        </div>
+        <div class="fila" style="margin-top:18px;gap:16px;align-items:stretch;padding-top:14px;border-top:var(--lin)">
+          <div class="col" style="width:186px;gap:5px">
+            <span class="rotulo tinta">El tema oscuro existe</span>
+            <span class="mini">Pero no es el estado normal: la aplicación abre en papel y el oscuro se enciende a mano, de noche.</span>
+          </div>
+          <div class="fila" style="flex:1;background:var(--tinta);align-items:center;padding:0 16px;gap:14px">
+            <img src="./logo/papel.svg" alt="" style="width:30px;height:30px">
+            <div class="col" style="gap:3px">
+              <span class="serif" style="font-size:16px;font-weight:700;color:var(--papel);line-height:1">Yaris Batista</span>
+              <span style="font-size:9.5px;color:#BDB2A4">Trenzas · hoy 4:30 pm · 9,07:1 sobre tinta</span>
+            </div>
+            <div style="margin-left:auto;height:30px;padding:0 14px;background:#7EA0FF;color:#14100D;display:flex;align-items:center;font-size:11px;font-weight:600;box-shadow:inset 0 -2px 0 0 #F7F2E9">Reservar</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:1">
+        <div class="fila" style="justify-content:space-between;align-items:baseline">
+          <span class="rotulo tinta">Pares comprobados</span>
+          <span class="mini">Contraste WCAG 2.1 · mínimo AA 4,5:1</span>
+        </div>
+        <div style="margin-top:11px">
+          <div class="fila" style="justify-content:space-between;padding:6px 0;border-bottom:var(--lin)"><span class="mini" style="color:var(--tinta)">Tinta sobre papel</span><span class="dato" style="font-size:11px">16,97:1 · AAA</span></div>
+          <div class="fila" style="justify-content:space-between;padding:6px 0;border-bottom:var(--lin)"><span class="mini" style="color:var(--tinta)">Tinta sobre bruma</span><span class="dato" style="font-size:11px">13,27:1 · AAA</span></div>
+          <div class="fila" style="justify-content:space-between;padding:6px 0;border-bottom:var(--lin)"><span class="mini" style="color:var(--tinta)">Papel sobre añil</span><span class="dato" style="font-size:11px">7,88:1 · AAA</span></div>
+          <div class="fila" style="justify-content:space-between;padding:6px 0;border-bottom:var(--lin)"><span class="mini" style="color:var(--tinta)">Añil sobre bruma</span><span class="dato" style="font-size:11px">6,16:1 · AA</span></div>
+          <div class="fila" style="justify-content:space-between;padding:6px 0;border-bottom:var(--lin)"><span class="mini" style="color:var(--tinta)">Papel sobre achiote</span><span class="dato" style="font-size:11px">5,56:1 · AA</span></div>
+          <div class="fila" style="justify-content:space-between;padding:6px 0;border-bottom:var(--lin)"><span class="mini" style="color:var(--tinta)">Ceniza sobre papel</span><span class="dato" style="font-size:11px">5,42:1 · AA</span></div>
+          <div class="fila" style="justify-content:space-between;padding:6px 0;border-bottom:1.5px solid var(--achiote)"><span class="mini" style="color:var(--achiote)">Ceniza sobre bruma</span><span class="dato" style="font-size:11px;color:var(--achiote)">4,24:1 · prohibido</span></div>
+          <div class="fila" style="justify-content:space-between;padding:6px 0"><span class="mini" style="color:var(--achiote)">Bruma sobre papel</span><span class="dato" style="font-size:11px;color:var(--achiote)">1,28:1 · prohibido</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pie">
+    <span class="rotulo">Color</span>
+    <div class="fila" style="gap:16px;align-items:flex-end">
+      <div class="cinta-libro"><i></i><i></i><i></i><i></i><i></i><i class="aqui"></i><i></i><i></i><i></i><i></i></div>
+      <span class="folio">06</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- === 07 . TIPOGRAFIA ================================================== -->
+<section class="pagina">
+  <div class="cabecera"><span class="rotulo tinta">07 · Tipografía</span><span class="rotulo">Dos familias dibujadas en Latinoamérica, para textos en español</span></div>
+  <div class="lienzo">
+
+    <div class="fila" style="gap:20px;height:252px">
+
+      <div style="flex:1;background:#EFE7D9;padding:20px 22px;display:flex;flex-direction:column">
+        <div class="fila" style="justify-content:space-between;align-items:baseline">
+          <span class="rotulo tinta">Alegreya · Huerta Tipográfica, Buenos Aires</span>
+          <span class="rotulo">La persona</span>
+        </div>
+        <div class="fila" style="align-items:flex-end;gap:22px;margin-top:6px">
+          <span class="serif" style="font-size:118px;font-weight:800;line-height:.84;letter-spacing:-.03em">Ññ</span>
+          <div class="col" style="gap:2px;padding-bottom:10px">
+            <span class="serif" style="font-size:21px;font-weight:400;line-height:1.16">Regular 400</span>
+            <span class="serif" style="font-size:21px;font-weight:500;line-height:1.16">Medium 500</span>
+            <span class="serif" style="font-size:21px;font-weight:700;line-height:1.16">Bold 700</span>
+            <span class="serif" style="font-size:21px;font-weight:800;line-height:1.16">Black 800</span>
+            <span class="serif" style="font-size:21px;font-weight:500;font-style:italic;line-height:1.16">Cursiva 500</span>
+          </div>
+        </div>
+        <div class="serif" style="font-size:16.5px;line-height:1.3;margin-top:auto;padding-top:11px;border-top:var(--lin)">
+          ABCDEFGHIJKLMNÑOPQRSTUVWXYZ<br>abcdefghijklmnñopqrstuvwxyz áéíóúü ¿? ¡! 0123456789
+        </div>
+      </div>
+
+      <div style="flex:1;background:#EFE7D9;padding:20px 22px;display:flex;flex-direction:column">
+        <div class="fila" style="justify-content:space-between;align-items:baseline">
+          <span class="rotulo tinta">Archivo · Omnibus-Type, Buenos Aires</span>
+          <span class="rotulo">El sistema</span>
+        </div>
+        <div class="fila" style="align-items:flex-end;gap:22px;margin-top:6px">
+          <span style="font-size:118px;font-weight:700;line-height:.84;letter-spacing:-.04em;font-stretch:112%">Ññ</span>
+          <div class="col" style="gap:2px;padding-bottom:10px">
+            <span style="font-size:21px;font-weight:400;line-height:1.16">Regular 400</span>
+            <span style="font-size:21px;font-weight:500;line-height:1.16">Medium 500</span>
+            <span style="font-size:21px;font-weight:600;line-height:1.16">Semibold 600</span>
+            <span style="font-size:21px;font-weight:700;line-height:1.16">Bold 700</span>
+            <div class="fila" style="gap:8px;align-items:baseline;margin-top:8px">
+              <span style="font-size:17px;font-weight:600;font-stretch:62%">62</span>
+              <span style="font-size:17px;font-weight:600;font-stretch:100%">100</span>
+              <span style="font-size:17px;font-weight:600;font-stretch:125%">125</span>
+              <span class="rotulo">eje de ancho</span>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:15.5px;line-height:1.3;margin-top:auto;padding-top:11px;border-top:var(--lin)">
+          ABCDEFGHIJKLMNÑOPQRSTUVWXYZ<br>abcdefghijklmnñopqrstuvwxyz áéíóúü ¿? ¡! 0123456789
+        </div>
+      </div>
+    </div>
+
+    <div class="fila" style="justify-content:space-between;align-items:baseline;margin:18px 0 10px">
+      <span class="rotulo tinta">Jerarquía completa</span>
+      <span class="mini">Regla única: si tiene nombre y apellido, va en Alegreya. Todo lo demás, en Archivo.</span>
+    </div>
+
+    <div style="border-top:2px solid var(--tinta)">
+      <div class="fila" style="align-items:flex-end;gap:20px;padding:12px 0 10px;border-bottom:var(--lin)">
+        <div style="flex:1.5"><span class="display" style="font-size:52px">Yaris tiene hueco</span></div>
+        <div style="flex:1;display:flex;justify-content:space-between"><span class="rotulo tinta">Display</span><span class="dato" style="font-size:10.5px;color:var(--ceniza)">Alegreya 800 · 52/47 · −2,2 %</span></div>
+        <div style="width:246px"><span class="mini">Portada y una sola línea. Nunca dos párrafos seguidos.</span></div>
+      </div>
+      <div class="fila" style="align-items:flex-end;gap:20px;padding:10px 0;border-bottom:var(--lin)">
+        <div style="flex:1.5"><span class="h1">Yaris Batista</span></div>
+        <div style="flex:1;display:flex;justify-content:space-between"><span class="rotulo tinta">Título 1</span><span class="dato" style="font-size:10.5px;color:var(--ceniza)">Alegreya 700 · 34/35 · −1,5 %</span></div>
+        <div style="width:246px"><span class="mini">El nombre de la persona en su ficha. Solo eso.</span></div>
+      </div>
+      <div class="fila" style="align-items:flex-end;gap:20px;padding:10px 0;border-bottom:var(--lin)">
+        <div style="flex:1.5"><span class="h2">Trenzas y extensiones</span></div>
+        <div style="flex:1;display:flex;justify-content:space-between"><span class="rotulo tinta">Título 2</span><span class="dato" style="font-size:10.5px;color:var(--ceniza)">Archivo 600 · ancho 108 · 15,5/19</span></div>
+        <div style="width:246px"><span class="mini">Encabezado de sección y oficio del profesional.</span></div>
+      </div>
+      <div class="fila" style="align-items:flex-end;gap:20px;padding:10px 0;border-bottom:var(--lin)">
+        <div style="flex:1.5"><span class="p">Atiende en Salón Kalú, Bella Vista. Trabaja sola y con cita.</span></div>
+        <div style="flex:1;display:flex;justify-content:space-between"><span class="rotulo tinta">Cuerpo</span><span class="dato" style="font-size:10.5px;color:var(--ceniza)">Archivo 400 · 12/18,5 · en producto 15/23</span></div>
+        <div style="width:246px"><span class="mini">Texto corrido. En el teléfono nunca baja de 15 px.</span></div>
+      </div>
+      <div class="fila" style="align-items:flex-end;gap:20px;padding:10px 0;border-bottom:var(--lin)">
+        <div style="flex:1.5"><span class="rotulo tinta">Próximo hueco · hoy</span></div>
+        <div style="flex:1;display:flex;justify-content:space-between"><span class="rotulo tinta">Etiqueta</span><span class="dato" style="font-size:10.5px;color:var(--ceniza)">Archivo 600 · ancho 118 · 8,5 · +17 %</span></div>
+        <div style="width:246px"><span class="mini">Versalita del sistema. Nunca más de cuatro palabras.</span></div>
+      </div>
+      <div class="fila" style="align-items:flex-end;gap:20px;padding:10px 0 0">
+        <div style="flex:1.5"><span class="dato" style="font-size:22px">4:30 pm · 412 atendidas · 4,9</span></div>
+        <div style="flex:1;display:flex;justify-content:space-between"><span class="rotulo tinta">Dato</span><span class="dato" style="font-size:10.5px;color:var(--ceniza)">Archivo 500 · ancho 92 · cifras tabulares</span></div>
+        <div style="width:246px"><span class="mini">Horas, precios y cuenta de clientes. Siempre tabulares para que las columnas cuadren.</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="pie">
+    <span class="rotulo">Tipografía</span>
+    <div class="fila" style="gap:16px;align-items:flex-end">
+      <div class="cinta-libro"><i></i><i></i><i></i><i></i><i></i><i></i><i class="aqui"></i><i></i><i></i><i></i></div>
+      <span class="folio">07</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- === 08 . BOTONES Y CONTROLES ========================================= -->
+<section class="pagina">
+  <div class="cabecera"><span class="rotulo tinta">08 · Botones y controles</span><span class="rotulo">Cuatro tipos × seis estados, dibujados · nada descrito</span></div>
+  <div class="lienzo">
+
+    <div class="fila" style="align-items:flex-end;border-bottom:2px solid var(--tinta);padding-bottom:7px">
+      <div style="width:126px;flex:0 0 126px"><span class="rotulo tinta">Tipo</span></div>
+      <div style="flex:1;text-align:center"><span class="rotulo">reposo</span></div><div style="flex:1;text-align:center"><span class="rotulo">encima</span></div><div style="flex:1;text-align:center"><span class="rotulo">pulsado</span></div><div style="flex:1;text-align:center"><span class="rotulo">cargando</span></div><div style="flex:1;text-align:center"><span class="rotulo">inhabilitado</span></div><div style="flex:1;text-align:center"><span class="rotulo">con foco</span></div>
+    </div>
+      <div class="fila" style="align-items:center;height:64px;border-bottom:var(--lin)">
+        <div style="width:126px;flex:0 0 126px">
+          <div class="rotulo tinta">Primario</div>
+          <div class="mini" style="margin-top:4px;font-size:9px;line-height:1.3">Añil · una sola acción por pantalla: reservar la hora</div>
+        </div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn"><span>Reservar</span></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn e-encima"><span>Reservar</span></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn e-pulsado"><span>Reservar</span></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn e-carga"><svg class="giro" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.4" stroke="#F7F2E9" stroke-opacity=".38"/><circle cx="10" cy="10" r="7.4" stroke="#F7F2E9" stroke-dasharray="26 20" stroke-linecap="butt" transform="rotate(-60 10 10)"/></svg><span>Reservando</span></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn e-inh"><span>Reservar</span></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn e-foco"><span>Reservar</span></span></div>
+      </div>
+      <div class="fila" style="align-items:center;height:64px;border-bottom:var(--lin)">
+        <div style="width:126px;flex:0 0 126px">
+          <div class="rotulo tinta">Secundario</div>
+          <div class="mini" style="margin-top:4px;font-size:9px;line-height:1.3">Contorno de tinta · lo que acompaña sin competir</div>
+        </div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn sec"><span>Ver ficha</span></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn sec e-encima"><span>Ver ficha</span></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn sec e-pulsado"><span>Ver ficha</span></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn sec e-carga"><svg class="giro" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.4" stroke="#6B6157" stroke-opacity=".38"/><circle cx="10" cy="10" r="7.4" stroke="#6B6157" stroke-dasharray="26 20" stroke-linecap="butt" transform="rotate(-60 10 10)"/></svg><span>Abriendo</span></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn sec e-inh"><span>Ver ficha</span></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn sec e-foco"><span>Ver ficha</span></span></div>
+      </div>
+      <div class="fila" style="align-items:center;height:64px;border-bottom:var(--lin)">
+        <div style="width:126px;flex:0 0 126px">
+          <div class="rotulo tinta">Fantasma</div>
+          <div class="mini" style="margin-top:4px;font-size:9px;line-height:1.3">Solo texto y canto de bruma · salidas y descartes</div>
+        </div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn fan"><span>Más tarde</span></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn fan e-encima"><span>Más tarde</span></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn fan e-pulsado"><span>Más tarde</span></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn fan e-carga"><svg class="giro" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.4" stroke="#6B6157" stroke-opacity=".38"/><circle cx="10" cy="10" r="7.4" stroke="#6B6157" stroke-dasharray="26 20" stroke-linecap="butt" transform="rotate(-60 10 10)"/></svg><span>Guardando</span></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn fan e-inh"><span>Más tarde</span></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn fan e-foco"><span>Más tarde</span></span></div>
+      </div>
+      <div class="fila" style="align-items:center;height:64px;border-bottom:var(--lin)">
+        <div style="width:126px;flex:0 0 126px">
+          <div class="rotulo tinta">Urgente</div>
+          <div class="mini" style="margin-top:4px;font-size:9px;line-height:1.3">Achiote · deshace algo que ya está hecho</div>
+        </div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn urg"><span>Cancelar</span></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn urg e-encima"><span>Cancelar</span></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn urg e-pulsado"><span>Cancelar</span></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn urg e-carga"><svg class="giro" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.4" stroke="#F7F2E9" stroke-opacity=".38"/><circle cx="10" cy="10" r="7.4" stroke="#F7F2E9" stroke-dasharray="26 20" stroke-linecap="butt" transform="rotate(-60 10 10)"/></svg><span>Cancelando</span></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn urg e-inh"><span>Cancelar</span></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="btn urg e-foco"><span>Cancelar</span></span></div>
+      </div>
+
+    <div class="fila" style="gap:18px;margin-top:20px">
+
+      <!-- anatomía -->
+      <div style="width:250px;flex:0 0 250px">
+        <span class="rotulo tinta">Anatomía</span>
+        <div style="background:#EFE7D9;height:118px;margin-top:9px;position:relative">
+          <span class="btn" style="position:absolute;left:56px;top:28px;height:58px;padding:0 27px;font-size:19px">Reservar 4:30</span>
+          <div style="position:absolute;left:38px;top:28px;height:58px;width:1.5px;background:var(--achiote)"></div>
+          <div style="position:absolute;left:38px;top:28px;width:9px;height:1.5px;background:var(--achiote)"></div>
+          <div style="position:absolute;left:38px;top:84.5px;width:9px;height:1.5px;background:var(--achiote)"></div>
+          <div style="position:absolute;left:12px;top:50px"><span class="rotulo" style="color:var(--achiote)">44</span></div>
+          <div style="position:absolute;left:56px;top:94px;width:118px;height:1.5px;background:var(--achiote)"></div>
+          <div style="position:absolute;left:56px;top:99px"><span class="rotulo" style="color:var(--achiote)">canto de 2 px</span></div>
+        </div>
+        <div class="mini" style="margin-top:9px">
+          Alto 44 (48 en el teléfono), cero de radio, holgura lateral 18 y un canto de 2 px más oscuro por debajo.
+          El canto es la línea de la regla de horas: al pulsar desaparece y el botón baja 2 px, como si se apoyara en el papel.
+        </div>
+        <div style="margin-top:12px;padding-top:9px;border-top:var(--lin)">
+          <span class="rotulo tinta">Tres reglas</span>
+          <div class="mini" style="margin-top:6px">
+            Un solo primario por pantalla. El foco de teclado no se quita nunca, ni «porque se ve feo».
+            Cargando bloquea el botón, no la pantalla: la clienta puede seguir mirando la ficha.
+          </div>
+        </div>
+      </div>
+
+      <!-- campo de texto -->
+      <div style="flex:1">
+        <span class="rotulo tinta">Campo de texto</span>
+        <div class="col" style="gap:9px;margin-top:9px">
+          <div class="fila" style="gap:8px;align-items:center"><span class="rotulo" style="width:76px;flex:0 0 76px">vacío</span><div class="campo"><span class="marca">Trenzas, barbería, uñas…</span></div></div>
+          <div class="fila" style="gap:8px;align-items:center"><span class="rotulo" style="width:76px;flex:0 0 76px">encima</span><div class="campo c-encima"><span class="marca">Trenzas, barbería, uñas…</span></div></div>
+          <div class="fila" style="gap:8px;align-items:center"><span class="rotulo" style="width:76px;flex:0 0 76px">tecleando</span><div class="campo c-activo">trenzas box<span style="width:1.5px;height:17px;background:var(--anil);margin-left:2px"></span></div></div>
+          <div class="fila" style="gap:8px;align-items:center"><span class="rotulo" style="width:76px;flex:0 0 76px">relleno</span><div class="campo c-lleno">Trenzas box, Bella Vista</div></div>
+          <div class="fila" style="gap:8px;align-items:center"><span class="rotulo" style="width:76px;flex:0 0 76px">error</span><div class="campo c-error" style="justify-content:space-between">Trrenzsa box<span class="rotulo" style="color:var(--achiote)">sin resultados</span></div></div>
+          <div class="fila" style="gap:8px;align-items:center"><span class="rotulo" style="width:76px;flex:0 0 76px">inactivo</span><div class="campo c-inh">Elige primero la fecha</div></div>
+        </div>
+      </div>
+
+      <!-- selector y chips -->
+      <div style="flex:1">
+        <span class="rotulo tinta">Selector de hora</span>
+        <div class="selector" style="margin-top:9px">
+          <div>3:00</div><div>3:30</div><div class="on">4:00</div><div class="no">4:30</div><div>5:00</div><div class="no">5:30</div>
+        </div>
+        <div class="mini" style="margin-top:7px">Elegida en añil, tomada tachada con trama. No es un desplegable: es la regla de horas de la marca.</div>
+
+        <div style="margin-top:16px"><span class="rotulo tinta">Chips</span></div>
+        <div class="fila" style="gap:7px;margin-top:9px;flex-wrap:wrap">
+          <span class="chip">Trenzas</span>
+          <span class="chip on">Barbería</span>
+          <span class="chip hora">hoy 4:30</span>
+          <span class="chip hora on">hoy 5:00</span>
+          <span class="chip lleno">3:00</span>
+        </div>
+        <div class="mini" style="margin-top:7px">El chip de hora lleva el contorno en añil; el de filtro, en bruma. Un chip tachado sigue leyéndose: 5,42:1.</div>
+
+        <div style="margin-top:14px;padding-top:10px;border-top:var(--lin)">
+          <span class="rotulo tinta">Contraste de cada estado</span>
+          <div class="mini" style="margin-top:6px">
+            Reposo 7,88:1 · encima 9,62:1 · pulsado 10,19:1 · cargando 10,19:1 · inhabilitado 5,42:1 (ceniza sobre papel, no exento) ·
+            urgente 5,56 / 6,75 / 8,80:1. El foco es un contorno de 2,5 px separado 3 px, nunca un halo difuminado.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pie">
+    <span class="rotulo">Botones y controles</span>
+    <div class="fila" style="gap:16px;align-items:flex-end">
+      <div class="cinta-libro"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="aqui"></i><i></i><i></i></div>
+      <span class="folio">08</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- === 09 . PANTALLAS =================================================== -->
+<section class="pagina">
+  <div class="cabecera"><span class="rotulo tinta">09 · Pantallas</span><span class="rotulo">Tres pantallas enteras, de la barra de estado a la barra de abajo</span></div>
+  <div class="lienzo">
+    <div class="fila" style="gap:36px;justify-content:space-between">
+
+      <div class="col" style="width:273px">
+        <div class="fila" style="align-items:baseline;gap:9px;margin-bottom:10px">
+          <span class="display" style="font-size:22px">A</span><span class="rotulo tinta">Buscar</span>
+        </div>
+    <div class="tel"><div class="tel-in">
+      <div class="estado"><span class="num">9:41</span><span class="num">4G · 78 %</span></div>
+      <div style="padding:14px 16px 12px;border-bottom:1.5px solid var(--tinta)">
+        <div style="display:flex;align-items:center;gap:9px">
+          <img src="./logo/principal.svg" alt="" style="width:22px;height:22px">
+          <span style="font-family:'Alegreya',serif;font-weight:800;font-size:20px;letter-spacing:-.02em;line-height:1">buenamano</span>
+          <span style="margin-left:auto" class="rot">Bella Vista ▾</span>
+        </div>
+        <div class="campo c-lleno" style="height:46px;margin-top:12px;font-size:15px">Trenzas box</div>
+        <div style="display:flex;gap:7px;margin-top:11px">
+          <span class="chip on" style="height:30px;font-size:12px">Hoy</span>
+          <span class="chip" style="height:30px;font-size:12px">A pie</span>
+          <span class="chip" style="height:30px;font-size:12px">Menos de 70</span>
+          <span class="chip" style="height:30px;font-size:12px">Sábado</span>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;padding:12px 16px 8px">
+        <span class="rot" style="color:var(--tinta)">23 personas</span>
+        <span class="rot">Hueco más cerca ▾</span>
+      </div>
+        <div class="pfila">
+          <div class="retrato" style="width:56px;height:56px"><svg viewBox="0 0 100 100" class="busto" aria-hidden="true"><rect width="100" height="100" fill="#EFE7D9"/><circle cx="50" cy="50" r="45" fill="none" stroke="#1D3FB0" stroke-width="5.5" stroke-dasharray="212 71" transform="rotate(-118 50 50)"/><circle cx="50" cy="50" r="35" fill="none" stroke="#1D3FB0" stroke-width="5.5" stroke-dasharray="132 88" transform="rotate(52 50 50)"/><circle cx="50" cy="37" r="19.5" fill="#14100D"/><path d="M11 100 C11 71 28 60 50 60 C73 60 90 72 90 100 Z" fill="#14100D"/></svg></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:3px;min-width:0">
+            <span class="nom">Yaris Batista</span>
+            <span class="sub">Trenzas y extensiones · Salón Kalú</span>
+            <span class="sub num">412 atendidas · 4,9 (128)</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+            <span style="display:inline-flex;align-items:center;height:30px;padding:0 11px;font-size:13px;font-weight:600;color:var(--papel);background:var(--anil);box-shadow:inset 0 -2px 0 0 #14318C">hoy 4:30</span>
+            <span class="sub num" style="font-size:12px">desde 65,00 B/.</span>
+          </div>
+        </div>
+        <div class="pfila">
+          <div class="retrato" style="width:56px;height:56px"><div class="huella" data-nombre="Abdiel Sáez" data-tam="56"></div></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:3px;min-width:0">
+            <span class="nom">Abdiel Sáez</span>
+            <span class="sub">Barbería y afeitado · Barbería Perejil</span>
+            <span class="sub num">1 208 atendidos · 4,8 (391)</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+            <span style="display:inline-flex;align-items:center;height:30px;padding:0 11px;font-size:13px;font-weight:600;color:var(--anil);box-shadow:inset 0 0 0 1.5px var(--anil), inset 0 -2px 0 0 var(--anil)">hoy 5:15</span>
+            <span class="sub num" style="font-size:12px">desde 18,00 B/.</span>
+          </div>
+        </div>
+        <div class="pfila">
+          <div class="retrato" style="width:56px;height:56px"><svg viewBox="0 0 100 100" class="busto" aria-hidden="true"><rect width="100" height="100" fill="#EFE7D9"/><circle cx="50" cy="50" r="45" fill="none" stroke="#1D3FB0" stroke-width="5.5" stroke-dasharray="212 71" transform="rotate(-118 50 50)"/><circle cx="50" cy="50" r="35" fill="none" stroke="#1D3FB0" stroke-width="5.5" stroke-dasharray="132 88" transform="rotate(52 50 50)"/><circle cx="50" cy="37" r="19.5" fill="#14100D"/><path d="M11 100 C11 71 28 60 50 60 C73 60 90 72 90 100 Z" fill="#14100D"/></svg></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:3px;min-width:0">
+            <span class="nom">Keila Montenegro</span>
+            <span class="sub">Uñas acrílicas · Estudio Kei</span>
+            <span class="sub num">96 atendidas · 5,0 (41)</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+            <span style="display:inline-flex;align-items:center;height:30px;padding:0 11px;font-size:13px;font-weight:600;color:var(--anil);box-shadow:inset 0 0 0 1.5px var(--anil), inset 0 -2px 0 0 var(--anil)">mañana 10:00</span>
+            <span class="sub num" style="font-size:12px">desde 45,00 B/.</span>
+          </div>
+        </div>
+        <div class="pfila">
+          <div class="retrato" style="width:56px;height:56px;box-shadow:0 0 0 2.5px var(--achiote)"><div class="huella" data-nombre="Dayra Quintero" data-tam="56" data-tinta="#1D3FB0"></div></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:3px;min-width:0">
+            <span class="nom">Dayra Quintero</span>
+            <span class="sub">Pestañas pelo a pelo · Trabaja sola</span>
+            <span class="rot" style="color:var(--achiote)">Nueva · sin reseñas</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+            <span style="display:inline-flex;align-items:center;height:30px;padding:0 11px;font-size:13px;font-weight:600;color:var(--anil);box-shadow:inset 0 0 0 1.5px var(--anil), inset 0 -2px 0 0 var(--anil)">mañana 2:00</span>
+            <span class="sub num" style="font-size:12px">desde 55,00 B/.</span>
+          </div>
+        </div>
+        <div class="pfila">
+          <div class="retrato" style="width:56px;height:56px"><svg viewBox="0 0 100 100" class="busto" aria-hidden="true"><rect width="100" height="100" fill="#EFE7D9"/><circle cx="50" cy="50" r="45" fill="none" stroke="#1D3FB0" stroke-width="5.5" stroke-dasharray="212 71" transform="rotate(-118 50 50)"/><circle cx="50" cy="50" r="35" fill="none" stroke="#1D3FB0" stroke-width="5.5" stroke-dasharray="132 88" transform="rotate(52 50 50)"/><circle cx="50" cy="37" r="19.5" fill="#14100D"/><path d="M11 100 C11 71 28 60 50 60 C73 60 90 72 90 100 Z" fill="#14100D"/></svg></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:3px;min-width:0">
+            <span class="nom">Iris Delgado</span>
+            <span class="sub">Depilación y cejas · Spa Cariari</span>
+            <span class="sub num">238 atendidas · 4,7 (74)</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+            <span style="display:inline-flex;align-items:center;height:30px;padding:0 11px;font-size:13px;font-weight:600;color:var(--anil);box-shadow:inset 0 0 0 1.5px var(--anil), inset 0 -2px 0 0 var(--anil)">hoy 6:00</span>
+            <span class="sub num" style="font-size:12px">desde 25,00 B/.</span>
+          </div>
+        </div>
+      <div class="nav"><div class="on"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13.6 13.6 L19 19" stroke="currentColor" stroke-width="2"/></svg>Buscar</div><div><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="4.5" width="16" height="14" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 9H18M6.5 1.5V6M13.5 1.5V6" stroke="currentColor" stroke-width="2"/></svg>Citas</div><div><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 3H18V14H8L3.5 18V14H2Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>Chat</div><div><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="6.6" r="4.4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2.5 18.5C2.5 13.4 5.9 11 10 11s7.5 2.4 7.5 7.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Yo</div></div>
+    </div></div>
+        <div class="mini" style="margin-top:11px">
+          El resultado son personas, no locales: tres con foto y dos con su huella. Dayra se dio de alta ayer,
+          así que lleva aro de achiote y se dice que aún no tiene reseñas.
+        </div>
+      </div>
+
+      <div class="col" style="width:273px">
+        <div class="fila" style="align-items:baseline;gap:9px;margin-bottom:10px">
+          <span class="display" style="font-size:22px">B</span><span class="rotulo tinta">La ficha con la hora libre</span>
+        </div>
+    <div class="tel"><div class="tel-in">
+      <div class="estado"><span class="num">9:41</span><span class="num">4G · 78 %</span></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--bruma)">
+        <span style="font-size:19px;font-weight:600">←</span>
+        <span class="rot" style="color:var(--tinta)">Ficha</span>
+        <span class="rot" style="margin-left:auto">Compartir</span>
+      </div>
+      <div style="padding:16px 16px 14px;display:flex;gap:15px;align-items:flex-start">
+        <div class="retrato" style="width:84px;height:84px"><svg viewBox="0 0 100 100" class="busto" aria-hidden="true"><rect width="100" height="100" fill="#EFE7D9"/><circle cx="50" cy="50" r="45" fill="none" stroke="#1D3FB0" stroke-width="5.5" stroke-dasharray="212 71" transform="rotate(-118 50 50)"/><circle cx="50" cy="50" r="35" fill="none" stroke="#1D3FB0" stroke-width="5.5" stroke-dasharray="132 88" transform="rotate(52 50 50)"/><circle cx="50" cy="37" r="19.5" fill="#14100D"/><path d="M11 100 C11 71 28 60 50 60 C73 60 90 72 90 100 Z" fill="#14100D"/></svg></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:5px;padding-top:2px">
+          <span class="nom" style="font-size:29px">Yaris Batista</span>
+          <span class="sub" style="font-size:14px">Trenzas y extensiones</span>
+          <span class="sub" style="font-size:14px">Salón Kalú · Calle 45, Bella Vista</span>
+          <span class="chip" style="height:28px;font-size:11.5px;align-self:flex-start;margin-top:3px">Trabaja sola</span>
+        </div>
+      </div>
+      <div style="display:flex;border-top:1px solid var(--bruma);border-bottom:1px solid var(--bruma)">
+        <div style="flex:1;padding:12px 16px;border-right:1px solid var(--bruma)"><div class="num" style="font-size:21px">412</div><div class="rot" style="margin-top:3px">atendidas</div></div>
+        <div style="flex:1;padding:12px 16px;border-right:1px solid var(--bruma)"><div class="num" style="font-size:21px">4,9</div><div class="rot" style="margin-top:3px">128 reseñas</div></div>
+        <div style="flex:1;padding:12px 16px"><div class="num" style="font-size:21px">2019</div><div class="rot" style="margin-top:3px">desde</div></div>
+      </div>
+      <div style="padding:15px 16px 0">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <span class="rot" style="color:var(--tinta)">Hoy, jueves 10</span>
+          <span class="rot" style="color:var(--achiote)">3 huecos</span>
+        </div>
+        <div class="cinta" data-cinta="9-20" data-ocupado="9-11.5,12-15,17.5-19" data-proximo="16.5" style="height:50px;margin-top:9px"></div>
+        <div class="selector" style="margin-top:14px"><div class="no" style="height:44px;font-size:14px">3:00</div><div class="" style="height:44px;font-size:14px">3:30</div><div class="" style="height:44px;font-size:14px">4:00</div><div class="on" style="height:44px;font-size:14px">4:30</div><div class="" style="height:44px;font-size:14px">5:00</div><div class="no" style="height:44px;font-size:14px">5:30</div></div>
+        <div class="sub" style="font-size:12px;margin-top:8px">Tachadas: ya tomadas. Ella confirma en menos de una hora.</div>
+      </div>
+      <div style="padding:15px 16px 0">
+        <span class="rot" style="color:var(--tinta)">Servicio elegido</span>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:9px;padding-bottom:12px;border-bottom:1px solid var(--bruma)">
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <span style="font-size:16px;font-weight:600">Trenzas box medianas</span>
+            <span class="sub" style="font-size:13px">3 h · incluye lavado</span>
+          </div>
+          <span class="num" style="font-size:19px">65,00 B/.</span>
+        </div>
+      </div>
+      <div style="padding:14px 16px 0">
+        <span class="rot" style="color:var(--tinta)">Lo último que dijeron de ella</span>
+        <div style="margin-top:10px;padding-left:13px;box-shadow:inset 3px 0 0 0 var(--anil)">
+          <span style="font-family:'Alegreya',serif;font-size:17px;line-height:1.32;display:block">«Le llevé una foto y me las hizo igualitas. Tres horas y ni me dolió la cabeza.»</span>
+          <span class="sub" style="font-size:12px;display:block;margin-top:7px">Nayla C. · hace 6 días · 5,0</span>
+        </div>
+      </div>
+      <div style="margin-top:auto;padding:14px 16px;border-top:1.5px solid var(--tinta);display:flex;align-items:center;gap:13px">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <span class="rot">Jueves 10</span>
+          <span class="num" style="font-size:19px">4:30 pm</span>
+        </div>
+        <span class="btn" style="flex:1;height:52px;font-size:16px">Reservar con Yaris</span>
+      </div>
+    </div></div>
+        <div class="mini" style="margin-top:11px">
+          Su día entero en la cinta, el hueco marcado en achiote y el selector debajo. El botón dice el nombre
+          de ella, no «confirmar».
+        </div>
+      </div>
+
+      <div class="col" style="width:273px">
+        <div class="fila" style="align-items:baseline;gap:9px;margin-bottom:10px">
+          <span class="display" style="font-size:22px">C</span><span class="rotulo tinta">La agenda del dueño</span>
+        </div>
+    <div class="tel"><div class="tel-in">
+      <div class="estado"><span class="num">9:41</span><span class="num">4G · 78 %</span></div>
+      <div style="padding:12px 16px;border-bottom:1.5px solid var(--tinta)">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="nom" style="font-size:22px">Salón Kalú</span>
+          <span class="chip" style="height:26px;font-size:11px;margin-left:auto">Bella Vista</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:10px">
+          <span style="font-size:17px;font-weight:600">‹</span>
+          <span class="num" style="font-size:15px;font-weight:600">Jueves 10 de septiembre</span>
+          <span style="font-size:17px;font-weight:600">›</span>
+          <span class="chip on" style="height:28px;font-size:11.5px;margin-left:auto">Hoy</span>
+        </div>
+      </div>
+      <div style="display:flex;border-bottom:1px solid var(--bruma)">
+        <div style="width:34px;flex:0 0 34px"></div><div style="flex:1;padding:9px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;border-left:1px solid var(--bruma)">
+          <div class="retrato" style="width:30px;height:30px"><svg viewBox="0 0 100 100" class="busto" aria-hidden="true"><rect width="100" height="100" fill="#EFE7D9"/><circle cx="50" cy="50" r="45" fill="none" stroke="#1D3FB0" stroke-width="5.5" stroke-dasharray="212 71" transform="rotate(-118 50 50)"/><circle cx="50" cy="50" r="35" fill="none" stroke="#1D3FB0" stroke-width="5.5" stroke-dasharray="132 88" transform="rotate(52 50 50)"/><circle cx="50" cy="37" r="19.5" fill="#14100D"/><path d="M11 100 C11 71 28 60 50 60 C73 60 90 72 90 100 Z" fill="#14100D"/></svg></div><span style="font-size:11px;font-weight:600;text-align:center;line-height:1.15">Yaris B.</span></div><div style="flex:1;padding:9px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;border-left:1px solid var(--bruma)">
+          <div class="retrato" style="width:30px;height:30px"><div class="huella" data-nombre="Abdiel S." data-tam="30"></div></div><span style="font-size:11px;font-weight:600;text-align:center;line-height:1.15">Abdiel S.</span></div><div style="flex:1;padding:9px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;border-left:1px solid var(--bruma)">
+          <div class="retrato" style="width:30px;height:30px"><svg viewBox="0 0 100 100" class="busto" aria-hidden="true"><rect width="100" height="100" fill="#EFE7D9"/><circle cx="50" cy="50" r="45" fill="none" stroke="#1D3FB0" stroke-width="5.5" stroke-dasharray="212 71" transform="rotate(-118 50 50)"/><circle cx="50" cy="50" r="35" fill="none" stroke="#1D3FB0" stroke-width="5.5" stroke-dasharray="132 88" transform="rotate(52 50 50)"/><circle cx="50" cy="37" r="19.5" fill="#14100D"/><path d="M11 100 C11 71 28 60 50 60 C73 60 90 72 90 100 Z" fill="#14100D"/></svg></div><span style="font-size:11px;font-weight:600;text-align:center;line-height:1.15">Keila M.</span></div><div style="flex:1;padding:9px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;border-left:1px solid var(--bruma)">
+          <div class="retrato" style="width:30px;height:30px;box-shadow:0 0 0 2.5px var(--achiote)"><div class="huella" data-nombre="Dayra Q." data-tam="30"></div></div><span style="font-size:11px;font-weight:600;text-align:center;line-height:1.15">Dayra Q.</span></div>
+      </div>
+      <div style="display:flex;flex:1;overflow:hidden">
+        <div style="width:34px;flex:0 0 34px;padding-top:0"><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">9</div><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">10</div><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">11</div><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">12</div><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">1</div><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">2</div><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">3</div><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">4</div><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">5</div><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">6</div><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">7</div></div>
+        <div style="flex:1;display:flex"><div style="flex:1;position:relative;border-left:1px solid var(--bruma)"><div style="position:absolute;left:3px;right:3px;top:1.5px;height:75px;background:var(--tinta);color:var(--papel);font-size:10.5px;line-height:1.2;padding:4px 5px;overflow:hidden">Nayla · trenzas</div><div style="position:absolute;left:3px;right:3px;top:53.5px;height:49px;background:var(--tinta);color:var(--papel);font-size:10.5px;line-height:1.2;padding:4px 5px;overflow:hidden">Iris · retoque</div><div style="position:absolute;left:3px;right:3px;top:131.5px;height:75px;background:var(--tinta);color:var(--papel);font-size:10.5px;line-height:1.2;padding:4px 5px;overflow:hidden">Mari · box</div><div style="position:absolute;left:3px;right:3px;top:222.5px;height:49px;background:var(--tinta);color:var(--papel);font-size:10.5px;line-height:1.2;padding:4px 5px;overflow:hidden">Sol · trenzas</div></div><div style="flex:1;position:relative;border-left:1px solid var(--bruma)"><div style="position:absolute;left:3px;right:3px;top:1.5px;height:23px;background:var(--tinta);color:var(--papel);font-size:10.5px;line-height:1.2;padding:4px 5px;overflow:hidden">Corte</div><div style="position:absolute;left:3px;right:3px;top:27.5px;height:23px;background:var(--tinta);color:var(--papel);font-size:10.5px;line-height:1.2;padding:4px 5px;overflow:hidden">Corte</div><div style="position:absolute;left:3px;right:3px;top:53.5px;height:23px;background:var(--tinta);color:var(--papel);font-size:10.5px;line-height:1.2;padding:4px 5px;overflow:hidden">Barba</div><div style="position:absolute;left:3px;right:3px;top:79.5px;height:23px;background:var(--tinta);color:var(--papel);font-size:10.5px;line-height:1.2;padding:4px 5px;overflow:hidden">Corte</div><div style="position:absolute;left:3px;right:3px;top:131.5px;height:23px;background:var(--tinta);color:var(--papel);font-size:10.5px;line-height:1.2;padding:4px 5px;overflow:hidden">Corte</div><div style="position:absolute;left:3px;right:3px;top:157.5px;height:23px;background:var(--tinta);color:var(--papel);font-size:10.5px;line-height:1.2;padding:4px 5px;overflow:hidden">Corte</div><div style="position:absolute;left:3px;right:3px;top:183.5px;height:49px;background:var(--tinta);color:var(--papel);font-size:10.5px;line-height:1.2;padding:4px 5px;overflow:hidden">Corte y barba</div></div><div style="flex:1;position:relative;border-left:1px solid var(--bruma)"><div style="position:absolute;left:3px;right:3px;top:27.5px;height:49px;background:var(--tinta);color:var(--papel);font-size:10.5px;line-height:1.2;padding:4px 5px;overflow:hidden">Vicky · uñas</div><div style="position:absolute;left:3px;right:3px;top:105.5px;height:49px;background:var(--tinta);color:var(--papel);font-size:10.5px;line-height:1.2;padding:4px 5px;overflow:hidden">Ana · relleno</div><div style="position:absolute;left:3px;right:3px;top:183.5px;height:75px;background:var(--tinta);color:var(--papel);font-size:10.5px;line-height:1.2;padding:4px 5px;overflow:hidden">Zuri · acrílicas</div><div style="position:absolute;left:3px;right:3px;top:144.5px;height:36.0px;box-shadow:inset 0 0 0 2px var(--achiote);color:var(--achiote);font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center">hueco</div></div><div style="flex:1;position:relative;border-left:1px solid var(--bruma)"><div style="position:absolute;left:3px;right:3px;top:157.5px;height:49px;background:var(--tinta);color:var(--papel);font-size:10.5px;line-height:1.2;padding:4px 5px;overflow:hidden">Primera cita</div></div></div>
+      </div>
+      <div style="padding:11px 16px;border-top:1.5px solid var(--tinta);display:flex;align-items:center;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:2px"><span class="num" style="font-size:18px">21</span><span class="rot">citas</span></div>
+        <div style="display:flex;flex-direction:column;gap:2px"><span class="num" style="font-size:18px">1</span><span class="rot" style="color:var(--achiote)">hueco</span></div>
+        <div style="display:flex;flex-direction:column;gap:2px;margin-left:auto;text-align:right">
+          <span class="num" style="font-size:18px">0,00 B/.</span><span class="rot">te cobramos hoy</span>
+        </div>
+      </div>
+      <div class="nav"><div><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13.6 13.6 L19 19" stroke="currentColor" stroke-width="2"/></svg>Equipo</div><div class="on"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="4.5" width="16" height="14" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 9H18M6.5 1.5V6M13.5 1.5V6" stroke="currentColor" stroke-width="2"/></svg>Agenda</div><div><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 3H18V14H8L3.5 18V14H2Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>Chat</div><div><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="6.6" r="4.4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2.5 18.5C2.5 13.4 5.9 11 10 11s7.5 2.4 7.5 7.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Salón</div></div>
+    </div></div>
+        <div class="mini" style="margin-top:11px">
+          Cuatro agendas en paralelo, una por persona. El hueco de hora y media salta en achiote, y el pie
+          repite lo que se le cobra al salón: cero.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pie">
+    <span class="rotulo">Pantallas</span>
+    <div class="fila" style="gap:16px;align-items:flex-end">
+      <div class="cinta-libro"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="aqui"></i><i></i></div>
+      <span class="folio">09</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- === 10 . APLICACIONES ================================================ -->
+<section class="pagina">
+  <div class="cabecera"><span class="rotulo tinta">10 · Aplicaciones</span><span class="rotulo">En el teléfono, en la mano y en la puerta del salón</span></div>
+  <div class="lienzo">
+
+    <div class="fila" style="gap:20px;height:306px">
+
+      <!-- ícono de aplicación -->
+      <div style="width:238px;flex:0 0 238px;background:#EFE7D9;padding:18px;display:flex;flex-direction:column">
+        <span class="rotulo tinta">Ícono de aplicación</span>
+        <div class="fila" style="gap:20px;align-items:flex-end;margin-top:16px">
+          <div class="col" style="align-items:center;gap:9px">
+            <div style="width:112px;height:112px;background:var(--anil);display:flex;align-items:center;justify-content:center">
+              <img src="./logo/papel.svg" alt="" style="width:66px;height:66px">
+            </div>
+            <span class="rotulo">Se entrega así</span>
+          </div>
+          <div class="col" style="align-items:center;gap:9px">
+            <div style="width:64px;height:64px;background:var(--anil);border-radius:15px;display:flex;align-items:center;justify-content:center">
+              <img src="./logo/papel.svg" alt="" style="width:38px;height:38px">
+            </div>
+            <span class="rotulo">Máscara del sistema</span>
+          </div>
+        </div>
+        <div class="mini" style="margin-top:auto;padding-top:12px;border-top:var(--lin)">
+          El único redondeo que existe en esta marca lo pone el sistema operativo, no nosotros. Se entrega cuadrado,
+          con el sello al 59 % del lado y centrado ópticamente.
+        </div>
+      </div>
+
+      <!-- perfil público -->
+      <div style="width:232px;flex:0 0 232px">
+        <span class="rotulo tinta">Perfil público</span>
+        <div style="margin-top:9px;height:266px;background:var(--papel);box-shadow:inset 0 0 0 1.5px var(--tinta);padding:18px;display:flex;flex-direction:column">
+          <div class="fila" style="align-items:center;gap:11px">
+            <img src="./logo/principal.svg" alt="" style="width:17px;height:17px">
+            <span class="display" style="font-size:15px">buenamano</span>
+            <span class="rotulo" style="margin-left:auto">.pa/yaris</span>
+          </div>
+          <div class="fila" style="gap:12px;align-items:center;margin-top:18px">
+            <div class="retrato" style="width:62px;height:62px"><div class="huella" data-nombre="Yaris Batista" data-tam="62" data-tinta="#1D3FB0"></div></div>
+            <div class="col" style="gap:3px">
+              <span class="serif" style="font-size:22px;font-weight:700;line-height:1.02">Yaris<br>Batista</span>
+            </div>
+          </div>
+          <div class="mini" style="margin-top:12px;color:var(--tinta)">Trenzas y extensiones · Salón Kalú, Bella Vista</div>
+          <div class="cinta" data-cinta="9-20" data-ocupado="9-11.5,12-15,17.5-19" data-proximo="16.5" style="height:42px;margin-top:14px"></div>
+          <span class="btn" style="margin-top:auto;width:100%">Reservar conmigo</span>
+        </div>
+      </div>
+
+      <!-- tarjeta -->
+      <div style="flex:1">
+        <span class="rotulo tinta">Tarjeta · 85 × 55 mm</span>
+        <div class="fila" style="gap:16px;margin-top:9px">
+          <div style="width:250px;height:162px;background:var(--papel);box-shadow:inset 0 0 0 1.5px var(--bruma);padding:16px;display:flex;flex-direction:column">
+            <div class="fila" style="gap:11px;align-items:center">
+              <div class="retrato" style="width:44px;height:44px"><div class="huella" data-nombre="Yaris Batista" data-tam="44" data-tinta="#1D3FB0"></div></div>
+              <div class="col" style="gap:2px">
+                <span class="serif" style="font-size:20px;font-weight:700;line-height:1">Yaris Batista</span>
+                <span class="mini">Trenzas y extensiones</span>
+              </div>
+            </div>
+            <div class="cinta" data-cinta="9-20" data-ocupado="9-11.5,12-15,17.5-19" data-proximo="16.5" style="height:34px;margin-top:12px"></div>
+            <div style="margin-top:auto;padding-top:10px;border-top:1.5px solid var(--tinta);display:flex;flex-direction:column;gap:5px">
+              <span class="rotulo tinta">buenamano.pa/yaris</span>
+              <span class="rotulo">Reserva sin llamar · 6234-1180</span>
+            </div>
+          </div>
+          <div style="width:250px;height:162px;background:var(--anil);display:flex;align-items:center;justify-content:center;gap:14px">
+            <img src="./logo/papel.svg" alt="" style="width:52px;height:52px">
+            <div class="col" style="gap:4px">
+              <span class="display" style="font-size:29px;color:var(--papel)">buenamano</span>
+              <span class="rotulo" style="color:#D5DCF5">La persona, no el local</span>
+            </div>
+          </div>
+        </div>
+        <div class="mini" style="margin-top:11px">
+          La tarjeta es de la profesional, no del salón: su huella, su nombre y su dirección propia. El reverso es el
+          único sitio donde el añil ocupa toda la superficie.
+        </div>
+      </div>
+    </div>
+
+    <div class="fila" style="justify-content:space-between;align-items:baseline;margin:20px 0 11px">
+      <span class="rotulo tinta">El nombre en la calle</span>
+      <span class="mini">Vinilo, placa de puesto y sello de goma. Nada que necesite pantalla.</span>
+    </div>
+
+    <div class="fila" style="gap:18px">
+
+      <!-- escaparate -->
+      <div style="flex:1.6">
+        <div style="height:196px;background:#E8EDF7;box-shadow:inset 0 0 0 6px var(--tinta);position:relative;overflow:hidden">
+          <div style="position:absolute;left:-40px;top:-30px;width:90px;height:280px;background:rgba(247,242,233,.5);transform:rotate(18deg)"></div>
+          <div style="position:absolute;left:150px;top:-30px;width:44px;height:280px;background:rgba(247,242,233,.35);transform:rotate(18deg)"></div>
+          <div style="position:absolute;right:0;top:0;bottom:0;width:6px;background:var(--tinta)"></div>
+          <div style="position:absolute;left:26px;top:30px;display:flex;align-items:center;gap:13px">
+            <img src="./logo/principal.svg" alt="" style="width:44px;height:44px">
+            <span class="display" style="font-size:42px;color:var(--anil)">buenamano</span>
+          </div>
+          <div style="position:absolute;left:26px;top:92px;width:300px;height:2px;background:var(--tinta)"></div>
+          <div style="position:absolute;left:26px;top:104px" class="p">Reserva con Yaris, Abdiel, Keila o Dayra</div>
+          <div style="position:absolute;left:26px;top:126px"><span class="rotulo tinta">buenamano.pa/salon-kalu</span></div>
+          <div style="position:absolute;left:26px;bottom:20px;height:30px;padding:0 14px;background:var(--achiote);color:var(--papel);display:flex;align-items:center;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase">Hoy hay hueco a las 4:30</div>
+        </div>
+        <div class="mini" style="margin-top:10px">Vinilo cortado en el cristal del salón. El añil aguanta el sol de Panamá y se lee desde la acera de enfrente.</div>
+      </div>
+
+      <!-- placa del puesto -->
+      <div style="flex:1">
+        <div style="height:196px;background:#EFE7D9;display:flex;align-items:center;justify-content:center">
+          <div style="width:196px;background:var(--papel);box-shadow:inset 0 0 0 1.5px var(--tinta);padding:15px">
+            <div class="fila" style="gap:11px;align-items:center">
+              <div class="retrato" style="width:40px;height:40px"><div class="huella" data-nombre="Abdiel Sáez" data-tam="40" data-tinta="#14100D"></div></div>
+              <div class="col" style="gap:2px">
+                <span class="serif" style="font-size:18px;font-weight:700;line-height:1">Abdiel Sáez</span>
+                <span class="rotulo">Puesto 2 · barbería</span>
+              </div>
+            </div>
+            <div style="height:2px;background:var(--tinta);margin:12px 0 10px"></div>
+            <div class="mini" style="color:var(--tinta)">Mira mis horas libres en</div>
+            <div class="rotulo tinta" style="margin-top:4px">buenamano.pa/abdiel</div>
+          </div>
+        </div>
+        <div class="mini" style="margin-top:10px">Placa de metacrilato en el espejo de cada puesto. Cada persona lleva su huella, no el logotipo del salón.</div>
+      </div>
+
+      <!-- sello de goma -->
+      <div style="flex:1">
+        <div style="height:196px;background:#EFE7D9;display:flex;align-items:center;justify-content:center">
+          <div style="width:186px;background:var(--papel);padding:16px 15px;box-shadow:2px 2px 0 0 var(--bruma)">
+            <span class="rotulo">Salón Kalú · recibo</span>
+            <div style="height:1px;background:var(--bruma);margin:9px 0"></div>
+            <div class="fila" style="justify-content:space-between"><span class="mini" style="color:var(--tinta)">Trenzas box</span><span class="dato" style="font-size:11px">65,00</span></div>
+            <div class="fila" style="justify-content:space-between;margin-top:4px"><span class="mini" style="color:var(--tinta)">Lavado</span><span class="dato" style="font-size:11px">incl.</span></div>
+            <div class="fila" style="gap:11px;align-items:center;margin-top:13px;padding-top:11px;border-top:1px dashed var(--bruma)">
+              <img src="./logo/principal.svg" alt="" style="width:38px;height:38px;filter:none;opacity:.85;transform:rotate(-7deg)">
+              <div class="col" style="gap:2px">
+                <span class="rotulo" style="color:var(--anil)">Confirmada</span>
+                <span class="dato" style="font-size:12px;color:var(--anil)">jue 10 · 4:30 pm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mini" style="margin-top:10px">Sello de goma en añil sobre el recibo de papel. Es la versión a una tinta del bloque, ligeramente girada: aquí sí, porque es un sello de mano.</div>
+      </div>
+    </div>
+  </div>
+  <div class="pie">
+    <span class="rotulo">Aplicaciones</span>
+    <div class="fila" style="gap:16px;align-items:flex-end">
+      <div class="cinta-libro"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="aqui"></i></div>
+      <span class="folio">10</span>
+    </div>
+  </div>
+</section>
+
+<!-- PAGINAS-AQUI -->
+
+<script>
+/* Dos piezas del sistema se calculan, no se dibujan a mano:
+   · la huella de cada profesional, deducida de su nombre;
+   · la cinta de horas de un día concreto.
+   Van en el libro con el mismo código que iría en producto. */
+(function(){
+  var TINTAS = ['#1D3FB0','#B23320','#14100D'];
+
+  function semilla(txt){
+    var h = 2166136261;
+    for (var i=0;i<txt.length;i++){ h ^= txt.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0 }
+    return function(){ h = (Math.imul(h, 1664525) + 1013904223) >>> 0; return h / 4294967296 }
+  }
+
+  function huella(nombre, tam, forzarTinta){
+    var r = semilla(nombre);
+    var tinta = forzarTinta || TINTAS[Math.floor(r()*TINTAS.length)];
+    var anillos = 3 + Math.floor(r()*2);
+    var grosor = tam*0.052, c = tam/2, piezas = '';
+    for (var i=0;i<anillos;i++){
+      var radio = tam*(0.42 - i*0.092);
+      var per = 2*Math.PI*radio;
+      var hueco = 0.09 + r()*0.24;
+      var giro = r()*360;
+      piezas += '<circle cx="'+c+'" cy="'+c+'" r="'+radio.toFixed(2)+'" fill="none" stroke="'+tinta+
+        '" stroke-width="'+grosor.toFixed(2)+'" stroke-dasharray="'+(per*(1-hueco)).toFixed(2)+' '+(per*hueco).toFixed(2)+
+        '" transform="rotate('+giro.toFixed(1)+' '+c+' '+c+')"/>';
+    }
+    if (r() > 0.45) piezas += '<circle cx="'+c+'" cy="'+c+'" r="'+(tam*0.042).toFixed(2)+'" fill="'+tinta+'"/>';
+    return '<svg width="'+tam+'" height="'+tam+'" viewBox="0 0 '+tam+' '+tam+'" aria-hidden="true">'+piezas+'</svg>';
+  }
+
+  function cinta(el){
+    var lim = el.dataset.cinta.split('-').map(Number), ini = lim[0], fin = lim[1];
+    var w = el.clientWidth, h = el.clientHeight, span = fin - ini;
+    var x = function(t){ return ((t-ini)/span)*w };
+    var eje = h - 12, s = '';
+    (el.dataset.ocupado||'').split(',').filter(Boolean).forEach(function(tr){
+      var p = tr.split('-').map(Number);
+      s += '<rect x="'+x(p[0]).toFixed(1)+'" y="'+(eje-15)+'" width="'+(x(p[1])-x(p[0])).toFixed(1)+'" height="15" fill="#14100D"/>';
+    });
+    for (var t=ini;t<=fin+0.001;t+=0.5){
+      s += '<rect x="'+x(t).toFixed(1)+'" y="'+eje+'" width="1" height="'+(t%1===0?7:4)+'" fill="#6B6157"/>';
+    }
+    s += '<rect x="0" y="'+eje+'" width="'+w+'" height="1" fill="#14100D"/>';
+    for (var u=Math.ceil(ini);u<=fin;u+=2){
+      s += '<text x="'+(x(u)+3).toFixed(1)+'" y="'+(h-1)+'" font-family="Archivo" font-size="8.5" font-weight="600" letter-spacing="0.8" fill="#6B6157">'+u+'</text>';
+    }
+    if (el.dataset.proximo){
+      var p2 = Number(el.dataset.proximo), a = x(p2), b = x(p2 + (Number(el.dataset.dura)||0.5));
+      s += '<rect x="'+a.toFixed(1)+'" y="'+(eje-15)+'" width="'+(b-a).toFixed(1)+'" height="15" fill="#F7F2E9"/>';
+      s += '<rect x="'+(a+1).toFixed(1)+'" y="'+(eje-14)+'" width="'+(b-a-2).toFixed(1)+'" height="13" fill="none" stroke="#B23320" stroke-width="2"/>';
+      s += '<rect x="'+a.toFixed(1)+'" y="'+(eje-22)+'" width="'+(b-a).toFixed(1)+'" height="4" fill="#B23320"/>';
+      if (el.dataset.etiqueta){
+        s += '<text x="'+a.toFixed(1)+'" y="'+(eje-26)+'" font-family="Archivo" font-size="10" font-weight="700" letter-spacing="0.4" fill="#B23320">'+el.dataset.etiqueta+'</text>';
+      }
+    }
+    el.innerHTML = '<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" aria-hidden="true">'+s+'</svg>';
+  }
+
+  try {
+    document.querySelectorAll('.huella').forEach(function(el){
+      el.innerHTML = huella(el.dataset.nombre, Number(el.dataset.tam||64), el.dataset.tinta);
+    });
+    document.querySelectorAll('.cinta').forEach(cinta);
+  } catch(e) { document.title = 'FALLO: ' + e.message }
+})();
+</script>
+</body>
+</html>
