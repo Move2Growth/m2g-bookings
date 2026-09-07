@@ -10,6 +10,10 @@ Tres cosas que solo se pueden comprobar contra una base real:
 3. **La puerta de atrás**: dar de baja del equipo a alguien revoca su membresía, y el dueño que
    además corta el pelo —la norma en un salón de barrio— se llevaba por delante al único dueño
    del salón sin que nada avisara.
+4. **De quién es una cuenta.** Aceptar una invitación elige contraseña cuando la cuenta la creó
+   la propia invitación, y exige estar dentro cuando ya es de alguien. Ese «ya es de alguien»
+   se preguntaba mirando si había contraseña, y una clienta que entra por teléfono no tiene: su
+   cuenta se entregaba entera.
 """
 
 from __future__ import annotations
@@ -79,7 +83,7 @@ async def test_invitar_a_alguien_sin_cuenta_y_que_acepte(motor):
         invitacion = await servicio_miembros.previsualizar(sesion, token=token)
     assert invitacion.rol == "profesional"
     assert (
-        invitacion.cuenta_con_contrasena is False
+        invitacion.cuenta_ya_tiene_dueno is False
     ), "La cuenta la creó la invitación: aceptar tiene que incluir elegir contraseña."
 
     async with _sin_negocio(motor) as sesion:
@@ -351,3 +355,82 @@ async def test_volver_a_invitar_emite_un_token_nuevo_y_el_viejo_deja_de_valer(mo
     async with _sin_negocio(motor) as sesion:
         viva = await servicio_miembros.previsualizar(sesion, token=segunda.token)
     assert viva.caduca > datetime.now(UTC) + timedelta(days=6)
+
+
+async def test_invitar_el_correo_de_una_clienta_no_entrega_su_cuenta(motor):
+    """Una cuenta con teléfono verificado **ya es de alguien**, aunque no tenga contraseña.
+
+    Es el caso de quien reserva desde el móvil: entra con un código, nunca elige contraseña y su
+    cuenta lleva dentro sus citas. Si además pone su correo en el perfil —donde se guarda **sin
+    verificar**, porque es para la factura y no para entrar—, invitar ese correo a un salón
+    encontraba su cuenta. Y como la comprobación era «¿tiene contraseña?», aceptar le ponía una
+    y devolvía una sesión con su identificador y su teléfono: la cuenta cambiaba de manos.
+
+    Reproducido de punta a punta contra el entorno local antes de arreglarlo. Para creerse esta
+    prueba: si `ya_tiene_dueno` vuelve a mirar solo la contraseña, `aceptar` deja de levantar y
+    esto falla.
+    """
+    salon = await montar_salon()
+    correo = _correo()
+
+    # La clienta: teléfono verificado, sin contraseña, y su correo puesto a mano en el perfil.
+    async with conexion_de_dueno() as sesion:
+        clienta = (
+            await sesion.execute(
+                text(
+                    """
+                    INSERT INTO users (full_name, phone_e164, phone_verified_at, email)
+                    VALUES ('Clienta de Teléfono', :telefono, now(), :correo)
+                    RETURNING id
+                    """
+                ),
+                {"telefono": f"+507{uuid.uuid4().int % 100_000_000:08d}", "correo": correo},
+            )
+        ).scalar_one()
+
+    async with _en_el_negocio(motor, salon.negocio_id) as sesion:
+        enviada = await servicio_miembros.invitar(
+            sesion,
+            negocio_id=salon.negocio_id,
+            invitado_por=salon.dueno_user_id,
+            correo=correo,
+            rol="profesional",
+        )
+        token = enviada.token
+        await sesion.commit()
+
+    async with _sin_negocio(motor) as sesion:
+        invitacion = await servicio_miembros.previsualizar(sesion, token=token)
+    assert (
+        invitacion.cuenta_ya_tiene_dueno is True
+    ), "La pantalla tiene que pedir entrar, no ofrecer elegir contraseña."
+
+    # Sin sesión: el token del correo no puede abrir la cuenta de nadie.
+    async with _sin_negocio(motor) as sesion:
+        with pytest.raises(NoAutorizado):
+            await servicio_miembros.aceptar(sesion, token=token, contrasena="la que yo quiera 2026")
+
+    # Con la sesión de otra persona tampoco.
+    async with _sin_negocio(motor) as sesion:
+        with pytest.raises(NoAutorizado):
+            await servicio_miembros.aceptar(
+                sesion, token=token, usuario_en_sesion=salon.dueno_user_id
+            )
+
+    # Y la cuenta sigue como estaba: sin contraseña que nadie le haya puesto.
+    async with conexion_de_dueno() as sesion:
+        con_contrasena = (
+            await sesion.execute(
+                text("SELECT password_hash IS NOT NULL FROM users WHERE id = :id"),
+                {"id": clienta},
+            )
+        ).scalar_one()
+    assert con_contrasena is False
+
+    # Estando dentro con su propia cuenta sí entra en el salón: no se ha cerrado el camino bueno.
+    async with _sin_negocio(motor) as sesion:
+        credenciales = await servicio_miembros.aceptar(
+            sesion, token=token, usuario_en_sesion=clienta
+        )
+        await sesion.commit()
+    assert credenciales.negocio_activo == salon.negocio_id

@@ -39,10 +39,11 @@ class InvitacionAbierta(BaseModel):
     correo: str
     nombre: str
     caduca: datetime
-    cuenta_con_contrasena: bool = Field(
+    cuenta_ya_tiene_dueno: bool = Field(
         description=(
-            "Cuando es falso, la cuenta la creó la invitación y aceptar incluye elegir "
-            "contraseña. Cuando es cierto, hay que estar dentro con esa cuenta"
+            "Cuando es falso, la cuenta la creó la invitación y no hay otra forma de entrar en "
+            "ella: aceptar incluye elegir contraseña. Cuando es cierto, hay que estar dentro "
+            "con esa cuenta"
         )
     )
 
@@ -71,7 +72,7 @@ async def ver(peticion: PeticionDeInvitacion, sesion: SesionPlataforma) -> Invit
         correo=invitacion.correo,
         nombre=invitacion.nombre,
         caduca=invitacion.caduca,
-        cuenta_con_contrasena=invitacion.cuenta_con_contrasena,
+        cuenta_ya_tiene_dueno=invitacion.cuenta_ya_tiene_dueno,
     )
 
 
@@ -85,12 +86,13 @@ async def aceptar(
 
     Dos caminos, y la diferencia importa:
 
-    * **La cuenta la creó la invitación** y no tiene contraseña: se elige aquí. El token es la
-      prueba de que ese buzón es suyo, así que el correo queda verificado — es exactamente lo
-      que demuestra haber recibido el enlace.
-    * **La cuenta ya existía con contraseña**: hace falta **estar dentro con ella**. Un token de
-      correo no puede dar acceso a una cuenta que ya tiene dueño; quien interceptara el enlace
-      entraría en la cuenta de otra persona y no solo en el salón.
+    * **La cuenta la creó la invitación** y no hay otra forma de entrar en ella: la contraseña
+      se elige aquí. El token es la prueba de que ese buzón es suyo, así que el correo queda
+      verificado — es exactamente lo que demuestra haber recibido el enlace.
+    * **La cuenta ya es de alguien** —contraseña, teléfono verificado o Google/Apple—: hace
+      falta **estar dentro con ella**. Un token de correo no puede dar acceso a una cuenta que
+      ya tiene dueño; quien interceptara el enlace entraría en la cuenta de otra persona y no
+      solo en el salón.
     """
     credenciales = await servicio_miembros.aceptar(
         sesion,

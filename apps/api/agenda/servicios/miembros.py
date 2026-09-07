@@ -82,9 +82,14 @@ class Invitacion:
     correo: str
     nombre: str
     caduca: datetime
-    #: Si la cuenta ya existe con contraseña. Cuando es `False`, aceptar incluye elegir una: el
-    #: token del correo es lo que demuestra que ese buzón es suyo.
-    cuenta_con_contrasena: bool
+    #: Si esa cuenta **ya es de alguien**. Cuando es `False` la creó esta invitación y no hay
+    #: otra forma de entrar en ella, así que aceptar incluye elegir contraseña: el token del
+    #: correo es lo que demuestra que ese buzón es suyo. Cuando es `True` hay que estar dentro
+    #: con esa cuenta.
+    #:
+    #: **Antes esto era «tiene contraseña», y ese atajo era el fallo**: una clienta que entra
+    #: por teléfono no tiene contraseña y su cuenta sí tiene dueño.
+    cuenta_ya_tiene_dueno: bool
 
 
 @dataclass(frozen=True)
@@ -505,6 +510,30 @@ async def _recargar(
 # ── Aceptar ───────────────────────────────────────────────────────────────────────────────
 
 
+async def ya_tiene_dueno(sesion: AsyncSession, usuario: User) -> bool:
+    """Si esa cuenta ya es de alguien, o es un cascarón que creó una invitación.
+
+    **La comprobación era «¿tiene contraseña?» y estaba mal.** Una cuenta puede tener dueño de
+    tres maneras: una contraseña, un teléfono verificado —así entra la clienta que reserva desde
+    el móvil, y esa cuenta lleva dentro sus citas— o una identidad de Google o Apple. Mirando
+    solo la contraseña, invitar al correo de una clienta que entró por teléfono **entregaba su
+    cuenta**: quien abriera el enlace elegía contraseña, recibía una sesión con su identificador
+    y su teléfono, y entraba con ella a partir de entonces. Reproducido en local de punta a
+    punta antes de arreglarlo.
+
+    Y basta con que el correo esté puesto en el perfil: ahí se guarda **sin verificar** (es para
+    la factura, no para entrar), así que ni siquiera hacía falta que el buzón fuera suyo.
+    """
+    if usuario.password_hash is not None or usuario.phone_verified_at is not None:
+        return True
+    identidades = (
+        await sesion.execute(
+            select(func.count()).select_from(AuthIdentity).where(AuthIdentity.user_id == usuario.id)
+        )
+    ).scalar_one()
+    return identidades > 0
+
+
 async def previsualizar(sesion: AsyncSession, *, token: str) -> Invitacion:
     """Lo que se enseña al abrir el enlace: qué salón, qué papel y si hay que elegir contraseña."""
     membresia, usuario = await _invitacion_viva(sesion, token)
@@ -521,7 +550,7 @@ async def previsualizar(sesion: AsyncSession, *, token: str) -> Invitacion:
         correo=usuario.email or "",
         nombre=usuario.full_name,
         caduca=membresia.invite_expires_at,
-        cuenta_con_contrasena=usuario.password_hash is not None,
+        cuenta_ya_tiene_dueno=await ya_tiene_dueno(sesion, usuario),
     )
 
 
@@ -537,16 +566,18 @@ async def aceptar(
 
     Dos caminos, y la diferencia importa:
 
-    * **La cuenta todavía no tiene contraseña** (la creó la invitación). Se elige aquí, y con
-      eso queda activada. El token es la prueba de que ese buzón es suyo, así que el correo se
-      da por verificado: es exactamente lo que demuestra haber recibido el enlace.
-    * **La cuenta ya existe y tiene contraseña.** Entonces hace falta **estar dentro con esa
-      cuenta**. Un token de correo no puede dar acceso a una cuenta que ya tiene dueño: quien
-      interceptara el enlace entraría en la cuenta de otra persona, no solo en el salón.
+    * **La cuenta la creó esta invitación** y no hay otra forma de entrar en ella. Se elige
+      contraseña aquí, y con eso queda activada. El token es la prueba de que ese buzón es
+      suyo, así que el correo se da por verificado: es exactamente lo que demuestra haber
+      recibido el enlace.
+    * **La cuenta ya es de alguien** —tiene contraseña, teléfono verificado o una identidad de
+      Google o Apple—. Entonces hace falta **estar dentro con esa cuenta**. Un token de correo
+      no puede dar acceso a una cuenta que ya tiene dueño: quien interceptara el enlace entraría
+      en la cuenta de otra persona, no solo en el salón.
     """
     membresia, usuario = await _invitacion_viva(sesion, token)
 
-    if usuario.password_hash is None:
+    if not await ya_tiene_dueno(sesion, usuario):
         if not contrasena:
             raise DatoInvalido("Elige una contraseña para activar tu cuenta.")
         servicio_identidad.revisar_contrasena(contrasena)

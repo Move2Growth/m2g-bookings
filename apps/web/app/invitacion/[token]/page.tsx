@@ -16,13 +16,13 @@ import { API, guardarSesion, leerSesion } from '@/lib/sesion'
  *
  * Son **dos formularios distintos en la misma pantalla**, y la diferencia no es cosmética:
  *
- * · `cuenta_con_contrasena: false` → la cuenta la creó la propia invitación. Se elige aquí la
- *   contraseña y con eso queda activada. Haber abierto el enlace es la prueba de que ese buzón
- *   es suyo.
- * · `cuenta_con_contrasena: true` → esa cuenta ya tiene dueño. Entonces **hay que estar dentro
- *   con ella**, y el token viaja con la sesión puesta. Un enlace de correo no puede dar acceso
- *   a la cuenta de otra persona: quien lo interceptara no entraría en un salón, entraría en una
- *   cuenta.
+ * · `cuenta_ya_tiene_dueno: false` → la cuenta la creó la propia invitación y no hay otra forma
+ *   de entrar en ella. Se elige aquí la contraseña y con eso queda activada. Haber abierto el
+ *   enlace es la prueba de que ese buzón es suyo.
+ * · `cuenta_ya_tiene_dueno: true` → esa cuenta es de alguien: tiene contraseña, teléfono
+ *   verificado o Google/Apple. Entonces **hay que estar dentro con ella**, y el token viaja con
+ *   la sesión puesta. Un enlace de correo no puede dar acceso a la cuenta de otra persona: quien
+ *   lo interceptara no entraría en un salón, entraría en una cuenta.
  *
  * En cliente y no en servidor porque `ver` es un POST con el token en el cuerpo, y porque al
  * aceptar hay que guardar la sesión que devuelve —ya en modo negocio— en el navegador.
@@ -34,7 +34,7 @@ type Invitacion = {
   correo: string
   nombre: string
   caduca: string
-  cuenta_con_contrasena: boolean
+  cuenta_ya_tiene_dueno: boolean
 }
 
 const PAPEL: Record<string, string> = {
@@ -95,7 +95,7 @@ export default function AceptarInvitacion({ params }: { params: Promise<{ token:
         },
         body: JSON.stringify({
           token,
-          contrasena: invitacion?.cuenta_con_contrasena ? undefined : contrasena,
+          contrasena: invitacion?.cuenta_ya_tiene_dueno ? undefined : contrasena,
           superficie: 'web',
         }),
       })
@@ -134,7 +134,7 @@ export default function AceptarInvitacion({ params }: { params: Promise<{ token:
   // Ya está dentro, pero con otra cuenta. Es el caso que más despista: la pantalla parece que
   // funciona y luego el servidor dice que no. Se avisa antes de que toque nada.
   const otraCuenta =
-    invitacion?.cuenta_con_contrasena === true && sesion === null
+    invitacion?.cuenta_ya_tiene_dueno === true && sesion === null
 
   return (
     <main className="contenedor seccion" style={{ maxWidth: '30rem' }}>
@@ -196,7 +196,7 @@ export default function AceptarInvitacion({ params }: { params: Promise<{ token:
             </p>
           )}
 
-          {invitacion.cuenta_con_contrasena ? (
+          {invitacion.cuenta_ya_tiene_dueno ? (
             otraCuenta ? (
               /* Ya tiene cuenta y no está dentro. No se le pide contraseña aquí —esta pantalla
                  no es la de acceso— y se le manda a entrar con el enlace de vuelta puesto, para

@@ -543,12 +543,13 @@ export interface paths {
          *
          *     Dos caminos, y la diferencia importa:
          *
-         *     * **La cuenta la creó la invitación** y no tiene contraseña: se elige aquí. El token es la
-         *       prueba de que ese buzón es suyo, así que el correo queda verificado — es exactamente lo
-         *       que demuestra haber recibido el enlace.
-         *     * **La cuenta ya existía con contraseña**: hace falta **estar dentro con ella**. Un token de
-         *       correo no puede dar acceso a una cuenta que ya tiene dueño; quien interceptara el enlace
-         *       entraría en la cuenta de otra persona y no solo en el salón.
+         *     * **La cuenta la creó la invitación** y no hay otra forma de entrar en ella: la contraseña
+         *       se elige aquí. El token es la prueba de que ese buzón es suyo, así que el correo queda
+         *       verificado — es exactamente lo que demuestra haber recibido el enlace.
+         *     * **La cuenta ya es de alguien** —contraseña, teléfono verificado o Google/Apple—: hace
+         *       falta **estar dentro con ella**. Un token de correo no puede dar acceso a una cuenta que
+         *       ya tiene dueño; quien interceptara el enlace entraría en la cuenta de otra persona y no
+         *       solo en el salón.
          */
         post: operations["aceptar_api_v1_invitaciones_aceptar_post"];
         delete?: never;
@@ -1484,7 +1485,19 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** El equipo del salón (STF-1, STF-2) */
+        /**
+         * El equipo del salón (STF-1, STF-2)
+         * @description El equipo, **incluidas las bajas** salvo que se pidan solo los activos.
+         *
+         *     `incluir_inactivos` existía y no hacía nada: la consulta descartaba siempre a quien tuviera
+         *     `deleted_at`, y dar de baja a alguien es justamente lo que lo rellena. O sea que la baja
+         *     lógica se comportaba como un borrado.
+         *
+         *     La consecuencia se ve al forzar una baja: las citas de esa persona **siguen vivas en la
+         *     agenda** —a propósito, para que no desaparezcan sin avisar—, pero llegan con su identificador
+         *     y el panel ya no podía ponerle nombre. El dueño veía doce citas sin dueño y el aviso le decía
+         *     «muévelas», sin manera de saber cuáles eran.
+         */
         get: operations["listar_profesionales_api_v1_negocio_profesionales_get"];
         put?: never;
         /**
@@ -3387,10 +3400,10 @@ export interface components {
             /** Correo */
             correo: string;
             /**
-             * Cuenta Con Contrasena
-             * @description Cuando es falso, la cuenta la creó la invitación y aceptar incluye elegir contraseña. Cuando es cierto, hay que estar dentro con esa cuenta
+             * Cuenta Ya Tiene Dueno
+             * @description Cuando es falso, la cuenta la creó la invitación y no hay otra forma de entrar en ella: aceptar incluye elegir contraseña. Cuando es cierto, hay que estar dentro con esa cuenta
              */
-            cuenta_con_contrasena: boolean;
+            cuenta_ya_tiene_dueno: boolean;
             /** Negocio */
             negocio: string;
             /** Nombre */
@@ -7882,6 +7895,7 @@ export interface operations {
     listar_profesionales_api_v1_negocio_profesionales_get: {
         parameters: {
             query?: {
+                /** @description Incluye a quien ya está de baja, marcado con activo=false */
                 incluir_inactivos?: boolean;
             };
             header?: {

@@ -2935,9 +2935,9 @@
             "title": "Correo",
             "type": "string"
           },
-          "cuenta_con_contrasena": {
-            "description": "Cuando es falso, la cuenta la creó la invitación y aceptar incluye elegir contraseña. Cuando es cierto, hay que estar dentro con esa cuenta",
-            "title": "Cuenta Con Contrasena",
+          "cuenta_ya_tiene_dueno": {
+            "description": "Cuando es falso, la cuenta la creó la invitación y no hay otra forma de entrar en ella: aceptar incluye elegir contraseña. Cuando es cierto, hay que estar dentro con esa cuenta",
+            "title": "Cuenta Ya Tiene Dueno",
             "type": "boolean"
           },
           "negocio": {
@@ -2960,7 +2960,7 @@
           "correo",
           "nombre",
           "caduca",
-          "cuenta_con_contrasena"
+          "cuenta_ya_tiene_dueno"
         ],
         "title": "InvitacionAbierta",
         "type": "object"
@@ -9016,7 +9016,7 @@
     },
     "/api/v1/invitaciones/aceptar": {
       "post": {
-        "description": "Acepta y devuelve una sesión **ya en modo negocio**: se entra y se está dentro.\n\nDos caminos, y la diferencia importa:\n\n* **La cuenta la creó la invitación** y no tiene contraseña: se elige aquí. El token es la\n  prueba de que ese buzón es suyo, así que el correo queda verificado — es exactamente lo\n  que demuestra haber recibido el enlace.\n* **La cuenta ya existía con contraseña**: hace falta **estar dentro con ella**. Un token de\n  correo no puede dar acceso a una cuenta que ya tiene dueño; quien interceptara el enlace\n  entraría en la cuenta de otra persona y no solo en el salón.",
+        "description": "Acepta y devuelve una sesión **ya en modo negocio**: se entra y se está dentro.\n\nDos caminos, y la diferencia importa:\n\n* **La cuenta la creó la invitación** y no hay otra forma de entrar en ella: la contraseña\n  se elige aquí. El token es la prueba de que ese buzón es suyo, así que el correo queda\n  verificado — es exactamente lo que demuestra haber recibido el enlace.\n* **La cuenta ya es de alguien** —contraseña, teléfono verificado o Google/Apple—: hace\n  falta **estar dentro con ella**. Un token de correo no puede dar acceso a una cuenta que\n  ya tiene dueño; quien interceptara el enlace entraría en la cuenta de otra persona y no\n  solo en el salón.",
         "operationId": "aceptar_api_v1_invitaciones_aceptar_post",
         "parameters": [
           {
@@ -12546,14 +12546,17 @@
     },
     "/api/v1/negocio/profesionales": {
       "get": {
+        "description": "El equipo, **incluidas las bajas** salvo que se pidan solo los activos.\n\n`incluir_inactivos` existía y no hacía nada: la consulta descartaba siempre a quien tuviera\n`deleted_at`, y dar de baja a alguien es justamente lo que lo rellena. O sea que la baja\nlógica se comportaba como un borrado.\n\nLa consecuencia se ve al forzar una baja: las citas de esa persona **siguen vivas en la\nagenda** —a propósito, para que no desaparezcan sin avisar—, pero llegan con su identificador\ny el panel ya no podía ponerle nombre. El dueño veía doce citas sin dueño y el aviso le decía\n«muévelas», sin manera de saber cuáles eran.",
         "operationId": "listar_profesionales_api_v1_negocio_profesionales_get",
         "parameters": [
           {
+            "description": "Incluye a quien ya está de baja, marcado con activo=false",
             "in": "query",
             "name": "incluir_inactivos",
             "required": false,
             "schema": {
               "default": true,
+              "description": "Incluye a quien ya está de baja, marcado con activo=false",
               "title": "Incluir Inactivos",
               "type": "boolean"
             }
