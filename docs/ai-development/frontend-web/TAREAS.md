@@ -1,4 +1,4 @@
-# Tareas: Frontend Web — **Estado: sin iniciar**
+# Tareas: Frontend Web — **Estado: en proceso**
 
 > Derivadas de la guía de lanzamiento por fase (`../README.md` §3). **Ninguna pantalla se construye antes de que el Mockuper la haya prototipado**, y **ninguna del bloque 1.e antes de que Luis haya visto el motor de disponibilidad** (puerta de parada).
 > Estados de tarea: `pendiente` · `en curso` · `bloqueada` · `hecha` · `validada`.
@@ -18,3 +18,22 @@
 | FE-T010 | **El flujo de reserva del cliente** (RSV-1): negocio → servicio → profesional o «cualquiera» → fecha y hora → confirmar, en **como mucho tres pantallas** tras elegir servicio, con la **política de cancelación visible antes de reservar** y el teléfono verificado obligatorio (D9) | 2 | apps/web | pendiente | FE-T007, BE-T010, MCK-T005 | Alguien que no conoce el producto **reserva sin ayuda**; se cuentan **tres pantallas**, no cinco; si el hueco se acaba de ocupar, el mensaje se entiende y **no se reintenta solo** |
 | FE-T011 | **Reviews y favoritos** (REV-1 a REV-3, MKT-5): dejar una review solo con reserva completada, ver la respuesta del negocio, guardar favoritos y compartir el perfil | 2 | apps/web | pendiente | FE-T010, BE-T019 | No hay ninguna vía en la interfaz para dejar una review sin haber ido; el rating que se pinta es **el bayesiano**, no la media simple |
 | FE-T012 | **Los resultados patrocinados** (MKT-4): etiquetados **«Patrocinado»**, intercalados, **como mucho 2 de cada 10** y **sin desplazar a un orgánico fuera de la página** | 2 | apps/web | pendiente | FE-T008, BE-T018 | Se cuentan en pantalla: nunca más de 2 por cada 10, siempre etiquetados, y **el orgánico que estaba en la página sigue en la página** |
+
+## El portal del dueño (encargo del 7-sep, punto 6)
+
+> Las siete pantallas «Del dueño» de [`../../producto/PANTALLAS-PENDIENTES.md`](../../producto/PANTALLAS-PENDIENTES.md).
+> Bitácora: [`BITACORA/0001-portal-del-dueno.md`](BITACORA/0001-portal-del-dueno.md).
+> **Se construyen con el vocabulario de clases que ya existe**: la dirección visual está en
+> revisión y se sustituye entera, así que lo que tiene que ser impecable es la estructura, el
+> comportamiento y los tres estados —cargando, vacío y error—, no el color.
+
+| ID | Descripción | Fase | Zona | Estado | Depende de | Criterio de aceptación |
+|---|---|---|---|---|---|---|
+| FE-T013 | **La zona del dueño, diferenciada** (`/panel/local`): armazón propio con nombre y navegación de siete secciones, primera pestaña del dueño, y **portada «Tu local hoy»** con las cuatro cifras del día | 1.e | apps/web | hecha | BE-T036 | Un profesional que escriba una URL del dueño acaba en su agenda **sin sermón**, y no ve la pestaña; el dueño distingue su zona sin mirar el color |
+| FE-T014 | **Todos los calendarios** (AGD-2): el día del salón con **una columna por persona**, con carril de horas quieto, arrastre a lo ancho y **elegir a quién ver** | 1.e | apps/web | hecha | FE-T013 | A 390 px con cuatro personas **ni un texto baja de 15 px** y el documento no desborda; elegir a una persona la pone a pantalla completa |
+| FE-T015 | **Finanzas**: lo facturado por **día, semana y mes**, con ticket medio y **cuántas citas no tenían precio**, filtrable por persona | 1.e | apps/web | hecha | FE-T013 | Las citas sin precio salen con el mismo peso que el total y se dice que **no suman**; ni un importe se recalcula en el navegador |
+| FE-T016 | **Mejor del mes**: por importe o por número de servicios, filtrable por categoría y navegable por meses | 1.e | apps/web | hecha | FE-T013 | Sale **el equipo entero**, no solo el primero, y se ve a cuánto está cada uno del de arriba |
+| FE-T017 | **Publicidad flash**: escribir el banner, ponerle fecha de fin, apagarlo y **ver cómo va a quedar** en la ficha pública — que además pasa a **pintarlo** | 1.e | apps/web | hecha | FE-T013 | Lo que se ve en la previsualización es lo que sale en la ficha, comprobado de punta a punta; apagarlo **no lo borra** |
+| FE-T018 | **Fichaje**: el interruptor **persona a persona** —nace apagado— y el parte de horas | 1.e | apps/web | hecha | FE-T013 | No existe ningún interruptor «para todo el salón»; la pantalla dice que apagarlo **no borra** lo ya fichado, antes de tocarlo |
+| FE-T019 | **Personas del local**: invitar por correo con su papel, cambiar de papel y quitar a alguien | 1.e | apps/web | hecha | FE-T013 | Al **último dueño** no se le ofrece quitar ni bajar de papel, y se explica **antes**, no en el error; quitar pide confirmación y dice qué se conserva |
+| FE-T020 | **El alta del local en tres pasos** (`/panel/alta`): crear el local → asignar personas → dar de alta servicios, con el **precio opcional** | 1.e | apps/web | hecha | — | La pantalla ofrece **«A consultar»** con esas palabras y no obliga a inventarse un número; el paso de las personas se puede saltar; cada paso guarda al terminarlo |

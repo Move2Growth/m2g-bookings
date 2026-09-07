@@ -52,6 +52,9 @@ export type Perfil = NegocioEnLista & {
   /** Si tiene WhatsApp configurado. **Nunca llega el número**: solo si existe el botón, y el
    *  salto lo resuelve el servidor. */
   tiene_whatsapp?: boolean
+  /** El cartel que ha escrito el salón, **solo si está vigente ahora mismo**: quién decide si se
+   *  enseña es el servidor, no esta página. Nulo cuando no hay ninguno encendido. */
+  anuncio?: { texto: string; hasta: string | null } | null
 }
 
 export type ResenaPublica = {

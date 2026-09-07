@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
 import { Error as BloqueDeError, Vacio } from '@/componentes/estados'
 import { Iconos } from '@/componentes/pestanas'
@@ -88,6 +89,18 @@ export default function Agenda() {
         {/* El título va oculto y no impreso: la barra de días de debajo ya dice de qué va la
             pantalla, pero sin un h1 quien navega con lector de pantalla no sabe dónde está. */}
         <h1 className="oculto-visualmente">Agenda del salón</h1>
+
+        {/* El atajo a los calendarios de todo el equipo. Es la pantalla del dueño que más se usa
+            y estaba a dos toques; desde aquí está a uno, que es donde ya está mirando. A un
+            profesional no se le enseña: esa pantalla no es suya y el enlace acabaría en un
+            desvío. */}
+        {sesion?.negocio_rol !== 'profesional' && (
+          <p style={{ marginBottom: 'var(--espacio-3)' }}>
+            <Link href="/panel/local/calendarios" className="boton boton--secundario">
+              Ver los calendarios de todo el equipo
+            </Link>
+          </p>
+        )}
 
         {/* Una sola barra de contexto. Cada barra fija que se añade es una cita menos en
             pantalla, y en un teléfono eso se nota enseguida. */}

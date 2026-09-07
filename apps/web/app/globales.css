@@ -2689,3 +2689,195 @@ h1, h2, .titular-adaptativo { }
 .resultado { text-decoration: none; }
 .resultado__nombre { text-decoration: none; }
 .resultado__sello .rotulo__nombre { font-size: clamp(24px, 6vw, 34px); }
+
+/* La fila de una lista del panel puede ser un botón o un enlace, y en los dos casos la pieza
+   pulsable es **la fila entera**. Siendo enlace heredaba el subrayado de la prosa, que dentro de
+   algo que ya se pulsa entero sugiere que hay un segundo destino dentro. */
+.fila__boton { text-decoration: none; }
+
+/* ══ El día del salón en columnas ═════════════════════════════════════════════
+   La rejilla de «todos los calendarios»: una columna por persona sobre un carril de horas.
+   Es lo único que se añade a este archivo para el portal del dueño, y se añade porque **no
+   existe**: ninguna clase de aquí coloca cajas por hora en columnas paralelas.
+
+   Aquí no hay ni un color ni una tipografía propios. Los bordes salen de los tokens y los
+   colores de estado son los mismos que usa la agenda en lista: un mismo estado no puede tener
+   dos colores según la pantalla. Cuando cambie la dirección visual, esto sigue midiendo lo
+   mismo y se pinta distinto solo.
+
+   Tres decisiones, y las tres son de tamaño, no de gusto:
+
+   · **El texto no baja de 15 px.** A 390 px no caben cuatro columnas legibles, así que la
+     solución **no** es encoger la letra: el carril se arrastra a lo ancho y, si aun así se
+     quiere una sola persona, se elige arriba. Encoger a 12 px habría hecho caber las cuatro
+     columnas y habría hecho ilegible la pantalla que más se mira.
+   · **La hora mide 92 px.** Con eso, una cita de quince minutos son 23 px y cabe una línea
+     entera; con menos, el nombre de la clienta se corta en todas las citas cortas del salón.
+   · **El carril se desplaza dentro de sí mismo**, nunca la página. Un desbordamiento horizontal
+     del documento entero es lo que hace que un teléfono se arrastre en diagonal.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.jornada {
+  --jornada-hora: 92px;
+  --jornada-cabecera: 40px;
+  --jornada-columna: 150px;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  margin-top: var(--espacio-4);
+  border-top: 1px solid var(--color-borde-fuerte);
+}
+
+/* El carril de horas se baja lo que mide la cabecera de las columnas, porque la cabecera va
+   dentro de cada columna: si fuera una fila aparte del mismo grid haría falta un segundo
+   desplazamiento horizontal, y dos desplazamientos que tienen que ir sincronizados a mano se
+   desincronizan el día que alguien arrastra rápido. */
+.jornada__horas { padding-top: var(--jornada-cabecera); }
+
+.jornada__hora {
+  height: var(--jornada-hora);
+  padding-right: var(--espacio-2);
+  border-top: 1px solid var(--color-borde);
+  font-size: var(--tipografia-tamano-menor);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+  color: var(--color-tinta-tenue);
+  text-align: right;
+}
+
+.jornada__hora:first-child { border-top: 0; }
+
+.jornada__carril {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  min-width: 0;
+}
+
+.jornada__columnas {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(var(--jornada-columna), 1fr);
+  min-width: 100%;
+}
+
+/* Con una sola persona elegida la columna llena el ancho: elegir a quién ver tiene que servir
+   para ver mejor, no para dejar una columna estrecha con el resto en blanco. */
+.jornada--una .jornada__columnas { grid-auto-columns: minmax(0, 1fr); }
+
+.jornada__col { min-width: 0; border-left: 1px solid var(--color-borde); }
+
+.jornada__cab {
+  height: var(--jornada-cabecera);
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  padding-inline: var(--espacio-2);
+  background: var(--color-arena);
+  border-bottom: 1px solid var(--color-borde-fuerte);
+  font-size: var(--tipografia-tamano-cuerpo);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.jornada__cab b {
+  font-weight: var(--tipografia-pesos-medio);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.jornada__cab small { color: var(--color-tinta-tenue); font-size: var(--tipografia-tamano-menor); }
+
+.jornada__pista { position: relative; }
+
+.jornada__linea { height: var(--jornada-hora); border-top: 1px solid var(--color-borde); }
+
+.jornada__linea:first-child { border-top: 0; }
+
+.jornada__piezas { position: absolute; inset: 0; }
+
+/* Una cita colocada por hora. El filo de la izquierda lleva el color del estado. */
+.jornada__cita {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  overflow: hidden;
+  padding: 3px var(--espacio-2);
+  background: var(--color-lienzo);
+  border: 1px solid var(--color-borde);
+  border-left: var(--filo-grosor) solid var(--color-borde-fuerte);
+}
+
+.jornada__cita b,
+.jornada__cita span,
+.jornada__cita time {
+  display: block;
+  font-size: 15px;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.jornada__cita b { font-weight: var(--tipografia-pesos-fuerte); }
+
+.jornada__cita span { color: var(--color-tinta-suave); }
+
+.jornada__cita time {
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+  color: var(--color-tinta-tenue);
+}
+
+.jornada__cita--pendiente  { border-left-color: var(--estado-reserva-pendiente-texto); }
+.jornada__cita--confirmada { border-left-color: var(--estado-reserva-confirmada-texto); }
+.jornada__cita--completada { border-left-color: var(--estado-reserva-completada-texto); }
+.jornada__cita--no_show    { border-left-color: var(--estado-reserva-no_show-texto); }
+
+.jornada__cita--cancelada_cliente,
+.jornada__cita--cancelada_negocio {
+  border-left-color: var(--estado-reserva-cancelada-texto);
+  background: var(--color-papel);
+}
+
+.jornada__cita--cancelada_cliente b,
+.jornada__cita--cancelada_negocio b {
+  text-decoration: line-through;
+  color: var(--color-tinta-tenue);
+}
+
+/* Un bloqueo no es una cita: lleva el rayado y no tiene sello de estado. */
+.jornada__cita--bloqueo {
+  background-color: var(--color-arena);
+  background-image: var(--trama-rayado);
+  border-left-color: var(--color-borde-fuerte);
+  color: var(--color-tinta-suave);
+}
+
+/* La línea de «ahora». Solo se pinta en el día de hoy: en otro día no significa nada. */
+.jornada__ahora {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-abre);
+}
+
+.jornada__ahora::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  background: var(--color-abre);
+}
+
+/* Una columna sin nada no se deja en blanco: en blanco no se distingue de «no ha cargado». */
+.jornada__libre {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--espacio-3);
+  text-align: center;
+  color: var(--color-tinta-tenue);
+  font-size: 15px;
+}

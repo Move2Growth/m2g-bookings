@@ -20,8 +20,11 @@
 import { chromium } from 'playwright'
 import { createHmac } from 'node:crypto'
 
-const BASE = 'http://localhost:3100'
-const API = 'http://localhost:8000'
+//: El puerto se puede cambiar con `BASE=http://localhost:3300 node scripts/barrer-pantallas.mjs`.
+//: Hace falta cuando alguien trabaja en un árbol aparte y levanta **su** web en otro puerto: sin
+//: esto barrería la del repositorio principal y diría que todo va bien sin haber mirado su código.
+const BASE = process.env.BASE ?? 'http://localhost:3100'
+const API = process.env.API ?? 'http://localhost:8000'
 //: 390 es un iPhone y es donde vive esto; 1440 es un portátil. Se barren los dos porque los
 //: fallos son distintos: en el teléfono desborda, en el escritorio se estira sin límite.
 const ANCHOS = [390, 1440]
@@ -30,6 +33,19 @@ let ANCHO = ANCHOS[0]
 const PUBLICAS = ['/', '/buscar', '/barberia-el-cangrejo', '/como-funciona', '/para-negocios', '/entrar']
 const CLIENTA = ['/mi/citas', '/mi/favoritos', '/mi/perfil']
 const NEGOCIO = ['/panel', '/panel/agenda', '/panel/servicios', '/panel/equipo', '/panel/clientes', '/panel/ficha']
+//: El portal del dueño. Va aparte de NEGOCIO porque es una zona con su propia navegación y
+//: porque un profesional **no puede entrar**: barrerlas con la sesión equivocada solo mediría el
+//: desvío. El alta del local se barre aquí aunque no necesite negocio: la abre un dueño.
+const DUENO = [
+  '/panel/local',
+  '/panel/local/calendarios',
+  '/panel/local/finanzas',
+  '/panel/local/mejor-del-mes',
+  '/panel/local/publicidad',
+  '/panel/local/fichaje',
+  '/panel/local/personas',
+  '/panel/alta',
+]
 const CONSOLA = ['/consola', '/consola/negocios', '/consola/moderacion', '/consola/metricas', '/consola/ranking']
 
 //: La cuenta de consola de la semilla. Vive solo en local y su secreto está en `semilla.py`;
@@ -114,11 +130,13 @@ const conNegocio = await fetch(`${API}/api/v1/auth/modo-negocio`, {
   headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${duena.acceso}` },
   body: JSON.stringify({ negocio_id: negocios[0].id }),
 }).then((r) => r.json())
-await barrer('Dueña de salón', NEGOCIO, {
+const sesionDeDuena = {
   ...conNegocio,
   negocio_nombre: negocios[0].nombre,
   negocio_rol: negocios[0].rol,
-})
+}
+await barrer('Dueña de salón', NEGOCIO, sesionDeDuena)
+await barrer('Portal del dueño', DUENO, sesionDeDuena)
 
 // La consola es otro sistema de acceso entero: otras tablas, otro rol de base de datos y
 // segundo factor obligatorio. Por eso entra por su propia puerta y guarda en otra llave.

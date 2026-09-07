@@ -10,6 +10,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@agenda/api-types':
+        specifier: workspace:*
+        version: link:../../packages/api-types
       '@agenda/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
