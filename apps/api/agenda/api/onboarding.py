@@ -29,7 +29,7 @@ from agenda.api.dependencias import (
     exigir_dueno,
     identidad_actual,
 )
-from agenda.errores import FaltaMinimoParaPublicar, NoAutorizado
+from agenda.errores import DatoInvalido, FaltaMinimoParaPublicar, NoAutorizado
 from agenda.modelos.base import nuevo_id
 from agenda.modelos.catalogo import Service, ServiceCategory
 from agenda.modelos.equipo import StaffHours, StaffProfile, StaffService
@@ -297,6 +297,16 @@ async def crear_servicio(alta: AltaDeServicio, sesion_negocio: SesionNegocio) ->
     ).scalar_one_or_none()
     if categoria is None:
         raise NoAutorizado("Esa categoría no existe.")
+
+    # El precio es opcional, pero «opcional» no es «incoherente»: `fijo` y `desde` necesitan
+    # importe y `consultar` no lleva ninguno. La base lo impide con una restricción, así que sin
+    # esta comprobación el alta salía con **500** en vez de con una frase que se entiende. Editar
+    # un servicio ya lo comprobaba; crearlo, no.
+    if alta.tipo_de_precio != "consultar" and alta.precio_centavos is None:
+        raise DatoInvalido(
+            "Un servicio con precio fijo o «desde» necesita un importe. "
+            "Si todavía no lo sabes, ponlo «a consultar»."
+        )
 
     servicio = Service(
         business_id=identidad.negocio_id,
