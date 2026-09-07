@@ -31,8 +31,12 @@ class Ajustes(BaseSettings):
     # `localhost` y `127.0.0.1` **no son el mismo origen** para el navegador, y entrar por uno
     # u otro es cuestión de qué escribió la persona en la barra. Faltando uno, la pantalla
     # carga pero ninguna petición sale, que es de los fallos más desconcertantes que hay.
+    # Los puertos 3200 y 3300 son para levantar una segunda o tercera copia de la web mientras se
+    # trabaja en paralelo. Sin ellos, esa copia carga la pantalla y **no sale ni una petición**,
+    # que es el fallo más desconcertante que hay: parece un problema del código de la pantalla.
     origenes_permitidos: str = (
-        "http://localhost:3000,http://localhost:3100," "http://127.0.0.1:3000,http://127.0.0.1:3100"
+        "http://localhost:3000,http://localhost:3100,http://localhost:3200,http://localhost:3300,"
+        "http://127.0.0.1:3000,http://127.0.0.1:3100,http://127.0.0.1:3200,http://127.0.0.1:3300"
     )
 
     # Panamá no tiene horario de verano, pero el instante se guarda en UTC igual: el modelo

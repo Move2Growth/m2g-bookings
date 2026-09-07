@@ -6,7 +6,7 @@ API     := $(COMPOSE) exec -T api
 
 .DEFAULT_GOAL := ayuda
 
-.PHONY: ayuda arriba abajo logs migrar migracion semilla pruebas barrer variables lint contrato consola reiniciar limpiar
+.PHONY: ayuda arriba abajo logs migrar migracion semilla pruebas barrer variables lint recargar contrato consola reiniciar limpiar
 
 ayuda:  ## Muestra esta ayuda
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -59,6 +59,12 @@ contrato:  ## Regenera el OpenAPI y los tipos de packages/api-types
 
 consola:  ## Abre una consola de psql en la base local
 	$(COMPOSE) exec db psql -U agenda_owner -d agenda
+
+recargar:  ## Aplica cambios del .env a los contenedores (restart NO los relee)
+	# `docker compose restart` reinicia el proceso pero **conserva el entorno con el que se creó
+	# el contenedor**: un cambio en el .env no llega, y el síntoma es que la pantalla carga y no
+	# sale ni una petición. Hay que recrear.
+	$(COMPOSE) up -d --force-recreate api worker planificador
 
 reiniciar:  ## Recrea la base desde cero: borra los datos, migra y siembra
 	$(COMPOSE) down -v
