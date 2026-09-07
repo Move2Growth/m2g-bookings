@@ -123,6 +123,15 @@ async function sesionDe(correo) {
   return r.json()
 }
 
+/**
+ * `llave` dice **dónde** guarda su sesión cada zona, y no es un detalle: la consola la guarda en
+ * `sessionStorage` a propósito —muere al cerrar la pestaña, que es lo que se quiere de una sesión
+ * con acceso a todos los negocios— y el resto en `localStorage`.
+ *
+ * Guardarlas todas en `localStorage` hacía que **las cinco pantallas de la consola se barrieran
+ * sin sesión**: respondían 200 porque su armazón carga igual, y el barrido las daba por buenas
+ * sin haber mirado ni una.
+ */
 async function barrer(titulo, rutas, sesion, llave = 'agenda.sesion') {
   console.log(`\n── ${titulo} ──`)
   const pagina = await navegador.newPage({ viewport: { width: ANCHO, height: 844 } })
@@ -131,8 +140,12 @@ async function barrer(titulo, rutas, sesion, llave = 'agenda.sesion') {
   if (sesion) {
     await pagina.goto(BASE, { waitUntil: 'domcontentloaded' })
     await pagina.evaluate(
-      ([clave, valor]) => window.localStorage.setItem(clave, JSON.stringify(valor)),
-      [llave, sesion],
+      ([clave, valor, enSesion]) =>
+        (enSesion ? window.sessionStorage : window.localStorage).setItem(
+          clave,
+          JSON.stringify(valor),
+        ),
+      [llave, sesion, llave === 'agenda.consola'],
     )
   }
   for (const ruta of rutas) {

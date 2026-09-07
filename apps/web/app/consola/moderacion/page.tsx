@@ -14,6 +14,11 @@ import { conConsola, leerSesionDeConsola, type SesionDeConsola } from '@/lib/con
  *
  * Las dos salidas están al mismo nivel. Poner «ocultar» como acción principal empuja a ocultar,
  * y la mayoría de los reportes son de un negocio al que no le gustó una nota de tres.
+ *
+ * Debajo van **las fotos de trabajo de los profesionales**, que no son una cola: se publican
+ * solas —pre-moderarlas dejaría todas las galerías vacías el primer día— y esto es la manera de
+ * retirar una. Van en la misma pantalla porque quien modera reseñas es quien modera fotos, y
+ * repartirlo en dos sitios significa que uno de los dos no se mira nunca.
  */
 
 type Reporte = {
@@ -30,6 +35,19 @@ type Reporte = {
   fecha: string
 }
 
+type FotoDeTrabajo = {
+  foto_id: string
+  profesional_id: string
+  profesional: string
+  negocio: string
+  negocio_slug: string
+  url: string | null
+  descripcion: string | null
+  servicio: string | null
+  estado: string
+  fecha: string
+}
+
 const MOTIVOS: Record<string, string> = {
   ofensiva: 'Ofensiva',
   falsa: 'Dice que es falsa',
@@ -43,6 +61,8 @@ export default function Moderacion() {
   const [cola, setCola] = useState<Reporte[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [resolviendo, setResolviendo] = useState<string | null>(null)
+  const [fotos, setFotos] = useState<FotoDeTrabajo[] | null>(null)
+  const [decidiendo, setDecidiendo] = useState<string | null>(null)
 
   useEffect(() => setSesion(leerSesionDeConsola()), [])
 
@@ -57,9 +77,45 @@ export default function Moderacion() {
     }
   }, [])
 
+  const cargarFotos = useCallback(async (actual: SesionDeConsola) => {
+    try {
+      setFotos(
+        await conConsola<FotoDeTrabajo[]>('/api/v1/consola/moderacion/fotos', {
+          token: actual.acceso,
+        }),
+      )
+    } catch {
+      // Un fallo aquí no puede tapar la cola de reseñas, que es lo urgente de esta pantalla.
+      setFotos([])
+    }
+  }, [])
+
   useEffect(() => {
-    if (sesion) void cargar(sesion)
-  }, [sesion, cargar])
+    if (sesion) {
+      void cargar(sesion)
+      void cargarFotos(sesion)
+    }
+  }, [sesion, cargar, cargarFotos])
+
+  async function decidirFoto(foto: FotoDeTrabajo, accion: 'aprobar' | 'rechazar') {
+    if (!sesion) return
+    setDecidiendo(foto.foto_id)
+    try {
+      const actualizada = await conConsola<FotoDeTrabajo>(
+        `/api/v1/consola/moderacion/fotos/${foto.foto_id}`,
+        { metodo: 'POST', token: sesion.acceso, cuerpo: { accion } },
+      )
+      // Aquí **no** se saca de la lista: a diferencia de un reporte, una foto rechazada se puede
+      // querer devolver, y hacerla desaparecer obligaría a buscarla otra vez para deshacerlo.
+      setFotos((previas) =>
+        (previas ?? []).map((f) => (f.foto_id === foto.foto_id ? actualizada : f)),
+      )
+    } catch (fallo) {
+      setError(fallo instanceof Error ? fallo.message : 'No se pudo cambiar el estado de la foto.')
+    } finally {
+      setDecidiendo(null)
+    }
+  }
 
   async function resolver(reporte: Reporte, accion: 'ocultar' | 'mantener') {
     if (!sesion) return
@@ -157,6 +213,95 @@ export default function Moderacion() {
           ))}
         </ul>
       )}
+
+      <section style={{ marginTop: 'var(--espacio-7)' }}>
+        <div className="cabeza-seccion">
+          <h2 style={{ fontSize: 'var(--tipografia-tamano-titulo-3)' }}>Fotos de trabajo</h2>
+          {fotos && fotos.length > 0 && (
+            <span className="tenue cifras">{fotos.length} recientes</span>
+          )}
+        </div>
+
+        <p className="tenue" style={{ marginBottom: 'var(--espacio-4)' }}>
+          Se publican solas: aprobarlas una a una dejaría todas las galerías vacías el primer día.
+          Esto es para <strong>bajar una</strong>, y la retira de la ficha pública en el acto.
+        </p>
+
+        {fotos === null && <Esqueleto filas={2} alto={110} etiqueta="Cargando las fotos" />}
+
+        {fotos !== null && fotos.length === 0 && (
+          <Vacio
+            icono={Iconos.ficha}
+            titulo="Ninguna foto todavía"
+            texto="Cuando un profesional suba una foto de su trabajo, aparecerá aquí."
+          />
+        )}
+
+        {fotos && fotos.length > 0 && (
+          <ul className="reportes escalona">
+            {fotos.map((f) => (
+              <li key={f.foto_id} className="reporte">
+                <p className="reporte__cabeza">
+                  <span className="etiqueta">
+                    {f.estado === 'rechazada' ? 'Retirada' : 'Publicada'}
+                  </span>
+                  <span className="tenue">
+                    {f.profesional} · {f.negocio}
+                    {f.servicio ? ` · ${f.servicio}` : ' · de su galería'}
+                  </span>
+                </p>
+
+                {/* La foto, del tamaño en el que se decide. Sin verla, moderar es adivinar. */}
+                {f.url && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={f.url}
+                    alt={f.descripcion ?? ''}
+                    style={{
+                      width: '100%',
+                      maxWidth: '260px',
+                      aspectRatio: '4 / 3',
+                      objectFit: 'cover',
+                      border: '1px solid var(--color-borde-fuerte)',
+                    }}
+                  />
+                )}
+                {f.descripcion && <p>{f.descripcion}</p>}
+
+                <div className="acciones">
+                  {f.estado === 'rechazada' ? (
+                    <button
+                      type="button"
+                      className="boton boton--secundario"
+                      disabled={decidiendo === f.foto_id}
+                      onClick={() => decidirFoto(f, 'aprobar')}
+                    >
+                      Devolverla
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="boton boton--secundario"
+                      disabled={decidiendo === f.foto_id}
+                      onClick={() => decidirFoto(f, 'rechazar')}
+                    >
+                      Retirarla
+                    </button>
+                  )}
+                  <a
+                    className="boton boton--llano"
+                    href={`/${f.negocio_slug}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Ver el salón
+                  </a>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   )
 }
