@@ -324,15 +324,31 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
           )}
 
           {perfil.equipo.length > 0 && (
+            /* El equipo deja de ser una lista de nombres y pasa a ser la puerta al perfil de
+               cada persona (encargo §3): quien quiere elegir con quién se atiende empieza aquí.
+               Se enlaza por slug, y por identificador cuando la ficha todavía no tiene: un nulo
+               en una columna no puede dejar a nadie sin página. */
             <section className="bloque-panel">
               <h2>Quién te atiende</h2>
               <ul className="equipo">
                 {perfil.equipo.map((p) => (
-                  <li key={p.id} className="equipo__persona">
-                    <span className="equipo__inicial" aria-hidden="true">
-                      {p.nombre.trim().charAt(0)}
-                    </span>
-                    <span>{p.nombre}</span>
+                  <li key={p.id}>
+                    <Link href={`/${perfil.slug}/${p.slug ?? p.id}`} className="equipo__persona">
+                      <span className="equipo__inicial" aria-hidden="true">
+                        {p.nombre.trim().charAt(0)}
+                      </span>
+                      <span>
+                        {p.nombre}
+                        {p.titular && (
+                          <span
+                            className="tenue"
+                            style={{ display: 'block', fontSize: 'var(--tipografia-tamano-menor)' }}
+                          >
+                            {p.titular}
+                          </span>
+                        )}
+                      </span>
+                    </Link>
                   </li>
                 ))}
               </ul>
