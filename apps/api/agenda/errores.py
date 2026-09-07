@@ -105,6 +105,20 @@ class NegocioNoPublicado(ErrorDeDominio):
     mensaje = "Este negocio todavía no está publicado."
 
 
+class SinDueno(ErrorDeDominio):
+    """Se intentó dejar un salón sin ningún dueño activo.
+
+    Tiene código propio y no cae en `DATO_INVALIDO` porque la pantalla tiene algo concreto que
+    ofrecer: nombrar dueño a otra persona. Y no es una casilla que se pueda marcar «ya lo
+    arreglo luego»: un negocio sin dueño no lo puede arreglar nadie desde dentro, porque no
+    queda nadie con permiso para invitar.
+    """
+
+    codigo = "NEGOCIO_SIN_DUENO"
+    estado_http = 422
+    mensaje = "Este salón se quedaría sin ningún dueño."
+
+
 class FaltaMinimoParaPublicar(ErrorDeDominio):
     """Mínimo de D11: un servicio activo, horario, ubicación y una foto."""
 

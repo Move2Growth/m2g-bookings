@@ -481,6 +481,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/invitaciones/aceptar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Entrar en el local al que te invitaron (ONB-3, ONB-4)
+         * @description Acepta y devuelve una sesión **ya en modo negocio**: se entra y se está dentro.
+         *
+         *     Dos caminos, y la diferencia importa:
+         *
+         *     * **La cuenta la creó la invitación** y no tiene contraseña: se elige aquí. El token es la
+         *       prueba de que ese buzón es suyo, así que el correo queda verificado — es exactamente lo
+         *       que demuestra haber recibido el enlace.
+         *     * **La cuenta ya existía con contraseña**: hace falta **estar dentro con ella**. Un token de
+         *       correo no puede dar acceso a una cuenta que ya tiene dueño; quien interceptara el enlace
+         *       entraría en la cuenta de otra persona y no solo en el salón.
+         */
+        post: operations["aceptar_api_v1_invitaciones_aceptar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invitaciones/ver": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Qué salón y qué papel hay detrás del enlace (ONB-3)
+         * @description No cambia nada: solo dice qué hay al otro lado del enlace.
+         *
+         *     Una invitación caducada, ya usada o inventada dan **el mismo error**. Separarlos le diría a
+         *     quien prueba tokens al azar cuándo va por buen camino.
+         */
+        post: operations["ver_api_v1_invitaciones_ver_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/mi/agenda": {
         parameters: {
             query?: never;
@@ -747,6 +799,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/negocio/agenda/columnas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Todos los calendarios del día, en columnas (AGD-2)
+         * @description El día de **todas** las personas del salón, una columna por persona.
+         *
+         *     La agenda por rango ya existía (`GET /negocio/agenda`) y sirve para la lista; lo que
+         *     faltaba para el portal del dueño es esta forma: el mismo día, varias personas en paralelo,
+         *     que es como se mira un salón con seis sillas.
+         *
+         *     El día se recorta **en hora local del negocio** y no en UTC. En Panamá son cinco horas de
+         *     diferencia: pedir «el sábado» en UTC deja fuera las cinco últimas horas del sábado y mete
+         *     dentro cinco del viernes, que es la clase de error que se descubre por una cita que
+         *     desaparece.
+         *
+         *     Un profesional que llame aquí ve **su columna y ninguna más**, y no porque este código lo
+         *     filtre: aunque no lo hiciera, las políticas de la migración 0006 le devolverían columnas
+         *     vacías. Se filtra igual para que la respuesta sea honesta y no una lista de huecos.
+         */
+        get: operations["agenda_en_columnas_api_v1_negocio_agenda_columnas_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/negocio/ajustes": {
         parameters: {
             query?: never;
@@ -769,6 +854,51 @@ export interface paths {
          *     hecha y el hueco está apartado. Lo que cambia es lo que se ofrece a partir de ahora.
          */
         patch: operations["cambiar_ajustes_api_v1_negocio_ajustes_patch"];
+        trace?: never;
+    };
+    "/api/v1/negocio/anuncios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** La publicidad flash del salón (punto 6 del encargo) */
+        get: operations["listar_anuncios_api_v1_negocio_anuncios_get"];
+        put?: never;
+        /**
+         * Escribir un anuncio para la propia ficha
+         * @description Un texto del salón, con vigencia, que sale en **su** ficha pública.
+         *
+         *     **No es publicidad del marketplace.** El posicionamiento pagado es otra cosa, se cobra y
+         *     vive en `ad_campaigns`; esto es gratis, no compite con nadie y no toca el ranking.
+         */
+        post: operations["crear_anuncio_api_v1_negocio_anuncios_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/negocio/anuncios/{anuncio_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Retirar el anuncio de la ficha
+         * @description Lo apaga **sin borrar la fila**: el salón puede querer volver a lanzarlo en diciembre.
+         */
+        delete: operations["retirar_anuncio_api_v1_negocio_anuncios__anuncio_id__delete"];
+        options?: never;
+        head?: never;
+        /** Cambiar el anuncio o sus fechas */
+        patch: operations["editar_anuncio_api_v1_negocio_anuncios__anuncio_id__patch"];
         trace?: never;
     };
     "/api/v1/negocio/atributos": {
@@ -966,6 +1096,63 @@ export interface paths {
         patch: operations["editar_ficha_api_v1_negocio_ficha_patch"];
         trace?: never;
     };
+    "/api/v1/negocio/fichajes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * El parte de entradas y salidas
+         * @description Los partes del rango. Por defecto, los últimos siete días.
+         *
+         *     El dueño ve el equipo entero; un profesional ve **el suyo**, y quien lo acota es la base.
+         */
+        get: operations["partes_de_fichaje_api_v1_negocio_fichajes_get"];
+        put?: never;
+        /**
+         * Fichar entrada o salida
+         * @description Cada quien ficha lo suyo; el dueño puede ficharlo desde el mostrador.
+         *
+         *     Un profesional **no puede fichar por otro**, y no es este `if` lo que lo impide: la política
+         *     restrictiva de la migración 0010 acota sus filas a las suyas, así que una fila con el
+         *     identificador de otra persona no entra aunque el endpoint se despiste.
+         */
+        post: operations["fichar_api_v1_negocio_fichajes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/negocio/finanzas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * El dinero que hace el salón (punto 6 del encargo)
+         * @description Lo facturado en el rango, por día, semana o mes.
+         *
+         *     **Solo cuenta lo `completada`** —una cita confirmada es una promesa, no un ingreso— y usa
+         *     **el importe que se guardó en la cita**, no el precio de hoy del servicio: subirle el precio
+         *     al balayage no puede reescribir lo que se facturó en marzo.
+         *
+         *     Las finanzas son del dueño (STF-3). El profesional no las ve, y no solo porque este
+         *     endpoint lo compruebe: las tablas de dinero le están cerradas en la base.
+         */
+        get: operations["finanzas_api_v1_negocio_finanzas_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/negocio/fotos": {
         parameters: {
             query?: never;
@@ -1040,6 +1227,108 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/negocio/mejor-del-mes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Quién facturó más o hizo más servicios
+         * @description El equipo ordenado por lo que pidió el encargo: **importe facturado** o **número de
+         *     servicios**, y filtrable por categoría de servicio.
+         *
+         *     Sin fechas, el mes natural en curso **en hora local del negocio**. Se devuelve la lista
+         *     entera y no solo el primero: enseñar únicamente al ganador y esconder que el segundo se
+         *     quedó a dos servicios convierte un dato en un concurso.
+         */
+        get: operations["mejor_del_mes_api_v1_negocio_mejor_del_mes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/negocio/miembros": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Quién trabaja en el local y con qué papel (ONB-3) */
+        get: operations["listar_miembros_api_v1_negocio_miembros_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/negocio/miembros/{membresia_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Quitar a alguien del local (ONB-3)
+         * @description Surte efecto **en la siguiente llamada**, no cuando caduque su token (ADR-0006).
+         *
+         *     No borra la fila ni su ficha de equipo: sus citas siguen ahí y el rastro de quién trabajó
+         *     aquí es lo que permite entender una agenda de hace tres meses. Y tampoco deja al salón sin
+         *     dueño: quitar al último es el mismo error que bajarle el papel.
+         */
+        delete: operations["revocar_api_v1_negocio_miembros__membresia_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Cambiarle el papel a alguien (STF-3)
+         * @description Sube o baja de papel. **Bajar al último dueño no se puede.**
+         *
+         *     Un salón sin ningún dueño no lo arregla nadie desde dentro: no queda nadie con permiso para
+         *     invitar. Por eso es un error con su propio código —`NEGOCIO_SIN_DUENO`— y no una casilla que
+         *     se marca y ya se verá.
+         */
+        patch: operations["cambiar_papel_api_v1_negocio_miembros__membresia_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/negocio/miembros/invitaciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invitar a alguien por correo
+         * @description Invita por correo con su papel, **tenga cuenta o no**.
+         *
+         *     Si el correo no tiene cuenta se le crea una **sin contraseña**, que no se puede usar para
+         *     entrar por ninguna vía: se activa presentando el token que llega a ese correo. Es lo que
+         *     permite que el dueño reparta los papeles del salón un domingo sin que nadie tenga que
+         *     registrarse antes.
+         *
+         *     Volver a invitar a la misma persona **emite un token nuevo** y reutiliza su fila: quien se
+         *     fue y vuelve es un caso normal, no un error.
+         */
+        post: operations["invitar_api_v1_negocio_miembros_invitaciones_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/negocio/profesionales": {
         parameters: {
             query?: never;
@@ -1097,6 +1386,31 @@ export interface paths {
          *     es lo que pide un salón con un ayudante nuevo.
          */
         patch: operations["editar_profesional_api_v1_negocio_profesionales__profesional_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/negocio/profesionales/{profesional_id}/fichaje": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Encender o apagar el fichaje de una persona (punto 6 del encargo)
+         * @description **Persona a persona, y apagado por defecto.**
+         *
+         *     No hay un interruptor para todo el salón a la vez, y es la parte del encargo que más se
+         *     presta a construirse mal: un fichaje que se enciende para todos porque alguien lo quería
+         *     para uno se lee como vigilancia. Apagarlo **no borra** lo ya fichado: el parte de las
+         *     semanas anteriores sigue siendo cierto.
+         */
+        put: operations["cambiar_fichaje_api_v1_negocio_profesionales__profesional_id__fichaje_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/negocio/profesionales/{profesional_id}/horario": {
@@ -1462,6 +1776,35 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/publico/mapa": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Salones dentro del rectángulo visible (MKT-1, punto 5)
+         * @description Lo que hay dentro de las cuatro esquinas que se ven en la pantalla.
+         *
+         *     Es la otra pregunta del marketplace, distinta de la que ya resolvía la búsqueda: «cerca de
+         *     mí» es un radio y esto es un rectángulo. La pantalla de un móvil es alta y estrecha, así que
+         *     el círculo que la cubre entera se lleva medio barrio que no se ve.
+         *
+         *     **Con tope, y diciéndolo.** Un mapa alejado sobre el país entero serían varios megabytes de
+         *     datos móviles para pintar puntos que no caben; cuando el tope recorta, `truncado` viene en
+         *     cierto y se conservan los del centro del rectángulo, que es donde está mirando quien mueve
+         *     el mapa.
+         */
+        get: operations["mapa_api_v1_publico_mapa_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/publico/negocios": {
         parameters: {
             query?: never;
@@ -1748,6 +2091,48 @@ export interface components {
              */
             tipo_de_precio: string;
         };
+        /** AnuncioDelSalon */
+        AnuncioDelSalon: {
+            /** Activo */
+            activo: boolean;
+            /**
+             * Desde
+             * Format: date-time
+             */
+            desde: string;
+            /** Hasta */
+            hasta: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Texto */
+            texto: string;
+            /**
+             * Vigente
+             * @description Si ahora mismo se está enseñando en la ficha pública
+             */
+            vigente: boolean;
+        };
+        /**
+         * AnuncioPublico
+         * @description La «publicidad flash» del salón en su propia ficha (punto 6 del encargo).
+         *
+         *     **No es un patrocinado del marketplace.** Aquel se cobra, sale etiquetado y compite por un
+         *     sitio en los resultados (ADR-0009); esto es el salón escribiendo en su propia página, es
+         *     gratis y no toca el ranking. Que la vigencia se cumpla no depende de este serializador: la
+         *     política del rol público solo deja leer los activos y dentro de fecha.
+         */
+        AnuncioPublico: {
+            /**
+             * Hasta
+             * @description Nulo = sin fecha de fin
+             */
+            hasta?: string | null;
+            /** Texto */
+            texto: string;
+        };
         /**
          * Ausencia
          * @description Un tramo concreto en el que alguien no está: vacaciones, día libre, médico (AGD-3).
@@ -1781,6 +2166,29 @@ export interface components {
             profesional_id: string;
         };
         /**
+         * BloqueoEnColumna
+         * @description Un tramo en el que esa persona no está: almuerzo, vacaciones, el médico.
+         */
+        BloqueoEnColumna: {
+            /**
+             * Fin
+             * Format: date-time
+             */
+            fin: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Inicio
+             * Format: date-time
+             */
+            inicio: string;
+            /** Motivo */
+            motivo: string | null;
+        };
+        /**
          * BloqueoPropio
          * @description Un tramo suyo en el que no atiende: almuerzo materializado, día libre, vacaciones.
          */
@@ -1803,6 +2211,41 @@ export interface components {
             /** Motivo */
             motivo: string | null;
         };
+        /**
+         * Caja
+         * @description Lo facturado, con la moneda y la zona para poder pintarlo sin recalcular nada.
+         */
+        Caja: {
+            /** Agrupacion */
+            agrupacion: string;
+            /** Citas */
+            citas: number;
+            /**
+             * Citas Sin Precio
+             * @description Citas con algún servicio «a consultar», que no tiene precio y suma cero. Sin este número el total parece completo y no lo es
+             */
+            citas_sin_precio: number;
+            /**
+             * Desde
+             * Format: date-time
+             */
+            desde: string;
+            /**
+             * Hasta
+             * Format: date-time
+             */
+            hasta: string;
+            /** Importe Centavos */
+            importe_centavos: number;
+            /** Moneda */
+            moneda: string;
+            /** Periodos */
+            periodos: components["schemas"]["PeriodoDeCaja"][];
+            /** Ticket Medio Centavos */
+            ticket_medio_centavos: number;
+            /** Zona */
+            zona: string;
+        };
         /** CambioDeAjustes */
         CambioDeAjustes: {
             /** Antelacion Maxima Dias */
@@ -1823,6 +2266,23 @@ export interface components {
             ventana_cancelacion_horas?: number | null;
             /** Ventana Resena Dias */
             ventana_resena_dias?: number | null;
+        };
+        /** CambioDeAnuncio */
+        CambioDeAnuncio: {
+            /** Activo */
+            activo?: boolean | null;
+            /** Desde */
+            desde?: string | null;
+            /** Hasta */
+            hasta?: string | null;
+            /**
+             * Quitar Fin
+             * @description Deja el anuncio sin fecha de fin; «hasta» se ignora
+             * @default false
+             */
+            quitar_fin: boolean;
+            /** Texto */
+            texto?: string | null;
         };
         /** CambioDeEstado */
         CambioDeEstado: {
@@ -1874,6 +2334,11 @@ export interface components {
             notas?: string | null;
             /** Telefono */
             telefono?: string | null;
+        };
+        /** CambioDePapel */
+        CambioDePapel: {
+            /** Rol */
+            rol: string;
         };
         /** CambioDePerfil */
         CambioDePerfil: {
@@ -2057,6 +2522,34 @@ export interface components {
             tiene_telefono: boolean;
         };
         /**
+         * CitaEnColumna
+         * @description Una cita dentro de la columna de una persona.
+         */
+        CitaEnColumna: {
+            /** Cliente */
+            cliente: string;
+            estado: components["schemas"]["EstadoReserva"];
+            /**
+             * Fin
+             * Format: date-time
+             */
+            fin: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Importe Centavos */
+            importe_centavos: number;
+            /**
+             * Inicio
+             * Format: date-time
+             */
+            inicio: string;
+            /** Servicios */
+            servicios: string[];
+        };
+        /**
          * ClienteDelSalon
          * @description Una ficha de la lista. Lleva lo que se decide de un vistazo.
          */
@@ -2095,6 +2588,27 @@ export interface components {
             /** Ultima Cita */
             ultima_cita: string | null;
         };
+        /**
+         * ColumnaDelDia
+         * @description La agenda de una persona ese día. Una columna de la pantalla.
+         */
+        ColumnaDelDia: {
+            /** Activo */
+            activo: boolean;
+            /** Bloqueos */
+            bloqueos: components["schemas"]["BloqueoEnColumna"][];
+            /** Citas */
+            citas: components["schemas"]["CitaEnColumna"][];
+            /** Foto */
+            foto: string | null;
+            /** Nombre */
+            nombre: string;
+            /**
+             * Profesional Id
+             * Format: uuid
+             */
+            profesional_id: string;
+        };
         /** DecisionDeModeracion */
         DecisionDeModeracion: {
             /**
@@ -2104,6 +2618,34 @@ export interface components {
             accion: string;
             /** Nota */
             nota?: string | null;
+        };
+        /**
+         * DiaEnColumnas
+         * @description El día entero del salón, persona a persona.
+         */
+        DiaEnColumnas: {
+            /** Columnas */
+            columnas: components["schemas"]["ColumnaDelDia"][];
+            /**
+             * Dia
+             * Format: date
+             */
+            dia: string;
+            /**
+             * Fin
+             * Format: date-time
+             */
+            fin: string;
+            /**
+             * Inicio
+             * Format: date-time
+             */
+            inicio: string;
+            /**
+             * Zona
+             * @description Zona horaria del negocio, para pintar la hora local
+             */
+            zona: string;
         };
         /** Entrada */
         Entrada: {
@@ -2265,6 +2807,30 @@ export interface components {
             /** Zona Nombre */
             zona_nombre: string | null;
         };
+        /** FichajeDeUnaPersona */
+        FichajeDeUnaPersona: {
+            /** Fichaje Activo */
+            fichaje_activo: boolean;
+            /**
+             * Profesional Id
+             * Format: uuid
+             */
+            profesional_id: string;
+        };
+        /** FilaDelMes */
+        FilaDelMes: {
+            /** Importe Centavos */
+            importe_centavos: number;
+            /** Nombre */
+            nombre: string;
+            /**
+             * Profesional Id
+             * Format: uuid
+             */
+            profesional_id: string;
+            /** Servicios */
+            servicios: number;
+        };
         /** FotoDelNegocio */
         FotoDelNegocio: {
             /**
@@ -2340,6 +2906,96 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** InterruptorDeFichaje */
+        InterruptorDeFichaje: {
+            /** Activo */
+            activo: boolean;
+        };
+        /** Invitacion */
+        Invitacion: {
+            /** Correo */
+            correo: string;
+            /**
+             * Nombre
+             * @description Para la ficha de equipo cuando la persona todavía no tiene cuenta
+             */
+            nombre?: string | null;
+            /**
+             * Profesional Id
+             * @description Ficha de equipo ya creada «sin cuenta» a la que enlazar a esta persona (ONB-4). Sin ella se crea una nueva
+             */
+            profesional_id?: string | null;
+            /** Rol */
+            rol: string;
+        };
+        /**
+         * InvitacionAbierta
+         * @description Lo que se enseña antes de aceptar: a qué salón te invitan y con qué papel.
+         */
+        InvitacionAbierta: {
+            /**
+             * Caduca
+             * Format: date-time
+             */
+            caduca: string;
+            /** Correo */
+            correo: string;
+            /**
+             * Cuenta Con Contrasena
+             * @description Cuando es falso, la cuenta la creó la invitación y aceptar incluye elegir contraseña. Cuando es cierto, hay que estar dentro con esa cuenta
+             */
+            cuenta_con_contrasena: boolean;
+            /** Negocio */
+            negocio: string;
+            /** Nombre */
+            nombre: string;
+            /**
+             * Rol
+             * @description dueno | profesional
+             */
+            rol: string;
+        };
+        /** InvitacionCreada */
+        InvitacionCreada: {
+            /** Enlace De Desarrollo */
+            enlace_de_desarrollo?: string | null;
+            miembro: components["schemas"]["MiembroDelLocal"];
+            /**
+             * Token De Desarrollo
+             * @description Solo en local, y solo porque todavía no hay canal de correo real: en cualquier otro entorno el token viaja al correo y esta respuesta no lo lleva
+             */
+            token_de_desarrollo?: string | null;
+        };
+        /** MarcaDeFichaje */
+        MarcaDeFichaje: {
+            /**
+             * Clase
+             * @description entrada | salida
+             */
+            clase: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Instante
+             * Format: date-time
+             */
+            instante: string;
+            /** Nota */
+            nota: string | null;
+            /**
+             * Origen
+             * @description profesional | dueno
+             */
+            origen: string;
+            /**
+             * Profesional Id
+             * Format: uuid
+             */
+            profesional_id: string;
+        };
         /**
          * Metricas
          * @description Lo mínimo con lo que se dirige esto (ADM-1). Nada que no se pueda explicar.
@@ -2393,6 +3049,50 @@ export interface components {
             total_centavos: number;
             /** Zona Horaria */
             zona_horaria: string;
+        };
+        /**
+         * MiembroDelLocal
+         * @description Una persona asignada al salón. **Sin teléfono**: aquí no hace falta y no viaja.
+         */
+        MiembroDelLocal: {
+            /** Aceptada En */
+            aceptada_en: string | null;
+            /** Correo */
+            correo: string | null;
+            /**
+             * Estado
+             * @description invitada | activa | revocada
+             */
+            estado: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Invitacion Caduca */
+            invitacion_caduca: string | null;
+            /** Nombre */
+            nombre: string;
+            /**
+             * Profesional Id
+             * @description Su ficha de equipo en este salón, si la tiene
+             */
+            profesional_id: string | null;
+            /**
+             * Rol
+             * @description dueno | profesional
+             */
+            rol: string;
+            /**
+             * Ultimo Dueno
+             * @description Si es el único dueño activo: quitarle el papel dejaría el salón sin nadie
+             */
+            ultimo_dueno: boolean;
+            /**
+             * Usuario Id
+             * Format: uuid
+             */
+            usuario_id: string;
         };
         /**
          * MiJornada
@@ -2552,6 +3252,18 @@ export interface components {
             /** Zona */
             zona: string | null;
         };
+        /** NuevaMarca */
+        NuevaMarca: {
+            /** Clase */
+            clase: string;
+            /** Nota */
+            nota?: string | null;
+            /**
+             * Profesional Id
+             * @description Solo lo manda el dueño para fichar por otra persona; el profesional, no
+             */
+            profesional_id?: string | null;
+        };
         /** NuevaResena */
         NuevaResena: {
             /**
@@ -2573,6 +3285,26 @@ export interface components {
         };
         /** NuevaRespuesta */
         NuevaRespuesta: {
+            /** Texto */
+            texto: string;
+        };
+        /** NuevoAnuncio */
+        NuevoAnuncio: {
+            /**
+             * Activo
+             * @default true
+             */
+            activo: boolean;
+            /**
+             * Desde
+             * @description Por defecto, ya
+             */
+            desde?: string | null;
+            /**
+             * Hasta
+             * @description Nulo = sin fecha de fin
+             */
+            hasta?: string | null;
             /** Texto */
             texto: string;
         };
@@ -2663,10 +3395,29 @@ export interface components {
             /** Techo Reservas */
             techo_reservas?: number | null;
         };
+        /** ParteDeFichaje */
+        ParteDeFichaje: {
+            /** Fichaje Activo */
+            fichaje_activo: boolean;
+            /** Jornada Abierta */
+            jornada_abierta: boolean;
+            /** Marcas */
+            marcas: components["schemas"]["MarcaDeFichaje"][];
+            /** Minutos Trabajados */
+            minutos_trabajados: number;
+            /** Nombre */
+            nombre: string;
+            /**
+             * Profesional Id
+             * Format: uuid
+             */
+            profesional_id: string;
+        };
         /** PerfilPublico */
         PerfilPublico: {
             /** Abierto Ahora */
             abierto_ahora?: boolean | null;
+            anuncio?: components["schemas"]["AnuncioPublico"] | null;
             /** Atributos */
             atributos?: string[];
             /** Descripcion */
@@ -2713,6 +3464,18 @@ export interface components {
             zona?: string | null;
             /** Zona Horaria */
             zona_horaria: string;
+        };
+        /** PeriodoDeCaja */
+        PeriodoDeCaja: {
+            /** Citas */
+            citas: number;
+            /** Importe Centavos */
+            importe_centavos: number;
+            /**
+             * Inicio
+             * Format: date-time
+             */
+            inicio: string;
         };
         /**
          * PesosDelRanking
@@ -2800,6 +3563,26 @@ export interface components {
             actual?: string | null;
             /** Nueva */
             nueva: string;
+        };
+        /** PeticionDeAceptacion */
+        PeticionDeAceptacion: {
+            /**
+             * Contrasena
+             * @description Obligatoria solo si la cuenta todavía no tiene contraseña
+             */
+            contrasena?: string | null;
+            /**
+             * Superficie
+             * @default web
+             */
+            superficie: string;
+            /** Token */
+            token: string;
+        };
+        /** PeticionDeInvitacion */
+        PeticionDeInvitacion: {
+            /** Token */
+            token: string;
         };
         /** PeticionDeReserva */
         PeticionDeReserva: {
@@ -2953,6 +3736,11 @@ export interface components {
             bio: string | null;
             /** Citas Futuras */
             citas_futuras: number;
+            /**
+             * Fichaje Activo
+             * @description Si esta persona ficha entrada y salida. **Apagado por defecto** y se enciende una a una desde PUT /negocio/profesionales/{id}/fichaje (punto 6 del encargo)
+             */
+            fichaje_activo: boolean;
             /** Foto */
             foto: string | null;
             /** Horario */
@@ -3252,6 +4040,35 @@ export interface components {
             /** Total */
             total: number;
         };
+        /**
+         * SalonEnElMapa
+         * @description Un pin. Lo justo para dibujarlo y decidir si se toca.
+         */
+        SalonEnElMapa: {
+            /** Latitud */
+            latitud: number;
+            /** Longitud */
+            longitud: number;
+            /**
+             * Negocio Id
+             * Format: uuid
+             */
+            negocio_id: string;
+            /** Nombre */
+            nombre: string;
+            /**
+             * Numero Reviews
+             * @default 0
+             */
+            numero_reviews: number;
+            /**
+             * Rating
+             * @description El bayesiano (REV-5). Nulo = todavía sin reseñas
+             */
+            rating?: number | null;
+            /** Slug */
+            slug: string;
+        };
         /** ServicioDeLaCita */
         ServicioDeLaCita: {
             /** Duracion Minutos */
@@ -3490,6 +4307,16 @@ export interface components {
             precio_centavos: number | null;
             /** Tipo De Precio */
             tipo_de_precio: string;
+        };
+        /** VistaDelMapa */
+        VistaDelMapa: {
+            /** Salones */
+            salones: components["schemas"]["SalonEnElMapa"][];
+            /**
+             * Truncado
+             * @description Cierto cuando había más salones de los que caben en el tope. La pantalla debería pedir que se acerque el mapa en vez de enseñar una muestra sin decirlo
+             */
+            truncado: boolean;
         };
     };
     responses: never;
@@ -4310,6 +5137,76 @@ export interface operations {
             };
         };
     };
+    aceptar_api_v1_invitaciones_aceptar_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PeticionDeAceptacion"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaCredenciales"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ver_api_v1_invitaciones_ver_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PeticionDeInvitacion"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitacionAbierta"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     mi_agenda_api_v1_mi_agenda_get: {
         parameters: {
             query?: {
@@ -4784,6 +5681,41 @@ export interface operations {
             };
         };
     };
+    agenda_en_columnas_api_v1_negocio_agenda_columnas_get: {
+        parameters: {
+            query?: {
+                /** @description Día local del negocio; por defecto, hoy */
+                dia?: string | null;
+                incluir_inactivos?: boolean;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiaEnColumnas"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     leer_ajustes_api_v1_negocio_ajustes_get: {
         parameters: {
             query?: never;
@@ -4837,6 +5769,142 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AjustesDeAgenda"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_anuncios_api_v1_negocio_anuncios_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnuncioDelSalon"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    crear_anuncio_api_v1_negocio_anuncios_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NuevoAnuncio"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnuncioDelSalon"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    retirar_anuncio_api_v1_negocio_anuncios__anuncio_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                anuncio_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnuncioDelSalon"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    editar_anuncio_api_v1_negocio_anuncios__anuncio_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                anuncio_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CambioDeAnuncio"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnuncioDelSalon"];
                 };
             };
             /** @description Validation Error */
@@ -5221,6 +6289,112 @@ export interface operations {
             };
         };
     };
+    partes_de_fichaje_api_v1_negocio_fichajes_get: {
+        parameters: {
+            query?: {
+                desde?: string | null;
+                hasta?: string | null;
+                profesional?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParteDeFichaje"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fichar_api_v1_negocio_fichajes_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NuevaMarca"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarcaDeFichaje"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    finanzas_api_v1_negocio_finanzas_get: {
+        parameters: {
+            query: {
+                agrupacion?: string;
+                desde: string;
+                hasta: string;
+                profesional?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Caja"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     listar_fotos_api_v1_negocio_fotos_get: {
         parameters: {
             query?: never;
@@ -5384,6 +6558,179 @@ export interface operations {
             };
         };
     };
+    mejor_del_mes_api_v1_negocio_mejor_del_mes_get: {
+        parameters: {
+            query?: {
+                /** @description Slug de categoría de servicio, por ejemplo «barberia» */
+                categoria?: string | null;
+                criterio?: string;
+                desde?: string | null;
+                hasta?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FilaDelMes"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_miembros_api_v1_negocio_miembros_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiembroDelLocal"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revocar_api_v1_negocio_miembros__membresia_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                membresia_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiembroDelLocal"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cambiar_papel_api_v1_negocio_miembros__membresia_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                membresia_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CambioDePapel"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiembroDelLocal"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    invitar_api_v1_negocio_miembros_invitaciones_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Invitacion"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitacionCreada"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     listar_profesionales_api_v1_negocio_profesionales_get: {
         parameters: {
             query?: {
@@ -5512,6 +6859,43 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProfesionalDelPanel"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cambiar_fichaje_api_v1_negocio_profesionales__profesional_id__fichaje_put: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                profesional_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InterruptorDeFichaje"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FichajeDeUnaPersona"];
                 };
             };
             /** @description Validation Error */
@@ -6165,6 +7549,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ResultadoDeBusqueda"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mapa_api_v1_publico_mapa_get: {
+        parameters: {
+            query: {
+                /** @description Longitud del borde derecho */
+                este: number;
+                /** @description Tope de pines devueltos */
+                limite?: number;
+                /** @description Latitud del borde superior */
+                norte: number;
+                /** @description Longitud del borde izquierdo */
+                oeste: number;
+                /** @description Latitud del borde inferior */
+                sur: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VistaDelMapa"];
                 };
             };
             /** @description Validation Error */

@@ -130,6 +130,27 @@ async def identidad_actual(
     )
 
 
+async def identidad_si_la_hay(
+    authorization: Annotated[str | None, Header()] = None,
+) -> Identidad | None:
+    """Quién pregunta, **si es que hay alguien**. Devuelve `None` en vez de fallar.
+
+    Hace falta en las rutas que sirven a las dos cosas a la vez: aceptar una invitación se hace
+    con sesión —cuando la cuenta ya existía— y sin ella —cuando la creó la propia invitación—.
+    Partirlo en dos endpoints obligaría a quien pinta la pantalla a saber de antemano cuál de
+    los dos casos es, que es justo lo que viene a averiguar.
+
+    Un token inválido o caducado se trata igual que no traerlo: quien acepta con el token de la
+    invitación no debería quedarse fuera porque su sesión anterior venciera anoche.
+    """
+    if not authorization:
+        return None
+    try:
+        return await identidad_actual(authorization)
+    except NoAutorizado:
+        return None
+
+
 async def sesion_de_cliente(
     identidad: Annotated[Identidad, Depends(identidad_actual)],
 ) -> AsyncIterator[tuple[AsyncSession, Identidad]]:
@@ -280,4 +301,5 @@ SesionConsolaAnonima = Annotated[AsyncSession, Depends(sesion_de_consola_anonima
 SesionPublica = Annotated[AsyncSession, Depends(sesion_publica)]
 SesionPlataforma = Annotated[AsyncSession, Depends(sesion_de_plataforma)]
 SesionCliente = Annotated[tuple[AsyncSession, Identidad], Depends(sesion_de_cliente)]
+IdentidadOpcional = Annotated[Identidad | None, Depends(identidad_si_la_hay)]
 SesionNegocio = Annotated[tuple[AsyncSession, Identidad], Depends(sesion_de_negocio)]

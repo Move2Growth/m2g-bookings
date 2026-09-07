@@ -63,6 +63,8 @@ class Hecho(StrEnum):
     RECORDATORIO_2H = "recordatorio_2h"
     REVIEW_SOLICITADA = "review_solicitada"
     CITAS_SIN_CERRAR = "citas_sin_cerrar"
+    #: Alguien fue asignado a un local y tiene que aceptar (punto 4 del encargo).
+    INVITACION_AL_EQUIPO = "invitacion_equipo"
 
 
 #: A qué categoría de preferencias pertenece cada hecho (NTF-3). Quien apaga «recordatorios»
@@ -76,6 +78,9 @@ CATEGORIA_DEL_HECHO: dict[Hecho, str] = {
     Hecho.RECORDATORIO_2H: "recordatorios",
     Hecho.REVIEW_SOLICITADA: "reviews",
     Hecho.CITAS_SIN_CERRAR: "operativa",
+    # Operativa y no «reservas»: quien apaga los avisos de citas no está diciendo que no
+    # quiera enterarse de que le han dado acceso a un salón.
+    Hecho.INVITACION_AL_EQUIPO: "operativa",
 }
 
 #: Orden en que se prueban los canales cuando nadie dice otra cosa. WhatsApp primero porque es
