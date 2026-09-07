@@ -146,8 +146,11 @@ def _anuncio_del_salon() -> None:
     # que se combina con AND— porque una política permisiva de más nunca quita acceso.
     for accion, clausulas in (
         ("INSERT", "WITH CHECK (app_profesional_actual() IS NULL)"),
-        ("UPDATE", "USING (app_profesional_actual() IS NULL) "
-                   "WITH CHECK (app_profesional_actual() IS NULL)"),
+        (
+            "UPDATE",
+            "USING (app_profesional_actual() IS NULL) "
+            "WITH CHECK (app_profesional_actual() IS NULL)",
+        ),
         ("DELETE", "USING (app_profesional_actual() IS NULL)"),
     ):
         op.execute(

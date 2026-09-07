@@ -193,6 +193,8 @@ def downgrade() -> None:
 
     for tabla in TABLAS_DE_SOLO_LECTURA:
         for accion in ("insert", "update", "delete"):
-            op.execute(f"DROP POLICY IF EXISTS {tabla}_profesional_no_configura_{accion} ON {tabla}")
+            op.execute(
+                f"DROP POLICY IF EXISTS {tabla}_profesional_no_configura_{accion} ON {tabla}"
+            )
 
     op.execute("DROP FUNCTION IF EXISTS app_profesional_actual()")

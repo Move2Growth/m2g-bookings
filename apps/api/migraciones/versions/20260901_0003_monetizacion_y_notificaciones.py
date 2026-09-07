@@ -669,8 +669,12 @@ def _permisos() -> None:
 
 
 def downgrade() -> None:
-    op.execute("ALTER TABLE bookings DROP CONSTRAINT IF EXISTS fk_bookings_deposit_payment_id_payments")
-    op.execute("ALTER TABLE ad_campaigns DROP CONSTRAINT IF EXISTS fk_ad_campaigns_payment_id_payments")
+    op.execute(
+        "ALTER TABLE bookings DROP CONSTRAINT IF EXISTS fk_bookings_deposit_payment_id_payments"
+    )
+    op.execute(
+        "ALTER TABLE ad_campaigns DROP CONSTRAINT IF EXISTS fk_ad_campaigns_payment_id_payments"
+    )
     op.execute(
         """
         DROP TABLE IF EXISTS idempotency_keys, moderation_queue, feature_flag_overrides,
