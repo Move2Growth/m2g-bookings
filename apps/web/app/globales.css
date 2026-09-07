@@ -774,35 +774,28 @@ button{ font: inherit; color: inherit; }
 
 .grupo{ display:flex; gap: var(--espacio-1); flex-wrap:wrap; }
 
-.agenda{ display:grid; grid-template-columns: 58px minmax(0,1fr); border-top: 1px solid var(--superficie-calle-borde); }
+/* Aquí vivía **otra agenda**: la de columnas por profesional de una dirección anterior, con sus
+   `.agenda__horas`, `.agenda__columnas`, `.agenda__col`, `.agenda__pista` y `.agenda__linea`. No
+   la usa ninguna pantalla, y su `.agenda { display:grid; grid-template-columns: 58px 1fr }`
+   secuestraba el nombre de clase de la lista que sí existe: cada `<li>` caía en una celda distinta
+   y **la agenda del salón salía partida en dos columnas, con la hora repetida**.
 
-.agenda__horas{ padding-top: 33px; }
+   Es la segunda vez que pasa lo mismo con un componente descartado —antes fue `.pestanas`— y por
+   eso se va entero en vez de renombrarse. La lista viva se estila más abajo, con `.agenda__fila`.
 
+   La agenda por columnas de verdad vive ahora en el portal del dueño, con `.jornada`. */
+
+.agenda{ list-style: none; margin: 0; padding: 0; }
+
+/* La hora dentro de una fila: el comienzo grande y el final debajo, pequeño. Nada de rejilla. */
 .agenda__hora{
-  height: var(--hora-alto); padding: 3px var(--espacio-2) 0 0;
-  display: grid; grid-template-columns: 1fr auto; gap: 3px; align-items: baseline;
-  border-top: 1px solid var(--superficie-calle-borde);
+  display: grid;
+  gap: 2px;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--tipografia-pesos-fuerte);
 }
 
-.agenda__hora b{ font-size: 17px; font-weight: 800; color: var(--color-tinta-suave); text-align: right; }
-
-.agenda__hora em{ font-size: 13px; font-style: normal; font-weight: 800; color: var(--color-tinta-tenue); }
-
-.agenda__hora:first-child{ border-top: 0; }
-
-.agenda__columnas{ display:grid; grid-template-columns: minmax(0,1fr); min-width:0; }
-
-.agenda__col{ min-width:0; border-left: 1px solid var(--superficie-calle-borde); }
-
-.agenda__col-cab{ padding: var(--espacio-2) var(--espacio-3); background: var(--superficie-calle-media); border-bottom: 1px solid var(--superficie-calle-borde); font-size:15px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color: var(--color-tinta-suave); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-
-.agenda__pista{ position: relative; }
-
-.agenda__linea{ height: var(--hora-alto); border-top: 1px solid var(--superficie-calle-borde); }
-
-.agenda__linea:first-child{ border-top: 0; }
-
-.agenda__citas{ position:absolute; inset:0; }
+.agenda__hora small{ font-weight: 400; color: var(--color-tinta-tenue); }
 
 .agenda__ahora{ position:absolute; left:0; right:0; height:2px; background: var(--color-abre); z-index: 3; }
 
@@ -896,7 +889,6 @@ button{ font: inherit; color: inherit; }
   .resultado{ grid-template-columns: 132px minmax(0,1fr) auto; align-items:center; }
   .resultado__sello{ width:132px; height:112px; }
   .col-ancha{ display: table-cell; }
-  .agenda__columnas{ grid-template-columns: repeat(3, minmax(0,1fr)); }
   .paso{ grid-template-columns: 78px 1fr; }
   .pasos{ grid-template-columns: repeat(3, minmax(0,1fr)); }
 }

@@ -194,3 +194,71 @@ async def test_guardar_dos_veces_el_mismo_favorito_no_duplica(motor):
         await sesion.close()
 
     assert total == 1
+
+
+async def test_veo_mi_salon_aunque_este_en_borrador(motor):
+    """Era un callejón sin salida, y del peor tipo: sin error y sin salida.
+
+    `GET /mi/negocios` lee la membresía y la une con `businesses` para devolver el nombre. Pero
+    `businesses` solo se dejaba leer con el negocio fijado, o siendo público y estando publicado,
+    así que la unión tiraba el salón en borrador y la respuesta salía **vacía**. Quien creaba su
+    local y cerraba sesión ya no lo encontraba, y como publicarlo exige entrar al panel, no había
+    vuelta atrás.
+    """
+    salon = await montar_salon()
+
+    async with conexion_de_dueno() as duenno:
+        # Se despublica a propósito: es el estado en el que nace todo salón nuevo.
+        await duenno.execute(
+            text("UPDATE businesses SET status = 'borrador' WHERE id = :id"),
+            {"id": salon.negocio_id},
+        )
+        quien = (
+            await duenno.execute(
+                text(
+                    "SELECT user_id FROM memberships "
+                    " WHERE business_id = :id AND role = 'dueno' AND status = 'activa' LIMIT 1"
+                ),
+                {"id": salon.negocio_id},
+            )
+        ).scalar_one()
+
+    crear = async_sessionmaker(motor, class_=AsyncSession, expire_on_commit=False)
+
+    async with crear() as sesion, sesion.begin():
+        await sesion.execute(
+            text("SELECT set_config('app.current_user_id', :quien, true)"), {"quien": str(quien)}
+        )
+        mios = (
+            (
+                await sesion.execute(
+                    text(
+                        "SELECT b.slug FROM memberships m "
+                        "  JOIN businesses b ON b.id = m.business_id "
+                        " WHERE m.user_id = :quien AND m.status = 'activa'"
+                    ),
+                    {"quien": str(quien)},
+                )
+            )
+            .scalars()
+            .all()
+        )
+        assert len(mios) == 1, (
+            "El dueño tiene que ver su salón en borrador. Sin la política "
+            "`businesses_donde_trabajo` la unión lo tira y esto vuelve vacío."
+        )
+
+    # Y la mitad que hay que comprobar siempre: una política que abre lo tuyo **no puede abrir lo
+    # ajeno**. Desde una cuenta sin membresía, ese mismo salón no existe.
+    async with crear() as sesion, sesion.begin():
+        await sesion.execute(
+            text("SELECT set_config('app.current_user_id', :quien, true)"),
+            {"quien": str(uuid.uuid4())},
+        )
+        ajenos = (
+            await sesion.execute(
+                text("SELECT count(*) FROM businesses WHERE id = :id"),
+                {"id": str(salon.negocio_id)},
+            )
+        ).scalar_one()
+        assert ajenos == 0, "Un salón en borrador no puede verse desde una cuenta sin membresía."
