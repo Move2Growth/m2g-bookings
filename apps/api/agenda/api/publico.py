@@ -40,6 +40,7 @@ from agenda.modelos.negocio import (
     Location,
 )
 from agenda.modelos.reviews import BusinessRatingStats
+from agenda.servicios import anuncios as servicio_anuncios
 from agenda.servicios import busqueda as servicio_busqueda
 from agenda.servicios import disponibilidad as servicio_disponibilidad
 from agenda.servicios import tarjetas as servicio_tarjetas
@@ -117,6 +118,19 @@ class TramoPublico(BaseModel):
     cierra: time
 
 
+class AnuncioPublico(BaseModel):
+    """La «publicidad flash» del salón en su propia ficha (punto 6 del encargo).
+
+    **No es un patrocinado del marketplace.** Aquel se cobra, sale etiquetado y compite por un
+    sitio en los resultados (ADR-0009); esto es el salón escribiendo en su propia página, es
+    gratis y no toca el ranking. Que la vigencia se cumpla no depende de este serializador: la
+    política del rol público solo deja leer los activos y dentro de fecha.
+    """
+
+    texto: str
+    hasta: datetime | None = Field(default=None, description="Nulo = sin fecha de fin")
+
+
 class PerfilPublico(NegocioEnLista):
     id: uuid.UUID
     zona_horaria: str
@@ -137,6 +151,8 @@ class PerfilPublico(NegocioEnLista):
     tiene_whatsapp: bool = False
     servicios: list[ServicioPublico]
     equipo: list[ProfesionalPublico]
+    #: El anuncio del salón, si tiene uno vigente. Nulo la mayoría de las veces.
+    anuncio: AnuncioPublico | None = None
 
 
 class ResultadoDeBusqueda(BaseModel):
@@ -377,6 +393,9 @@ async def perfil(slug: str, sesion: SesionPublica) -> PerfilPublico:
         .scalars()
         .all()
     )
+    # El anuncio del salón. Se pide con el mismo rol que todo lo demás, así que la vigencia y
+    # el «solo si el negocio está publicado» los cumple la política, no este archivo.
+    anuncio = await servicio_anuncios.vigente(sesion, negocio_id=negocio.id)
     atributos = list(
         (
             await sesion.execute(
@@ -441,6 +460,11 @@ async def perfil(slug: str, sesion: SesionPublica) -> PerfilPublico:
             )
             for p in equipo
         ],
+        anuncio=(
+            AnuncioPublico(texto=anuncio.texto, hasta=anuncio.hasta)
+            if anuncio is not None
+            else None
+        ),
     )
 
 

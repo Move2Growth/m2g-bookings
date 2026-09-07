@@ -61,16 +61,18 @@ Seis, con su ratio impreso en la página 06 y medido contra el fondo con el que 
 | Cal | `#F4EFE6` | carbón encima 15,94:1 | el fondo de todo |
 | Carbón | `#17150F` | 15,94:1 sobre cal | todo el texto |
 | Achiote | `#A82F18` | 5,94:1 sobre cal · cal encima 5,94:1 | **el cupo libre** |
-| Guayacán | `#F2B705` | carbón encima 10,04:1 | solo el último cupo del día |
+| Guayacán | `#F2B705` | 1,59:1 sobre cal · 10,04:1 sobre carbón | solo el último cupo del día |
 | Caribe | `#0E6156` | 6,40:1 sobre cal | confirmado y foco de teclado |
 | Piedra | `#645F57` | 5,53:1 sobre cal | lo vendido y el texto de apoyo |
 
 Proporción: cal 68 · carbón 17 · piedra 8 · achiote 5 · caribe 1,5 · guayacán 0,5. Si el achiote
 pasa del 5 % es que se está pintando de rojo lo que ya está vendido.
 
-**El guayacán da 1,59:1 sobre cal.** Está escrito en el libro como prohibición, no como matiz: no
-es texto ni filete nunca, solo fondo con carbón encima. Un amarillo bonito usado como texto es
-exactamente el error que ya coló una vez.
+**El guayacán da 1,59:1 sobre cal y 10,04:1 sobre carbón.** La prohibición está acotada al fondo,
+que es lo único honesto: sobre claro no es texto ni filete nunca; sobre carbón sí, y ahí es donde
+vive el rótulo de calle y el perfil que se comparte. Un amarillo bonito usado como texto sobre
+papel es exactamente el error que ya coló una vez, y por eso la prohibición se dibuja tachada en
+la página 04.
 
 El achiote es la única tinta del sistema que aguanta en los dos sentidos (texto sobre cal 5,94 y
 cal sobre relleno 5,94). Por eso puede ser a la vez la marca de un hueco y el fondo de un botón.
@@ -82,8 +84,10 @@ Plata). No es folclore: son letras dibujadas para el español, con eñe y acento
 parcheados sobre un diseño inglés. Ninguna está en la lista de vetadas y ninguna es la que trae la
 plantilla.
 
-La regla que sostiene el sistema: **toda hora va en Chivo Mono, y nada más va en Chivo Mono.** Ni
-precios, ni nombres, ni distancias. Se ve en la página 07 con el ejemplo de lo que pasa cuando se
+La regla que sostiene el sistema: **en el producto, toda hora va en Chivo Mono, y nada más.** Ni
+precios, ni nombres, ni distancias, ni cuentas: «31 cupos hoy», «4,9» y «1.240 atendidas» van en
+Chivo con cifras tabulares. Este manual es la excepción declarada, porque aquí Chivo Mono hace
+además de voz técnica para hex, ratios y cotas: eso es documentación y no producto. Se ve en la página 07 con el ejemplo de lo que pasa cuando se
 hace al revés. La consecuencia práctica es que en cualquier pantalla se distingue una hora del
 resto sin llegar a leerla, y que dos columnas de horas nunca bailan.
 
@@ -94,9 +98,48 @@ Petrona solo aparece en frases de marca y en citas de clientas. En la interfaz n
 
 Radio de esquina **0** en todo, escrito y aplicado. Un cupo es un corte, no una pastilla.
 
+**44 px de alto en todo control tocable**, con 8 px de separación: iOS pide 44 pt y Android 48 dp,
+y esto se toca de pie entre cliente y cliente. El chip informativo —el que no se pulsa— se queda en
+28 px y está declarado como tal.
+
+**Al pulsar, el corte se cierra:** el botón pasa a rectángulo pleno. Esa es la señal principal del
+estado, no el matiz de color. En un teléfono el dedo tapa medio botón y dos rojos vecinos no se
+distinguen; un cambio de silueta sí. Y «encima» solo existe con ratón, cosa que el libro dice.
+
 El foco de teclado no se pinta en el botón sino en un envoltorio, porque el `clip-path` del corte
 recorta el propio contorno. Es un detalle feo de implementación y por eso está dicho en la página,
 no escondido: quien lo construya se va a topar con ello el primer día.
+
+## Lo que cambió después de la crítica
+
+Seis defectos objetivos, todos reparados sin tocar nombre, paleta, sello ni regla del día:
+
+1. **Dos estados que no eran estados.** «Encima» y «pulsado» del secundario estaban a 1,15:1, y en
+   el de texto compartían hex. Ahora el pulsado cierra el corte y cambia de tinta (secundario y de
+   texto pasan a fondo achiote), así que se distinguen por silueta y por color, no por 1 px.
+2. **La regla del guayacán, acotada.** El libro decía «nunca como texto ni como filete» y usaba
+   guayacán como texto trece veces, siempre sobre carbón. La regla del libro ahora dice lo mismo
+   que decía el `marca.json`: prohibido sobre cal, permitido sobre carbón, con los dos ratios.
+3. **La regla de Chivo Mono, acotada al producto y cumplida.** «31 cupos hoy», «4 cupos», «4,9»,
+   «1.240», los contadores de la agenda, «Panamá · 4G» y el teléfono de la tarjeta salieron de
+   Chivo Mono y pasaron a Chivo con cifras tabulares.
+4. **La palabra `CUPO` ya no se parte.** Los bloques de hueco de la agenda detectan su duración: por
+   debajo de una hora se componen en una línea con una marca cuadrada en vez de dos líneas apretadas.
+5. **La jerarquía llega al suelo.** Se añadieron Cuerpo menor (11,5/16) y Micro (9,5/13), y no queda
+   ni un texto por debajo de 9,5 px en ninguna de las tres pantallas.
+6. **Alto de toque a 44 px** en los treinta y tantos controles de las páginas 08 y 09.
+
+Y dos cosas más que el crítico señaló sin contarlas como fallo: los **siete tonos de estado** que
+faltaban están ahora en la página 06 con su ratio impreso (el texto inhabilitado subió de 2,38:1 a
+3,57:1 aunque WCAG lo exima por ser control inactivo), y las **estrellas de valoración** —el único
+widget prestado que quedaba— se redibujaron con la gramática de la regla del día: bloques llenos y
+bloques vacíos.
+
+**Lo que decidí dejar como está.** La retícula interna se repite en las páginas 03, 04, 05, 06 y
+10 —tres cajas arriba, tira de tres bloques abajo—. Es cierto y se nota al pasar páginas seguidas,
+pero cambiarla es rediseñar el libro, no reparar un defecto, y una retícula constante en un manual
+de marca es una decisión defendible. Tampoco toqué el hueco de la mitad de la portada: ese aire es
+intencionado.
 
 ## Lo que no me convence de mi propia propuesta
 
@@ -114,3 +157,6 @@ no escondido: quien lo construya se va a topar con ello el primer día.
 5. **El achiote al 5 % es una disciplina, no una garantía.** El día que alguien decida que las
    promociones también van en achiote, el sistema se cae entero y el libro no tiene forma de
    impedirlo más que diciéndolo.
+6. **Subir todo a 44 px apretó las pantallas.** Caben, pero con menos aire del que tenían: en la
+   ficha, la rejilla de horas se come ahora media pantalla. Es el precio correcto —se paga en
+   composición y se cobra en pulsaciones acertadas—, pero es un precio.

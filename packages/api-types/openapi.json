@@ -335,6 +335,82 @@
         "title": "AltaDeVariante",
         "type": "object"
       },
+      "AnuncioDelSalon": {
+        "properties": {
+          "activo": {
+            "title": "Activo",
+            "type": "boolean"
+          },
+          "desde": {
+            "format": "date-time",
+            "title": "Desde",
+            "type": "string"
+          },
+          "hasta": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hasta"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "texto": {
+            "title": "Texto",
+            "type": "string"
+          },
+          "vigente": {
+            "description": "Si ahora mismo se está enseñando en la ficha pública",
+            "title": "Vigente",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "texto",
+          "activo",
+          "desde",
+          "hasta",
+          "vigente"
+        ],
+        "title": "AnuncioDelSalon",
+        "type": "object"
+      },
+      "AnuncioPublico": {
+        "description": "La «publicidad flash» del salón en su propia ficha (punto 6 del encargo).\n\n**No es un patrocinado del marketplace.** Aquel se cobra, sale etiquetado y compite por un\nsitio en los resultados (ADR-0009); esto es el salón escribiendo en su propia página, es\ngratis y no toca el ranking. Que la vigencia se cumpla no depende de este serializador: la\npolítica del rol público solo deja leer los activos y dentro de fecha.",
+        "properties": {
+          "hasta": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Nulo = sin fecha de fin",
+            "title": "Hasta"
+          },
+          "texto": {
+            "title": "Texto",
+            "type": "string"
+          }
+        },
+        "required": [
+          "texto"
+        ],
+        "title": "AnuncioPublico",
+        "type": "object"
+      },
       "Ausencia": {
         "description": "Un tramo concreto en el que alguien no está: vacaciones, día libre, médico (AGD-3).",
         "properties": {
@@ -390,6 +466,45 @@
         "title": "Ausencia",
         "type": "object"
       },
+      "BloqueoEnColumna": {
+        "description": "Un tramo en el que esa persona no está: almuerzo, vacaciones, el médico.",
+        "properties": {
+          "fin": {
+            "format": "date-time",
+            "title": "Fin",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "inicio": {
+            "format": "date-time",
+            "title": "Inicio",
+            "type": "string"
+          },
+          "motivo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Motivo"
+          }
+        },
+        "required": [
+          "id",
+          "inicio",
+          "fin",
+          "motivo"
+        ],
+        "title": "BloqueoEnColumna",
+        "type": "object"
+      },
       "BloqueoPropio": {
         "description": "Un tramo suyo en el que no atiende: almuerzo materializado, día libre, vacaciones.",
         "properties": {
@@ -427,6 +542,71 @@
           "motivo"
         ],
         "title": "BloqueoPropio",
+        "type": "object"
+      },
+      "Caja": {
+        "description": "Lo facturado, con la moneda y la zona para poder pintarlo sin recalcular nada.",
+        "properties": {
+          "agrupacion": {
+            "title": "Agrupacion",
+            "type": "string"
+          },
+          "citas": {
+            "title": "Citas",
+            "type": "integer"
+          },
+          "citas_sin_precio": {
+            "description": "Citas con algún servicio «a consultar», que no tiene precio y suma cero. Sin este número el total parece completo y no lo es",
+            "title": "Citas Sin Precio",
+            "type": "integer"
+          },
+          "desde": {
+            "format": "date-time",
+            "title": "Desde",
+            "type": "string"
+          },
+          "hasta": {
+            "format": "date-time",
+            "title": "Hasta",
+            "type": "string"
+          },
+          "importe_centavos": {
+            "title": "Importe Centavos",
+            "type": "integer"
+          },
+          "moneda": {
+            "title": "Moneda",
+            "type": "string"
+          },
+          "periodos": {
+            "items": {
+              "$ref": "#/components/schemas/PeriodoDeCaja"
+            },
+            "title": "Periodos",
+            "type": "array"
+          },
+          "ticket_medio_centavos": {
+            "title": "Ticket Medio Centavos",
+            "type": "integer"
+          },
+          "zona": {
+            "title": "Zona",
+            "type": "string"
+          }
+        },
+        "required": [
+          "desde",
+          "hasta",
+          "zona",
+          "moneda",
+          "agrupacion",
+          "citas",
+          "importe_centavos",
+          "ticket_medio_centavos",
+          "citas_sin_precio",
+          "periodos"
+        ],
+        "title": "Caja",
         "type": "object"
       },
       "CambioDeAjustes": {
@@ -544,6 +724,66 @@
           }
         },
         "title": "CambioDeAjustes",
+        "type": "object"
+      },
+      "CambioDeAnuncio": {
+        "properties": {
+          "activo": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activo"
+          },
+          "desde": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Desde"
+          },
+          "hasta": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hasta"
+          },
+          "quitar_fin": {
+            "default": false,
+            "description": "Deja el anuncio sin fecha de fin; «hasta» se ignora",
+            "title": "Quitar Fin",
+            "type": "boolean"
+          },
+          "texto": {
+            "anyOf": [
+              {
+                "maxLength": 280,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Texto"
+          }
+        },
+        "title": "CambioDeAnuncio",
         "type": "object"
       },
       "CambioDeEstado": {
@@ -965,6 +1205,20 @@
           }
         },
         "title": "CambioDeMiPerfil",
+        "type": "object"
+      },
+      "CambioDePapel": {
+        "properties": {
+          "rol": {
+            "pattern": "^(dueno|profesional)$",
+            "title": "Rol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rol"
+        ],
+        "title": "CambioDePapel",
         "type": "object"
       },
       "CambioDePerfil": {
@@ -1520,6 +1774,55 @@
         "title": "CitaEnAgenda",
         "type": "object"
       },
+      "CitaEnColumna": {
+        "description": "Una cita dentro de la columna de una persona.",
+        "properties": {
+          "cliente": {
+            "title": "Cliente",
+            "type": "string"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/EstadoReserva"
+          },
+          "fin": {
+            "format": "date-time",
+            "title": "Fin",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "importe_centavos": {
+            "title": "Importe Centavos",
+            "type": "integer"
+          },
+          "inicio": {
+            "format": "date-time",
+            "title": "Inicio",
+            "type": "string"
+          },
+          "servicios": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Servicios",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "inicio",
+          "fin",
+          "estado",
+          "cliente",
+          "servicios",
+          "importe_centavos"
+        ],
+        "title": "CitaEnColumna",
+        "type": "object"
+      },
       "ClienteDelSalon": {
         "description": "Una ficha de la lista. Lleva lo que se decide de un vistazo.",
         "properties": {
@@ -1621,6 +1924,59 @@
         "title": "ClienteDelSalon",
         "type": "object"
       },
+      "ColumnaDelDia": {
+        "description": "La agenda de una persona ese día. Una columna de la pantalla.",
+        "properties": {
+          "activo": {
+            "title": "Activo",
+            "type": "boolean"
+          },
+          "bloqueos": {
+            "items": {
+              "$ref": "#/components/schemas/BloqueoEnColumna"
+            },
+            "title": "Bloqueos",
+            "type": "array"
+          },
+          "citas": {
+            "items": {
+              "$ref": "#/components/schemas/CitaEnColumna"
+            },
+            "title": "Citas",
+            "type": "array"
+          },
+          "foto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Foto"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "profesional_id": {
+            "format": "uuid",
+            "title": "Profesional Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "profesional_id",
+          "nombre",
+          "foto",
+          "activo",
+          "citas",
+          "bloqueos"
+        ],
+        "title": "ColumnaDelDia",
+        "type": "object"
+      },
       "DecisionDeModeracion": {
         "properties": {
           "accion": {
@@ -1646,6 +2002,47 @@
           "accion"
         ],
         "title": "DecisionDeModeracion",
+        "type": "object"
+      },
+      "DiaEnColumnas": {
+        "description": "El día entero del salón, persona a persona.",
+        "properties": {
+          "columnas": {
+            "items": {
+              "$ref": "#/components/schemas/ColumnaDelDia"
+            },
+            "title": "Columnas",
+            "type": "array"
+          },
+          "dia": {
+            "format": "date",
+            "title": "Dia",
+            "type": "string"
+          },
+          "fin": {
+            "format": "date-time",
+            "title": "Fin",
+            "type": "string"
+          },
+          "inicio": {
+            "format": "date-time",
+            "title": "Inicio",
+            "type": "string"
+          },
+          "zona": {
+            "description": "Zona horaria del negocio, para pintar la hora local",
+            "title": "Zona",
+            "type": "string"
+          }
+        },
+        "required": [
+          "dia",
+          "zona",
+          "inicio",
+          "fin",
+          "columnas"
+        ],
+        "title": "DiaEnColumnas",
         "type": "object"
       },
       "Entrada": {
@@ -2054,6 +2451,54 @@
         "title": "FichaDelNegocio",
         "type": "object"
       },
+      "FichajeDeUnaPersona": {
+        "properties": {
+          "fichaje_activo": {
+            "title": "Fichaje Activo",
+            "type": "boolean"
+          },
+          "profesional_id": {
+            "format": "uuid",
+            "title": "Profesional Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "profesional_id",
+          "fichaje_activo"
+        ],
+        "title": "FichajeDeUnaPersona",
+        "type": "object"
+      },
+      "FilaDelMes": {
+        "properties": {
+          "importe_centavos": {
+            "title": "Importe Centavos",
+            "type": "integer"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "profesional_id": {
+            "format": "uuid",
+            "title": "Profesional Id",
+            "type": "string"
+          },
+          "servicios": {
+            "title": "Servicios",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "profesional_id",
+          "nombre",
+          "servicios",
+          "importe_centavos"
+        ],
+        "title": "FilaDelMes",
+        "type": "object"
+      },
       "FotoDeResena": {
         "properties": {
           "id": {
@@ -2307,6 +2752,192 @@
           "cierra"
         ],
         "title": "HorarioDelDia",
+        "type": "object"
+      },
+      "InterruptorDeFichaje": {
+        "properties": {
+          "activo": {
+            "title": "Activo",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "activo"
+        ],
+        "title": "InterruptorDeFichaje",
+        "type": "object"
+      },
+      "Invitacion": {
+        "properties": {
+          "correo": {
+            "maxLength": 254,
+            "title": "Correo",
+            "type": "string"
+          },
+          "nombre": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Para la ficha de equipo cuando la persona todavía no tiene cuenta",
+            "title": "Nombre"
+          },
+          "profesional_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Ficha de equipo ya creada «sin cuenta» a la que enlazar a esta persona (ONB-4). Sin ella se crea una nueva",
+            "title": "Profesional Id"
+          },
+          "rol": {
+            "pattern": "^(dueno|profesional)$",
+            "title": "Rol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "correo",
+          "rol"
+        ],
+        "title": "Invitacion",
+        "type": "object"
+      },
+      "InvitacionAbierta": {
+        "description": "Lo que se enseña antes de aceptar: a qué salón te invitan y con qué papel.",
+        "properties": {
+          "caduca": {
+            "format": "date-time",
+            "title": "Caduca",
+            "type": "string"
+          },
+          "correo": {
+            "title": "Correo",
+            "type": "string"
+          },
+          "cuenta_con_contrasena": {
+            "description": "Cuando es falso, la cuenta la creó la invitación y aceptar incluye elegir contraseña. Cuando es cierto, hay que estar dentro con esa cuenta",
+            "title": "Cuenta Con Contrasena",
+            "type": "boolean"
+          },
+          "negocio": {
+            "title": "Negocio",
+            "type": "string"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "rol": {
+            "description": "dueno | profesional",
+            "title": "Rol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "negocio",
+          "rol",
+          "correo",
+          "nombre",
+          "caduca",
+          "cuenta_con_contrasena"
+        ],
+        "title": "InvitacionAbierta",
+        "type": "object"
+      },
+      "InvitacionCreada": {
+        "properties": {
+          "enlace_de_desarrollo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enlace De Desarrollo"
+          },
+          "miembro": {
+            "$ref": "#/components/schemas/MiembroDelLocal"
+          },
+          "token_de_desarrollo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Solo en local, y solo porque todavía no hay canal de correo real: en cualquier otro entorno el token viaja al correo y esta respuesta no lo lleva",
+            "title": "Token De Desarrollo"
+          }
+        },
+        "required": [
+          "miembro"
+        ],
+        "title": "InvitacionCreada",
+        "type": "object"
+      },
+      "MarcaDeFichaje": {
+        "properties": {
+          "clase": {
+            "description": "entrada | salida",
+            "title": "Clase",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "instante": {
+            "format": "date-time",
+            "title": "Instante",
+            "type": "string"
+          },
+          "nota": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nota"
+          },
+          "origen": {
+            "description": "profesional | dueno",
+            "title": "Origen",
+            "type": "string"
+          },
+          "profesional_id": {
+            "format": "uuid",
+            "title": "Profesional Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "profesional_id",
+          "clase",
+          "instante",
+          "origen",
+          "nota"
+        ],
+        "title": "MarcaDeFichaje",
         "type": "object"
       },
       "Metricas": {
@@ -2709,6 +3340,102 @@
         "title": "MiPerfilProfesional",
         "type": "object"
       },
+      "MiembroDelLocal": {
+        "description": "Una persona asignada al salón. **Sin teléfono**: aquí no hace falta y no viaja.",
+        "properties": {
+          "aceptada_en": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Aceptada En"
+          },
+          "correo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correo"
+          },
+          "estado": {
+            "description": "invitada | activa | revocada",
+            "title": "Estado",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "invitacion_caduca": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invitacion Caduca"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "profesional_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Su ficha de equipo en este salón, si la tiene",
+            "title": "Profesional Id"
+          },
+          "rol": {
+            "description": "dueno | profesional",
+            "title": "Rol",
+            "type": "string"
+          },
+          "ultimo_dueno": {
+            "description": "Si es el único dueño activo: quitarle el papel dejaría el salón sin nadie",
+            "title": "Ultimo Dueno",
+            "type": "boolean"
+          },
+          "usuario_id": {
+            "format": "uuid",
+            "title": "Usuario Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "usuario_id",
+          "nombre",
+          "correo",
+          "rol",
+          "estado",
+          "invitacion_caduca",
+          "aceptada_en",
+          "profesional_id",
+          "ultimo_dueno"
+        ],
+        "title": "MiembroDelLocal",
+        "type": "object"
+      },
       "NegocioCreado": {
         "properties": {
           "estado": {
@@ -3089,6 +3816,45 @@
         "title": "NuevaFoto",
         "type": "object"
       },
+      "NuevaMarca": {
+        "properties": {
+          "clase": {
+            "pattern": "^(entrada|salida)$",
+            "title": "Clase",
+            "type": "string"
+          },
+          "nota": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nota"
+          },
+          "profesional_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Solo lo manda el dueño para fichar por otra persona; el profesional, no",
+            "title": "Profesional Id"
+          }
+        },
+        "required": [
+          "clase"
+        ],
+        "title": "NuevaMarca",
+        "type": "object"
+      },
       "NuevaResena": {
         "properties": {
           "fotos": {
@@ -3164,6 +3930,52 @@
           "texto"
         ],
         "title": "NuevaRespuesta",
+        "type": "object"
+      },
+      "NuevoAnuncio": {
+        "properties": {
+          "activo": {
+            "default": true,
+            "title": "Activo",
+            "type": "boolean"
+          },
+          "desde": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Por defecto, ya",
+            "title": "Desde"
+          },
+          "hasta": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Nulo = sin fecha de fin",
+            "title": "Hasta"
+          },
+          "texto": {
+            "maxLength": 280,
+            "minLength": 1,
+            "title": "Texto",
+            "type": "string"
+          }
+        },
+        "required": [
+          "texto"
+        ],
+        "title": "NuevoAnuncio",
         "type": "object"
       },
       "NuevoFavorito": {
@@ -3497,6 +4309,48 @@
         "title": "NuevosPesos",
         "type": "object"
       },
+      "ParteDeFichaje": {
+        "properties": {
+          "fichaje_activo": {
+            "title": "Fichaje Activo",
+            "type": "boolean"
+          },
+          "jornada_abierta": {
+            "title": "Jornada Abierta",
+            "type": "boolean"
+          },
+          "marcas": {
+            "items": {
+              "$ref": "#/components/schemas/MarcaDeFichaje"
+            },
+            "title": "Marcas",
+            "type": "array"
+          },
+          "minutos_trabajados": {
+            "title": "Minutos Trabajados",
+            "type": "integer"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "profesional_id": {
+            "format": "uuid",
+            "title": "Profesional Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "profesional_id",
+          "nombre",
+          "fichaje_activo",
+          "minutos_trabajados",
+          "jornada_abierta",
+          "marcas"
+        ],
+        "title": "ParteDeFichaje",
+        "type": "object"
+      },
       "PerfilDelProfesional": {
         "description": "La ficha completa: quién es, qué hace, qué ha hecho y qué dicen de ella.",
         "properties": {
@@ -3719,6 +4573,16 @@
             ],
             "title": "Abierto Ahora"
           },
+          "anuncio": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AnuncioPublico"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "atributos": {
             "items": {
               "type": "string"
@@ -3858,6 +4722,30 @@
           "equipo"
         ],
         "title": "PerfilPublico",
+        "type": "object"
+      },
+      "PeriodoDeCaja": {
+        "properties": {
+          "citas": {
+            "title": "Citas",
+            "type": "integer"
+          },
+          "importe_centavos": {
+            "title": "Importe Centavos",
+            "type": "integer"
+          },
+          "inicio": {
+            "format": "date-time",
+            "title": "Inicio",
+            "type": "string"
+          }
+        },
+        "required": [
+          "inicio",
+          "citas",
+          "importe_centavos"
+        ],
+        "title": "PeriodoDeCaja",
         "type": "object"
       },
       "PesosDelRanking": {
@@ -4053,6 +4941,40 @@
         "title": "PeticionCambioDeContrasena",
         "type": "object"
       },
+      "PeticionDeAceptacion": {
+        "properties": {
+          "contrasena": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 10,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Obligatoria solo si la cuenta todavía no tiene contraseña",
+            "title": "Contrasena"
+          },
+          "superficie": {
+            "default": "web",
+            "title": "Superficie",
+            "type": "string"
+          },
+          "token": {
+            "maxLength": 200,
+            "minLength": 16,
+            "title": "Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "title": "PeticionDeAceptacion",
+        "type": "object"
+      },
       "PeticionDeCodigo": {
         "properties": {
           "telefono": {
@@ -4065,6 +4987,21 @@
           "telefono"
         ],
         "title": "PeticionDeCodigo",
+        "type": "object"
+      },
+      "PeticionDeInvitacion": {
+        "properties": {
+          "token": {
+            "maxLength": 200,
+            "minLength": 16,
+            "title": "Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "title": "PeticionDeInvitacion",
         "type": "object"
       },
       "PeticionDeReserva": {
@@ -4588,6 +5525,11 @@
             ],
             "title": "Facebook"
           },
+          "fichaje_activo": {
+            "description": "Si esta persona ficha entrada y salida. **Apagado por defecto** y se enciende una a una desde PUT /negocio/profesionales/{id}/fichaje (punto 6 del encargo)",
+            "title": "Fichaje Activo",
+            "type": "boolean"
+          },
           "foto": {
             "anyOf": [
               {
@@ -4691,6 +5633,7 @@
           "acepta_cualquiera",
           "orden",
           "tiene_cuenta",
+          "fichaje_activo",
           "servicios",
           "horario",
           "citas_futuras"
@@ -5647,6 +6590,58 @@
         "title": "ResumenDeResenas",
         "type": "object"
       },
+      "SalonEnElMapa": {
+        "description": "Un pin. Lo justo para dibujarlo y decidir si se toca.",
+        "properties": {
+          "latitud": {
+            "title": "Latitud",
+            "type": "number"
+          },
+          "longitud": {
+            "title": "Longitud",
+            "type": "number"
+          },
+          "negocio_id": {
+            "format": "uuid",
+            "title": "Negocio Id",
+            "type": "string"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "numero_reviews": {
+            "default": 0,
+            "title": "Numero Reviews",
+            "type": "integer"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "El bayesiano (REV-5). Nulo = todavía sin reseñas",
+            "title": "Rating"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          }
+        },
+        "required": [
+          "negocio_id",
+          "slug",
+          "nombre",
+          "longitud",
+          "latitud"
+        ],
+        "title": "SalonEnElMapa",
+        "type": "object"
+      },
       "ServicioDeLaCita": {
         "properties": {
           "duracion_minutos": {
@@ -6220,6 +7215,28 @@
           "activa"
         ],
         "title": "VarianteDeServicio",
+        "type": "object"
+      },
+      "VistaDelMapa": {
+        "properties": {
+          "salones": {
+            "items": {
+              "$ref": "#/components/schemas/SalonEnElMapa"
+            },
+            "title": "Salones",
+            "type": "array"
+          },
+          "truncado": {
+            "description": "Cierto cuando había más salones de los que caben en el tope. La pantalla debería pedir que se acerque el mapa en vez de enseñar una muestra sin decirlo",
+            "title": "Truncado",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "salones",
+          "truncado"
+        ],
+        "title": "VistaDelMapa",
         "type": "object"
       }
     }
@@ -7725,6 +8742,126 @@
         ]
       }
     },
+    "/api/v1/invitaciones/aceptar": {
+      "post": {
+        "description": "Acepta y devuelve una sesión **ya en modo negocio**: se entra y se está dentro.\n\nDos caminos, y la diferencia importa:\n\n* **La cuenta la creó la invitación** y no tiene contraseña: se elige aquí. El token es la\n  prueba de que ese buzón es suyo, así que el correo queda verificado — es exactamente lo\n  que demuestra haber recibido el enlace.\n* **La cuenta ya existía con contraseña**: hace falta **estar dentro con ella**. Un token de\n  correo no puede dar acceso a una cuenta que ya tiene dueño; quien interceptara el enlace\n  entraría en la cuenta de otra persona y no solo en el salón.",
+        "operationId": "aceptar_api_v1_invitaciones_aceptar_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PeticionDeAceptacion"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespuestaCredenciales"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Entrar en el local al que te invitaron (ONB-3, ONB-4)",
+        "tags": [
+          "invitaciones"
+        ]
+      }
+    },
+    "/api/v1/invitaciones/ver": {
+      "post": {
+        "description": "No cambia nada: solo dice qué hay al otro lado del enlace.\n\nUna invitación caducada, ya usada o inventada dan **el mismo error**. Separarlos le diría a\nquien prueba tokens al azar cuándo va por buen camino.",
+        "operationId": "ver_api_v1_invitaciones_ver_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PeticionDeInvitacion"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitacionAbierta"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Qué salón y qué papel hay detrás del enlace (ONB-3)",
+        "tags": [
+          "invitaciones"
+        ]
+      }
+    },
     "/api/v1/mi/agenda": {
       "get": {
         "description": "Las citas y los bloqueos de quien pregunta, en el rango pedido.\n\nPor rango y no por día, como el panel: siete peticiones para pintar una semana es media\npantalla en blanco en 3G, que es la red en la que vive esto.\n\nSi quien pregunta es el **dueño**, ve su propia agenda como profesional si tiene ficha; si\nno la tiene, la respuesta viene vacía en vez de enseñarle la de otro. Para ver la agenda\nentera del salón está `GET /negocio/agenda`, que es otra pantalla y otra pregunta.",
@@ -9070,6 +10207,85 @@
         ]
       }
     },
+    "/api/v1/negocio/agenda/columnas": {
+      "get": {
+        "description": "El día de **todas** las personas del salón, una columna por persona.\n\nLa agenda por rango ya existía (`GET /negocio/agenda`) y sirve para la lista; lo que\nfaltaba para el portal del dueño es esta forma: el mismo día, varias personas en paralelo,\nque es como se mira un salón con seis sillas.\n\nEl día se recorta **en hora local del negocio** y no en UTC. En Panamá son cinco horas de\ndiferencia: pedir «el sábado» en UTC deja fuera las cinco últimas horas del sábado y mete\ndentro cinco del viernes, que es la clase de error que se descubre por una cita que\ndesaparece.\n\nUn profesional que llame aquí ve **su columna y ninguna más**, y no porque este código lo\nfiltre: aunque no lo hiciera, las políticas de la migración 0006 le devolverían columnas\nvacías. Se filtra igual para que la respuesta sea honesta y no una lista de huecos.",
+        "operationId": "agenda_en_columnas_api_v1_negocio_agenda_columnas_get",
+        "parameters": [
+          {
+            "description": "Día local del negocio; por defecto, hoy",
+            "in": "query",
+            "name": "dia",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Día local del negocio; por defecto, hoy",
+              "title": "Dia"
+            }
+          },
+          {
+            "in": "query",
+            "name": "incluir_inactivos",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Incluir Inactivos",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiaEnColumnas"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Todos los calendarios del día, en columnas (AGD-2)",
+        "tags": [
+          "portal del dueño"
+        ]
+      }
+    },
     "/api/v1/negocio/ajustes": {
       "get": {
         "operationId": "leer_ajustes_api_v1_negocio_ajustes_get",
@@ -9174,6 +10390,244 @@
         "summary": "Cambiar los números sin desplegar (AGD-1, RSV-4, D10)",
         "tags": [
           "agenda del negocio"
+        ]
+      }
+    },
+    "/api/v1/negocio/anuncios": {
+      "get": {
+        "operationId": "listar_anuncios_api_v1_negocio_anuncios_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AnuncioDelSalon"
+                  },
+                  "title": "Response Listar Anuncios Api V1 Negocio Anuncios Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "La publicidad flash del salón (punto 6 del encargo)",
+        "tags": [
+          "portal del dueño"
+        ]
+      },
+      "post": {
+        "description": "Un texto del salón, con vigencia, que sale en **su** ficha pública.\n\n**No es publicidad del marketplace.** El posicionamiento pagado es otra cosa, se cobra y\nvive en `ad_campaigns`; esto es gratis, no compite con nadie y no toca el ranking.",
+        "operationId": "crear_anuncio_api_v1_negocio_anuncios_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NuevoAnuncio"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnuncioDelSalon"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Escribir un anuncio para la propia ficha",
+        "tags": [
+          "portal del dueño"
+        ]
+      }
+    },
+    "/api/v1/negocio/anuncios/{anuncio_id}": {
+      "delete": {
+        "description": "Lo apaga **sin borrar la fila**: el salón puede querer volver a lanzarlo en diciembre.",
+        "operationId": "retirar_anuncio_api_v1_negocio_anuncios__anuncio_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "anuncio_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Anuncio Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnuncioDelSalon"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Retirar el anuncio de la ficha",
+        "tags": [
+          "portal del dueño"
+        ]
+      },
+      "patch": {
+        "operationId": "editar_anuncio_api_v1_negocio_anuncios__anuncio_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "anuncio_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Anuncio Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CambioDeAnuncio"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnuncioDelSalon"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Cambiar el anuncio o sus fechas",
+        "tags": [
+          "portal del dueño"
         ]
       }
     },
@@ -9916,6 +11370,267 @@
         ]
       }
     },
+    "/api/v1/negocio/fichajes": {
+      "get": {
+        "description": "Los partes del rango. Por defecto, los últimos siete días.\n\nEl dueño ve el equipo entero; un profesional ve **el suyo**, y quien lo acota es la base.",
+        "operationId": "partes_de_fichaje_api_v1_negocio_fichajes_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "desde",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Desde"
+            }
+          },
+          {
+            "in": "query",
+            "name": "hasta",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Hasta"
+            }
+          },
+          {
+            "in": "query",
+            "name": "profesional",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Profesional"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ParteDeFichaje"
+                  },
+                  "title": "Response Partes De Fichaje Api V1 Negocio Fichajes Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "El parte de entradas y salidas",
+        "tags": [
+          "portal del dueño"
+        ]
+      },
+      "post": {
+        "description": "Cada quien ficha lo suyo; el dueño puede ficharlo desde el mostrador.\n\nUn profesional **no puede fichar por otro**, y no es este `if` lo que lo impide: la política\nrestrictiva de la migración 0010 acota sus filas a las suyas, así que una fila con el\nidentificador de otra persona no entra aunque el endpoint se despiste.",
+        "operationId": "fichar_api_v1_negocio_fichajes_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NuevaMarca"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarcaDeFichaje"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Fichar entrada o salida",
+        "tags": [
+          "portal del dueño"
+        ]
+      }
+    },
+    "/api/v1/negocio/finanzas": {
+      "get": {
+        "description": "Lo facturado en el rango, por día, semana o mes.\n\n**Solo cuenta lo `completada`** —una cita confirmada es una promesa, no un ingreso— y usa\n**el importe que se guardó en la cita**, no el precio de hoy del servicio: subirle el precio\nal balayage no puede reescribir lo que se facturó en marzo.\n\nLas finanzas son del dueño (STF-3). El profesional no las ve, y no solo porque este\nendpoint lo compruebe: las tablas de dinero le están cerradas en la base.",
+        "operationId": "finanzas_api_v1_negocio_finanzas_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "desde",
+            "required": true,
+            "schema": {
+              "format": "date-time",
+              "title": "Desde",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "hasta",
+            "required": true,
+            "schema": {
+              "format": "date-time",
+              "title": "Hasta",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "agrupacion",
+            "required": false,
+            "schema": {
+              "default": "dia",
+              "pattern": "^(dia|semana|mes)$",
+              "title": "Agrupacion",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "profesional",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Profesional"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Caja"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "El dinero que hace el salón (punto 6 del encargo)",
+        "tags": [
+          "portal del dueño"
+        ]
+      }
+    },
     "/api/v1/negocio/fotos": {
       "get": {
         "operationId": "listar_fotos_api_v1_negocio_fotos_get",
@@ -10199,6 +11914,364 @@
         ]
       }
     },
+    "/api/v1/negocio/mejor-del-mes": {
+      "get": {
+        "description": "El equipo ordenado por lo que pidió el encargo: **importe facturado** o **número de\nservicios**, y filtrable por categoría de servicio.\n\nSin fechas, el mes natural en curso **en hora local del negocio**. Se devuelve la lista\nentera y no solo el primero: enseñar únicamente al ganador y esconder que el segundo se\nquedó a dos servicios convierte un dato en un concurso.",
+        "operationId": "mejor_del_mes_api_v1_negocio_mejor_del_mes_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "desde",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Desde"
+            }
+          },
+          {
+            "in": "query",
+            "name": "hasta",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Hasta"
+            }
+          },
+          {
+            "in": "query",
+            "name": "criterio",
+            "required": false,
+            "schema": {
+              "default": "importe",
+              "pattern": "^(importe|servicios)$",
+              "title": "Criterio",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Slug de categoría de servicio, por ejemplo «barberia»",
+            "in": "query",
+            "name": "categoria",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Slug de categoría de servicio, por ejemplo «barberia»",
+              "title": "Categoria"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FilaDelMes"
+                  },
+                  "title": "Response Mejor Del Mes Api V1 Negocio Mejor Del Mes Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Quién facturó más o hizo más servicios",
+        "tags": [
+          "portal del dueño"
+        ]
+      }
+    },
+    "/api/v1/negocio/miembros": {
+      "get": {
+        "operationId": "listar_miembros_api_v1_negocio_miembros_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MiembroDelLocal"
+                  },
+                  "title": "Response Listar Miembros Api V1 Negocio Miembros Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Quién trabaja en el local y con qué papel (ONB-3)",
+        "tags": [
+          "personas del local"
+        ]
+      }
+    },
+    "/api/v1/negocio/miembros/invitaciones": {
+      "post": {
+        "description": "Invita por correo con su papel, **tenga cuenta o no**.\n\nSi el correo no tiene cuenta se le crea una **sin contraseña**, que no se puede usar para\nentrar por ninguna vía: se activa presentando el token que llega a ese correo. Es lo que\npermite que el dueño reparta los papeles del salón un domingo sin que nadie tenga que\nregistrarse antes.\n\nVolver a invitar a la misma persona **emite un token nuevo** y reutiliza su fila: quien se\nfue y vuelve es un caso normal, no un error.",
+        "operationId": "invitar_api_v1_negocio_miembros_invitaciones_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Invitacion"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitacionCreada"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Invitar a alguien por correo",
+        "tags": [
+          "personas del local"
+        ]
+      }
+    },
+    "/api/v1/negocio/miembros/{membresia_id}": {
+      "delete": {
+        "description": "Surte efecto **en la siguiente llamada**, no cuando caduque su token (ADR-0006).\n\nNo borra la fila ni su ficha de equipo: sus citas siguen ahí y el rastro de quién trabajó\naquí es lo que permite entender una agenda de hace tres meses. Y tampoco deja al salón sin\ndueño: quitar al último es el mismo error que bajarle el papel.",
+        "operationId": "revocar_api_v1_negocio_miembros__membresia_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "membresia_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Membresia Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MiembroDelLocal"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Quitar a alguien del local (ONB-3)",
+        "tags": [
+          "personas del local"
+        ]
+      },
+      "patch": {
+        "description": "Sube o baja de papel. **Bajar al último dueño no se puede.**\n\nUn salón sin ningún dueño no lo arregla nadie desde dentro: no queda nadie con permiso para\ninvitar. Por eso es un error con su propio código —`NEGOCIO_SIN_DUENO`— y no una casilla que\nse marca y ya se verá.",
+        "operationId": "cambiar_papel_api_v1_negocio_miembros__membresia_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "membresia_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Membresia Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CambioDePapel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MiembroDelLocal"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Cambiarle el papel a alguien (STF-3)",
+        "tags": [
+          "personas del local"
+        ]
+      }
+    },
     "/api/v1/negocio/profesionales": {
       "get": {
         "operationId": "listar_profesionales_api_v1_negocio_profesionales_get",
@@ -10459,6 +12532,76 @@
         "summary": "Editar la ficha (STF-1, STF-2)",
         "tags": [
           "equipo del negocio"
+        ]
+      }
+    },
+    "/api/v1/negocio/profesionales/{profesional_id}/fichaje": {
+      "put": {
+        "description": "**Persona a persona, y apagado por defecto.**\n\nNo hay un interruptor para todo el salón a la vez, y es la parte del encargo que más se\npresta a construirse mal: un fichaje que se enciende para todos porque alguien lo quería\npara uno se lee como vigilancia. Apagarlo **no borra** lo ya fichado: el parte de las\nsemanas anteriores sigue siendo cierto.",
+        "operationId": "cambiar_fichaje_api_v1_negocio_profesionales__profesional_id__fichaje_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "profesional_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Profesional Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InterruptorDeFichaje"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FichajeDeUnaPersona"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Encender o apagar el fichaje de una persona (punto 6 del encargo)",
+        "tags": [
+          "portal del dueño"
         ]
       }
     },
@@ -12173,6 +14316,106 @@
           }
         },
         "summary": "Búsqueda del marketplace (MKT-1, MKT-2, MKT-3, MKT-4)",
+        "tags": [
+          "público"
+        ]
+      }
+    },
+    "/api/v1/publico/mapa": {
+      "get": {
+        "description": "Lo que hay dentro de las cuatro esquinas que se ven en la pantalla.\n\nEs la otra pregunta del marketplace, distinta de la que ya resolvía la búsqueda: «cerca de\nmí» es un radio y esto es un rectángulo. La pantalla de un móvil es alta y estrecha, así que\nel círculo que la cubre entera se lleva medio barrio que no se ve.\n\n**Con tope, y diciéndolo.** Un mapa alejado sobre el país entero serían varios megabytes de\ndatos móviles para pintar puntos que no caben; cuando el tope recorta, `truncado` viene en\ncierto y se conservan los del centro del rectángulo, que es donde está mirando quien mueve\nel mapa.",
+        "operationId": "mapa_api_v1_publico_mapa_get",
+        "parameters": [
+          {
+            "description": "Longitud del borde izquierdo",
+            "in": "query",
+            "name": "oeste",
+            "required": true,
+            "schema": {
+              "description": "Longitud del borde izquierdo",
+              "maximum": 180,
+              "minimum": -180,
+              "title": "Oeste",
+              "type": "number"
+            }
+          },
+          {
+            "description": "Latitud del borde inferior",
+            "in": "query",
+            "name": "sur",
+            "required": true,
+            "schema": {
+              "description": "Latitud del borde inferior",
+              "maximum": 90,
+              "minimum": -90,
+              "title": "Sur",
+              "type": "number"
+            }
+          },
+          {
+            "description": "Longitud del borde derecho",
+            "in": "query",
+            "name": "este",
+            "required": true,
+            "schema": {
+              "description": "Longitud del borde derecho",
+              "maximum": 180,
+              "minimum": -180,
+              "title": "Este",
+              "type": "number"
+            }
+          },
+          {
+            "description": "Latitud del borde superior",
+            "in": "query",
+            "name": "norte",
+            "required": true,
+            "schema": {
+              "description": "Latitud del borde superior",
+              "maximum": 90,
+              "minimum": -90,
+              "title": "Norte",
+              "type": "number"
+            }
+          },
+          {
+            "description": "Tope de pines devueltos",
+            "in": "query",
+            "name": "limite",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "description": "Tope de pines devueltos",
+              "maximum": 300,
+              "minimum": 1,
+              "title": "Limite",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VistaDelMapa"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Salones dentro del rectángulo visible (MKT-1, punto 5)",
         "tags": [
           "público"
         ]

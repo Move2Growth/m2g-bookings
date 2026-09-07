@@ -20,17 +20,21 @@ from agenda.api import (
     cliente,
     consola,
     favoritos,
+    invitaciones,
     mi_telefono,
     negocio,
     negocio_agenda,
     negocio_catalogo,
     negocio_clientes,
+    negocio_dueno,
     negocio_equipo,
     negocio_ficha,
+    negocio_miembros,
     onboarding,
     perfil_profesional,
     profesional,
     publico,
+    publico_mapa,
     publico_profesionales,
     resenas,
 )
@@ -137,8 +141,12 @@ app.add_middleware(
 # público, después el negocio y por último la persona. La consola va **la última y aparte**:
 # no comparte prefijo, ni dependencia de sesión, ni rol de base de datos con ninguna de ellas.
 app.include_router(acceso.router)
+# Aceptar una invitación se hace **antes** de estar dentro de ningún negocio, así que va
+# con las de entrar y no con las del panel (punto 4 del encargo).
+app.include_router(invitaciones.router)
 app.include_router(publico.router)
 app.include_router(publico_profesionales.router)
+app.include_router(publico_mapa.router)
 app.include_router(onboarding.router)
 app.include_router(negocio.router)
 app.include_router(negocio_catalogo.router)
@@ -146,6 +154,8 @@ app.include_router(negocio_equipo.router)
 app.include_router(negocio_agenda.router)
 app.include_router(negocio_ficha.router)
 app.include_router(negocio_clientes.router)
+app.include_router(negocio_dueno.router)
+app.include_router(negocio_miembros.router)
 app.include_router(mi_telefono.router)
 app.include_router(cliente.router)
 app.include_router(profesional.router)

@@ -14,6 +14,7 @@ from agenda.modelos.base import Base, FechasMixin, IdMixin, TenantMixin, nuevo_i
 from agenda.modelos.catalogo import Service, ServiceCategory, ServiceVariant
 from agenda.modelos.clientes import BusinessClient, ClientProfile, Favorite
 from agenda.modelos.comunes import CreadoEnMixin, MarcasDeTiempoMixin
+from agenda.modelos.dueno import BusinessBanner, StaffClockEvent
 from agenda.modelos.equipo import (
     StaffHours,
     StaffMedia,
@@ -113,6 +114,7 @@ __all__ = [
     "BookingItem",
     "Business",
     "BusinessAttribute",
+    "BusinessBanner",
     "BusinessCategory",
     "BusinessClient",
     "BusinessHours",
@@ -160,6 +162,7 @@ __all__ = [
     "ServiceVariant",
     "Session",
     "SlugRedirect",
+    "StaffClockEvent",
     "StaffHours",
     "StaffMedia",
     "StaffOccupancy",

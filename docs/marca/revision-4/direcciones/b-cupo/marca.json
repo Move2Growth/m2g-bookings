@@ -5,128 +5,308 @@
   "frase": "Lo que se reserva no es un salón. Es una hora con una persona.",
   "escritura": "Siempre en minúscula y en redonda, incluso abriendo frase. Sin artículo delante.",
   "semilla": "La hora. Lo que se vende es un hueco: el elemento gráfico central de la marca es la regla del día, no el logotipo.",
-
   "tintas": [
     {
       "nombre": "Cal",
       "hex": "#F4EFE6",
-      "rgb": [244, 239, 230],
+      "rgb": [
+        244,
+        239,
+        230
+      ],
       "papel": true,
       "uso": "El fondo de todo. Pared encalada de Casco Viejo, nunca blanco de pantalla.",
       "proporcion": 0.68,
       "contraste": [
-        { "sobre": "#17150F", "ratio": 15.94, "aa": true, "nota": "cal sobre carbón" },
-        { "sobre": "#A82F18", "ratio": 5.94, "aa": true, "nota": "cal sobre achiote" },
-        { "sobre": "#0E6156", "ratio": 6.40, "aa": true, "nota": "cal sobre caribe" },
-        { "sobre": "#645F57", "ratio": 5.53, "aa": true, "nota": "cal sobre piedra" }
+        {
+          "sobre": "#17150F",
+          "ratio": 15.94,
+          "aa": true,
+          "nota": "cal sobre carbón"
+        },
+        {
+          "sobre": "#A82F18",
+          "ratio": 5.94,
+          "aa": true,
+          "nota": "cal sobre achiote"
+        },
+        {
+          "sobre": "#0E6156",
+          "ratio": 6.4,
+          "aa": true,
+          "nota": "cal sobre caribe"
+        },
+        {
+          "sobre": "#645F57",
+          "ratio": 5.53,
+          "aa": true,
+          "nota": "cal sobre piedra"
+        }
       ]
     },
     {
       "nombre": "Carbón",
       "hex": "#17150F",
-      "rgb": [23, 21, 15],
+      "rgb": [
+        23,
+        21,
+        15
+      ],
       "uso": "Todo el texto, los filetes duros y los marcos de ficha.",
       "proporcion": 0.17,
       "contraste": [
-        { "sobre": "#F4EFE6", "ratio": 15.94, "aa": true },
-        { "sobre": "#FFFFFF", "ratio": 18.25, "aa": true },
-        { "sobre": "#F2B705", "ratio": 10.04, "aa": true },
-        { "sobre": "#E3DED3", "ratio": 13.61, "aa": true }
+        {
+          "sobre": "#F4EFE6",
+          "ratio": 15.94,
+          "aa": true
+        },
+        {
+          "sobre": "#FFFFFF",
+          "ratio": 18.25,
+          "aa": true
+        },
+        {
+          "sobre": "#F2B705",
+          "ratio": 10.04,
+          "aa": true
+        },
+        {
+          "sobre": "#E3DED3",
+          "ratio": 13.61,
+          "aa": true
+        }
       ]
     },
     {
       "nombre": "Achiote",
       "hex": "#A82F18",
-      "rgb": [168, 47, 24],
+      "rgb": [
+        168,
+        47,
+        24
+      ],
       "uso": "La tinta del cupo libre. La única viva del sistema y la única que aguanta como texto y como relleno.",
       "proporcion": 0.05,
       "contraste": [
-        { "sobre": "#F4EFE6", "ratio": 5.94, "aa": true },
-        { "sobre": "#FFFFFF", "ratio": 6.81, "aa": true }
+        {
+          "sobre": "#F4EFE6",
+          "ratio": 5.94,
+          "aa": true
+        },
+        {
+          "sobre": "#FFFFFF",
+          "ratio": 6.81,
+          "aa": true
+        }
       ]
     },
     {
       "nombre": "Guayacán",
       "hex": "#F2B705",
-      "rgb": [242, 183, 5],
+      "rgb": [
+        242,
+        183,
+        5
+      ],
       "uso": "Solo el último cupo del día, y siempre como fondo con carbón encima.",
       "proporcion": 0.005,
-      "prohibido": "Como texto o como filete sobre cal: 1,59:1.",
+      "prohibido": "Sobre cal: ni texto ni filete, nunca (1,59:1).",
       "contraste": [
-        { "sobre": "#F4EFE6", "ratio": 1.59, "aa": false, "nota": "por eso nunca es texto" },
-        { "encima": "#17150F", "ratio": 10.04, "aa": true, "nota": "carbón sobre guayacán" }
-      ]
+        {
+          "sobre": "#F4EFE6",
+          "ratio": 1.59,
+          "aa": false,
+          "nota": "por eso sobre claro no es nunca texto ni filete"
+        },
+        {
+          "sobre": "#17150F",
+          "ratio": 10.04,
+          "aa": true,
+          "nota": "guayacán sobre carbón: el rótulo de calle y el perfil"
+        },
+        {
+          "encima": "#17150F",
+          "ratio": 10.04,
+          "aa": true,
+          "nota": "carbón sobre guayacán: el chip de último cupo"
+        }
+      ],
+      "permitido": "Sobre carbón sí funciona como texto y como filete: 10,04:1."
     },
     {
       "nombre": "Caribe",
       "hex": "#0E6156",
-      "rgb": [14, 97, 86],
+      "rgb": [
+        14,
+        97,
+        86
+      ],
       "uso": "Reserva confirmada y foco de teclado. Nunca marca disponibilidad.",
       "proporcion": 0.015,
       "contraste": [
-        { "sobre": "#F4EFE6", "ratio": 6.40, "aa": true },
-        { "sobre": "#FFFFFF", "ratio": 7.34, "aa": true }
+        {
+          "sobre": "#F4EFE6",
+          "ratio": 6.4,
+          "aa": true
+        },
+        {
+          "sobre": "#FFFFFF",
+          "ratio": 7.34,
+          "aa": true
+        }
       ]
     },
     {
       "nombre": "Piedra",
       "hex": "#645F57",
-      "rgb": [100, 95, 87],
+      "rgb": [
+        100,
+        95,
+        87
+      ],
       "uso": "Lo ya vendido y el texto de apoyo. El color de la mayor parte de la agenda.",
       "proporcion": 0.08,
       "contraste": [
-        { "sobre": "#F4EFE6", "ratio": 5.53, "aa": true },
-        { "sobre": "#FFFFFF", "ratio": 6.33, "aa": true },
-        { "sobre": "#E3DED3", "ratio": 4.72, "aa": true, "nota": "al límite: ahí no se baja de 12 px" }
+        {
+          "sobre": "#F4EFE6",
+          "ratio": 5.53,
+          "aa": true
+        },
+        {
+          "sobre": "#FFFFFF",
+          "ratio": 6.33,
+          "aa": true
+        },
+        {
+          "sobre": "#E3DED3",
+          "ratio": 4.72,
+          "aa": true,
+          "nota": "al límite: ahí no se baja de 12 px"
+        }
       ]
     }
   ],
-
   "superficies": [
-    { "nombre": "Papel", "hex": "#FFFFFF", "uso": "Ficha sobre cal", "carbon_encima": 18.25 },
-    { "nombre": "Piedra 15", "hex": "#E3DED3", "uso": "Relleno de lo ocupado", "carbon_encima": 13.61 },
-    { "nombre": "Filete", "hex": "#D8D2C5", "uso": "Línea de 1 px, nunca texto" }
+    {
+      "nombre": "Papel",
+      "hex": "#FFFFFF",
+      "uso": "Ficha sobre cal",
+      "carbon_encima": 18.25
+    },
+    {
+      "nombre": "Piedra 15",
+      "hex": "#E3DED3",
+      "uso": "Relleno de lo ocupado",
+      "carbon_encima": 13.61
+    },
+    {
+      "nombre": "Filete",
+      "hex": "#D8D2C5",
+      "uso": "Línea de 1 px, nunca texto"
+    }
   ],
-
   "tipografias": [
     {
       "familia": "Chivo",
       "fundicion": "Omnibus-Type, Buenos Aires",
       "papel": "Titulares, interfaz, cuerpo y etiquetas",
-      "pesos": [400, 500, 700, 900]
+      "pesos": [
+        400,
+        500,
+        700,
+        900
+      ]
     },
     {
       "familia": "Chivo Mono",
       "fundicion": "Omnibus-Type, Buenos Aires",
-      "papel": "TODA hora del sistema, y nada más. Cifras tabulares.",
-      "pesos": [400, 500, 700]
+      "papel": "En el PRODUCTO: toda hora, y nada más (ni precios, ni nombres, ni distancias, ni cuentas). En ESTE MANUAL es además la voz técnica —hex, ratios y cotas—, excepción declarada en la página 07.",
+      "pesos": [
+        400,
+        500,
+        700
+      ]
     },
     {
       "familia": "Petrona",
       "fundicion": "Huerta Tipográfica, La Plata",
       "papel": "Frases de marca y citas de clientas. Fuera de la interfaz del producto.",
-      "pesos": [400, 600, 700],
+      "pesos": [
+        400,
+        600,
+        700
+      ],
       "cursiva": true
     }
   ],
-
   "jerarquia": {
-    "display":  { "familia": "Chivo",      "peso": 900, "tamano": 148, "interlinea": 136, "tracking": "-3,5 %" },
-    "titular1": { "familia": "Petrona",    "peso": 400, "tamano": 40,  "interlinea": 46,  "tracking": "-1,8 %" },
-    "titular2": { "familia": "Chivo",      "peso": 700, "tamano": 22,  "interlinea": 24,  "tracking": "-2 %" },
-    "cuerpo":   { "familia": "Chivo",      "peso": 400, "tamano": 13,  "interlinea": 19.5 },
-    "etiqueta": { "familia": "Chivo",      "peso": 700, "tamano": 10.5, "tracking": "+16 %", "caja": "alta" },
-    "hora":     { "familia": "Chivo Mono", "peso": 700, "cifras": "tabulares" }
+    "display": {
+      "familia": "Chivo",
+      "peso": 900,
+      "tamano": 148,
+      "interlinea": 136,
+      "tracking": "-3,5 %"
+    },
+    "titular1": {
+      "familia": "Petrona",
+      "peso": 400,
+      "tamano": 40,
+      "interlinea": 46,
+      "tracking": "-1,8 %"
+    },
+    "titular2": {
+      "familia": "Chivo",
+      "peso": 700,
+      "tamano": 22,
+      "interlinea": 24,
+      "tracking": "-2 %"
+    },
+    "cuerpo": {
+      "familia": "Chivo",
+      "peso": 400,
+      "tamano": 13,
+      "interlinea": 19.5
+    },
+    "etiqueta": {
+      "familia": "Chivo",
+      "peso": 700,
+      "tamano": 10.5,
+      "tracking": "+16 %",
+      "caja": "alta"
+    },
+    "hora": {
+      "familia": "Chivo Mono",
+      "peso": 700,
+      "cifras": "tabulares"
+    },
+    "cuerpo_menor": {
+      "familia": "Chivo",
+      "peso": 400,
+      "tamano": 11.5,
+      "interlinea": 16
+    },
+    "micro": {
+      "familia": "Chivo",
+      "peso": "400/700",
+      "tamano": 9.5,
+      "interlinea": 13,
+      "nota": "El suelo del sistema. Nada baja de aquí, tampoco dentro de la agenda."
+    }
   },
-
   "interfaz": {
     "radio_de_esquina": 0,
     "corte": "Escalón de 13 × 7 px quitado a la esquina inferior izquierda de todo botón",
-    "alto_de_toque": { "boton_de_hora": 38, "resto": 34 },
+    "pulsado": "Al pulsar, el corte se cierra: el botón pasa a rectángulo pleno. Es la señal principal del estado, no el matiz de color, porque un dedo tapa el botón y dos rojos vecinos no se distinguen.",
+    "encima": "Solo existe con ratón. En el teléfono no hay estado «encima».",
+    "alto_de_toque": {
+      "todo_control_tocable": 44,
+      "separacion_minima": 8,
+      "referencia": "iOS 44 pt · Android 48 dp",
+      "chip_informativo_no_tocable": 28
+    },
     "foco": "Envoltorio con contorno de 2 px en Caribe y 3 px de aire; no va en el propio botón porque el corte recorta el contorno",
     "semaforo": false
   },
-
   "logotipo": {
     "origen": "Higgsfield · recraft_v4_1 · model_type vector",
     "principal": "logo/principal.svg",
@@ -135,5 +315,54 @@
     "icono_16": "logo/icono-16.svg",
     "intentos": "logo/intentos/",
     "creditos_gastados": 12.5
-  }
+  },
+  "tonos_de_estado": [
+    {
+      "hex": "#8E2712",
+      "donde": "Primario encima",
+      "sobre": "#F4EFE6 encima",
+      "ratio": 7.49,
+      "aa": true
+    },
+    {
+      "hex": "#741F0D",
+      "donde": "Primario pulsado y texto encima",
+      "ratio": 9.43,
+      "aa": true
+    },
+    {
+      "hex": "#EBD3CB",
+      "donde": "Fondo del botón de hora encima",
+      "texto": "#8E2712",
+      "ratio": 6.01,
+      "aa": true
+    },
+    {
+      "hex": "#E9D9D2",
+      "donde": "Texto de «cargando» sobre #8E2712",
+      "ratio": 6.26,
+      "aa": true
+    },
+    {
+      "hex": "#B9B2A5",
+      "donde": "Texto de apoyo sobre carbón",
+      "ratio": 8.67,
+      "aa": true
+    },
+    {
+      "hex": "#847D6E",
+      "donde": "Texto inhabilitado",
+      "ratio": 3.57,
+      "aa": false,
+      "nota": "Control inactivo: exento de AA por WCAG 2.1 §1.4.3. Aun así se sube de 2,38 a 3,57 y se imprime."
+    },
+    {
+      "hex": "#B3AC9C",
+      "donde": "Filete de control inhabilitado",
+      "ratio": 1.97,
+      "aa": false,
+      "nota": "Filete, no texto. Exento por 1.4.11 al ser componente inactivo."
+    }
+  ],
+  "cifras_no_horarias": "Chivo con font-variant-numeric: tabular-nums. Nunca Chivo Mono."
 }

@@ -5,116 +5,325 @@
   "semilla": "Lo que se reserva es una persona, no un local",
   "frase": "Reservas con la persona que te atiende, no con el local.",
   "dominio": "buenamano.pa",
-
   "tintas": {
     "papel": {
-      "hex": "#F7F2E9", "rgb": [247, 242, 233],
+      "hex": "#F7F2E9",
+      "rgb": [
+        247,
+        242,
+        233
+      ],
       "papel": "fondo de todo el producto y del libro",
       "contraste": [
-        { "sobre": "tinta",   "hex": "#14100D", "ratio": 16.97, "nivel": "AAA" },
-        { "sobre": "anil",    "hex": "#1D3FB0", "ratio": 7.88,  "nivel": "AAA" },
-        { "sobre": "achiote", "hex": "#B23320", "ratio": 5.56,  "nivel": "AA"  },
-        { "sobre": "ceniza",  "hex": "#6B6157", "ratio": 5.42,  "nivel": "AA"  }
-      ]
+        {
+          "sobre": "tinta",
+          "hex": "#14100D",
+          "ratio": 16.97,
+          "nivel": "AAA"
+        },
+        {
+          "sobre": "anil",
+          "hex": "#1D3FB0",
+          "ratio": 7.88,
+          "nivel": "AAA"
+        },
+        {
+          "sobre": "achiote",
+          "hex": "#B23320",
+          "ratio": 5.56,
+          "nivel": "AA"
+        },
+        {
+          "sobre": "ceniza",
+          "hex": "#6B6157",
+          "ratio": 5.42,
+          "nivel": "AA"
+        }
+      ],
+      "matiz_de_recuadro": {
+        "hex": "#EFE7D9",
+        "papel": "el mismo papel un punto apagado, para separar un recuadro del fondo; no es una tinta aparte",
+        "contraste": [
+          {
+            "sobre": "tinta",
+            "hex": "#14100D",
+            "ratio": 15.41,
+            "nivel": "AAA"
+          },
+          {
+            "sobre": "anil",
+            "hex": "#1D3FB0",
+            "ratio": 7.16,
+            "nivel": "AAA"
+          },
+          {
+            "sobre": "ceniza",
+            "hex": "#6B6157",
+            "ratio": 4.92,
+            "nivel": "AA"
+          }
+        ]
+      }
     },
     "bruma": {
-      "hex": "#E0D7C8", "rgb": [224, 215, 200],
+      "hex": "#E0D7C8",
+      "rgb": [
+        224,
+        215,
+        200
+      ],
       "papel": "líneas, separadores, trama de inhabilitado",
       "no_es_color_de_texto": true,
       "contraste": [
-        { "sobre": "papel", "hex": "#F7F2E9", "ratio": 1.28, "nivel": "prohibido como texto" }
+        {
+          "sobre": "papel",
+          "hex": "#F7F2E9",
+          "ratio": 1.28,
+          "nivel": "prohibido como texto"
+        }
       ]
     },
     "ceniza": {
-      "hex": "#6B6157", "rgb": [107, 97, 87],
+      "hex": "#6B6157",
+      "rgb": [
+        107,
+        97,
+        87
+      ],
       "papel": "texto secundario, rótulos, etiquetas de estado inhabilitado",
       "contraste": [
-        { "sobre": "papel", "hex": "#F7F2E9", "ratio": 5.42, "nivel": "AA" },
-        { "sobre": "bruma", "hex": "#E0D7C8", "ratio": 4.24, "nivel": "prohibido" }
+        {
+          "sobre": "papel",
+          "hex": "#F7F2E9",
+          "ratio": 5.42,
+          "nivel": "AA"
+        },
+        {
+          "sobre": "bruma",
+          "hex": "#E0D7C8",
+          "ratio": 4.24,
+          "nivel": "prohibido"
+        }
       ]
     },
     "tinta": {
-      "hex": "#14100D", "rgb": [20, 16, 13],
+      "hex": "#14100D",
+      "rgb": [
+        20,
+        16,
+        13
+      ],
       "papel": "texto principal, nombres, bloques de hora ocupada",
       "contraste": [
-        { "sobre": "papel", "hex": "#F7F2E9", "ratio": 16.97, "nivel": "AAA" },
-        { "sobre": "bruma", "hex": "#E0D7C8", "ratio": 13.27, "nivel": "AAA" }
+        {
+          "sobre": "papel",
+          "hex": "#F7F2E9",
+          "ratio": 16.97,
+          "nivel": "AAA"
+        },
+        {
+          "sobre": "bruma",
+          "hex": "#E0D7C8",
+          "ratio": 13.27,
+          "nivel": "AAA"
+        }
       ]
     },
     "anil": {
-      "hex": "#1D3FB0", "rgb": [29, 63, 176],
+      "hex": "#1D3FB0",
+      "rgb": [
+        29,
+        63,
+        176
+      ],
       "papel": "marca y acción: sello, botón primario, hora elegida",
       "tope_de_uso": "8 % de la superficie",
       "contraste": [
-        { "sobre": "papel", "hex": "#F7F2E9", "ratio": 7.88, "nivel": "AAA" },
-        { "sobre": "bruma", "hex": "#E0D7C8", "ratio": 6.16, "nivel": "AA"  }
+        {
+          "sobre": "papel",
+          "hex": "#F7F2E9",
+          "ratio": 7.88,
+          "nivel": "AAA"
+        },
+        {
+          "sobre": "bruma",
+          "hex": "#E0D7C8",
+          "ratio": 6.16,
+          "nivel": "AA"
+        }
       ],
       "variantes": {
-        "encima":  { "hex": "#173397", "papel_sobre_el": 9.62 },
-        "pulsado": { "hex": "#14318C", "papel_sobre_el": 10.19 },
-        "oscuro":  { "hex": "#7EA0FF", "tinta_sobre_el": 7.53, "papel": "solo en el tema oscuro" }
+        "encima": {
+          "hex": "#173397",
+          "papel_sobre_el": 9.62
+        },
+        "pulsado": {
+          "hex": "#14318C",
+          "papel_sobre_el": 10.19
+        },
+        "oscuro": {
+          "hex": "#7EA0FF",
+          "tinta_sobre_el": 7.53,
+          "papel": "solo en el tema oscuro; el rótulo encima va en tinta, nunca en papel",
+          "papel_sobre_el": 2.25
+        },
+        "cargando": {
+          "hex": "#3A5AC4",
+          "papel_sobre_el": 5.48
+        }
       }
     },
     "achiote": {
-      "hex": "#B23320", "rgb": [178, 51, 32],
-      "papel": "el próximo hueco, cancelar, aro de recién llegada",
-      "tope_de_uso": "1 por pantalla",
+      "hex": "#B23320",
+      "rgb": [
+        178,
+        51,
+        32
+      ],
+      "papel": "un solo asunto por pantalla: el hueco libre y el botón que deshace. Nunca colorea personas ni entra en el sorteo de las huellas",
+      "tope_de_uso": "un solo asunto por pantalla",
       "contraste": [
-        { "sobre": "papel", "hex": "#F7F2E9", "ratio": 5.56, "nivel": "AA" },
-        { "sobre": "bruma", "hex": "#E0D7C8", "ratio": 4.79, "nivel": "AA" }
+        {
+          "sobre": "papel",
+          "hex": "#F7F2E9",
+          "ratio": 5.56,
+          "nivel": "AA"
+        },
+        {
+          "sobre": "bruma",
+          "hex": "#E0D7C8",
+          "ratio": 4.79,
+          "nivel": "AA"
+        }
       ],
       "variantes": {
-        "encima":  { "hex": "#9C2C1C", "papel_sobre_el": 6.75 },
-        "pulsado": { "hex": "#7E2316", "papel_sobre_el": 8.80 }
+        "encima": {
+          "hex": "#9C2C1C",
+          "papel_sobre_el": 6.75
+        },
+        "pulsado": {
+          "hex": "#7E2316",
+          "papel_sobre_el": 8.8
+        },
+        "cargando": {
+          "hex": "#BE3E2A",
+          "papel_sobre_el": 4.81
+        }
       }
     }
   },
-
-  "proporcion_de_uso": { "papel": 60, "tinta": 18, "bruma": 10, "anil": 8, "ceniza": 3, "achiote": 1 },
-
+  "proporcion_de_uso": {
+    "papel": 60,
+    "tinta": 18,
+    "bruma": 10,
+    "anil": 8,
+    "ceniza": 3,
+    "achiote": 1
+  },
   "tipografias": {
     "display": {
       "familia": "Alegreya",
       "foundry": "Huerta Tipográfica · Buenos Aires",
-      "pesos": [400, 500, 700, 800],
-      "cursiva": [400, 500, 700],
+      "pesos": [
+        400,
+        500,
+        700,
+        800
+      ],
+      "cursiva": [
+        400,
+        500,
+        700
+      ],
       "papel": "el nombre de una persona, titulares y cifras de portada",
       "google_fonts": "Alegreya:ital,wght@0,400..800;1,400..700"
     },
     "texto": {
       "familia": "Archivo",
       "foundry": "Omnibus-Type · Buenos Aires",
-      "pesos": [400, 500, 600, 700],
-      "eje_de_ancho": [62, 125],
+      "pesos": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "eje_de_ancho": [
+        62,
+        125
+      ],
       "papel": "interfaz, rótulos, datos y texto corrido",
       "google_fonts": "Archivo:wdth,wght@62..125,400..700"
     },
     "regla": "Si tiene nombre y apellido, va en Alegreya. Todo lo demás, en Archivo."
   },
-
   "jerarquia": {
-    "display":  { "familia": "Alegreya", "peso": 800, "tam": 52,   "interlinea": 47,   "tracking": "-2,2 %" },
-    "titulo_1": { "familia": "Alegreya", "peso": 700, "tam": 34,   "interlinea": 35,   "tracking": "-1,5 %" },
-    "titulo_2": { "familia": "Archivo",  "peso": 600, "ancho": 108, "tam": 15.5, "interlinea": 19 },
-    "cuerpo":   { "familia": "Archivo",  "peso": 400, "tam": 12,   "interlinea": 18.5, "en_producto": "15/23" },
-    "etiqueta": { "familia": "Archivo",  "peso": 600, "ancho": 118, "tam": 8.5, "tracking": "+17 %", "caja": "versalita" },
-    "dato":     { "familia": "Archivo",  "peso": 500, "ancho": 92, "cifras": "tabulares" }
+    "display": {
+      "familia": "Alegreya",
+      "peso": 800,
+      "tam": 52,
+      "interlinea": 47,
+      "tracking": "-2,2 %"
+    },
+    "titulo_1": {
+      "familia": "Alegreya",
+      "peso": 700,
+      "tam": 34,
+      "interlinea": 35,
+      "tracking": "-1,5 %"
+    },
+    "titulo_2": {
+      "familia": "Archivo",
+      "peso": 600,
+      "ancho": 108,
+      "tam": 15.5,
+      "interlinea": 19
+    },
+    "cuerpo": {
+      "familia": "Archivo",
+      "peso": 400,
+      "tam": 12,
+      "interlinea": 18.5,
+      "en_producto": "15/23",
+      "suelos_en_telefono": {
+        "cuerpo": 15,
+        "secundario": 13,
+        "etiqueta": 11
+      }
+    },
+    "etiqueta": {
+      "familia": "Archivo",
+      "peso": 600,
+      "ancho": 118,
+      "tam": 8.5,
+      "tracking": "+17 %",
+      "caja": "versalita"
+    },
+    "dato": {
+      "familia": "Archivo",
+      "peso": 500,
+      "ancho": 92,
+      "cifras": "tabulares"
+    }
   },
-
   "forma": {
     "radio": 0,
     "excepcion": "el círculo del retrato, que significa persona",
     "canto": "2 px más oscuro bajo todo elemento interactivo; 4 px al pasar por encima; ninguno al pulsar",
-    "alto_de_boton": { "libro": 38, "producto": 44, "telefono": 48 },
-    "foco": "contorno de 2,5 px separado 3 px, nunca un halo difuminado"
+    "alto_de_boton": {
+      "libro": 38,
+      "producto": 44,
+      "telefono": 48
+    },
+    "foco": "contorno de 2,5 px separado 3 px, nunca un halo difuminado",
+    "inhabilitado": "trama diagonal de bruma como superficie, con el rótulo apoyado en una placa de papel limpio: el texto va a 5,42:1 de verdad, sin acogerse a la exención de WCAG",
+    "fondos_del_sello": "papel, su matiz de recuadro, bruma, añil y tinta; sobre foto o trama nunca; sobre cualquier otro plano solo si el sello llega a AA (cristal del vinilo, 7,48:1)"
   },
-
   "signos": {
     "sello": "huella de tres anillos cruzada por una barra: una persona marcada a una hora",
-    "huella": "patrón de anillos calculado a partir del nombre de cada profesional; retrato cuando no hay foto",
-    "cinta_de_horas": "regla de medias horas; ocupado en tinta maciza, hueco en papel, próximo con aro de achiote"
+    "huella": "patrón de anillos calculado a partir del nombre de cada profesional, en añil o en tinta; el achiote no entra en el sorteo. Retrato cuando no hay foto",
+    "cinta_de_horas": "regla de medias horas; ocupado en tinta maciza, hueco en papel, próximo con aro de achiote",
+    "aro_discontinuo": "aro de añil a trazos alrededor del retrato: perfil sin historial todavía. No es achiote, porque no señala un hueco"
   },
-
   "logo": {
     "principal": "logo/principal.svg",
     "invertida": "logo/invertida.svg",
@@ -124,5 +333,14 @@
     "icono_16": "logo/icono-16.svg",
     "talla_minima_px": 14,
     "origen": "Higgsfield · recraft_v4_1 · model_type vector"
+  },
+  "proporcion_de_uso_medida": {
+    "ficha": {
+      "anil_pct": 5.65
+    },
+    "busqueda": {
+      "anil_pct": 2.57
+    },
+    "tope": 8
   }
 }

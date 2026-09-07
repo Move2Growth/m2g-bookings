@@ -435,7 +435,7 @@ def normalizar_correo(correo: str) -> str:
     return correo.strip().lower()
 
 
-def _revisar_contrasena(contrasena: str) -> None:
+def revisar_contrasena(contrasena: str) -> None:
     if len(contrasena) < LARGO_MINIMO_CONTRASENA:
         raise DatoInvalido(f"La contraseña necesita al menos {LARGO_MINIMO_CONTRASENA} caracteres.")
     if len(contrasena) > LARGO_MAXIMO_CONTRASENA:
@@ -483,7 +483,7 @@ async def registrar(
         raise DatoInvalido("Hace falta un nombre.")
     if "@" not in correo or correo.startswith("@") or correo.endswith("@"):
         raise DatoInvalido("Ese correo no parece un correo.")
-    _revisar_contrasena(contrasena)
+    revisar_contrasena(contrasena)
 
     # El único de la base es la garantía de verdad —dos altas a la vez pasarían las dos por
     # aquí—, pero comprobarlo antes convierte un 500 por violación de unicidad en un mensaje
@@ -583,7 +583,7 @@ async def cambiar_contrasena(
     código y ahora se pone una—. Si no se comprobara, una sesión robada bastaría para
     quedarse con la cuenta para siempre.
     """
-    _revisar_contrasena(nueva)
+    revisar_contrasena(nueva)
     usuario = await sesion.get(User, usuario_id)
     if usuario is None:
         raise NoAutorizado("La sesión no es válida.")

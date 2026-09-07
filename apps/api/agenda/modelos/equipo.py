@@ -77,6 +77,14 @@ class StaffProfile(IdMixin, TenantMixin, MarcasDeTiempoMixin, Base):
         Boolean, nullable=False, server_default=text("true")
     )
     position: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default=text("0"))
+    # Fichaje de entrada y salida, **persona a persona y apagado por defecto** (punto 6 del
+    # encargo). El valor por defecto no es un detalle de implementación: un fichaje que aparece
+    # sin que nadie lo pida se lee como vigilancia, así que lo enciende el dueño uno a uno y
+    # queda escrito quién lo tiene. Mientras está apagado, la base **rechaza** cualquier fila de
+    # `staff_clock_events` de esa persona; no es solo que la pantalla no lo ofrezca.
+    clock_in_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false")
+    )
     # Borrado lógico: destruir la ficha destruiría la historia de la agenda del negocio.
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 

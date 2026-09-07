@@ -28,6 +28,7 @@ from agenda.modelos.catalogo import Service
 from agenda.modelos.equipo import StaffHours, StaffProfile, StaffService
 from agenda.modelos.identidad import Membership
 from agenda.modelos.reservas import Booking
+from agenda.servicios import miembros as servicio_miembros
 
 router = APIRouter(prefix="/api/v1/negocio", tags=["equipo del negocio"])
 
@@ -67,6 +68,12 @@ class ProfesionalDelPanel(BaseModel):
     orden: int
     tiene_cuenta: bool = Field(
         description="Si la persona ya aceptó la invitación; sin cuenta también se le agenda"
+    )
+    fichaje_activo: bool = Field(
+        description=(
+            "Si esta persona ficha entrada y salida. **Apagado por defecto** y se enciende "
+            "una a una desde PUT /negocio/profesionales/{id}/fichaje (punto 6 del encargo)"
+        )
     )
     servicios: list[uuid.UUID]
     horario: list[TramoDeHorario]
@@ -197,6 +204,14 @@ async def dar_de_baja(
             "Muévelas o cancélalas antes, o repite la baja forzándola.",
             citas_futuras=pendientes,
         )
+
+    # Dar de baja del equipo **revoca también la membresía** unas líneas más abajo, y por esa
+    # puerta de atrás un salón se podía quedar sin ningún dueño: el dueño que además corta el
+    # pelo es la norma en un salón de barrio, no la excepción. La regla se comprueba antes de
+    # tocar nada, para que la baja no quede a medias.
+    await servicio_miembros.exigir_que_quede_un_dueno_por_usuario(
+        sesion, negocio_id=identidad.negocio_id, usuario_id=profesional.user_id
+    )
 
     profesional.active = False
     profesional.visible_in_marketplace = False
@@ -468,6 +483,7 @@ async def _pintar_equipo(
             acepta_cualquiera=p.accepts_any_staff,
             orden=p.position,
             tiene_cuenta=p.user_id is not None,
+            fichaje_activo=p.clock_in_enabled,
             servicios=asignados.get(p.id, []),
             horario=horarios.get(p.id, []),
             citas_futuras=futuras.get(p.id, 0),

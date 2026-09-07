@@ -27,8 +27,14 @@ GRANT USAGE ON SCHEMA public TO agenda_api, agenda_publico, agenda_admin;
 -- nueva no nazca inaccesible para la aplicación.
 ALTER DEFAULT PRIVILEGES FOR ROLE agenda_owner IN SCHEMA public
   GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO agenda_api;
-ALTER DEFAULT PRIVILEGES FOR ROLE agenda_owner IN SCHEMA public
-  GRANT SELECT ON TABLES TO agenda_publico;
+-- **El rol público NO entra aquí, y es la diferencia entre una garantía y un deseo.** Con el
+-- privilegio por defecto, toda tabla creada después nacía legible para el marketplace: acabó
+-- con SELECT sobre las 68 tablas del esquema, incluidas las que no llevan seguridad por fila
+-- porque no son de ningún negocio —`users` con teléfonos, correos y hashes de contraseña,
+-- `sessions`, `otp_codes`, `admin_users`—. Ahí el RLS no devuelve cero filas: devuelve todas.
+--
+-- Lo que el marketplace puede leer se le concede **tabla por tabla y en la migración**, junto a
+-- su política de publicables, que es donde se ve y donde se puede vigilar con una prueba.
 ALTER DEFAULT PRIVILEGES FOR ROLE agenda_owner IN SCHEMA public
   GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO agenda_admin;
 ALTER DEFAULT PRIVILEGES FOR ROLE agenda_owner IN SCHEMA public
