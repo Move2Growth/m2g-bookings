@@ -47,3 +47,6 @@ infra/local/datos/
 .agents/
 .claude/skills/
 skills-lock.json
+
+# Los árboles de trabajo de los agentes: código en curso, nunca del repositorio.
+.claude/worktrees/
