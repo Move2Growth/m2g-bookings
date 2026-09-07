@@ -56,11 +56,17 @@ class NuevoFavorito(BaseModel):
 
 
 class MiPerfil(BaseModel):
-    """Lo que la persona ve de sí misma. El teléfono sí, porque es suyo."""
+    """Lo que la persona ve de sí misma. El teléfono sí, porque es suyo.
+
+    `telefono` admite nulo desde que se entra con correo: quien se acaba de dar de alta todavía
+    no lo ha dado. Declararlo obligatorio devolvía **500 en «mi perfil»** a cualquier cuenta
+    nueva, que es de los fallos más tontos y más caros: la pantalla de la cuenta rota desde el
+    primer minuto.
+    """
 
     id: uuid.UUID
     nombre: str
-    telefono: str
+    telefono: str | None
     telefono_verificado: bool
     correo: str | None
     idioma: str

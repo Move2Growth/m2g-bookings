@@ -20,6 +20,7 @@ from agenda.api import (
     cliente,
     consola,
     favoritos,
+    mi_telefono,
     negocio,
     negocio_agenda,
     negocio_catalogo,
@@ -142,6 +143,7 @@ app.include_router(negocio_equipo.router)
 app.include_router(negocio_agenda.router)
 app.include_router(negocio_ficha.router)
 app.include_router(negocio_clientes.router)
+app.include_router(mi_telefono.router)
 app.include_router(cliente.router)
 app.include_router(profesional.router)
 app.include_router(favoritos.router)

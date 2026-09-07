@@ -730,6 +730,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/mi/telefono/solicitar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Pide el código para verificar tu teléfono (D9)
+         * @description Exige sesión: verificar un teléfono siempre es verificar el de **alguien**.
+         */
+        post: operations["solicitar_api_v1_mi_telefono_solicitar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mi/telefono/verificar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ata el teléfono a tu cuenta (D9)
+         * @description No devuelve credenciales **a propósito**: la sesión que había sigue siendo la buena.
+         */
+        post: operations["verificar_api_v1_mi_telefono_verificar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/negocio/agenda": {
         parameters: {
             query?: never;
@@ -2421,6 +2461,11 @@ export interface components {
         /**
          * MiPerfil
          * @description Lo que la persona ve de sí misma. El teléfono sí, porque es suyo.
+         *
+         *     `telefono` admite nulo desde que se entra con correo: quien se acaba de dar de alta todavía
+         *     no lo ha dado. Declararlo obligatorio devolvía **500 en «mi perfil»** a cualquier cuenta
+         *     nueva, que es de los fallos más tontos y más caros: la pantalla de la cuenta rota desde el
+         *     primer minuto.
          */
         MiPerfil: {
             /** Correo */
@@ -2435,7 +2480,7 @@ export interface components {
             /** Nombre */
             nombre: string;
             /** Telefono */
-            telefono: string;
+            telefono: string | null;
             /** Telefono Verificado */
             telefono_verificado: boolean;
         };
@@ -2801,6 +2846,14 @@ export interface components {
             /** Nueva */
             nueva: string;
         };
+        /** PeticionDeCodigo */
+        PeticionDeCodigo: {
+            /**
+             * Telefono
+             * @description En formato E.164, por ejemplo +50761234567
+             */
+            telefono: string;
+        };
         /** PeticionDeReserva */
         PeticionDeReserva: {
             /**
@@ -2821,6 +2874,13 @@ export interface components {
             profesional_id: string;
             /** Servicios */
             servicios: string[];
+        };
+        /** PeticionDeVerificacion */
+        PeticionDeVerificacion: {
+            /** Codigo */
+            codigo: string;
+            /** Telefono */
+            telefono: string;
         };
         /** PeticionEntrada */
         PeticionEntrada: {
@@ -3152,6 +3212,18 @@ export interface components {
              * Format: uuid
              */
             usuario_id: string;
+        };
+        /** RespuestaDeCodigo */
+        RespuestaDeCodigo: {
+            /** Canal */
+            canal: string;
+            /**
+             * Codigo De Desarrollo
+             * @description Solo en local, y solo porque todavía no hay canal real: en cualquier otro entorno viaja por WhatsApp y esta respuesta no lo lleva
+             */
+            codigo_de_desarrollo?: string | null;
+            /** Enviado */
+            enviado: boolean;
         };
         /** RespuestaDelNegocio */
         RespuestaDelNegocio: {
@@ -4737,6 +4809,74 @@ export interface operations {
                         [key: string]: string;
                     };
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    solicitar_api_v1_mi_telefono_solicitar_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PeticionDeCodigo"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaDeCodigo"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verificar_api_v1_mi_telefono_verificar_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PeticionDeVerificacion"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

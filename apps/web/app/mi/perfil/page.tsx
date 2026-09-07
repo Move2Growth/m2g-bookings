@@ -19,7 +19,8 @@ import { conSesion, leerSesion, type Sesion } from '@/lib/sesion'
 type Perfil = {
   nombre: string | null
   correo: string | null
-  telefono: string
+  telefono: string | null
+  telefono_verificado: boolean
 }
 
 export default function PerfilCliente() {
@@ -115,10 +116,23 @@ export default function PerfilCliente() {
 
             <div className="campo">
               <span>Tu teléfono</span>
-              <p className="entrada entrada--fija cifras">{perfil.telefono}</p>
-              <p className="tenue" style={{ fontSize: 'var(--tipografia-tamano-menor)' }}>
-                Es con lo que entras. Para cambiarlo, escríbenos.
-              </p>
+              {perfil.telefono ? (
+                <>
+                  <p className="entrada entrada--fija cifras">{perfil.telefono}</p>
+                  <p className="tenue" style={{ fontSize: 'var(--tipografia-tamano-menor)' }}>
+                    {perfil.telefono_verificado
+                      ? 'Verificado. Es por donde te llama el salón. Para cambiarlo, escríbenos.'
+                      : 'Sin verificar todavía. Se verifica al reservar.'}
+                  </p>
+                </>
+              ) : (
+                /* Con correo y contraseña se puede tener cuenta sin teléfono. No es un hueco
+                   que rellenar por rellenar: se pide al reservar, y aquí solo se dice por qué. */
+                <p className="tenue" style={{ fontSize: 'var(--tipografia-tamano-menor)' }}>
+                  Todavía no nos lo has dado. Te lo pediremos al reservar tu primera cita,
+                  porque el salón tiene que poder llamarte.
+                </p>
+              )}
             </div>
 
             <div className="acciones">

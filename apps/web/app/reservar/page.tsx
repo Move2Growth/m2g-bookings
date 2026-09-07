@@ -9,10 +9,15 @@ import { API, conSesion, leerSesion } from '@/lib/sesion'
  * Confirmar la cita. Es la **tercera y última pantalla** tras elegir servicio (RSV-1), y por
  * eso aquí no se elige nada nuevo: se lee lo elegido, se confirma y se acabó.
  *
- * Quien llega sin sesión no se topa con un muro: se le pide el teléfono **encima** de esta
- * pantalla, sin sacarlo del flujo ni perder lo que ya había elegido. Verificar el teléfono es
- * obligatorio (D9) porque es lo único que sostiene el control de no-shows sin pedir depósito,
- * pero eso no obliga a que parezca un trámite.
+ * Verificar el teléfono es obligatorio (D9) porque es lo único que sostiene el control de
+ * no-shows sin pedir depósito, y porque el salón tiene que poder llamar si hay que mover la
+ * cita. Pero se pide **aquí**, encima de esta pantalla y sin sacar a nadie del flujo, no en el
+ * alta: al alta se entra con correo y contraseña y ya está.
+ *
+ * **Se verifica con `/mi/telefono`, no con `/auth/otp/verificar`.** Aquel es *entrar*: busca la
+ * cuenta de ese número y, si no existe, crea una nueva. Llamarlo desde una sesión ya abierta
+ * dejaba a la persona dentro de otra cuenta, vacía y sin sus citas, sin ningún error a la
+ * vista. Es el peor tipo de fallo: parece que funcionó.
  */
 
 function Contenido() {
@@ -27,6 +32,8 @@ function Contenido() {
   const zona = parametros.get('zona') ?? 'America/Panama'
 
   const [sesion, setSesion] = useState(() => leerSesion())
+  //: `null` mientras no se sabe. Sirve para no parpadear entre las dos formas de la pantalla.
+  const [telefonoVerificado, setTelefonoVerificado] = useState<boolean | null>(null)
   const [telefono, setTelefono] = useState('+507')
   const [nombreCliente, setNombreCliente] = useState('')
   const [codigo, setCodigo] = useState('')
@@ -35,7 +42,27 @@ function Contenido() {
   const [error, setError] = useState<string | null>(null)
   const [enviando, setEnviando] = useState(false)
 
-  useEffect(() => setSesion(leerSesion()), [])
+  useEffect(() => {
+    const actual = leerSesion()
+    setSesion(actual)
+
+    // Sin sesión no hay nada que hacer aquí: se va a entrar y se vuelve **a esta misma
+    // pantalla con lo ya elegido**, que por eso viaja entero en la URL.
+    if (!actual) {
+      const aqui = window.location.pathname + window.location.search
+      window.location.href = `/entrar?volver=${encodeURIComponent(aqui)}`
+      return
+    }
+
+    fetch(`${API}/api/v1/mi/perfil`, { headers: { Authorization: `Bearer ${actual.acceso}` } })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((perfil) => {
+        setTelefonoVerificado(Boolean(perfil?.telefono_verificado))
+        if (perfil?.telefono) setTelefono(perfil.telefono)
+        if (perfil?.nombre) setNombreCliente(perfil.nombre)
+      })
+      .catch(() => setTelefonoVerificado(false))
+  }, [])
 
   const cuando = inicio
     ? new Intl.DateTimeFormat('es-PA', {
@@ -54,9 +81,12 @@ function Contenido() {
     setEnviando(true)
     setError(null)
     try {
-      const respuesta = await fetch(`${API}/api/v1/auth/otp/solicitar`, {
+      const respuesta = await fetch(`${API}/api/v1/mi/telefono/solicitar`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${sesion?.acceso ?? ''}`,
+        },
         body: JSON.stringify({ telefono }),
       })
       const datos = await respuesta.json()
@@ -75,15 +105,20 @@ function Contenido() {
     setEnviando(true)
     setError(null)
     try {
-      const respuesta = await fetch(`${API}/api/v1/auth/otp/verificar`, {
+      const respuesta = await fetch(`${API}/api/v1/mi/telefono/verificar`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${sesion?.acceso ?? ''}`,
+        },
         body: JSON.stringify({ telefono, codigo }),
       })
-      const datos = await respuesta.json()
-      if (!respuesta.ok) throw new Error(datos?.error?.mensaje ?? 'Ese código no es válido.')
-      window.localStorage.setItem('agenda.sesion', JSON.stringify(datos))
-      setSesion(datos)
+      // Devuelve 204 y **ninguna credencial**: la sesión que había sigue siendo la buena.
+      if (!respuesta.ok) {
+        const datos = await respuesta.json().catch(() => null)
+        throw new Error(datos?.error?.mensaje ?? 'Ese código no es válido.')
+      }
+      setTelefonoVerificado(true)
     } catch (fallo) {
       setError(fallo instanceof Error ? fallo.message : 'Ese código no es válido.')
     } finally {
@@ -147,7 +182,9 @@ function Contenido() {
         </p>
       )}
 
-      {sesion ? (
+      {telefonoVerificado === null ? (
+        <p className="tenue">Un momento…</p>
+      ) : telefonoVerificado ? (
         <>
           <button onClick={confirmar} disabled={enviando} className="boton boton--cierra boton--ancho">
             {enviando ? 'Un momento…' : 'Confirmar la cita'}
@@ -166,8 +203,8 @@ function Contenido() {
       ) : (
         <form onSubmit={paso === 'telefono' ? pedirCodigo : verificar} style={{ display: 'grid', gap: 'var(--espacio-3)' }}>
           <p style={{ color: 'var(--color-tinta-suave)' }}>
-            Para reservar necesitamos tu teléfono. Te mandamos un código y listo. No hay
-            contraseña que recordar.
+            Falta tu teléfono para reservar: es por donde te llama el salón si hay que mover la
+            cita. Te mandamos un código y listo.
           </p>
           <label style={{ display: 'grid', gap: 'var(--espacio-2)' }}>
             <span style={{ fontWeight: 'var(--tipografia-pesos-medio)' }}>Tu nombre</span>

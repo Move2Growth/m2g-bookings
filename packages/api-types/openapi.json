@@ -2134,7 +2134,7 @@
         "type": "object"
       },
       "MiPerfil": {
-        "description": "Lo que la persona ve de sí misma. El teléfono sí, porque es suyo.",
+        "description": "Lo que la persona ve de sí misma. El teléfono sí, porque es suyo.\n\n`telefono` admite nulo desde que se entra con correo: quien se acaba de dar de alta todavía\nno lo ha dado. Declararlo obligatorio devolvía **500 en «mi perfil»** a cualquier cuenta\nnueva, que es de los fallos más tontos y más caros: la pantalla de la cuenta rota desde el\nprimer minuto.",
         "properties": {
           "correo": {
             "anyOf": [
@@ -2161,8 +2161,15 @@
             "type": "string"
           },
           "telefono": {
-            "title": "Telefono",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Telefono"
           },
           "telefono_verificado": {
             "title": "Telefono Verificado",
@@ -3268,6 +3275,20 @@
         "title": "PeticionCambioDeContrasena",
         "type": "object"
       },
+      "PeticionDeCodigo": {
+        "properties": {
+          "telefono": {
+            "description": "En formato E.164, por ejemplo +50761234567",
+            "title": "Telefono",
+            "type": "string"
+          }
+        },
+        "required": [
+          "telefono"
+        ],
+        "title": "PeticionDeCodigo",
+        "type": "object"
+      },
       "PeticionDeReserva": {
         "properties": {
           "inicio": {
@@ -3323,6 +3344,24 @@
           "profesional_id"
         ],
         "title": "PeticionDeReserva",
+        "type": "object"
+      },
+      "PeticionDeVerificacion": {
+        "properties": {
+          "codigo": {
+            "title": "Codigo",
+            "type": "string"
+          },
+          "telefono": {
+            "title": "Telefono",
+            "type": "string"
+          }
+        },
+        "required": [
+          "telefono",
+          "codigo"
+        ],
+        "title": "PeticionDeVerificacion",
         "type": "object"
       },
       "PeticionEntrada": {
@@ -4091,6 +4130,36 @@
           "usuario_id"
         ],
         "title": "RespuestaCredenciales",
+        "type": "object"
+      },
+      "RespuestaDeCodigo": {
+        "properties": {
+          "canal": {
+            "title": "Canal",
+            "type": "string"
+          },
+          "codigo_de_desarrollo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Solo en local, y solo porque todavía no hay canal real: en cualquier otro entorno viaja por WhatsApp y esta respuesta no lo lleva",
+            "title": "Codigo De Desarrollo"
+          },
+          "enviado": {
+            "title": "Enviado",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enviado",
+          "canal"
+        ],
+        "title": "RespuestaDeCodigo",
         "type": "object"
       },
       "RespuestaDelNegocio": {
@@ -7183,6 +7252,119 @@
         "summary": "Reportar (REV-4)",
         "tags": [
           "reseñas"
+        ]
+      }
+    },
+    "/api/v1/mi/telefono/solicitar": {
+      "post": {
+        "description": "Exige sesión: verificar un teléfono siempre es verificar el de **alguien**.",
+        "operationId": "solicitar_api_v1_mi_telefono_solicitar_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PeticionDeCodigo"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespuestaDeCodigo"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Pide el código para verificar tu teléfono (D9)",
+        "tags": [
+          "mi cuenta"
+        ]
+      }
+    },
+    "/api/v1/mi/telefono/verificar": {
+      "post": {
+        "description": "No devuelve credenciales **a propósito**: la sesión que había sigue siendo la buena.",
+        "operationId": "verificar_api_v1_mi_telefono_verificar_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PeticionDeVerificacion"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Ata el teléfono a tu cuenta (D9)",
+        "tags": [
+          "mi cuenta"
         ]
       }
     },

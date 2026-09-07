@@ -279,3 +279,78 @@ async def test_cambiar_la_contrasena_exige_la_actual():
     finally:
         await sesion.close()
         await motor.dispose()
+
+
+async def test_verificar_el_telefono_no_cambia_de_cuenta():
+    """La prueba que sostiene todo el camino de reserva de una clienta nueva.
+
+    Verificar el teléfono desde una sesión abierta **no puede** abrir otra sesión. Con
+    `verificar_otp` —que es *entrar*— la persona acababa dentro de una cuenta recién creada,
+    vacía y sin sus citas, y no saltaba ningún error: parecía que había funcionado.
+    """
+    sesion, motor = await _sesion()
+    correo = _correo()
+    telefono = f"+5076{uuid.uuid4().int % 10**7:07d}"
+    try:
+        async with sesion.begin():
+            alta = await servicio.registrar(
+                sesion, nombre="Ana", correo=correo, contrasena=CONTRASENA
+            )
+            usuario = await sesion.get(User, alta.usuario_id)
+            assert usuario is not None
+            assert usuario.phone_e164 is None  # con correo y contraseña no hace falta
+
+        async with sesion.begin():
+            codigo = await servicio.solicitar_otp(
+                sesion, telefono=telefono, proposito="verificacion_telefono"
+            )
+
+        async with sesion.begin():
+            await servicio.verificar_telefono_de(
+                sesion, usuario_id=alta.usuario_id, telefono=telefono, codigo=codigo
+            )
+
+        async with sesion.begin():
+            # Sigue siendo **una sola** cuenta con ese número, y es la del alta.
+            cuentas = (
+                (await sesion.execute(select(User).where(User.phone_e164 == telefono)))
+                .scalars()
+                .all()
+            )
+            assert [c.id for c in cuentas] == [alta.usuario_id]
+            assert cuentas[0].phone_verified_at is not None
+            assert cuentas[0].full_name == "Ana"
+    finally:
+        await sesion.close()
+        await motor.dispose()
+
+
+async def test_un_telefono_de_otra_cuenta_no_se_puede_robar():
+    """Dos personas con el mismo número serían el salón llamando a quien no es."""
+    sesion, motor = await _sesion()
+    telefono = f"+5076{uuid.uuid4().int % 10**7:07d}"
+    try:
+        async with sesion.begin():
+            primera = await servicio.registrar(
+                sesion, nombre="Primera", correo=_correo(), contrasena=CONTRASENA, telefono=telefono
+            )
+            assert primera.usuario_id
+
+        async with sesion.begin():
+            segunda = await servicio.registrar(
+                sesion, nombre="Segunda", correo=_correo(), contrasena=CONTRASENA
+            )
+
+        async with sesion.begin():
+            codigo = await servicio.solicitar_otp(
+                sesion, telefono=telefono, proposito="verificacion_telefono"
+            )
+
+        with pytest.raises(YaExiste):
+            async with sesion.begin():
+                await servicio.verificar_telefono_de(
+                    sesion, usuario_id=segunda.usuario_id, telefono=telefono, codigo=codigo
+                )
+    finally:
+        await sesion.close()
+        await motor.dispose()

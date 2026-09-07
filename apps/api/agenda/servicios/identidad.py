@@ -608,3 +608,80 @@ async def cambiar_contrasena(
         .where(Session.user_id == usuario_id, Session.revoked_at.is_(None))
         .values(revoked_at=datetime.now(UTC), revoked_reason="cierre_sesion")
     )
+
+
+async def verificar_telefono_de(
+    sesion: AsyncSession, *, usuario_id: uuid.UUID, telefono: str, codigo: str
+) -> None:
+    """Ata un teléfono verificado a **la cuenta que ya está dentro**.
+
+    Es lo que hay que llamar antes de la primera reserva, y **no** `verificar_otp`. La
+    diferencia parece de matiz y no lo es: `verificar_otp` es *entrar*, así que busca la cuenta
+    de ese número y, si no existe, **crea una nueva**. Llamarlo desde una sesión ya abierta
+    dejaba a la persona dentro de otra cuenta —vacía, sin su nombre, sin sus favoritos y sin sus
+    citas— sin un solo error por ninguna parte. Es de los peores fallos posibles porque parece
+    que funcionó.
+
+    Aquí no se abre ninguna sesión: solo se verifica el número y se guarda en su sitio.
+    """
+    ahora = datetime.now(UTC)
+
+    usuario = await sesion.get(User, usuario_id)
+    if usuario is None:
+        raise NoAutorizado("La sesión no es válida.")
+
+    # El número no puede estar en otra cuenta. Si se dejara, dos personas compartirían el
+    # identificador natural y el salón llamaría a quien no es.
+    duenno = (
+        await sesion.execute(select(User).where(User.phone_e164 == telefono))
+    ).scalar_one_or_none()
+    if duenno is not None and duenno.id != usuario_id:
+        raise YaExiste("Ese número ya está en otra cuenta.")
+
+    vigente = (
+        (
+            await sesion.execute(
+                select(OtpCode)
+                .where(
+                    OtpCode.destination == telefono,
+                    OtpCode.purpose == "verificacion_telefono",
+                    OtpCode.consumed_at.is_(None),
+                    OtpCode.invalidated_at.is_(None),
+                    OtpCode.expires_at > ahora,
+                )
+                .order_by(OtpCode.created_at.desc())
+            )
+        )
+        .scalars()
+        .first()
+    )
+
+    if vigente is None:
+        raise OtpInvalido()
+
+    if vigente.attempts >= vigente.max_attempts:
+        vigente.invalidated_at = ahora
+        raise DemasiadosIntentos("Ese código se bloqueó por demasiados intentos. Pide uno nuevo.")
+
+    if not hmac.compare_digest(vigente.code_hash, _hash(codigo)):
+        await _apuntar_intento_de_otp(sesion, vigente.id)
+        raise OtpInvalido()
+
+    vigente.consumed_at = ahora
+    usuario.phone_e164 = telefono
+    usuario.phone_verified_at = ahora
+
+    identidad = (
+        await sesion.execute(
+            select(AuthIdentity).where(
+                AuthIdentity.user_id == usuario.id, AuthIdentity.provider == "telefono"
+            )
+        )
+    ).scalar_one_or_none()
+    if identidad is None:
+        sesion.add(AuthIdentity(user_id=usuario.id, provider="telefono", subject=telefono))
+    else:
+        identidad.subject = telefono
+        identidad.last_used_at = ahora
+
+    await sesion.flush()
