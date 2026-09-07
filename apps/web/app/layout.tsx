@@ -27,7 +27,7 @@ export default function Raiz({ children }: { children: React.ReactNode }) {
   // Modo claro por defecto. El oscuro ya tiene sus tokens y se enciende cambiando este
   // atributo, no rediseñando.
   return (
-    <html lang="es-PA" data-tema="oscuro">
+    <html lang="es-PA">
       <body>{children}</body>
     </html>
   )

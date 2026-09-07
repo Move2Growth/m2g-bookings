@@ -147,6 +147,10 @@ services:
       # el día que Luis elija entre Buenamano, Cupo y Tanda se cambia aquí y en el `.env`, y no
       # se toca ni una pantalla. `Bukeo` es el codename mientras tanto.
       NEXT_PUBLIC_NOMBRE_COMERCIAL: ${NOMBRE_COMERCIAL:-Bukeo}
+      # Dónde vive la web de cara al público. Es la dirección que el panel le da al salón
+      # para su bio de Instagram: escrita a fuego decía `bukeo.com`, un dominio que no
+      # existe. Es la misma que `URL_PUBLICA_WEB` usa la API para los enlaces que manda.
+      NEXT_PUBLIC_URL_PUBLICA: http://localhost:3100
     ports:
       - "3100:3100"
     # El código va montado y el servidor corre en modo desarrollo, como la API con `--reload`.

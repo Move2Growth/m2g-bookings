@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { FotoDeSalon } from '@/componentes/foto'
 import { useCallback, useEffect, useState } from 'react'
 import { Error as BloqueDeError, Esqueleto } from '@/componentes/estados'
+import { DOMINIO_VISIBLE } from '@/lib/marca'
 import { conSesion, leerSesion, type Sesion } from '@/lib/sesion'
 
 /**
@@ -176,7 +177,7 @@ export default function FichaPublica() {
                 <p className="estado-ficha__texto">
                   Se puede encontrar y reservar en{' '}
                   <Link href={`/${ficha.slug}`} target="_blank">
-                    bukeo.com/{ficha.slug}
+                    {DOMINIO_VISIBLE}/{ficha.slug}
                   </Link>
                   . Ese enlace es el que va en tu bio de Instagram.
                 </p>

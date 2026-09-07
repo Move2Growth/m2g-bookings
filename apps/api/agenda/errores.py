@@ -119,6 +119,20 @@ class SinDueno(ErrorDeDominio):
     mensaje = "Este salón se quedaría sin ningún dueño."
 
 
+class SuspendidoPorLaPlataforma(ErrorDeDominio):
+    """La suspensión la levanta M2G, no el salón.
+
+    Suspender es una decisión de moderación: se toma en la consola, con un motivo escrito y
+    quedando en el registro de auditoría. Si el salón pudiera deshacerla desde su propio panel,
+    la decisión duraría lo que tarde el dueño en volver a entrar, y la consola enseñaría
+    «publicado» al lado de la fecha en que se suspendió.
+    """
+
+    codigo = "SUSPENDIDO_POR_LA_PLATAFORMA"
+    estado_http = 409
+    mensaje = "Este salón está suspendido por M2G y no se puede publicar desde aquí."
+
+
 class FaltaMinimoParaPublicar(ErrorDeDominio):
     """Mínimo de D11: un servicio activo, horario, ubicación y una foto."""
 

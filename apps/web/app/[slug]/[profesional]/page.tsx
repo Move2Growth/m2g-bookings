@@ -7,6 +7,7 @@ import { PestanasClienteSiHaySesion } from '@/componentes/pestanas-cliente'
 import { Pie } from '@/componentes/pie'
 import { Redes } from '@/componentes/redes'
 import { Rotulo } from '@/componentes/rotulo'
+import { Calendario } from '@/componentes/calendario'
 import {
   duracion,
   precio,
@@ -76,6 +77,20 @@ function proximosDias(desde: Date, cuantos = 7): Date[] {
   })
 }
 
+/**
+ * Parte las horas libres en mañana, tarde y noche. Se corta a las 12 y a las 18 porque es como
+ * se habla, no por ninguna razón técnica; las franjas vacías no se pintan.
+ */
+function franjas(slots: Slot[], zona: string): [string, Slot[]][] {
+  const hora24 = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', hour12: false, timeZone: zona })
+  const cajones: Record<string, Slot[]> = { Mañana: [], Tarde: [], Noche: [] }
+  for (const slot of slots) {
+    const h = Number(hora24.format(new Date(slot.inicio)))
+    cajones[h < 12 ? 'Mañana' : h < 18 ? 'Tarde' : 'Noche'].push(slot)
+  }
+  return (Object.entries(cajones) as [string, Slot[]][]).filter(([, lista]) => lista.length > 0)
+}
+
 function iso(dia: Date): string {
   return dia.toISOString().slice(0, 10)
 }
@@ -99,6 +114,9 @@ export default async function PaginaDeProfesional({ params, searchParams }: Prop
   let slots: Slot[] = []
   let zona = perfil.zona_horaria
   let falloDeHoras = false
+  //: Días del mes visible que tienen al menos un hueco. Es lo que permite apagar en el
+  //  calendario los días llenos en vez de dejar que se pulsen para no enseñar nada.
+  let diasConHueco = new Set<string>()
   if (servicio) {
     try {
       const libre = await verDisponibilidadDeProfesional(perfil.id, [servicio.id], dia, finDelDia)
@@ -107,6 +125,30 @@ export default async function PaginaDeProfesional({ params, searchParams }: Prop
     } catch {
       // Que se caiga el motor no puede tumbar el perfil entero: se dice y se ofrece recargar.
       falloDeHoras = true
+    }
+
+    // Una segunda consulta, del mes entero, solo para pintar el calendario. Va con caché de un
+    // minuto: aquí no se reserva, se decide qué día abrir, y una hora de más o de menos en esta
+    // rejilla no engaña a nadie. La del día sigue sin caché.
+    try {
+      const hoy = new Date()
+      const desdeMes = new Date(Math.max(new Date(dia.getFullYear(), dia.getMonth(), 1).getTime(), hoy.getTime()))
+      const hastaMes = new Date(dia.getFullYear(), dia.getMonth() + 1, 1)
+      const mes = await verDisponibilidadDeProfesional(perfil.id, [servicio.id], desdeMes, hastaMes, 60)
+      diasConHueco = new Set(
+        mes.slots.map((s) =>
+          new Intl.DateTimeFormat('en-CA', {
+            timeZone: mes.zona,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          }).format(new Date(s.inicio)),
+        ),
+      )
+    } catch {
+      // Sin el mes, el calendario deja pulsar cualquier día futuro: es peor que apagarlos, pero
+      // mucho mejor que no poder elegir fecha.
+      diasConHueco = new Set()
     }
   }
 
@@ -282,8 +324,10 @@ export default async function PaginaDeProfesional({ params, searchParams }: Prop
                 Horas de {perfil.nombre.split(' ')[0]} para {servicio.nombre}
               </h2>
 
-              <nav aria-label="Elegir día" className="tira" style={{ margin: 'var(--espacio-4) 0' }}>
-                {dias.map((candidato) => {
+              {/* Atajos para lo que se pide el 80 % de las veces, y debajo el calendario
+                  de siempre para todo lo demás. */}
+              <nav aria-label="Días cercanos" className="tira" style={{ margin: 'var(--espacio-4) 0 var(--espacio-2)' }}>
+                {dias.slice(0, 3).map((candidato) => {
                   const activo = iso(candidato) === iso(dia)
                   return (
                     <Link
@@ -297,6 +341,12 @@ export default async function PaginaDeProfesional({ params, searchParams }: Prop
                   )
                 })}
               </nav>
+
+              <Calendario
+                diaElegido={dia}
+                diasConHueco={diasConHueco}
+                enlaceBase={`${aqui}?servicio=${servicio.id}&dia=`}
+              />
 
               {falloDeHoras ? (
                 <p role="alert" className="aviso aviso--error">
@@ -313,27 +363,34 @@ export default async function PaginaDeProfesional({ params, searchParams }: Prop
                   <Link href={`/${slug}`}>mira quién más lo hace en {perfil.negocio}</Link>.
                 </p>
               ) : (
-                <ul className="horas">
-                  {slots.map((slot) => {
-                    const destino = new URLSearchParams({
-                      negocio: slug,
-                      servicio: servicio.id,
-                      // La persona va explícita: aquí no vale «cualquiera», que es justo lo
-                      // que distingue este camino del de siempre.
-                      profesional: perfil.id,
-                      inicio: slot.inicio,
-                      nombre: `${servicio.nombre} con ${perfil.nombre}`,
-                      zona,
-                    })
-                    return (
-                      <li key={slot.inicio}>
-                        <Link href={`/reservar?${destino}`} className="hora">
-                          {hora.format(new Date(slot.inicio))}
-                        </Link>
-                      </li>
-                    )
-                  })}
-                </ul>
+                // Agrupadas por franja: una rejilla de veinte horas seguidas no se lee, y
+                // «por la tarde» es como pide la hora todo el mundo.
+                franjas(slots, zona).map(([franja, deLaFranja]) => (
+                  <div className="franja-horas" key={franja}>
+                    <p className="franja-horas__rotulo">{franja}</p>
+                    <ul className="rejilla-horas" style={{ marginTop: 0 }}>
+                      {deLaFranja.map((slot) => {
+                        const destino = new URLSearchParams({
+                          negocio: slug,
+                          servicio: servicio.id,
+                          // La persona va explícita: aquí no vale «cualquiera», que es justo lo
+                          // que distingue este camino del de siempre.
+                          profesional: perfil.id,
+                          inicio: slot.inicio,
+                          nombre: `${servicio.nombre} con ${perfil.nombre}`,
+                          zona,
+                        })
+                        return (
+                          <li key={slot.inicio}>
+                            <Link href={`/reservar?${destino}`} className="hora">
+                              {hora.format(new Date(slot.inicio))}
+                            </Link>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </div>
+                ))
               )}
 
               <p

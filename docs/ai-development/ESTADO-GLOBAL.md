@@ -190,3 +190,15 @@ desde cero sobre una base recién creada**, no leyéndola:
 | **Elegir dirección visual** entre los tres brandbooks de la revisión 4 | Luis | 2026-09-07 | Frontend Web y Mockuper. **Los frontales no se rehacen hasta que elija**; mientras tanto se construye API, modelo y pruebas |
 | **Aprobación de la Fase 0** | Luis | 2026-09-01 | Todo el equipo: la Fase 1 no arranca sin ella |
 | **La contradicción de ADR-0016 con los filetes de 1 px**, y **la aprobación de la decisión de imágenes** (el rótulo dibujado) | Luis | 2026-09-02 | Frontend Web y Mockuper. **No bloquea construir**: bloquea dar la identidad por buena y bloquea el ADR-0017 |
+
+## Marca y piel · revisión 5 (7-sep-2026)
+
+Luis rechazó las tres direcciones de la revisión 4; **Buenamano** era la que más se acercaba.
+De ahí sale ADR-0021: la piel del producto pasa a «papel y tinta» (papel crudo, tinta, achiote que
+abre y añil que cierra), el producto **abre en claro** —se quitó el `data-tema="oscuro"` forzado, que
+incumplía el descarte D1— y **el selector de fecha pasa a ser un calendario de mes corriente**, con
+las horas agrupadas en mañana, tarde y noche.
+
+**Pendiente:** el logotipo. El sello de huella era de Buenamano y no vale para Bukeo; hace falta uno
+nuevo en vectorial y no hay créditos ahora mismo. Mientras tanto, la cabecera lleva el nombre
+compuesto en tipografía.

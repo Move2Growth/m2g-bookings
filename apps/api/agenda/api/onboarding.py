@@ -28,7 +28,12 @@ from agenda.api.dependencias import (
     identidad_actual,
 )
 from agenda.dominio.textos import slug_desde
-from agenda.errores import DatoInvalido, FaltaMinimoParaPublicar, NoAutorizado
+from agenda.errores import (
+    DatoInvalido,
+    FaltaMinimoParaPublicar,
+    NoAutorizado,
+    SuspendidoPorLaPlataforma,
+)
 from agenda.modelos.base import nuevo_id
 from agenda.modelos.catalogo import Service, ServiceCategory
 from agenda.modelos.equipo import StaffHours, StaffProfile, StaffService
@@ -377,6 +382,23 @@ async def publicar(sesion_negocio: SesionNegocio) -> NegocioCreado:
     sesion, identidad = sesion_negocio
     exigir_dueno(identidad)
 
+    # **Una suspensión la levanta M2G, no el salón.** Esto no estaba, y publicar era un `UPDATE`
+    # a «publicado» sin mirar de dónde se venía: un salón suspendido en la consola —con su motivo
+    # escrito y su fecha— volvía al marketplace en cuanto su dueño pulsaba el botón de siempre.
+    # Peor todavía, la fila quedaba diciendo dos cosas a la vez: estado «publicado» con
+    # `suspended_at` y motivo puestos, que es lo que después lee la consola.
+    negocio_actual = await sesion.get(Business, identidad.negocio_id)
+    if negocio_actual.status == "suspendido":
+        raise SuspendidoPorLaPlataforma(
+            "Este salón está suspendido por M2G"
+            + (
+                f": {negocio_actual.suspension_reason}. "
+                if negocio_actual.suspension_reason
+                else ". "
+            )
+            + "Escríbenos para revisarlo; desde aquí no se puede volver a publicar."
+        )
+
     estado = await _estado_del_checklist(sesion, identidad.negocio_id)
     if not estado.listo_para_publicar:
         faltan = [
@@ -391,7 +413,7 @@ async def publicar(sesion_negocio: SesionNegocio) -> NegocioCreado:
         ]
         raise FaltaMinimoParaPublicar(f"Para publicar falta {', '.join(faltan)}.", faltan=faltan)
 
-    negocio = await sesion.get(Business, identidad.negocio_id)
+    negocio = negocio_actual
     negocio.status = "publicado"
     negocio.published_at = datetime.now(UTC)
     await sesion.flush()

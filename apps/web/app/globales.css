@@ -209,68 +209,72 @@ button, input, select, textarea { font: inherit; color: inherit; }
    ══════════════════════════════════════════════════════════════════════════ */
 
 /* ==========================================================================
-   BUKEO · DIRECCIÓN 1 · «Noche de barrio panameño»
+   BUKEO · piel «papel y tinta» (revisión 5)
    --------------------------------------------------------------------------
-   Tres mecanismos y nada más:
-     EL TUBO      un filete de 3 px de neón. Encendido = libre, activo, aquí.
-                  Apagado = existe pero no está en servicio.
-     EL GOLPE     lo que se pulsa se apoya en una base maciza desplazada, con
-                  cero desenfoque. Al pulsar, la pieza cae dentro de su base.
-     LA PERSIANA  donde no hay foto se baja la cortina metálica del local y el
-                  nombre va a tamaño de cartel. Franjas de canto vivo.
-   Tres ambientes: la CALLE (violeta frío), el LOCAL (ámbar cálido) y la
-   TRASTIENDA de M2G (casi negro, sin calidez). Cruzar de uno a otro es cruzar
-   una puerta, y el fondo se calienta o se enfría por el camino.
+   Sale de la dirección Buenamano: papel crudo, tinta, añil y achiote. Se
+   cambia la piel, no el esqueleto: los nombres de las variables son los
+   mismos, así que ningún componente se entera.
+
+   Tres mecanismos, los mismos de antes con otra materia:
+     EL FILETE    2 px de añil. Marca lo que se puede tocar y lo que está
+                  elegido. Antes era un tubo de neón encendido.
+     EL APOYO     lo que se pulsa se apoya en una base desplazada, sin
+                  desenfoque, y al pulsar cae dentro de ella.
+     EL ROTULO    donde no hay foto va el nombre a tamaño de cartel sobre
+                  papel, no una persiana metálica.
+
+   Tres ambientes, ahora todos claros porque el producto abre en claro:
+   la CALLE (papel), el LOCAL (papel un punto más cálido) y la TRASTIENDA de
+   M2G (papel frío). Cruzar de uno a otro se nota en la temperatura, no en
+   la oscuridad.
+
+   Los dos saturados mantienen su reparto de trabajo: el ACHIOTE ABRE
+   (buscar, crear, publicar) y el AÑIL CIERRA (elegir hora, confirmar).
+   Ninguno de los dos es color de texto largo.
    ========================================================================== */
 
 :root{
-  color-scheme: dark;
+  color-scheme: light;
 
-  /* --- La calle: violeta frío --- */
-  --superficie-calle:        #0E0A11;
-  --superficie-calle-media:  #120D17;
-  --superficie-calle-alta:   #171021;
-  --superficie-calle-alta: #1C1425;
-  --superficie-calle-media: #110C16;
-  --superficie-calle-borde:  #71627A;
+  /* --- La calle: papel crudo, lo público --- */
+  --superficie-calle:        #F7F2E9;
+  --superficie-calle-media:  #F1EADD;
+  --superficie-calle-alta:   #EAE1D0;
+  --superficie-calle-borde:  #D6CAB4;
 
-  /* --- El local: la bombilla de dentro --- */
-  --superficie-local:        #14100A;
-  --superficie-local-media:  #191308;
-  --superficie-local-alta:   #1F1810;
-  --superficie-local-alta: #251C11;
-  --superficie-local-media: #17110A;
-  --superficie-local-borde:  #7E6C4E;
+  /* --- El local: el mismo papel, un punto más cálido --- */
+  --superficie-local:        #F7F0E2;
+  --superficie-local-media:  #F1E7D4;
+  --superficie-local-alta:   #E9DCC4;
+  --superficie-local-borde:  #D3C3A4;
 
-  /* --- La trastienda de M2G --- */
-  --superficie-trastienda:         #07050A;
-  --superficie-trastienda-media:   #0B0810;
-  --superficie-trastienda-alta:    #100C14;
-  --superficie-trastienda-alta:  #150F1C;
-  --superficie-trastienda-media:  #0A0710;
-  --superficie-trastienda-borde:   #71627A;
+  /* --- La trastienda de M2G: papel frío, sin calidez --- */
+  --superficie-trastienda:         #F6F4F0;
+  --superficie-trastienda-media:   #EFECE6;
+  --superficie-trastienda-alta:    #E7E3DB;
+  --superficie-trastienda-borde:   #CFC9BE;
 
-  /* --- Luz --- */
-  --color-tinta:          #F6EFE8;
-  --color-tinta-suave:    #C3B4C0;
-  --color-tinta-tenue:    #9C8CA0;
+  /* --- Tinta --- */
+  --color-tinta:          #14100D;   /* 16,9:1 sobre papel */
+  --color-tinta-suave:    #453C34;
+  --color-tinta-tenue:    #6B6157;   /* ceniza · 5,4:1 sobre papel */
 
-  /* --- El único color saturado --- */
-  --color-acento:         #FF2D87;
-  --color-acento-hover: #9B4E70;
+  /* --- El que cierra --- */
+  --color-acento:         #1D3FB0;   /* añil · 7,9:1 sobre papel */
+  --color-acento-hover:   #16308A;
 
-  /* --- El segundo tono: la bombilla --- */
-  --color-abre:     #FFC46B;
+  /* --- El que abre --- */
+  --color-abre:           #B23320;   /* achiote · 5,6:1 sobre papel */
 
-  /* --- Semánticos, deliberadamente sobrios para no competir con el neón --- */
-  --color-exito:         #49D9A2;
-  --color-peligro:        #FF7361;
+  /* --- Semánticos --- */
+  --color-exito:          #1B6B4A;
+  --color-peligro:        #B23320;
 
   /* --- Medidas --- */
   --espacio-1: 4px;  --e2: 8px;  --e3: 12px; --e4: 16px;
   --espacio-5: 24px; --e6: 32px; --e7: 48px; --e8: 64px;
-  --neon-tubo: 3px;
-  --neon-golpe: 4px;
+  --neon-tubo: 2px;      /* el filete: en papel, 3 px de trazo es un subrayado gordo */
+  --neon-golpe: 3px;
   --espacio-toque-minimo: 44px;
   --hora-alto: 92px;
   --movimiento-rapido: 120ms;
@@ -2635,7 +2639,8 @@ h1, h2, .titular-adaptativo { }
   border-top: var(--neon-tubo) solid var(--color-abre);
 }
 
-.bloque-horas h2 { color: var(--color-abre); }
+/* El titular no es una acción: va en tinta. El achiote se reserva para lo que abre algo. */
+.bloque-horas h2 { color: var(--color-tinta); }
 
 /* Dentro del bloque azul, la ficha del día y la hora se quedan en lienzo: son lo que se toca y
    tienen que separarse del fondo, no fundirse con él. */
@@ -2953,4 +2958,93 @@ h1, h2, .titular-adaptativo { }
   border-radius: 999px;
   padding: 3px 7px;
   transform: translate(-50%, -50%);
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * Calendario de mes
+ *
+ * Deliberadamente el patrón de siempre: siete columnas de lunes a domingo, flechas de mes, hoy
+ * señalado y los días sin hueco apagados a la vista (no escondidos: si desaparecen, quien mira no
+ * sabe si es que no hay hora o si la web se rompió). La marca entra en el color y en la letra; la
+ * mecánica no se toca, porque esto es lo único de la pantalla que no se puede permitir el lujo de
+ * ser original.
+ * ------------------------------------------------------------------------------------------- */
+
+.calendario{ margin: var(--espacio-4) 0; }
+
+.calendario__cabecera{
+  display:flex; align-items:center; justify-content:space-between; gap: var(--espacio-2);
+  margin-bottom: var(--espacio-3);
+}
+
+.calendario__mes{
+  font-weight: 800; font-size: 17px; letter-spacing: .02em; text-transform: capitalize;
+  color: var(--color-tinta);
+}
+
+.calendario__flecha{
+  min-width: var(--espacio-toque-minimo); min-height: var(--espacio-toque-minimo);
+  display:flex; align-items:center; justify-content:center;
+  background: var(--superficie-trastienda); color: var(--color-acento);
+  border: 1px solid var(--color-acento-hover); border-radius: 0;
+  font-size: 22px; line-height: 1; cursor: pointer;
+  transition: background-color var(--movimiento-rapido) linear, color var(--movimiento-rapido) linear;
+}
+.calendario__flecha:hover:not(:disabled){ background: var(--color-acento); color: var(--superficie-trastienda); }
+.calendario__flecha:disabled{ color: var(--color-tinta-tenue); border-color: var(--superficie-calle-borde); cursor: not-allowed; }
+
+.calendario__semana{
+  display:grid; grid-template-columns: repeat(7, 1fr); gap: var(--espacio-1);
+  margin-bottom: var(--espacio-1);
+  font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--color-tinta-tenue); text-align:center;
+}
+
+.calendario__dias{ display:grid; grid-template-columns: repeat(7, 1fr); gap: var(--espacio-1); }
+
+.calendario__hueco{ aspect-ratio: 1; }
+
+.calendario__dia{
+  position: relative; aspect-ratio: 1; min-height: var(--espacio-toque-minimo);
+  display:flex; align-items:center; justify-content:center;
+  background: var(--superficie-trastienda); color: var(--color-acento);
+  border: 1px solid var(--color-acento-hover); border-radius: 0;
+  font-weight: 700; font-size: 16px; font-variant-numeric: tabular-nums;
+  text-decoration: none; cursor: pointer;
+  transition: background-color var(--movimiento-rapido) linear, color var(--movimiento-rapido) linear;
+}
+.calendario__dia:hover{ background: var(--color-acento); color: var(--superficie-trastienda); }
+.calendario__dia:hover .calendario__punto{ background: var(--superficie-trastienda); }
+
+/* Elegido: fondo, borde y peso. Tres señales, no solo color. */
+.calendario__dia--elegido,
+.calendario__dia--elegido:hover{
+  background: var(--color-acento); color: var(--superficie-trastienda);
+  border-color: var(--color-acento); font-weight: 800;
+}
+.calendario__dia--elegido .calendario__punto{ background: var(--superficie-trastienda); }
+
+/* Hoy: subrayado, para no competir con la señal de «elegido». */
+.calendario__dia--hoy{ box-shadow: inset 0 calc(var(--neon-tubo) * -1) 0 0 var(--color-acento); }
+
+.calendario__dia--apagado{
+  background: transparent; color: var(--color-tinta-tenue);
+  border-color: var(--superficie-calle-borde); cursor: not-allowed; font-weight: 400;
+}
+
+.calendario__punto{
+  position:absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+  width: 5px; height: 5px; background: var(--color-acento);
+}
+.calendario__punto--suelto{ position: static; transform:none; display:inline-block; margin-right: 6px; }
+
+.calendario__leyenda{
+  margin-top: var(--espacio-2); font-size: 13px; color: var(--color-tinta-tenue);
+}
+
+/* Horas por franja: mañana, tarde y noche. Veinte horas seguidas no se leen. */
+.franja-horas + .franja-horas{ margin-top: var(--espacio-4); }
+.franja-horas__rotulo{
+  margin: 0 0 var(--espacio-2); font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--color-tinta-tenue);
 }

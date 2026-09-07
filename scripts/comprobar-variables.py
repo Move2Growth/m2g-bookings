@@ -59,7 +59,10 @@ def nombre_a_fuego() -> list[str]:
             if archivo == MARCA:
                 continue
             for numero, linea in enumerate(archivo.read_text().splitlines(), 1):
-                if nombre in linea:
+                # Sin distinguir mayúsculas: el codename se coló en minúscula dentro de
+                # `bukeo.com` —el enlace que el panel le daba al salón para su Instagram— y una
+                # comparación exacta lo dejaba pasar.
+                if nombre.lower() in linea.lower():
                     culpables.append(f"{archivo.relative_to(RAIZ)}:{numero}")
     return culpables
 

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { Calendario } from '@/componentes/calendario'
 import { AccionesDeSalon } from '@/componentes/acciones-salon'
 import { Cabecera } from '@/componentes/cabecera'
 import { FotoDeSalon } from '@/componentes/foto'
@@ -103,6 +104,17 @@ function porDia(tramos: { dia: number; abre: string; cierra: string }[]) {
   return [...agrupados.entries()]
 }
 
+/** Mañana, tarde y noche: una rejilla de veinte horas seguidas no se lee. */
+function franjas(slots: Slot[], zona: string): [string, Slot[]][] {
+  const hora24 = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', hour12: false, timeZone: zona })
+  const cajones: Record<string, Slot[]> = { Mañana: [], Tarde: [], Noche: [] }
+  for (const slot of slots) {
+    const h = Number(hora24.format(new Date(slot.inicio)))
+    cajones[h < 12 ? 'Mañana' : h < 18 ? 'Tarde' : 'Noche'].push(slot)
+  }
+  return (Object.entries(cajones) as [string, Slot[]][]).filter(([, lista]) => lista.length > 0)
+}
+
 export default async function PaginaDeNegocio({ params, searchParams }: Props) {
   const { slug } = await params
   const { servicio: servicioPedido, dia: diaPedido } = await searchParams
@@ -120,7 +132,24 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
 
   let slots: Slot[] = []
   let zona = perfil.zona_horaria
+  //: Qué días del mes visible tienen algún hueco, para apagar los llenos en el calendario.
+  let diasConHueco = new Set<string>()
   if (servicio) {
+    try {
+      const hoy = new Date()
+      const desdeMes = new Date(Math.max(new Date(dia.getFullYear(), dia.getMonth(), 1).getTime(), hoy.getTime()))
+      const hastaMes = new Date(dia.getFullYear(), dia.getMonth() + 1, 1)
+      const mes = await verDisponibilidad(slug, [servicio.id], desdeMes, hastaMes)
+      const enZona = new Intl.DateTimeFormat('en-CA', {
+        timeZone: mes.zona,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      })
+      diasConHueco = new Set(mes.slots.map((s) => enZona.format(new Date(s.inicio))))
+    } catch {
+      diasConHueco = new Set()
+    }
     try {
       const disponibilidad = await verDisponibilidad(slug, [servicio.id], dia, finDelDia)
       slots = disponibilidad.slots
@@ -294,8 +323,8 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
             <section className="bloque-horas" id="horas">
               <h2>Horas libres para {servicio.nombre}</h2>
 
-              <nav aria-label="Elegir día" className="tira" style={{ margin: 'var(--espacio-4) 0' }}>
-                {dias.map((candidato) => {
+              <nav aria-label="Días cercanos" className="tira" style={{ margin: 'var(--espacio-4) 0 var(--espacio-2)' }}>
+                {dias.slice(0, 3).map((candidato) => {
                   const activo = iso(candidato) === iso(dia)
                   return (
                     <Link
@@ -310,6 +339,12 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
                 })}
               </nav>
 
+              <Calendario
+                diaElegido={dia}
+                diasConHueco={diasConHueco}
+                enlaceBase={`/${perfil.slug}?servicio=${servicio.id}&dia=`}
+              />
+
               {slots.length === 0 ? (
                 /* Un día sin huecos no es un error ni una pantalla vacía: dice qué pasa y qué
                    hacer ahora, que es la regla de los estados vacíos del design system. */
@@ -319,8 +354,11 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
                   seguido.
                 </p>
               ) : (
-                <ul className="horas">
-                  {slots.map((slot) => {
+                franjas(slots, zona).map(([franja, deLaFranja]) => (
+                  <div className="franja-horas" key={franja}>
+                    <p className="franja-horas__rotulo">{franja}</p>
+                    <ul className="rejilla-horas" style={{ marginTop: 0 }}>
+                  {deLaFranja.map((slot) => {
                     const destino = new URLSearchParams({
                       negocio: perfil.slug,
                       servicio: servicio.id,
@@ -340,7 +378,9 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
                       </li>
                     )
                   })}
-                </ul>
+                    </ul>
+                  </div>
+                ))
               )}
 
               <p className="tenue" style={{ marginTop: 'var(--espacio-4)', fontSize: 'var(--tipografia-tamano-menor)' }}>
