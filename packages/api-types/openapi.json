@@ -3194,6 +3194,80 @@
         "title": "PesosDelRanking",
         "type": "object"
       },
+      "PeticionAlta": {
+        "properties": {
+          "contrasena": {
+            "description": "Al menos diez caracteres. No se piden mayúsculas ni símbolos: esa regla produce la misma contraseña en todas las cuentas del país",
+            "maxLength": 128,
+            "minLength": 10,
+            "title": "Contrasena",
+            "type": "string"
+          },
+          "correo": {
+            "maxLength": 254,
+            "title": "Correo",
+            "type": "string"
+          },
+          "nombre": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Nombre",
+            "type": "string"
+          },
+          "superficie": {
+            "default": "web",
+            "title": "Superficie",
+            "type": "string"
+          },
+          "telefono": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Opcional en el alta. Se pide y se verifica antes de la primera reserva, que es donde hace falta: el salón tiene que poder llamar",
+            "title": "Telefono"
+          }
+        },
+        "required": [
+          "nombre",
+          "correo",
+          "contrasena"
+        ],
+        "title": "PeticionAlta",
+        "type": "object"
+      },
+      "PeticionCambioDeContrasena": {
+        "properties": {
+          "actual": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Solo puede faltar si la cuenta todavía no tiene contraseña",
+            "title": "Actual"
+          },
+          "nueva": {
+            "maxLength": 128,
+            "minLength": 10,
+            "title": "Nueva",
+            "type": "string"
+          }
+        },
+        "required": [
+          "nueva"
+        ],
+        "title": "PeticionCambioDeContrasena",
+        "type": "object"
+      },
       "PeticionDeReserva": {
         "properties": {
           "inicio": {
@@ -3249,6 +3323,31 @@
           "profesional_id"
         ],
         "title": "PeticionDeReserva",
+        "type": "object"
+      },
+      "PeticionEntrada": {
+        "properties": {
+          "contrasena": {
+            "maxLength": 128,
+            "title": "Contrasena",
+            "type": "string"
+          },
+          "correo": {
+            "maxLength": 254,
+            "title": "Correo",
+            "type": "string"
+          },
+          "superficie": {
+            "default": "web",
+            "title": "Superficie",
+            "type": "string"
+          }
+        },
+        "required": [
+          "correo",
+          "contrasena"
+        ],
+        "title": "PeticionEntrada",
         "type": "object"
       },
       "PeticionModoNegocio": {
@@ -4839,6 +4938,119 @@
         ]
       }
     },
+    "/api/v1/auth/contrasena": {
+      "post": {
+        "description": "Cambiarla **cierra las demás sesiones**: es lo que hace quien cree que alguien entró en\nsu cuenta, y dejar al intruso dentro vaciaría el gesto de sentido.",
+        "operationId": "cambiar_contrasena_api_v1_auth_contrasena_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PeticionCambioDeContrasena"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Cambia la contraseña",
+        "tags": [
+          "acceso"
+        ]
+      }
+    },
+    "/api/v1/auth/entrar": {
+      "post": {
+        "description": "Correo incorrecto y contraseña incorrecta dan **el mismo error**, a propósito: separarlos\nle confirma a quien prueba combinaciones qué cuentas existen.",
+        "operationId": "entrar_api_v1_auth_entrar_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PeticionEntrada"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespuestaCredenciales"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Entra con correo y contraseña (ONB-1)",
+        "tags": [
+          "acceso"
+        ]
+      }
+    },
     "/api/v1/auth/modo-negocio": {
       "post": {
         "description": "Cambiar de negocio es **cambiar de token**, no mandar un parámetro distinto.",
@@ -4953,7 +5165,7 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Pide un código por WhatsApp (ONB-1)",
+        "summary": "Pide un código para verificar el teléfono (D9)",
         "tags": [
           "acceso"
         ]
@@ -5073,6 +5285,66 @@
           }
         },
         "summary": "Rota el refresco (ADR-0006)",
+        "tags": [
+          "acceso"
+        ]
+      }
+    },
+    "/api/v1/auth/registrar": {
+      "post": {
+        "description": "Da de alta y deja dentro en el mismo paso.\n\nRegistrarse y luego tener que entrar es un formulario de más para nada: quien acaba de\nescribir su contraseña ya demostró quién es.",
+        "operationId": "registrar_api_v1_auth_registrar_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PeticionAlta"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespuestaCredenciales"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Crea una cuenta con correo y contraseña (ONB-1)",
         "tags": [
           "acceso"
         ]

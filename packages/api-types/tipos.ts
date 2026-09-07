@@ -21,6 +21,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/contrasena": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cambia la contraseña
+         * @description Cambiarla **cierra las demás sesiones**: es lo que hace quien cree que alguien entró en
+         *     su cuenta, y dejar al intruso dentro vaciaría el gesto de sentido.
+         */
+        post: operations["cambiar_contrasena_api_v1_auth_contrasena_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/entrar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Entra con correo y contraseña (ONB-1)
+         * @description Correo incorrecto y contraseña incorrecta dan **el mismo error**, a propósito: separarlos
+         *     le confirma a quien prueba combinaciones qué cuentas existen.
+         */
+        post: operations["entrar_api_v1_auth_entrar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/modo-negocio": {
         parameters: {
             query?: never;
@@ -51,7 +93,7 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Pide un código por WhatsApp (ONB-1)
+         * Pide un código para verificar el teléfono (D9)
          * @description Limitado por teléfono: es seguridad y es control de gasto.
          *
          *     Cada mensaje de WhatsApp se paga y el SMS de respaldo es el vector clásico de fraude por
@@ -95,6 +137,29 @@ export interface paths {
          * @description Presentar un refresco ya usado cierra la familia entera: es la firma de un token robado.
          */
         post: operations["refrescar_api_v1_auth_refrescar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/registrar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Crea una cuenta con correo y contraseña (ONB-1)
+         * @description Da de alta y deja dentro en el mismo paso.
+         *
+         *     Registrarse y luego tener que entrar es un formulario de más para nada: quien acaba de
+         *     escribir su contraseña ya demostró quién es.
+         */
+        post: operations["registrar_api_v1_auth_registrar_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2704,6 +2769,38 @@ export interface components {
              */
             vigente_desde: string;
         };
+        /** PeticionAlta */
+        PeticionAlta: {
+            /**
+             * Contrasena
+             * @description Al menos diez caracteres. No se piden mayúsculas ni símbolos: esa regla produce la misma contraseña en todas las cuentas del país
+             */
+            contrasena: string;
+            /** Correo */
+            correo: string;
+            /** Nombre */
+            nombre: string;
+            /**
+             * Superficie
+             * @default web
+             */
+            superficie: string;
+            /**
+             * Telefono
+             * @description Opcional en el alta. Se pide y se verifica antes de la primera reserva, que es donde hace falta: el salón tiene que poder llamar
+             */
+            telefono?: string | null;
+        };
+        /** PeticionCambioDeContrasena */
+        PeticionCambioDeContrasena: {
+            /**
+             * Actual
+             * @description Solo puede faltar si la cuenta todavía no tiene contraseña
+             */
+            actual?: string | null;
+            /** Nueva */
+            nueva: string;
+        };
         /** PeticionDeReserva */
         PeticionDeReserva: {
             /**
@@ -2724,6 +2821,18 @@ export interface components {
             profesional_id: string;
             /** Servicios */
             servicios: string[];
+        };
+        /** PeticionEntrada */
+        PeticionEntrada: {
+            /** Contrasena */
+            contrasena: string;
+            /** Correo */
+            correo: string;
+            /**
+             * Superficie
+             * @default web
+             */
+            superficie: string;
         };
         /** PeticionModoNegocio */
         PeticionModoNegocio: {
@@ -3424,6 +3533,74 @@ export interface operations {
             };
         };
     };
+    cambiar_contrasena_api_v1_auth_contrasena_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PeticionCambioDeContrasena"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    entrar_api_v1_auth_entrar_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PeticionEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaCredenciales"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     modo_negocio_api_v1_auth_modo_negocio_post: {
         parameters: {
             query?: never;
@@ -3541,6 +3718,41 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["PeticionRefresco"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaCredenciales"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    registrar_api_v1_auth_registrar_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PeticionAlta"];
             };
         };
         responses: {

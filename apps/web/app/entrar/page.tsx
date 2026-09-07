@@ -7,13 +7,19 @@ import { Marca } from '@/componentes/marca'
 import { API, guardarSesion } from '@/lib/sesion'
 
 /**
- * Entrar. La misma puerta para la clienta y para el salón: quien tiene negocio acaba en su
- * agenda y quien no, en sus citas. Tener dos accesos distintos obligaría a la persona a saber
- * de antemano qué es, y la mitad de las veces es las dos cosas.
+ * Entrar y darse de alta. La misma puerta para la clienta y para el salón: quien tiene negocio
+ * acaba en su agenda y quien no, en sus citas. Tener dos accesos distintos obligaría a la
+ * persona a saber de antemano qué es, y la mitad de las veces es las dos cosas.
  *
- * Dos pasos y ninguno más. No hay contraseña que recordar ni registro aparte: quien verifica
- * su teléfono ya tiene cuenta (ONB-1).
+ * **Correo y contraseña.** El código por WhatsApp era un peaje —pedirlo, buscarlo y teclearlo
+ * antes de que caducara— y no daba ninguna seguridad que la contraseña no dé. El código se
+ * queda para verificar el teléfono antes de la primera reserva, que es donde hace falta porque
+ * el salón tiene que poder llamar.
+ *
+ * En el alta **no se pide el teléfono**, por lo mismo: pedirlo aquí devuelve el trámite que se
+ * quitó. Se pide cuando se va a reservar.
  */
+
 /**
  * A dónde se vuelve después de entrar.
  *
@@ -31,87 +37,91 @@ function destinoSeguro(crudo: string | null, porDefecto: string) {
   return crudo
 }
 
+/** El mínimo del servidor, repetido aquí solo para avisar antes de enviar. Quien manda es la API. */
+const LARGO_MINIMO = 10
+
+type Modo = 'entrar' | 'alta'
+
 function Contenido() {
   const router = useRouter()
   const parametros = useSearchParams()
   const volver = destinoSeguro(parametros.get('volver'), '/mi/citas')
-  const [paso, setPaso] = useState<'telefono' | 'codigo' | 'negocio'>('telefono')
+
+  const [modo, setModo] = useState<Modo>('entrar')
   const [negocios, setNegocios] = useState<{ id: string; nombre: string; rol: string }[]>([])
-  const [telefono, setTelefono] = useState('+507')
-  const [codigo, setCodigo] = useState('')
-  const [pista, setPista] = useState<string | null>(null)
+  const [eligiendoNegocio, setEligiendoNegocio] = useState(false)
+  const [nombre, setNombre] = useState('')
+  const [correo, setCorreo] = useState('')
+  const [contrasena, setContrasena] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [enviando, setEnviando] = useState(false)
 
-  async function pedirCodigo(evento: React.FormEvent) {
-    evento.preventDefault()
-    setEnviando(true)
-    setError(null)
-    try {
-      const respuesta = await fetch(`${API}/api/v1/auth/otp/solicitar`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ telefono }),
-      })
-      const datos = await respuesta.json()
-      if (!respuesta.ok) throw new Error(datos?.error?.mensaje ?? 'No se pudo enviar el código.')
-      // En local no hay canal todavía, así que la API devuelve el código y se enseña aquí para
-      // poder probar el flujo entero sin credenciales de Meta.
-      setPista(datos.codigo_de_desarrollo ?? null)
-      setPaso('codigo')
-    } catch (fallo) {
-      setError(fallo instanceof Error ? fallo.message : 'No se pudo enviar el código.')
-    } finally {
-      setEnviando(false)
-    }
+  /**
+   * Entra en el negocio elegido y va al panel.
+   *
+   * Cambiar de negocio es **pedir otro token**, no mandar un parámetro distinto: si el negocio
+   * activo viajara en cada llamada, cambiar de salón sería cambiar un número en la URL.
+   */
+  async function entrarEnNegocio(
+    acceso: string,
+    negocio: { id: string; nombre: string; rol: string },
+  ) {
+    const conNegocio = await fetch(`${API}/api/v1/auth/modo-negocio`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${acceso}` },
+      body: JSON.stringify({ negocio_id: negocio.id }),
+    }).then((r) => (r.ok ? r.json() : null))
+    if (!conNegocio) return false
+    guardarSesion({ ...conNegocio, negocio_nombre: negocio.nombre, negocio_rol: negocio.rol })
+    router.push('/panel')
+    return true
   }
 
-  async function verificar(evento: React.FormEvent) {
+  async function enviar(evento: React.FormEvent) {
     evento.preventDefault()
     setEnviando(true)
     setError(null)
     try {
-      const respuesta = await fetch(`${API}/api/v1/auth/otp/verificar`, {
+      const ruta = modo === 'alta' ? '/api/v1/auth/registrar' : '/api/v1/auth/entrar'
+      const cuerpo = modo === 'alta' ? { nombre, correo, contrasena } : { correo, contrasena }
+
+      const respuesta = await fetch(`${API}${ruta}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ telefono, codigo }),
+        body: JSON.stringify(cuerpo),
       })
       const datos = await respuesta.json()
-      if (!respuesta.ok) throw new Error(datos?.error?.mensaje ?? 'Ese código no es válido.')
+      if (!respuesta.ok) {
+        // La API contesta con su propio formato de error; el 422 de validación viene con otro.
+        const mensaje =
+          datos?.error?.mensaje ??
+          datos?.detail?.[0]?.msg ??
+          (modo === 'alta' ? 'No se pudo crear la cuenta.' : 'Correo o contraseña incorrectos.')
+        throw new Error(mensaje)
+      }
       guardarSesion(datos)
 
       // El token recién emitido todavía no lleva negocio, así que aquí se pregunta en cuáles
       // trabaja esta persona. Con uno solo se cambia de contexto sin preguntar nada: hacerle
       // elegir entre una única opción es una pantalla que no informa de nada. Con varios, se
       // elige; sin ninguno, es una clienta y va a sus citas.
-      const negocios = await fetch(`${API}/api/v1/mi/negocios`, {
+      const suyos = await fetch(`${API}/api/v1/mi/negocios`, {
         headers: { Authorization: `Bearer ${datos.acceso}` },
       })
         .then((r) => (r.ok ? r.json() : []))
         .catch(() => [])
 
-      if (negocios.length === 1) {
-        const conNegocio = await fetch(`${API}/api/v1/auth/modo-negocio`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${datos.acceso}` },
-          body: JSON.stringify({ negocio_id: negocios[0].id }),
-        }).then((r) => (r.ok ? r.json() : null))
-        if (conNegocio) {
-          guardarSesion({ ...conNegocio, negocio_nombre: negocios[0].nombre, negocio_rol: negocios[0].rol })
-          router.push('/panel')
-          return
-        }
-      }
+      if (suyos.length === 1 && (await entrarEnNegocio(datos.acceso, suyos[0]))) return
 
-      if (negocios.length > 1) {
-        setNegocios(negocios)
-        setPaso('negocio')
+      if (suyos.length > 1) {
+        setNegocios(suyos)
+        setEligiendoNegocio(true)
         return
       }
 
       router.push(volver)
     } catch (fallo) {
-      setError(fallo instanceof Error ? fallo.message : 'Ese código no es válido.')
+      setError(fallo instanceof Error ? fallo.message : 'No se pudo entrar.')
     } finally {
       setEnviando(false)
     }
@@ -121,61 +131,55 @@ function Contenido() {
     <main className="acceso">
       {/* Columna de marca. En un teléfono desaparece: ahí lo único que importa es el campo. */}
       <aside className="acceso__marca">
-        <Link href="/" aria-label="Bukeo, inicio">
+        <Link href="/" aria-label="Inicio">
           <Marca alto={24} />
         </Link>
         <div>
-          <h1 style={{ fontSize: 'var(--tipografia-tamano-titulo-2)' }}>
-            La hora que sí existe
-          </h1>
+          <h1 style={{ fontSize: 'var(--tipografia-tamano-titulo-2)' }}>La hora que sí existe</h1>
           <p style={{ marginTop: 'var(--espacio-4)', opacity: 0.82, maxWidth: '34ch' }}>
             Tu agenda y tus clientas en el mismo sitio. Gratis para el salón, sin tarjeta y sin
             comisión por cita.
           </p>
         </div>
-        <p className="tenue">
-          Ciudad de Panamá
-        </p>
+        <p className="tenue">Ciudad de Panamá</p>
       </aside>
 
       <div className="acceso__panel">
         <div className="acceso__caja">
-          <Link href="/" aria-label="Bukeo, inicio" className="acceso__marca-movil">
+          <Link href="/" aria-label="Inicio" className="acceso__marca-movil">
             <Marca alto={22} />
           </Link>
 
           <h2 style={{ marginTop: 'var(--espacio-5)' }}>
-            {paso === 'telefono' && 'Entra con tu teléfono'}
-            {paso === 'codigo' && 'Escribe tu código'}
-            {paso === 'negocio' && 'Con qué salón entras'}
+            {eligiendoNegocio
+              ? 'Con qué salón entras'
+              : modo === 'entrar'
+                ? 'Entra en tu cuenta'
+                : 'Crea tu cuenta'}
           </h2>
           <p className="apagado" style={{ marginTop: 'var(--espacio-2)' }}>
-            {paso === 'telefono' && 'Te mandamos un código por WhatsApp. No hay contraseña que recordar.'}
-            {paso === 'codigo' && `Te llegó un código de 6 dígitos al ${telefono}.`}
-            {paso === 'negocio' && 'Trabajas en más de uno. Puedes cambiar cuando quieras.'}
+            {eligiendoNegocio
+              ? 'Trabajas en más de uno. Puedes cambiar cuando quieras.'
+              : modo === 'entrar'
+                ? 'Con tu correo y tu contraseña.'
+                : 'Solo tu nombre, tu correo y una contraseña. El teléfono te lo pedimos cuando vayas a reservar.'}
           </p>
 
-          {paso === 'negocio' && (
-            <ul className="lista-filete" style={{ marginTop: 'var(--espacio-5)', borderTop: '1px solid var(--color-borde)' }}>
+          {eligiendoNegocio && (
+            <ul
+              className="lista-filete"
+              style={{ marginTop: 'var(--espacio-5)', borderTop: '1px solid var(--color-borde)' }}
+            >
               {negocios.map((n) => (
                 <li key={n.id} style={{ borderBottom: '1px solid var(--color-borde)' }}>
                   <button
                     className="boton boton--llano boton--ancho"
                     style={{ justifyContent: 'space-between', paddingInline: 0 }}
                     onClick={async () => {
-                      const guardada = JSON.parse(window.localStorage.getItem('agenda.sesion') ?? 'null')
-                      const conNegocio = await fetch(`${API}/api/v1/auth/modo-negocio`, {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                          Authorization: `Bearer ${guardada.acceso}`,
-                        },
-                        body: JSON.stringify({ negocio_id: n.id }),
-                      }).then((r) => (r.ok ? r.json() : null))
-                      if (conNegocio) {
-                        guardarSesion({ ...conNegocio, negocio_nombre: n.nombre, negocio_rol: n.rol })
-                        router.push('/panel')
-                      }
+                      const guardada = JSON.parse(
+                        window.localStorage.getItem('agenda.sesion') ?? 'null',
+                      )
+                      if (guardada) await entrarEnNegocio(guardada.acceso, n)
                     }}
                   >
                     <span style={{ color: 'var(--color-tinta)' }}>{n.nombre}</span>
@@ -186,76 +190,91 @@ function Contenido() {
             </ul>
           )}
 
-          {paso !== 'negocio' && (
-          <form
-            onSubmit={paso === 'telefono' ? pedirCodigo : verificar}
-            style={{ display: 'grid', gap: 'var(--espacio-4)', marginTop: 'var(--espacio-5)' }}
-          >
-            <div className="campo">
-              <label htmlFor="telefono">Tu teléfono</label>
-              <input
-                id="telefono"
-                className="entrada cifras"
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
-                disabled={paso === 'codigo'}
-                required
-              />
-            </div>
+          {!eligiendoNegocio && (
+            <form
+              onSubmit={enviar}
+              style={{ display: 'grid', gap: 'var(--espacio-4)', marginTop: 'var(--espacio-5)' }}
+            >
+              {modo === 'alta' && (
+                <div className="campo">
+                  <label htmlFor="nombre">Tu nombre</label>
+                  <input
+                    id="nombre"
+                    className="entrada"
+                    type="text"
+                    autoComplete="name"
+                    value={nombre}
+                    onChange={(e) => setNombre(e.target.value)}
+                    required
+                  />
+                </div>
+              )}
 
-            {paso === 'codigo' && (
               <div className="campo">
-                <label htmlFor="codigo">Código de 6 dígitos</label>
+                <label htmlFor="correo">Tu correo</label>
                 <input
-                  id="codigo"
-                  className="entrada entrada--codigo"
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  maxLength={6}
-                  value={codigo}
-                  onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ''))}
+                  id="correo"
+                  className="entrada"
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  value={correo}
+                  onChange={(e) => setCorreo(e.target.value)}
                   required
-                  autoFocus
                 />
-                {pista && (
+              </div>
+
+              <div className="campo">
+                <label htmlFor="contrasena">Tu contraseña</label>
+                <input
+                  id="contrasena"
+                  className="entrada"
+                  type="password"
+                  // `new-password` en el alta y `current-password` al entrar: es lo que hace que
+                  // el gestor del navegador ofrezca guardar una nueva en vez de rellenar la vieja.
+                  autoComplete={modo === 'alta' ? 'new-password' : 'current-password'}
+                  minLength={modo === 'alta' ? LARGO_MINIMO : undefined}
+                  value={contrasena}
+                  onChange={(e) => setContrasena(e.target.value)}
+                  required
+                />
+                {modo === 'alta' && (
                   <p className="tenue">
-                    En local todavía no hay WhatsApp. Tu código es{' '}
-                    <strong className="cifras">{pista}</strong>.
+                    Al menos {LARGO_MINIMO} caracteres. Una frase que recuerdes vale más que un
+                    jeroglífico.
                   </p>
                 )}
-                <button
-                  type="button"
-                  className="boton boton--llano"
-                  style={{ justifySelf: 'start', paddingInline: 0 }}
-                  onClick={() => {
-                    setPaso('telefono')
-                    setCodigo('')
-                    setError(null)
-                  }}
-                >
-                  Cambiar el número
-                </button>
               </div>
-            )}
 
-            {error && (
-              <p role="alert" className="aviso aviso--error">
-                {error}
-              </p>
-            )}
+              {error && (
+                <p role="alert" className="aviso aviso--error">
+                  {error}
+                </p>
+              )}
 
-            <button
-              type="submit"
-              disabled={enviando}
-              className={`boton boton--ancho ${paso === 'telefono' ? 'boton--primario' : 'boton--cierra'}`}
-            >
-              {enviando ? 'Un momento…' : paso === 'telefono' ? 'Mandarme el código' : 'Entrar'}
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={enviando}
+                className="boton boton--ancho boton--cierra"
+              >
+                {enviando ? 'Un momento…' : modo === 'entrar' ? 'Entrar' : 'Crear mi cuenta'}
+              </button>
+
+              <button
+                type="button"
+                className="boton boton--llano"
+                style={{ justifySelf: 'start', paddingInline: 0 }}
+                onClick={() => {
+                  setModo(modo === 'entrar' ? 'alta' : 'entrar')
+                  setError(null)
+                  setContrasena('')
+                }}
+              >
+                {modo === 'entrar'
+                  ? '¿No tienes cuenta? Créala'
+                  : '¿Ya tienes cuenta? Entra'}
+              </button>
+            </form>
           )}
 
           <p className="tenue" style={{ marginTop: 'var(--espacio-5)' }}>

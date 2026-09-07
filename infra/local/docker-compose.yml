@@ -112,6 +112,20 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:8000
     ports:
       - "3100:3100"
+    # El código va montado y el servidor corre en modo desarrollo, como la API con `--reload`.
+    # Sin esto la fuente queda **dentro de la imagen**: `docker compose restart web` reconstruye
+    # nada, sigue sirviendo la versión vieja y parece que el cambio no funcionó. Se pierden diez
+    # minutos cada vez buscando el fallo en el sitio equivocado.
+    #
+    # `node_modules` se deja fuera del montaje con un volumen anónimo: los del contenedor son de
+    # Linux y los del portátil de macOS, y mezclarlos rompe los binarios nativos de Next.
+    volumes:
+      - ../../apps/web:/repo/apps/web
+      - ../../packages:/repo/packages
+      - /repo/node_modules
+      - /repo/apps/web/node_modules
+      - /repo/apps/web/.next
+    command: ["sh", "-c", "pnpm exec next dev --port 3100 --hostname 0.0.0.0"]
     depends_on:
       - api
 
