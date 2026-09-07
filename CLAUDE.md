@@ -1,12 +1,12 @@
-# CLAUDE.md — contexto del proyecto Bukeo
+# CLAUDE.md — contexto del proyecto
 
 > El contexto que Claude Code carga al arrancar en este repo. **Corto a propósito:** lo que ya está en `context/` o en `docs/` no se duplica aquí, se **importa** o se enlaza.
 
 ## El proyecto en una frase
 
-**Bukeo es una plataforma de reservas y marketplace de belleza y bienestar para Panamá, gratis para el negocio:** el salón gestiona agenda, equipo y clientes sin pagar nada, el cliente descubre y reserva desde el móvil, y M2G monetiza con posicionamiento pagado y una suscripción cuyo precio es un parámetro (0 al lanzamiento).
+**Es una plataforma de reservas y marketplace de belleza y bienestar para Panamá, gratis para el negocio:** el salón gestiona agenda, equipo y clientes sin pagar nada, el cliente descubre y reserva desde el móvil, y M2G monetiza con posicionamiento pagado y una suscripción cuyo precio es un parámetro (0 al lanzamiento).
 
-**El nombre comercial es Bukeo** (ADR-0015, que supera el «por definir» de D1). Aun así **no se escribe a fuego en ninguna pantalla**: sale de configuración y de los tokens, para que un cambio de marca sea cambiar valores y no componentes.
+**El nombre comercial está sin decidir.** «Bukeo» (ADR-0015) lo descartó Luis el 7 de septiembre; las tres direcciones de `docs/marca/revision-4/` traen nombre propio —**Buenamano**, **Cupo** y **Tanda**— y elige él. Por eso el nombre **no se escribe a fuego en ninguna pantalla**: sale de configuración y de los tokens, para que cambiarlo sea cambiar valores y no componentes.
 
 ## Principio rector (NO cambia)
 
