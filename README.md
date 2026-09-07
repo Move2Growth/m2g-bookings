@@ -48,15 +48,23 @@ local, WhatsApp, la pasarela y los mapas usan implementaciones de desarrollo.
    ```bash
    make arriba
    ```
-4. **Comprueba que responde.** La documentación de la API queda en
-   <http://localhost:8000/docs> y la base en `postgresql://agenda_api@localhost:5433/agenda`.
-5. **Ejecuta las pruebas.** Corren contra un PostgreSQL real, no contra una base de mentira:
+4. **Comprueba que responde.** La web queda en <http://localhost:3100>, la documentación de la
+   API en <http://localhost:8000/docs> y la base en
+   `postgresql://agenda_api@localhost:5433/agenda`. Entra con cualquier cuenta de
+   [`docs/operacion/CREDENCIALES-DE-DEMO.md`](docs/operacion/CREDENCIALES-DE-DEMO.md).
+5. **Mira que las pantallas siguen enteras.** Entra como clienta, como dueña de salón y en la
+   consola, y recorre las veinte comprobando que cargan, no revientan y no desbordan a lo ancho
+   —a 390 px y a 1440—. Un build verde no dice nada de eso.
+   ```bash
+   make barrer
+   ```
+6. **Ejecuta las pruebas.** Corren contra un PostgreSQL real, no contra una base de mentira:
    lo que hay que probar son restricciones de exclusión, seguridad por fila y PostGIS, y nada
    de eso existe en SQLite.
    ```bash
    make pruebas
    ```
-6. **Cuando termines**, `make abajo` para y libera los puertos. `make reiniciar` borra los datos
+7. **Cuando termines**, `make abajo` para y libera los puertos. `make reiniciar` borra los datos
    y vuelve a empezar de cero.
 
 `make` sin argumentos lista todos los comandos disponibles.
@@ -79,10 +87,21 @@ local, WhatsApp, la pasarela y los mapas usan implementaciones de desarrollo.
 
 ## Estado
 
-**Fases 0 y 1 construidas; la 2, a medias.** Un salón entra por teléfono, se da de alta, pone
-horario, servicios y equipo, y opera su agenda desde el móvil; el marketplace busca, filtra por
-zona y sirve los perfiles en servidor. 107 pruebas en verde, 14 de ellas contra un PostgreSQL
-real.
+**Fases 0 y 1 construidas; la 2, a medias.** Un salón **entra con su correo y su contraseña**, se
+da de alta, pone horario, servicios y equipo, y opera su agenda desde el móvil; el marketplace
+busca, filtra por zona y sirve los perfiles en servidor. **281 pruebas en verde**, la mayoría
+contra un PostgreSQL real.
+
+Del encargo del 7 de septiembre, **la API está entera y probada**: el profesional con perfil
+público propio y elegible antes que el local, el portal del dueño con finanzas, publicidad,
+fichaje por persona y mejor del mes, el mapa por rectángulo y las invitaciones al equipo. **Las
+pantallas de todo eso están pendientes de que Luis elija dirección visual** entre los tres
+brandbooks de `docs/marca/revision-4/salida/`; el desglose, en
+[`docs/producto/PANTALLAS-PENDIENTES.md`](docs/producto/PANTALLAS-PENDIENTES.md).
+
+Las credenciales de todas las cuentas de ejemplo están en
+[`docs/operacion/CREDENCIALES-DE-DEMO.md`](docs/operacion/CREDENCIALES-DE-DEMO.md): todas
+comparten contraseña y el correo se deriva del slug del salón.
 
 **Lo que hay, cómo verlo funcionando y qué hace falta: [`docs/ENTREGA.md`](docs/ENTREGA.md).**
 El estado por rol y la deuda viva, en
