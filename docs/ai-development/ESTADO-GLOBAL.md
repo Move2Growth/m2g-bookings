@@ -126,6 +126,20 @@
 | **Encargo 07-09 · A y B** | El profesional como entidad pública y elegir profesional primero | `apps/api` (árbol de trabajo aparte, base `agenda_pruebas_w1`) | 🔄 en vuelo | **Migración `0009_profesional_entidad`** |
 | **Encargo 07-09 · C, D y E** | Portal del dueño, mapa por rectángulo y asignar personas al local | `apps/api` (árbol de trabajo aparte, base `agenda_pruebas_w2`) | 🔄 en vuelo | **Migración `0010_portal_del_dueno`: nace con `down_revision = 0008` y hay que re-encadenarla a `0009` al fusionar** |
 
+### La cadena de migraciones, que hay que rehacer al fusionar
+
+Tres migraciones se escribieron a la vez y **dos apuntan provisionalmente a la `0008`** porque su
+predecesora todavía no existía en `development`. Al fusionar hay que dejarlas así y volver a
+migrar desde cero para comprobarlo:
+
+```
+0008_acceso_contrasena → 0009_profesional_entidad → 0010_portal_del_dueno → 0011_busqueda_sin_tildes
+```
+
+La `0011` ya está en `development` con `down_revision = 0008` y **el comentario que lo dice en el
+propio archivo**. Sin este apunte, la primera persona que monte el entorno desde cero se
+encuentra tres cabezas de Alembic y ningún motivo escrito.
+
 > **Zonas serializadas de este proyecto** —nunca dos agentes a la vez, ni con worktree—: `apps/api/migraciones`, `apps/api/disponibilidad`, `packages/tokens`, `docs/arquitectura/adr/`, y este mismo archivo.
 
 ---
