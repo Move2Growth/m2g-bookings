@@ -9,6 +9,7 @@ escapan los teléfonos (ADR-0012).
 from __future__ import annotations
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import DBAPIError
@@ -64,6 +65,72 @@ async def manejar_error_de_dominio(_: Request, error: ErrorDeDominio) -> JSONRes
     falta sin romper a nadie.
     """
     return JSONResponse(status_code=error.estado_http, content=error.como_respuesta())
+
+
+#: Cómo se llama en castellano cada tipo de fallo de validación de Pydantic. No están todos: los
+#: que faltan caen en un mensaje genérico, que es mejor que enseñar el nombre inglés del tipo.
+_MOTIVOS = {
+    "missing": "falta",
+    "string_too_short": "es demasiado corto",
+    "string_too_long": "es demasiado largo",
+    "string_pattern_mismatch": "no tiene el formato esperado",
+    "greater_than": "es demasiado pequeño",
+    "greater_than_equal": "es demasiado pequeño",
+    "less_than": "es demasiado grande",
+    "less_than_equal": "es demasiado grande",
+    "int_parsing": "tiene que ser un número entero",
+    "float_parsing": "tiene que ser un número",
+    "bool_parsing": "tiene que ser sí o no",
+    "datetime_parsing": "no es una fecha válida",
+    "datetime_from_date_parsing": "no es una fecha válida",
+    "uuid_parsing": "no es un identificador válido",
+    "value_error": "no es válido",
+    "enum": "no es uno de los valores admitidos",
+    "extra_forbidden": "sobra",
+}
+
+
+@app.exception_handler(RequestValidationError)
+async def manejar_cuerpo_invalido(_: Request, error: RequestValidationError) -> JSONResponse:
+    """Un cuerpo que no cumple el esquema **también** sale con la forma única del error.
+
+    FastAPI responde a esto con `{"detail": [ … ]}`, que no se parece en nada al
+    `{"error": {"codigo", "mensaje"}}` del resto de la API. La consecuencia no es estética: cada
+    pantalla acaba escribiendo `datos?.error?.mensaje ?? datos?.detail?.[0]?.msg ?? '…'`, y la que
+    se olvida de la segunda mitad enseña «undefined» o un mensaje genérico donde había uno bueno.
+
+    El mensaje se compone en castellano y nombrando el campo, porque el `msg` de Pydantic viene en
+    inglés y con el nombre técnico dentro: «String should have at least 10 characters» no es algo
+    que se le pueda enseñar a nadie.
+    """
+    fallos = error.errors()
+    campos = []
+    campos_afectados = []
+    for fallo in fallos:
+        # `loc` es ('body', 'contrasena') o ('query', 'desde'); interesa el último tramo.
+        nombre = next((str(t) for t in reversed(fallo.get("loc", ())) if isinstance(t, str)), "")
+        if nombre in {"body", "query", "path", "header"}:
+            nombre = ""
+        motivo = _MOTIVOS.get(str(fallo.get("type", "")), "no es válido")
+        campos.append(f"«{nombre}» {motivo}" if nombre else motivo)
+        if nombre:
+            campos_afectados.append(nombre)
+
+    mensaje = "Revisa los datos: " + ", ".join(campos) + "." if campos else "Revisa los datos."
+    return JSONResponse(
+        status_code=422,
+        content={
+            "error": {
+                "codigo": "CUERPO_INVALIDO",
+                "mensaje": mensaje,
+                # Los nombres de los campos, para poder marcarlos en el formulario. Se dan como
+                # lista de nombres y no como la tupla cruda de Pydantic: `"('body', 'contrasena')"`
+                # obliga a quien lo recibe a partir una cadena para volver a tener lo que ya
+                # teníamos aquí.
+                "detalles": {"campos": campos_afectados},
+            }
+        },
+    )
 
 
 #: `SQLSTATE 42501` — «permiso insuficiente». Es lo que devuelve PostgreSQL cuando una fila

@@ -92,10 +92,11 @@ function Contenido() {
       })
       const datos = await respuesta.json()
       if (!respuesta.ok) {
-        // La API contesta con su propio formato de error; el 422 de validación viene con otro.
+        // Un solo formato para todos los errores de la API, incluidos los de validación: eso se
+        // arregló en el servidor. Aquí solo queda el respaldo por si un día llega algo sin
+        // mensaje, que no es lo mismo que sostener dos formatos a la vez.
         const mensaje =
           datos?.error?.mensaje ??
-          datos?.detail?.[0]?.msg ??
           (modo === 'alta' ? 'No se pudo crear la cuenta.' : 'Correo o contraseña incorrectos.')
         throw new Error(mensaje)
       }
