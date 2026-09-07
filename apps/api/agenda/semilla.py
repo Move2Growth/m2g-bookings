@@ -1302,6 +1302,19 @@ async def _cita(
         currency=servicio.currency,
         source="negocio_manual",
         confirmed_at=inicio - timedelta(days=1),
+        # **Cuándo se pidió la cita, no cuándo se cargó la semilla.** Sin esto, las 829 caen
+        # todas en el día de la carga y la gráfica de la consola —que agrupa por fecha de
+        # creación— sale con **una sola barra**, que es lo mismo que no tener gráfica. Se
+        # reparte de uno a seis días antes de la cita, que es como se pide una cita de verdad,
+        # y nunca en el futuro: una reserva creada mañana no existe.
+        # La hora entra en la cuenta y el día del mes no: si solo entrara el día, **todas** las
+        # citas de una misma jornada se habrían pedido el mismo día y la gráfica saldría a
+        # escalones de doscientas. Con la hora dentro, las de un martes se reparten entre diez
+        # días distintos, que es lo que pasa de verdad.
+        created_at=min(
+            inicio - timedelta(days=1 + ((inicio.toordinal() + inicio.hour) % 10)),
+            datetime.now(UTC),
+        ),
     )
     sesion.add(reserva)
     await sesion.flush()
