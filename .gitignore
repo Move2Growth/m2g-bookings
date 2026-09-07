@@ -50,3 +50,7 @@ skills-lock.json
 
 # Los árboles de trabajo de los agentes: código en curso, nunca del repositorio.
 .claude/worktrees/
+
+# El buzón del proveedor de desarrollo: ahí caen los correos que no se mandan. Lleva dentro
+# tokens de invitación, y un token de invitación abre un salón. Nunca al repositorio.
+apps/api/buzon-notificaciones.jsonl

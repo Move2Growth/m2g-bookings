@@ -84,6 +84,19 @@ Las tres últimas piden el token del **modo negocio**, no el de entrar: primero
 `POST /api/v1/auth/modo-negocio` con ese identificador. Cambiar de salón es cambiar de token, no
 mandar un parámetro distinto.
 
+## Dónde caen los correos
+
+En local no se manda ningún correo de verdad: el proveedor de desarrollo los escribe en
+`apps/api/buzon-notificaciones.jsonl`, una línea por mensaje con su plantilla, su destino y sus
+variables. Ahí es donde se lee el enlace de una invitación al equipo.
+
+```bash
+tail -1 apps/api/buzon-notificaciones.jsonl | python3 -m json.tool
+```
+
+**Ese archivo no va al repositorio y no debe ir**: lleva dentro tokens de invitación, y un token
+de invitación abre un salón.
+
 ## Si algo no entra
 
 - **429 «Demasiados intentos fallidos»**: ocho contraseñas malas seguidas cierran esa cuenta
