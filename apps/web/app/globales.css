@@ -444,18 +444,21 @@ button{ font: inherit; color: inherit; }
 
 .enlace:hover{ color: var(--color-acento); }
 
+/* `.campo` es **el envoltorio**: la etiqueta, el control y su texto de ayuda apilados. No es el
+   control. Estaba escrito como si lo fuera —fondo, borde, relleno y subrayado de neón—, y como
+   las 41 veces que se usa en el producto es envolviendo un `.entrada`, cada campo del formulario
+   salía con **dos recuadros**, uno dentro del otro. Encima el relleno lo hacía más ancho que su
+   columna y arrastraba la página a lo ancho.
+
+   El control lo viste `.entrada`, que está para eso y lo hace bien. */
 .campo{
-  width: 100%; min-height: var(--espacio-toque-minimo);
-  background: var(--superficie-calle-alta); color: var(--color-tinta);
-  border: 1px solid var(--superficie-calle-borde);
-  border-bottom: var(--neon-tubo) solid var(--color-acento-hover);
-  border-radius: 0; padding: var(--espacio-3) var(--espacio-4); font: inherit;
-  transition: border-bottom-color var(--movimiento-rapido) linear;
+  display: grid;
+  gap: var(--espacio-2);
+  min-width: 0;
 }
 
-.campo::placeholder{ color: var(--color-tinta-tenue); }
-
-.campo:focus{ border-bottom-color: var(--color-acento); }
+.campo > span,
+.campo > label{ font-weight: var(--tipografia-pesos-medio); }
 
 .etiqueta{ display:block; margin-bottom: var(--espacio-2); }
 
@@ -1239,6 +1242,15 @@ a:has(> svg) {
      última fila. En escritorio se sube: ver más abajo. */
   grid-template-rows: auto 1fr auto;
 }
+
+/* La regla que hace que el panel quepa en un teléfono, y la que más se olvida.
+   Un hijo de rejilla o de flex nace con `min-width: auto`, que significa «nunca más estrecho
+   que mi contenido». Así, una fila de agenda o una tira de días **estira la columna entera**
+   por debajo, y el resultado es un panel de 562 px dentro de una pantalla de 390: la cabecera
+   se sale, las pestañas se salen y la página se arrastra a lo ancho. Y no se ve venir, porque
+   cada pieza por separado está bien hecha y hasta tiene su propio desplazamiento lateral —que
+   no se activa nunca, precisamente por esto. */
+.app > * { min-width: 0; }
 
 /* La barra del panel es de tinta, no blanca. Es la fachada del local visto desde dentro: se
    sabe en qué salón estás desde el primer vistazo, y de paso el producto deja de ser blanco con
@@ -2406,6 +2418,10 @@ textarea.entrada { resize: vertical; min-height: 7rem; line-height: var(--tipogr
 .tira { display: flex; gap: var(--espacio-2); overflow-x: auto; padding-block: var(--espacio-1) var(--espacio-3); scrollbar-width: thin; }
 
 .tira > * { flex: 0 0 auto; }
+
+/* Lo mismo dentro de la fila: sin esto, un nombre largo o un servicio con nombre largo empujan
+   la columna `1fr` más allá del ancho de la pantalla en vez de recortarse. */
+.agenda__fila > * { min-width: 0; }
 
 .agenda__fila {
   display: grid; grid-template-columns: 62px 1fr auto;
