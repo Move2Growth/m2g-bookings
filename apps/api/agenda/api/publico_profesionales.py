@@ -26,7 +26,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import Float, cast, func, literal, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from agenda.api.comunes import url_de_media
+from agenda.api.comunes import en_la_zona_del_salon, url_de_media
 from agenda.api.dependencias import SesionPublica
 from agenda.api.publico import RespuestaDisponibilidad, ServicioPublico, SlotPublico
 from agenda.api.resenas import ResenaPublica, pintar_publicas
@@ -402,6 +402,11 @@ async def disponibilidad_del_profesional(
     negocio = await sesion.get(Business, ficha.business_id)
     if negocio is None:
         raise NoExiste("Ese profesional no está publicado.")
+
+    # Una fecha suelta se lee en la hora del salón donde trabaja esta persona, igual que en la
+    # disponibilidad de la ficha. Sin esto, el motor recibe fechas ingenuas y esto es un 500.
+    desde = en_la_zona_del_salon(desde, negocio.timezone)
+    hasta = en_la_zona_del_salon(hasta, negocio.timezone)
 
     if hasta - desde > VENTANA_MAXIMA:
         hasta = desde + VENTANA_MAXIMA

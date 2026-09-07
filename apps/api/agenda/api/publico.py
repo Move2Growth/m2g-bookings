@@ -24,7 +24,7 @@ from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from agenda.api.comunes import url_de_media
+from agenda.api.comunes import en_la_zona_del_salon, url_de_media
 from agenda.api.dependencias import SesionPublica
 from agenda.bd import sesion_de_negocio
 from agenda.errores import DatoInvalido, NegocioNoPublicado, NoExiste
@@ -550,6 +550,11 @@ async def disponibilidad(
     ).scalar_one_or_none()
     if negocio is None:
         raise NegocioNoPublicado()
+
+    # Antes de nada, los instantes: una fecha suelta se lee en la hora **de este salón**, que es
+    # lo que quiere decir quien la escribe. Después ya se puede restar.
+    desde = en_la_zona_del_salon(desde, negocio.timezone)
+    hasta = en_la_zona_del_salon(hasta, negocio.timezone)
 
     if hasta - desde > VENTANA_MAXIMA:
         hasta = desde + VENTANA_MAXIMA

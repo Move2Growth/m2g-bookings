@@ -6,6 +6,9 @@ las políticas de la base. Lo que hay aquí es de pintar.
 
 from __future__ import annotations
 
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 from agenda.ajustes import obtener_ajustes
 
 ajustes = obtener_ajustes()
@@ -34,3 +37,20 @@ def url_de_media(clave: str | None) -> str | None:
         return clave
     base = ajustes.url_base_media.rstrip("/")
     return f"{base}/{clave}" if base else f"/{clave}"
+
+
+def en_la_zona_del_salon(momento: datetime, zona: str) -> datetime:
+    """Una fecha sin huso se entiende **en la hora del salón**, no en UTC ni en la del servidor.
+
+    Quien escribe `desde=2026-09-09` está diciendo «el día 9», y el día 9 de una barbería de
+    Ciudad de Panamá empieza a las 00:00 de allí, que son las 05:00 UTC. Interpretarlo en UTC
+    movería la ventana cinco horas y enseñaría huecos del día anterior por la noche.
+
+    Hace falta porque el motor de disponibilidad **exige instantes con huso** —un `Intervalo`
+    con fechas ingenuas lanza a propósito, para que nadie compare peras con manzanas— y una
+    fecha suelta es exactamente lo que manda un selector de fecha. Sin esto, la pantalla desde
+    la que se reserva respondía **500** a una petición perfectamente razonable.
+    """
+    if momento.tzinfo is not None:
+        return momento
+    return momento.replace(tzinfo=ZoneInfo(zona))

@@ -20,7 +20,8 @@ from __future__ import annotations
 import uuid
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
+from zoneinfo import ZoneInfo
 
 import pytest
 from sqlalchemy import text
@@ -582,3 +583,71 @@ async def test_buscar_personas_por_distancia_las_ordena_de_cerca_a_lejos():
             sesion, texto=marca, orden="distancia"
         )
     assert all(r.distancia_metros is None for r in sin_punto)
+
+
+async def test_una_fecha_sin_huso_se_entiende_en_la_hora_del_salon():
+    """Un selector de fecha manda «2026-09-09», no un instante con desplazamiento.
+
+    El motor exige instantes con huso —un `Intervalo` con fechas ingenuas lanza a propósito—, así
+    que esa petición perfectamente razonable **respondía 500 en la pantalla desde la que se
+    reserva**. Y no vale interpretarla en UTC: el día de una barbería de Ciudad de Panamá empieza
+    a las 00:00 de allí, que son las 05:00 UTC, y leerlo mal movería la ventana cinco horas.
+    """
+    montado = await montar_salon_con_perfiles()
+
+    # El escenario base no trae horario: sin él no hay huecos y la prueba pasaría con la lista
+    # vacía, que es no probar nada. De nueve a siete, todos los días.
+    async with conexion_de_dueno() as duenno:
+        for weekday in range(7):
+            await duenno.execute(
+                text(
+                    "INSERT INTO business_hours (business_id, weekday, opens_at, closes_at)"
+                    " VALUES (:negocio, :dia, '09:00', '19:00') ON CONFLICT DO NOTHING"
+                ),
+                {"negocio": montado.salon.negocio_id, "dia": weekday},
+            )
+            await duenno.execute(
+                text(
+                    "INSERT INTO staff_hours (business_id, staff_id, weekday, starts_at,"
+                    " ends_at, kind) VALUES (:negocio, :staff, :dia, '09:00', '19:00', 'trabajo')"
+                    " ON CONFLICT DO NOTHING"
+                ),
+                {
+                    "negocio": montado.salon.negocio_id,
+                    "staff": montado.salon.kevin.id,
+                    "dia": weekday,
+                },
+            )
+
+    manana = (datetime.now(UTC) + timedelta(days=1)).date()
+    # Tal cual llegan de una URL: sin hora y sin huso.
+    desde = datetime(manana.year, manana.month, manana.day)
+    hasta = desde + timedelta(days=1)
+
+    async with sesion_publica() as sesion:
+        del_salon = await api_publico.disponibilidad(
+            montado.salon.slug,
+            sesion,
+            servicios=[montado.salon.servicio_id],
+            desde=desde,
+            hasta=hasta,
+        )
+        de_la_persona = await api_profesionales.disponibilidad_del_profesional(
+            montado.salon.kevin.id,
+            sesion,
+            servicios=[montado.salon.servicio_id],
+            desde=desde,
+            hasta=hasta,
+        )
+
+    assert del_salon.slots, "Con una fecha suelta tiene que devolver los huecos de ese día."
+    assert de_la_persona.slots, "Y lo mismo entrando por la persona."
+
+    # El primer hueco cae **dentro del día que se pidió, en la hora del salón**. Si la fecha se
+    # hubiera leído en UTC, la ventana empezaría a las 19:00 del día anterior en Panamá.
+    zona = ZoneInfo(del_salon.zona)
+    primero = del_salon.slots[0].inicio.astimezone(zona)
+    assert primero.date() == manana, (
+        f"El primer hueco es del {primero.date()} en hora del salón y se pidió el {manana}: "
+        "la fecha se está leyendo en otro huso."
+    )
