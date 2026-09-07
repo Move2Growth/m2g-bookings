@@ -62,6 +62,28 @@ escalada al back-office de toda la plataforma.
 Se crea con `python -m agenda.consola_alta`, que imprime **una sola vez** la contraseña y el
 secreto del segundo factor. No están aquí ni pueden estarlo.
 
+## Qué se puede enseñar ya, y por dónde
+
+Estas piezas del encargo del 7 **existen en la API y están probadas**; las pantallas se montan
+cuando haya dirección visual. Mientras tanto se ven en `http://localhost:8000/docs`.
+
+| Qué | Dónde |
+|---|---|
+| El perfil de un profesional, con sus años, su nota, cuánta gente ha atendido y sus redes | `GET /api/v1/publico/negocios/barberia-el-cangrejo/profesionales/kevin-ortega` |
+| Buscar personas en vez de locales | `GET /api/v1/publico/profesionales` |
+| El mapa por rectángulo | `GET /api/v1/publico/mapa?oeste=-79.60&sur=8.94&este=-79.45&norte=9.02` |
+| Las finanzas del salón | `GET /api/v1/negocio/finanzas?agrupacion=mes&desde=2026-08-01&hasta=2026-09-30` |
+| El mejor del mes | `GET /api/v1/negocio/mejor-del-mes?criterio=importe` |
+| Todos los calendarios en columnas | `GET /api/v1/negocio/agenda/columnas` |
+| La publicidad flash | `POST /api/v1/negocio/anuncios` y luego la ficha pública del salón |
+| El fichaje | `PUT /api/v1/negocio/profesionales/{id}/fichaje` y `POST /api/v1/negocio/fichajes` |
+| Invitar a alguien al equipo | `POST /api/v1/negocio/miembros/invitaciones` |
+
+Las tres últimas piden el token del **modo negocio**, no el de entrar: primero
+`POST /api/v1/auth/entrar`, después `GET /api/v1/mi/negocios` y después
+`POST /api/v1/auth/modo-negocio` con ese identificador. Cambiar de salón es cambiar de token, no
+mandar un parámetro distinto.
+
 ## Si algo no entra
 
 - **429 «Demasiados intentos fallidos»**: ocho contraseñas malas seguidas cierran esa cuenta
