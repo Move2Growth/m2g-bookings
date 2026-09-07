@@ -266,6 +266,20 @@ async def reprogramar(
     duracion = timedelta(minutes=reserva.total_duration_min)
     anterior_inicio = reserva.starts_at
 
+    # **A quién se le pasa la cita se comprueba igual que al crearla.** Crear ya lo hacía y mover
+    # no, así que se podía asignar una cita a alguien que ya no trabaja en el salón: el día de la
+    # cita no habría nadie, y la persona de baja ni siquiera puede verla porque su membresía está
+    # revocada. Pasaba justo al seguir el consejo de la baja forzada —«muévelas»— y elegir mal.
+    if nuevo_staff_id is not None and nuevo_staff_id != reserva.staff_id:
+        destino = await sesion.get(StaffProfile, nuevo_staff_id)
+        if (
+            destino is None
+            or destino.business_id != reserva.business_id
+            or not destino.active
+            or destino.deleted_at is not None
+        ):
+            raise ServicioNoDisponible("Ese profesional ya no está disponible.")
+
     ocupacion = (
         await sesion.execute(select(StaffOccupancy).where(StaffOccupancy.booking_id == reserva.id))
     ).scalar_one()

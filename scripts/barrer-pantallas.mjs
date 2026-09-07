@@ -165,13 +165,26 @@ async function barrer(titulo, rutas, sesion, llave = 'agenda.sesion') {
     //
     // Se mira el bloque de error del producto —`.aviso--error`, `role="alert"`— y solo si está
     // **visible**: uno oculto es el que se pinta cuando algo falla, y aquí no ha fallado nada.
-    const avisoDeError = await pagina
-      .evaluate(() => {
-        const posibles = [...document.querySelectorAll('.aviso--error, [role="alert"]')]
-        const visible = posibles.find((e) => e.getClientRects().length > 0)
-        return visible ? (visible.textContent || '').trim().slice(0, 90) : null
-      })
-      .catch(() => null)
+    const buscarError = () =>
+      pagina
+        .evaluate(() => {
+          const posibles = [...document.querySelectorAll('.aviso--error, [role="alert"]')]
+          const visible = posibles.find((e) => e.getClientRects().length > 0)
+          return visible ? (visible.textContent || '').trim().slice(0, 90) : null
+        })
+        .catch(() => null)
+
+    // **Se mira dos veces antes de acusar.** En desarrollo, Next compila cada ruta la primera
+    // vez que se pide —ocho segundos largos— y la llamada al servidor de dentro puede vencer,
+    // así que la pantalla se pinta con su estado de error sin que nada esté roto. Un fallo de
+    // verdad se repite; uno de la primera compilación, no. Un aviso falso enseña a no hacer
+    // caso del barrido, que es peor que no tenerlo.
+    let avisoDeError = await buscarError()
+    if (avisoDeError) {
+      await pagina.reload({ waitUntil: 'networkidle' })
+      await pagina.waitForTimeout(900)
+      avisoDeError = await buscarError()
+    }
 
     const bien =
       (estado === 200 || (seEsperaUn404 && estado === 404)) &&

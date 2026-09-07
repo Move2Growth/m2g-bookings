@@ -108,20 +108,30 @@ class CambioDeProfesional(BaseModel):
 @router.get("/profesionales", summary="El equipo del salón (STF-1, STF-2)")
 async def listar_profesionales(
     sesion_negocio: SesionNegocio,
-    incluir_inactivos: Annotated[bool, Query()] = True,
+    incluir_inactivos: Annotated[
+        bool, Query(description="Incluye a quien ya está de baja, marcado con activo=false")
+    ] = True,
 ) -> list[ProfesionalDelPanel]:
+    """El equipo, **incluidas las bajas** salvo que se pidan solo los activos.
+
+    `incluir_inactivos` existía y no hacía nada: la consulta descartaba siempre a quien tuviera
+    `deleted_at`, y dar de baja a alguien es justamente lo que lo rellena. O sea que la baja
+    lógica se comportaba como un borrado.
+
+    La consecuencia se ve al forzar una baja: las citas de esa persona **siguen vivas en la
+    agenda** —a propósito, para que no desaparezcan sin avisar—, pero llegan con su identificador
+    y el panel ya no podía ponerle nombre. El dueño veía doce citas sin dueño y el aviso le decía
+    «muévelas», sin manera de saber cuáles eran.
+    """
     sesion, identidad = sesion_negocio
 
     consulta = (
         select(StaffProfile)
-        .where(
-            StaffProfile.business_id == identidad.negocio_id,
-            StaffProfile.deleted_at.is_(None),
-        )
+        .where(StaffProfile.business_id == identidad.negocio_id)
         .order_by(StaffProfile.position, StaffProfile.display_name)
     )
     if not incluir_inactivos:
-        consulta = consulta.where(StaffProfile.active.is_(True))
+        consulta = consulta.where(StaffProfile.active.is_(True), StaffProfile.deleted_at.is_(None))
 
     equipo = (await sesion.execute(consulta)).scalars().all()
     return await _pintar_equipo(sesion, identidad.negocio_id, list(equipo))
