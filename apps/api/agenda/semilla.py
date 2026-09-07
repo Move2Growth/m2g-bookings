@@ -1060,7 +1060,13 @@ async def _agenda_de_ejemplo(
                 inicio = datetime.combine(dia, time(hora_local, 0), tzinfo=PANAMA).astimezone(UTC)
                 fin = inicio + timedelta(minutes=servicio.duration_min)
 
-                estado = _estado_segun_fecha(dia, hoy, indice + salto)
+                # El día entra en el reparto, y no es un detalle: sin él la semilla solo llega
+                # a siete —dos profesionales por dos saltos— y los dieciséis desenlaces no se
+                # alcanzan nunca. La primera versión de esto dejó **todas** las citas pasadas
+                # como atendidas, sin una sola ausencia. Se multiplica por tres para que el
+                # desenlace no vaya pegado al servicio y a la clienta, que salen de la misma
+                # cuenta unas líneas más arriba.
+                estado = _estado_segun_fecha(dia, hoy, indice + salto + dia_offset * 3)
                 await _cita(sesion, negocio, profesional, servicio, cliente, inicio, fin, estado)
 
 
@@ -1248,14 +1254,28 @@ async def _contadores_de_los_clientes(sesion: AsyncSession) -> None:
     )
 
 
-def _estado_segun_fecha(dia: date, hoy: date, semilla: int) -> str:
-    """Lo pasado ya tiene desenlace; lo futuro está confirmado.
+#: El desenlace de una cita pasada, repartido en dieciséis huecos: **doce atendidas**, una
+#: ausencia, dos canceladas por la clienta y una por el salón. Setenta y cinco por ciento de
+#: completado y un seis de ausencias, que es lo que se ve en un salón que funciona.
+#:
+#: Estaba en una de cada cuatro ausencias y una de cada cuatro canceladas. Con esos números el
+#: ranking sí se veía funcionar —era el motivo— pero el historial de una clienta salía siendo
+#: una pared de «No asististe», y un salón con un 25 % de plantones habría cerrado. Los fallos
+#: siguen estando, que hacen falta para ver la tasa de completado y los avisos: están en la
+#: proporción en la que ocurren.
+DESENLACES = (
+    *("completada",) * 12,
+    "no_show",
+    "cancelada_cliente",
+    "cancelada_cliente",
+    "cancelada_negocio",
+)
 
-    Se incluyen un no-show y una cancelación **a propósito**: sin ellos, la tasa de completado
-    del ranking sale perfecta para todo el mundo y no se ve funcionar.
-    """
+
+def _estado_segun_fecha(dia: date, hoy: date, semilla: int) -> str:
+    """Lo pasado ya tiene desenlace; lo futuro está confirmado."""
     if dia < hoy:
-        return ("completada", "completada", "no_show", "cancelada_cliente")[semilla % 4]
+        return DESENLACES[semilla % len(DESENLACES)]
     return "confirmada"
 
 

@@ -82,24 +82,25 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
 .e-pulsado.btn.sec{background:var(--tinta);color:var(--papel);box-shadow:none;transform:translateY(3px)}
 .e-pulsado.btn.fan{background:var(--bruma);color:var(--tinta);box-shadow:inset 0 0 0 1.5px var(--ceniza);transform:translateY(2px)}
 .e-pulsado.btn.urg{background:#7E2316;box-shadow:none;transform:translateY(2px)}
-.e-carga.btn{background:#14318C;color:var(--papel);
-  box-shadow:inset 0 -3px 0 0 var(--papel);
-  background-image:linear-gradient(0deg,transparent calc(100% - 3px),transparent 0),
-                   repeating-linear-gradient(90deg,#14318C 0 7px,#7EA0FF 7px 14px);
-  background-size:100% 100%, 100% 3px;background-position:0 0, 0 100%;background-repeat:no-repeat}
+.e-carga.btn{background-color:#3A5AC4;color:var(--papel);box-shadow:none;
+  background-image:repeating-linear-gradient(90deg,var(--papel) 0 7px,transparent 7px 14px);
+  background-size:100% 3px;background-position:0 100%;background-repeat:no-repeat}
 .e-carga.btn.sec{background:transparent;color:var(--ceniza);box-shadow:inset 0 0 0 1.5px var(--bruma);
   background-image:repeating-linear-gradient(90deg,var(--ceniza) 0 7px,transparent 7px 14px);
   background-size:100% 3px;background-position:0 100%;background-repeat:no-repeat}
 .e-carga.btn.fan{background:transparent;color:var(--ceniza);box-shadow:none;
   background-image:repeating-linear-gradient(90deg,var(--ceniza) 0 7px,transparent 7px 14px);
   background-size:100% 3px;background-position:0 100%;background-repeat:no-repeat}
-.e-carga.btn.urg{background:#7E2316;color:var(--papel);box-shadow:none;
-  background-image:repeating-linear-gradient(90deg,#7E2316 0 7px,#E8A79A 7px 14px);
+.e-carga.btn.urg{background-color:#BE3E2A;color:var(--papel);box-shadow:none;
+  background-image:repeating-linear-gradient(90deg,var(--papel) 0 7px,transparent 7px 14px);
   background-size:100% 3px;background-position:0 100%;background-repeat:no-repeat}
 .e-inh.btn,.e-inh.btn.sec,.e-inh.btn.fan,.e-inh.btn.urg{
   background:var(--papel);color:var(--ceniza);cursor:not-allowed;
   box-shadow:inset 0 0 0 1.5px var(--bruma);
   background-image:repeating-linear-gradient(-45deg,var(--bruma) 0 1.5px,transparent 1.5px 7px)}
+/* la trama es superficie, no fondo de texto: el rótulo se apoya en una placa de papel limpio */
+.e-inh.btn > span,.campo.c-inh > span,.selector div.no > span,.chip.lleno > span{
+  background:var(--papel);padding:1px 5px;display:inline-block}
 .e-foco.btn{outline:2.5px solid var(--tinta);outline-offset:3px}
 .e-foco.btn.sec{outline:2.5px solid var(--anil);outline-offset:3px}
 .e-foco.btn.fan{outline:2.5px solid var(--tinta);outline-offset:3px}
@@ -305,7 +306,7 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
       </div>
       <div style="width:1px;background:var(--bruma)"></div>
       <div class="fila" style="flex:1;gap:14px;align-items:flex-start">
-        <div class="retrato" style="width:46px;height:46px;box-shadow:0 0 0 2.5px var(--achiote)"><div class="huella" data-nombre="Dayra Q" data-tam="46" data-tinta="#1D3FB0"></div></div>
+        <div class="retrato" style="width:46px;height:46px;outline:2.5px dashed var(--anil);outline-offset:2px"><div class="huella" data-nombre="Dayra Q" data-tam="46" data-tinta="#1D3FB0"></div></div>
         <div class="col" style="gap:4px">
           <span class="h2" style="font-size:13px">Se dio de alta ayer</span>
           <span class="mini">Cero reseñas y cero historial se dicen tal cual, con el aro de achiote de «recién llegada». Nunca se inventan estrellas.</span>
@@ -336,7 +337,7 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
         </div>
         <div style="padding-top:9px;border-top:2px solid var(--tinta);margin-top:8px">
           <span class="rotulo tinta">01 · La huella</span>
-          <div class="mini" style="margin-top:6px">Cada profesional tiene un dibujo propio, calculado con su nombre. Es lo que se ve cuando no hay foto.</div>
+          <div class="mini" style="margin-top:6px">Cada profesional tiene un dibujo propio, calculado con su nombre, en añil o en tinta. Es lo que se ve cuando no hay foto.</div>
         </div>
       </div>
 
@@ -395,7 +396,7 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
         </div>
         <div style="padding-top:9px;border-top:2px solid var(--tinta);margin-top:8px">
           <span class="rotulo tinta">04 · Proporción de tinta</span>
-          <div class="mini" style="margin-top:6px">Sesenta de papel y una sola parte de achiote. El color señala, no decora: dos achiotes en pantalla es uno de más.</div>
+          <div class="mini" style="margin-top:6px">Sesenta de papel y una sola parte de achiote. El achiote nombra un solo asunto por pantalla —el hueco— y no lo reparte ningún algoritmo.</div>
         </div>
       </div>
 
@@ -651,15 +652,14 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
       <div style="flex:1.5;background:#EFE7D9;padding:16px 20px;display:flex;align-items:center;gap:22px">
         <div class="col" style="gap:4px;width:132px">
           <span class="rotulo tinta">Fondos admitidos</span>
-          <span class="mini">Cuatro. Sobre foto o sobre trama, nunca.</span>
+          <span class="mini">Papel y su matiz, bruma, añil, tinta. Sobre foto o trama, nunca; otro plano claro, solo si el sello llega a AA.</span>
         </div>
-        <div class="fila" style="gap:12px;align-items:center">
-          <div style="width:74px;height:74px;background:var(--papel);box-shadow:inset 0 0 0 1px var(--bruma);display:flex;align-items:center;justify-content:center"><img src="./logo/principal.svg" alt="" style="width:48px"></div>
-          <div style="width:74px;height:74px;background:var(--anil);display:flex;align-items:center;justify-content:center"><img src="./logo/papel.svg" alt="" style="width:48px"></div>
-          <div style="width:74px;height:74px;background:var(--tinta);display:flex;align-items:center;justify-content:center"><img src="./logo/papel.svg" alt="" style="width:48px"></div>
-          <div style="width:74px;height:74px;background:var(--bruma);display:flex;align-items:center;justify-content:center;position:relative">
-            <img src="./logo/una-tinta.svg" alt="" style="width:48px">
-          </div>
+        <div class="fila" style="gap:9px;align-items:center">
+          <div class="col" style="align-items:center;gap:5px"><div style="width:66px;height:66px;background:var(--papel);box-shadow:inset 0 0 0 1px var(--bruma);display:flex;align-items:center;justify-content:center"><img src="./logo/principal.svg" alt="" style="width:42px"></div><span class="rotulo" style="font-size:7px">7,88</span></div>
+          <div class="col" style="align-items:center;gap:5px"><div style="width:66px;height:66px;background:#EFE7D9;display:flex;align-items:center;justify-content:center"><img src="./logo/principal.svg" alt="" style="width:42px"></div><span class="rotulo" style="font-size:7px">7,16</span></div>
+          <div class="col" style="align-items:center;gap:5px"><div style="width:66px;height:66px;background:var(--bruma);display:flex;align-items:center;justify-content:center"><img src="./logo/una-tinta.svg" alt="" style="width:42px"></div><span class="rotulo" style="font-size:7px">13,27</span></div>
+          <div class="col" style="align-items:center;gap:5px"><div style="width:66px;height:66px;background:var(--anil);display:flex;align-items:center;justify-content:center"><img src="./logo/papel.svg" alt="" style="width:42px"></div><span class="rotulo" style="font-size:7px">7,88</span></div>
+          <div class="col" style="align-items:center;gap:5px"><div style="width:66px;height:66px;background:var(--tinta);display:flex;align-items:center;justify-content:center"><img src="./logo/papel.svg" alt="" style="width:42px"></div><span class="rotulo" style="font-size:7px">16,97</span></div>
         </div>
       </div>
     </div>
@@ -687,7 +687,7 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
         <div style="padding-top:10px;border-top:2px solid var(--tinta);margin-top:10px">
           <div class="h2">Papel</div>
           <div class="dato" style="font-size:11.5px;margin-top:6px">#F7F2E9<br>247 · 242 · 233</div>
-          <div class="mini" style="margin-top:8px;padding-top:7px;border-top:var(--lin)">Fondo de todo. El producto arranca claro y el oscuro es un tema aparte, no el estado normal.</div>
+          <div class="mini" style="margin-top:8px;padding-top:7px;border-top:var(--lin)">Fondo de todo; el producto arranca claro. Su matiz de recuadro es <b>#EFE7D9</b>, el mismo papel apagado un punto: no es otra tinta. Tinta sobre él, <b>15,41:1</b>.</div>
         </div>
       </div>
 
@@ -742,7 +742,7 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
         <div style="padding-top:10px;border-top:2px solid var(--tinta);margin-top:10px">
           <div class="h2" style="color:var(--achiote)">Achiote</div>
           <div class="dato" style="font-size:11.5px;margin-top:6px">#B23320<br>178 · 51 · 32</div>
-          <div class="mini" style="margin-top:8px;padding-top:7px;border-top:var(--lin)">Una parte de mil: el próximo hueco, cancelar, recién llegada. <b>5,56:1</b> sobre papel y al revés.</div>
+          <div class="mini" style="margin-top:8px;padding-top:7px;border-top:var(--lin)">Un solo asunto por pantalla: el hueco libre y el botón que deshace. Nunca colorea personas. <b>5,56:1</b> sobre papel y al revés.</div>
         </div>
       </div>
     </div>
@@ -752,7 +752,7 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
       <div style="flex:1.25">
         <div class="fila" style="justify-content:space-between;align-items:baseline">
           <span class="rotulo tinta">Proporción de uso</span>
-          <span class="mini">Medida sobre la pantalla de búsqueda, que es la más cargada</span>
+          <span class="mini">Contada píxel a píxel sobre las tres pantallas de la página 09</span>
         </div>
         <div class="fila" style="height:52px;margin-top:11px">
           <div style="flex:60;background:var(--papel);box-shadow:inset 0 0 0 1.5px var(--bruma);display:flex;align-items:center;padding-left:10px"><span class="rotulo tinta">Papel 60</span></div>
@@ -764,12 +764,15 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
         </div>
         <div class="p" style="margin-top:14px">
           El añil no puede pasar del 8 % de la superficie: en cuanto se reparte por botones secundarios, iconos y
-          separadores deja de significar «pulsa aquí». El achiote es uno por pantalla; si hay dos, uno está de adorno.
+          separadores deja de significar «pulsa aquí». Medido: <b>5,65 %</b> en la ficha, que es donde más hay, y
+          <b>2,57 %</b> en la búsqueda. El achiote habla de un solo asunto por pantalla.
         </div>
         <div class="fila" style="margin-top:18px;gap:16px;align-items:stretch;padding-top:14px;border-top:var(--lin)">
-          <div class="col" style="width:186px;gap:5px">
+          <div class="col" style="width:246px;gap:5px">
             <span class="rotulo tinta">El tema oscuro existe</span>
-            <span class="mini">Pero no es el estado normal: la aplicación abre en papel y el oscuro se enciende a mano, de noche.</span>
+            <span class="mini">Pero no es el estado normal: la aplicación abre en papel y el oscuro se enciende a mano, de noche.
+            El azul claro es <b>#7EA0FF</b>, la misma añil aclarada y solo para ese tema: <b>7,53:1</b> con tinta encima.
+            Papel sobre él daría 2,25:1, así que de noche el rótulo del botón es tinta.</span>
           </div>
           <div class="fila" style="flex:1;background:var(--tinta);align-items:center;padding:0 16px;gap:14px">
             <img src="./logo/papel.svg" alt="" style="width:30px;height:30px">
@@ -887,7 +890,7 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
       <div class="fila" style="align-items:flex-end;gap:20px;padding:10px 0;border-bottom:var(--lin)">
         <div style="flex:1.5"><span class="p">Atiende en Salón Kalú, Bella Vista. Trabaja sola y con cita.</span></div>
         <div style="flex:1;display:flex;justify-content:space-between"><span class="rotulo tinta">Cuerpo</span><span class="dato" style="font-size:10.5px;color:var(--ceniza)">Archivo 400 · 12/18,5 · en producto 15/23</span></div>
-        <div style="width:246px"><span class="mini">Texto corrido. En el teléfono nunca baja de 15 px.</span></div>
+        <div style="width:246px"><span class="mini">Texto corrido. En el teléfono el cuerpo no baja de 15 px, el secundario de 13 y la etiqueta de 11.</span></div>
       </div>
       <div class="fila" style="align-items:flex-end;gap:20px;padding:10px 0;border-bottom:var(--lin)">
         <div style="flex:1.5"><span class="rotulo tinta">Próximo hueco · hoy</span></div>
@@ -975,17 +978,19 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
       <div style="width:250px;flex:0 0 250px">
         <span class="rotulo tinta">Anatomía</span>
         <div style="background:#EFE7D9;height:118px;margin-top:9px;position:relative">
-          <span class="btn" style="position:absolute;left:56px;top:28px;height:58px;padding:0 27px;font-size:19px">Reservar 4:30</span>
-          <div style="position:absolute;left:38px;top:28px;height:58px;width:1.5px;background:var(--achiote)"></div>
-          <div style="position:absolute;left:38px;top:28px;width:9px;height:1.5px;background:var(--achiote)"></div>
-          <div style="position:absolute;left:38px;top:84.5px;width:9px;height:1.5px;background:var(--achiote)"></div>
-          <div style="position:absolute;left:12px;top:50px"><span class="rotulo" style="color:var(--achiote)">44</span></div>
-          <div style="position:absolute;left:56px;top:94px;width:118px;height:1.5px;background:var(--achiote)"></div>
-          <div style="position:absolute;left:56px;top:99px"><span class="rotulo" style="color:var(--achiote)">canto de 2 px</span></div>
+          <span class="btn" style="position:absolute;left:52px;top:32px;height:44px;padding:0 18px;font-size:14px">Reservar 4:30</span>
+          <div style="position:absolute;left:34px;top:32px;height:44px;width:1.5px;background:var(--achiote)"></div>
+          <div style="position:absolute;left:34px;top:32px;width:9px;height:1.5px;background:var(--achiote)"></div>
+          <div style="position:absolute;left:34px;top:74.5px;width:9px;height:1.5px;background:var(--achiote)"></div>
+          <div style="position:absolute;left:10px;top:47px"><span class="rotulo" style="color:var(--achiote)">44</span></div>
+          <div style="position:absolute;left:52px;top:84px;width:132px;height:1.5px;background:var(--achiote)"></div>
+          <div style="position:absolute;left:52px;top:89px"><span class="rotulo" style="color:var(--achiote)">canto de 2 px</span></div>
+          <div style="position:absolute;right:14px;top:14px;text-align:right"><span class="rotulo">a tamaño real</span></div>
         </div>
         <div class="mini" style="margin-top:9px">
           Alto 44 (48 en el teléfono), cero de radio, holgura lateral 18 y un canto de 2 px más oscuro por debajo.
           El canto es la línea de la regla de horas: al pulsar desaparece y el botón baja 2 px, como si se apoyara en el papel.
+          Los veinticuatro de la rejilla van a 38 px para que quepan seis columnas; la talla real es esta.
         </div>
         <div style="margin-top:12px;padding-top:9px;border-top:var(--lin)">
           <span class="rotulo tinta">Tres reglas</span>
@@ -1005,7 +1010,7 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
           <div class="fila" style="gap:8px;align-items:center"><span class="rotulo" style="width:76px;flex:0 0 76px">tecleando</span><div class="campo c-activo">trenzas box<span style="width:1.5px;height:17px;background:var(--anil);margin-left:2px"></span></div></div>
           <div class="fila" style="gap:8px;align-items:center"><span class="rotulo" style="width:76px;flex:0 0 76px">relleno</span><div class="campo c-lleno">Trenzas box, Bella Vista</div></div>
           <div class="fila" style="gap:8px;align-items:center"><span class="rotulo" style="width:76px;flex:0 0 76px">error</span><div class="campo c-error" style="justify-content:space-between">Trrenzsa box<span class="rotulo" style="color:var(--achiote)">sin resultados</span></div></div>
-          <div class="fila" style="gap:8px;align-items:center"><span class="rotulo" style="width:76px;flex:0 0 76px">inactivo</span><div class="campo c-inh">Elige primero la fecha</div></div>
+          <div class="fila" style="gap:8px;align-items:center"><span class="rotulo" style="width:76px;flex:0 0 76px">inactivo</span><div class="campo c-inh"><span>Elige primero la fecha</span></div></div>
         </div>
       </div>
 
@@ -1013,9 +1018,9 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
       <div style="flex:1">
         <span class="rotulo tinta">Selector de hora</span>
         <div class="selector" style="margin-top:9px">
-          <div>3:00</div><div>3:30</div><div class="on">4:00</div><div class="no">4:30</div><div>5:00</div><div class="no">5:30</div>
+          <div>3:00</div><div>3:30</div><div class="on">4:00</div><div class="no"><span>4:30</span></div><div>5:00</div><div class="no"><span>5:30</span></div>
         </div>
-        <div class="mini" style="margin-top:7px">Elegida en añil, tomada tachada con trama. No es un desplegable: es la regla de horas de la marca.</div>
+        <div class="mini" style="margin-top:7px">Elegida en añil; la tomada va tachada, con la trama alrededor de la hora y nunca debajo. No es un desplegable: es la regla de horas de la marca.</div>
 
         <div style="margin-top:16px"><span class="rotulo tinta">Chips</span></div>
         <div class="fila" style="gap:7px;margin-top:9px;flex-wrap:wrap">
@@ -1023,15 +1028,17 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
           <span class="chip on">Barbería</span>
           <span class="chip hora">hoy 4:30</span>
           <span class="chip hora on">hoy 5:00</span>
-          <span class="chip lleno">3:00</span>
+          <span class="chip lleno"><span>3:00</span></span>
         </div>
-        <div class="mini" style="margin-top:7px">El chip de hora lleva el contorno en añil; el de filtro, en bruma. Un chip tachado sigue leyéndose: 5,42:1.</div>
+        <div class="mini" style="margin-top:7px">El chip de hora lleva el contorno en añil; el de filtro, en bruma. El tachado se lee a 5,42:1 porque la trama se detiene antes de la cifra.</div>
 
         <div style="margin-top:14px;padding-top:10px;border-top:var(--lin)">
           <span class="rotulo tinta">Contraste de cada estado</span>
           <div class="mini" style="margin-top:6px">
-            Reposo 7,88:1 · encima 9,62:1 · pulsado 10,19:1 · cargando 10,19:1 · inhabilitado 5,42:1 (ceniza sobre papel, no exento) ·
-            urgente 5,56 / 6,75 / 8,80:1. El foco es un contorno de 2,5 px separado 3 px, nunca un halo difuminado.
+            Primario: reposo 7,88 · encima 9,62 · pulsado 10,19 · cargando 5,48:1 (#3A5AC4, color propio).
+            Urgente: 5,56 · 6,75 · 8,80 · cargando 4,81:1 (#BE3E2A). Inhabilitado 5,42:1 de verdad: la trama de bruma
+            no pasa por detrás de la letra, el rótulo se apoya en una placa de papel limpio. El foco es un contorno de
+            2,5 px separado 3 px, nunca un halo difuminado.
           </div>
         </div>
       </div>
@@ -1114,11 +1121,11 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
           </div>
         </div>
         <div class="pfila">
-          <div class="retrato" style="width:56px;height:56px;box-shadow:0 0 0 2.5px var(--achiote)"><div class="huella" data-nombre="Dayra Quintero" data-tam="56" data-tinta="#1D3FB0"></div></div>
+          <div class="retrato" style="width:56px;height:56px;outline:2.5px dashed var(--anil);outline-offset:2px"><div class="huella" data-nombre="Dayra Quintero" data-tam="56" data-tinta="#1D3FB0"></div></div>
           <div style="flex:1;display:flex;flex-direction:column;gap:3px;min-width:0">
             <span class="nom">Dayra Quintero</span>
             <span class="sub">Pestañas pelo a pelo · Trabaja sola</span>
-            <span class="rot" style="color:var(--achiote)">Nueva · sin reseñas</span>
+            <span class="rot" style="color:var(--anil)">Nueva · sin reseñas</span>
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
             <span style="display:inline-flex;align-items:center;height:30px;padding:0 11px;font-size:13px;font-weight:600;color:var(--anil);box-shadow:inset 0 0 0 1.5px var(--anil), inset 0 -2px 0 0 var(--anil)">mañana 2:00</span>
@@ -1140,8 +1147,8 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
       <div class="nav"><div class="on"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13.6 13.6 L19 19" stroke="currentColor" stroke-width="2"/></svg>Buscar</div><div><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="4.5" width="16" height="14" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 9H18M6.5 1.5V6M13.5 1.5V6" stroke="currentColor" stroke-width="2"/></svg>Citas</div><div><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 3H18V14H8L3.5 18V14H2Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>Chat</div><div><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="6.6" r="4.4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2.5 18.5C2.5 13.4 5.9 11 10 11s7.5 2.4 7.5 7.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Yo</div></div>
     </div></div>
         <div class="mini" style="margin-top:11px">
-          El resultado son personas, no locales: tres con foto y dos con su huella. Dayra se dio de alta ayer,
-          así que lleva aro de achiote y se dice que aún no tiene reseñas.
+          El resultado son personas, no locales: tres con foto y dos con su huella. Dayra se dio de alta ayer, así que
+          lleva el aro discontinuo de «todavía sin historial» y se dice que no tiene reseñas. Ni un achiote: aquí no hay huecos que señalar.
         </div>
       </div>
 
@@ -1176,7 +1183,7 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
           <span class="rot" style="color:var(--achiote)">3 huecos</span>
         </div>
         <div class="cinta" data-cinta="9-20" data-ocupado="9-11.5,12-15,17.5-19" data-proximo="16.5" style="height:50px;margin-top:9px"></div>
-        <div class="selector" style="margin-top:14px"><div class="no" style="height:44px;font-size:14px">3:00</div><div class="" style="height:44px;font-size:14px">3:30</div><div class="" style="height:44px;font-size:14px">4:00</div><div class="on" style="height:44px;font-size:14px">4:30</div><div class="" style="height:44px;font-size:14px">5:00</div><div class="no" style="height:44px;font-size:14px">5:30</div></div>
+        <div class="selector" style="margin-top:14px"><div class="no" style="height:44px;font-size:14px"><span>3:00</span></div><div class="" style="height:44px;font-size:14px">3:30</div><div class="" style="height:44px;font-size:14px">4:00</div><div class="on" style="height:44px;font-size:14px">4:30</div><div class="" style="height:44px;font-size:14px">5:00</div><div class="no" style="height:44px;font-size:14px"><span>5:30</span></div></div>
         <div class="sub" style="font-size:12px;margin-top:8px">Tachadas: ya tomadas. Ella confirma en menos de una hora.</div>
       </div>
       <div style="padding:15px 16px 0">
@@ -1205,8 +1212,8 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
       </div>
     </div></div>
         <div class="mini" style="margin-top:11px">
-          Su día entero en la cinta, el hueco marcado en achiote y el selector debajo. El botón dice el nombre
-          de ella, no «confirmar».
+          Su día entero en la cinta, el hueco marcado en achiote y el selector debajo. El botón dice el nombre de ella,
+          no «confirmar». Es la única pantalla sin barra de pestañas: en la ficha el pie es la reserva.
         </div>
       </div>
 
@@ -1228,12 +1235,34 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
           <span class="chip on" style="height:28px;font-size:11.5px;margin-left:auto">Hoy</span>
         </div>
       </div>
-      <div style="display:flex;border-bottom:1px solid var(--bruma)">
-        <div style="width:34px;flex:0 0 34px"></div><div style="flex:1;padding:9px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;border-left:1px solid var(--bruma)">
-          <div class="retrato" style="width:30px;height:30px"><svg viewBox="0 0 100 100" class="busto" aria-hidden="true"><rect width="100" height="100" fill="#EFE7D9"/><circle cx="50" cy="50" r="45" fill="none" stroke="#1D3FB0" stroke-width="5.5" stroke-dasharray="212 71" transform="rotate(-118 50 50)"/><circle cx="50" cy="50" r="35" fill="none" stroke="#1D3FB0" stroke-width="5.5" stroke-dasharray="132 88" transform="rotate(52 50 50)"/><circle cx="50" cy="37" r="19.5" fill="#14100D"/><path d="M11 100 C11 71 28 60 50 60 C73 60 90 72 90 100 Z" fill="#14100D"/></svg></div><span style="font-size:11px;font-weight:600;text-align:center;line-height:1.15">Yaris B.</span></div><div style="flex:1;padding:9px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;border-left:1px solid var(--bruma)">
-          <div class="retrato" style="width:30px;height:30px"><div class="huella" data-nombre="Abdiel S." data-tam="30"></div></div><span style="font-size:11px;font-weight:600;text-align:center;line-height:1.15">Abdiel S.</span></div><div style="flex:1;padding:9px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;border-left:1px solid var(--bruma)">
+      <div style="display:flex;height:480px;overflow:hidden">
+        <div style="width:34px;flex:0 0 34px">
+          <div style="height:62px"></div>
+          <div style="height:38px;font-size:12px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">9</div><div style="height:38px;font-size:12px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">10</div><div style="height:38px;font-size:12px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">11</div><div style="height:38px;font-size:12px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">12</div><div style="height:38px;font-size:12px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">1</div><div style="height:38px;font-size:12px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">2</div><div style="height:38px;font-size:12px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">3</div><div style="height:38px;font-size:12px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">4</div><div style="height:38px;font-size:12px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">5</div><div style="height:38px;font-size:12px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">6</div><div style="height:38px;font-size:12px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">7</div>
+        </div>
+        <div style="flex:1;overflow:hidden;position:relative">
+          <div style="width:520px">
+            <div style="display:flex;height:62px;border-bottom:1px solid var(--bruma)"><div style="width:130px;flex:0 0 130px;height:62px;display:flex;align-items:center;gap:8px;padding:0 8px;border-left:1px solid var(--bruma)"><div class="retrato" style="width:30px;height:30px"><svg viewBox="0 0 100 100" class="busto" aria-hidden="true"><rect width="100" height="100" fill="#EFE7D9"/><circle cx="50" cy="50" r="45" fill="none" stroke="#1D3FB0" stroke-width="5.5" stroke-dasharray="212 71" transform="rotate(-118 50 50)"/><circle cx="50" cy="50" r="35" fill="none" stroke="#1D3FB0" stroke-width="5.5" stroke-dasharray="132 88" transform="rotate(52 50 50)"/><circle cx="50" cy="37" r="19.5" fill="#14100D"/><path d="M11 100 C11 71 28 60 50 60 C73 60 90 72 90 100 Z" fill="#14100D"/></svg></div><span style="font-size:13px;font-weight:600;line-height:1.1">Yaris B.</span></div><div style="width:130px;flex:0 0 130px;height:62px;display:flex;align-items:center;gap:8px;padding:0 8px;border-left:1px solid var(--bruma)"><div class="retrato" style="width:30px;height:30px"><div class="huella" data-nombre="Abdiel S." data-tam="30"></div></div><span style="font-size:13px;font-weight:600;line-height:1.1">Abdiel S.</span></div><div style="width:130px;flex:0 0 130px;height:62px;display:flex;align-items:center;gap:8px;padding:0 8px;border-left:1px solid var(--bruma)"><div class="retrato" style="width:30px;height:30px"><svg viewBox="0 0 100 100" class="busto" aria-hidden="true"><rect width="100" height="100" fill="#EFE7D9"/><circle cx="50" cy="50" r="45" fill="none" stroke="#1D3FB0" stroke-width="5.5" stroke-dasharray="212 71" transform="rotate(-118 50 50)"/><circle cx="50" cy="50" r="35" fill="none" stroke="#1D3FB0" stroke-width="5.5" stroke-dasharray="132 88" transform="rotate(52 50 50)"/><circle cx="50" cy="37" r="19.5" fill="#14100D"/><path d="M11 100 C11 71 28 60 50 60 C73 60 90 72 90 100 Z" fill="#14100D"/></svg></div><span style="font-size:13px;font-weight:600;line-height:1.1">Keila M.</span></div><div style="width:130px;flex:0 0 130px;height:62px;display:flex;align-items:center;gap:8px;padding:0 8px;border-left:1px solid var(--bruma)"><div class="retrato" style="width:30px;height:30px;outline:2px dashed var(--anil);outline-offset:2px"><div class="huella" data-nombre="Dayra Q." data-tam="30"></div></div><span style="font-size:13px;font-weight:600;line-height:1.1">Dayra Q.</span></div></div>
+            <div style="display:flex;height:418px"><div style="width:130px;flex:0 0 130px;position:relative;border-left:1px solid var(--bruma)"><div style="position:absolute;left:4px;right:4px;top:2px;height:91.0px;background:var(--tinta);color:var(--papel);padding:5px 7px;overflow:hidden"><div style="font-size:15px;font-weight:600;line-height:1.1">Nayla</div><div style="font-size:13px;line-height:1.15;color:#BDB2A4;margin-top:2px">trenzas box</div></div><div style="position:absolute;left:4px;right:4px;top:116px;height:53.0px;background:var(--tinta);color:var(--papel);padding:5px 7px;overflow:hidden"><div style="font-size:15px;font-weight:600;line-height:1.1">Iris</div><div style="font-size:13px;line-height:1.15;color:#BDB2A4;margin-top:2px">retoque</div></div><div style="position:absolute;left:4px;right:4px;top:192px;height:110px;background:var(--tinta);color:var(--papel);padding:5px 7px;overflow:hidden"><div style="font-size:15px;font-weight:600;line-height:1.1">Mari</div><div style="font-size:13px;line-height:1.15;color:#BDB2A4;margin-top:2px">box medianas</div></div><div style="position:absolute;left:4px;right:4px;top:325.0px;height:72px;background:var(--tinta);color:var(--papel);padding:5px 7px;overflow:hidden"><div style="font-size:15px;font-weight:600;line-height:1.1">Sol</div><div style="font-size:13px;line-height:1.15;color:#BDB2A4;margin-top:2px">trenzas</div></div></div><div style="width:130px;flex:0 0 130px;position:relative;border-left:1px solid var(--bruma)"><div style="position:absolute;left:4px;right:4px;top:2px;height:34px;background:var(--tinta);color:var(--papel);padding:5px 7px;overflow:hidden"><div style="font-size:15px;font-weight:600;line-height:1.1">Corte</div></div><div style="position:absolute;left:4px;right:4px;top:40px;height:34px;background:var(--tinta);color:var(--papel);padding:5px 7px;overflow:hidden"><div style="font-size:15px;font-weight:600;line-height:1.1">Corte</div></div><div style="position:absolute;left:4px;right:4px;top:78px;height:34px;background:var(--tinta);color:var(--papel);padding:5px 7px;overflow:hidden"><div style="font-size:15px;font-weight:600;line-height:1.1">Barba</div></div><div style="position:absolute;left:4px;right:4px;top:116px;height:34px;background:var(--tinta);color:var(--papel);padding:5px 7px;overflow:hidden"><div style="font-size:15px;font-weight:600;line-height:1.1">Corte</div></div><div style="position:absolute;left:4px;right:4px;top:192px;height:34px;background:var(--tinta);color:var(--papel);padding:5px 7px;overflow:hidden"><div style="font-size:15px;font-weight:600;line-height:1.1">Corte</div></div><div style="position:absolute;left:4px;right:4px;top:230px;height:34px;background:var(--tinta);color:var(--papel);padding:5px 7px;overflow:hidden"><div style="font-size:15px;font-weight:600;line-height:1.1">Corte</div></div><div style="position:absolute;left:4px;right:4px;top:268px;height:72px;background:var(--tinta);color:var(--papel);padding:5px 7px;overflow:hidden"><div style="font-size:15px;font-weight:600;line-height:1.1">Corte y barba</div></div></div><div style="width:130px;flex:0 0 130px;position:relative;border-left:1px solid var(--bruma)"><div style="position:absolute;left:4px;right:4px;top:40px;height:72px;background:var(--tinta);color:var(--papel);padding:5px 7px;overflow:hidden"><div style="font-size:15px;font-weight:600;line-height:1.1">Vicky</div><div style="font-size:13px;line-height:1.15;color:#BDB2A4;margin-top:2px">uñas</div></div><div style="position:absolute;left:4px;right:4px;top:154px;height:53.0px;background:var(--tinta);color:var(--papel);padding:5px 7px;overflow:hidden"><div style="font-size:15px;font-weight:600;line-height:1.1">Ana</div><div style="font-size:13px;line-height:1.15;color:#BDB2A4;margin-top:2px">relleno</div></div><div style="position:absolute;left:4px;right:4px;top:268px;height:110px;background:var(--tinta);color:var(--papel);padding:5px 7px;overflow:hidden"><div style="font-size:15px;font-weight:600;line-height:1.1">Zuri</div><div style="font-size:13px;line-height:1.15;color:#BDB2A4;margin-top:2px">acrílicas</div></div><div style="position:absolute;left:4px;right:4px;top:211.0px;height:53.0px;box-shadow:inset 0 0 0 2.5px var(--achiote);color:var(--achiote);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center">hueco</div></div><div style="width:130px;flex:0 0 130px;position:relative;border-left:1px solid var(--bruma)"><div style="position:absolute;left:4px;right:4px;top:230px;height:72px;background:var(--tinta);color:var(--papel);padding:5px 7px;overflow:hidden"><div style="font-size:15px;font-weight:600;line-height:1.1">Primera cita</div></div></div></div>
+          </div>
+          <div style="position:absolute;right:0;top:0;bottom:0;width:5px;background:var(--tinta)"></div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;padding:7px 16px;border-top:1px solid var(--bruma)">
+        <span class="rot">Cuatro personas · desliza para ver a Dayra</span>
+        <span style="margin-left:auto;font-size:15px;font-weight:700;color:var(--ceniza)">››</span>
+      </div>
+      <div style="padding:11px 16px;border-top:1.5px solid var(--tinta);display:flex;align-items:center;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:2px"><span class="num" style="font-size:18px">21</span><span class="rot">citas</span></div>
+        <div style="display:flex;flex-direction:column;gap:2px"><span class="num" style="font-size:18px">1</span><span class="rot" style="color:var(--achiote)">hueco</span></div>
+        <div style="display:flex;flex-direction:column;gap:2px;margin-left:auto;text-align:right">
+          <span class="num" style="font-size:18px">0,00 B/.</span><span class="rot">te cobramos hoy</span>
+        </div>
+      </div>
+      <div class="nav"><div><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13.6 13.6 L19 19" stroke="currentColor" stroke-width="2"/></svg>Equipo</div><div class="on"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="4.5" width="16" height="14" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 9H18M6.5 1.5V6M13.5 1.5V6" stroke="currentColor" stroke-width="2"/></svg>Agenda</div><div><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 3H18V14H8L3.5 18V14H2Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>Chat</div><div><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="6.6" r="4.4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2.5 18.5C2.5 13.4 5.9 11 10 11s7.5 2.4 7.5 7.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Salón</div></div>
+    </div></div><span style="font-size:11px;font-weight:600;text-align:center;line-height:1.15">Abdiel S.</span></div><div style="flex:1;padding:9px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;border-left:1px solid var(--bruma)">
           <div class="retrato" style="width:30px;height:30px"><svg viewBox="0 0 100 100" class="busto" aria-hidden="true"><rect width="100" height="100" fill="#EFE7D9"/><circle cx="50" cy="50" r="45" fill="none" stroke="#1D3FB0" stroke-width="5.5" stroke-dasharray="212 71" transform="rotate(-118 50 50)"/><circle cx="50" cy="50" r="35" fill="none" stroke="#1D3FB0" stroke-width="5.5" stroke-dasharray="132 88" transform="rotate(52 50 50)"/><circle cx="50" cy="37" r="19.5" fill="#14100D"/><path d="M11 100 C11 71 28 60 50 60 C73 60 90 72 90 100 Z" fill="#14100D"/></svg></div><span style="font-size:11px;font-weight:600;text-align:center;line-height:1.15">Keila M.</span></div><div style="flex:1;padding:9px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;border-left:1px solid var(--bruma)">
-          <div class="retrato" style="width:30px;height:30px;box-shadow:0 0 0 2.5px var(--achiote)"><div class="huella" data-nombre="Dayra Q." data-tam="30"></div></div><span style="font-size:11px;font-weight:600;text-align:center;line-height:1.15">Dayra Q.</span></div>
+          <div class="retrato" style="width:30px;height:30px;outline:2px dashed var(--anil);outline-offset:2px"><div class="huella" data-nombre="Dayra Q." data-tam="30"></div></div><span style="font-size:11px;font-weight:600;text-align:center;line-height:1.15">Dayra Q.</span></div>
       </div>
       <div style="display:flex;flex:1;overflow:hidden">
         <div style="width:34px;flex:0 0 34px;padding-top:0"><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">9</div><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">10</div><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">11</div><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">12</div><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">1</div><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">2</div><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">3</div><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">4</div><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">5</div><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">6</div><div style="height:26px;font-size:10px;font-weight:600;color:var(--ceniza);padding-right:6px;text-align:right;border-top:1px solid var(--bruma)">7</div></div>
@@ -1249,8 +1278,8 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
       <div class="nav"><div><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13.6 13.6 L19 19" stroke="currentColor" stroke-width="2"/></svg>Equipo</div><div class="on"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="4.5" width="16" height="14" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 9H18M6.5 1.5V6M13.5 1.5V6" stroke="currentColor" stroke-width="2"/></svg>Agenda</div><div><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 3H18V14H8L3.5 18V14H2Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>Chat</div><div><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="6.6" r="4.4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2.5 18.5C2.5 13.4 5.9 11 10 11s7.5 2.4 7.5 7.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Salón</div></div>
     </div></div>
         <div class="mini" style="margin-top:11px">
-          Cuatro agendas en paralelo, una por persona. El hueco de hora y media salta en achiote, y el pie
-          repite lo que se le cobra al salón: cero.
+          Cuatro agendas en paralelo, una por persona. A 390 px caben dos y media y el resto se desliza: es lo que
+          permite que el texto de los bloques siga a 15 px. El achiote solo habla del hueco, en la celda y en el pie.
         </div>
       </div>
     </div>
@@ -1431,7 +1460,7 @@ body{font-family:'Archivo',system-ui,sans-serif;font-variant-numeric:tabular-num
    · la cinta de horas de un día concreto.
    Van en el libro con el mismo código que iría en producto. */
 (function(){
-  var TINTAS = ['#1D3FB0','#B23320','#14100D'];
+  var TINTAS = ['#1D3FB0','#14100D'];
 
   function semilla(txt){
     var h = 2166136261;

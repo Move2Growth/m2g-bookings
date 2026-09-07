@@ -1,0 +1,1869 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Tanda · libro de marca</title>
+<link rel="stylesheet" href="./fuentes/fuentes.css">
+<style>
+/* ═════════════════════════════════════════════════════════════════════════
+   TANDA · libro de marca · revisión 4
+   La plataforma es el marco. El salón es el cuadro.
+   ═════════════════════════════════════════════════════════════════════ */
+
+:root{
+  --papel:#FBF8F2;   /* fondo, siempre                                   */
+  --hueso:#EFE8DA;   /* superficies apoyadas, celdas, inhabilitado       */
+  --linea:#D9D0BE;   /* filete débil, separadores dentro de una tarjeta  */
+  --tinta:#17140F;   /* texto, marco, filete fuerte                      */
+  --gris:#6E6559;    /* texto secundario                                 */
+  --rojo:#B31226;    /* la acción de la plataforma: reservar             */
+  --rojo-2:#921021;  /* la misma acción, pisada                          */
+  --azul:#123C63;    /* la persona: enlaces, foco de teclado             */
+
+  /* seis tintas de local, ya pasadas por el filtro de vitrina */
+  --l1:#9D3A69; --l2:#335FB2; --l3:#007A46;
+  --l4:#9F4500; --l5:#6750AB; --l6:#8B5700;
+
+  --exp:'Archivo'; --texto:'Alegreya Sans';
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased}
+body{background:#8B8378;font-family:var(--texto);color:var(--tinta)}
+
+.pagina{
+  position:relative; width:1122.5px; height:793.7px; overflow:hidden;
+  background:var(--papel); page-break-after:always; break-after:page;
+}
+.pagina + .pagina{margin-top:0}
+
+/* ── el marco de la casa: la única cosa que jamás cede ────────────────── */
+.marco{position:absolute;left:28px;top:28px;right:28px;bottom:28px;border:1.5px solid var(--tinta)}
+.rotulo{position:absolute;top:-9px;left:24px;height:18px;background:var(--papel);
+  padding:0 11px;display:flex;align-items:center;gap:8px}
+.rotulo b{font-family:var(--exp);font-stretch:125%;font-weight:700;font-size:11px;
+  letter-spacing:.20em;text-transform:uppercase}
+.rotulo span{font-size:11px;color:var(--gris);letter-spacing:.02em}
+.folio{position:absolute;top:-14px;right:26px;width:31px;height:31px;background:var(--tinta);
+  color:var(--papel);display:grid;place-items:center;font-family:var(--exp);font-stretch:110%;
+  font-weight:700;font-size:13px;font-variant-numeric:tabular-nums}
+.pie{position:absolute;bottom:-9px;left:24px;height:18px;background:var(--papel);padding:0 11px;
+  display:flex;align-items:center;font-size:10.5px;color:var(--gris);letter-spacing:.01em}
+.pie-d{position:absolute;bottom:-9px;right:26px;height:18px;background:var(--papel);padding:0 11px;
+  display:flex;align-items:center;font-size:10.5px;color:var(--gris);
+  font-family:var(--exp);font-stretch:100%;letter-spacing:.10em;text-transform:uppercase}
+.lienzo{position:absolute;left:0;right:0;top:36px;bottom:30px;padding:0 34px}
+
+/* ── tipografía del libro ─────────────────────────────────────────────── */
+.display{font-family:var(--exp);font-stretch:125%;font-weight:700;line-height:.88;
+  letter-spacing:-.018em;text-transform:uppercase}
+.titulo{font-family:var(--exp);font-stretch:112%;font-weight:700;font-size:29px;line-height:1;
+  letter-spacing:-.012em}
+.entradilla{font-size:15.5px;line-height:1.34;color:var(--gris);max-width:60ch}
+.epigrafe{font-family:var(--exp);font-stretch:100%;font-weight:700;font-size:9.5px;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--gris)}
+.dato{font-family:var(--exp);font-stretch:100%;font-weight:500;font-variant-numeric:tabular-nums}
+.nota{font-size:11.5px;line-height:1.36;color:var(--gris)}
+em{font-style:italic}
+.filete{height:1.5px;background:var(--tinta)}
+.filete-d{height:1px;background:var(--linea)}
+
+/* ── las seis tramas de vitrina: el vestuario del local que no subió nada ─ */
+.trama{background-color:var(--papel)}
+.t0{background-image:linear-gradient(135deg,var(--tt) 25%,transparent 25%),
+                    linear-gradient(225deg,var(--tt) 25%,transparent 25%);
+    background-size:14px 14px;background-position:0 0}
+.t1{background-image:repeating-linear-gradient(45deg,var(--tt) 0 3px,transparent 3px 11px)}
+.t2{background-image:linear-gradient(var(--tt) 1.5px,transparent 1.5px),
+                    linear-gradient(90deg,var(--tt) 1.5px,transparent 1.5px);
+    background-size:13px 13px}
+.t3{background-image:conic-gradient(var(--tt) 25%,transparent 0 50%,var(--tt) 0 75%,transparent 0);
+    background-size:16px 16px}
+.t4{background-image:repeating-linear-gradient(60deg,var(--tt) 0 2.5px,transparent 2.5px 9px),
+                    repeating-linear-gradient(-60deg,var(--tt) 0 2.5px,transparent 2.5px 9px)}
+.t5{background-image:repeating-linear-gradient(0deg,var(--tt) 0 5px,transparent 5px 13px)}
+/* la misma trama, a escala de cartel */
+.grande.t0{background-size:26px 26px}
+.grande.t1{background-image:repeating-linear-gradient(45deg,var(--tt) 0 5px,transparent 5px 19px)}
+.grande.t2{background-size:24px 24px}
+.grande.t3{background-size:30px 30px}
+.grande.t4{background-image:repeating-linear-gradient(60deg,var(--tt) 0 4px,transparent 4px 16px),
+                           repeating-linear-gradient(-60deg,var(--tt) 0 4px,transparent 4px 16px)}
+/* la vitrina de la portada: toldo del local, cuerpo del local, marco de la casa */
+.vitrina{flex:1;border:1.5px solid var(--tinta);background:var(--papel);display:flex;flex-direction:column}
+.vitrina .toldo{height:26px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--exp);font-stretch:112%;font-weight:700;font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--papel);white-space:nowrap;overflow:hidden}
+.vitrina .festonado{height:9px}
+.vitrina .cuerpo{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:10px 8px}
+
+/* ── sello: el hueco donde vive UNA PERSONA o un local ────────────────── */
+.sello{display:grid;place-items:center;font-family:var(--exp);font-stretch:118%;font-weight:700;
+  color:var(--papel);letter-spacing:.01em;flex:none}
+.sello.vacio{color:var(--tinta);border:1.5px solid var(--tinta)}
+
+/* ── botones (la materia: filete de 2 px y sombra maciza, sin desenfoque) ─ */
+.b{font-family:var(--exp);font-stretch:106%;font-weight:700;font-size:12px;letter-spacing:.075em;
+  text-transform:uppercase;height:40px;padding:0 16px;display:inline-flex;align-items:center;
+  justify-content:center;gap:7px;border:0;border-radius:0;position:relative;white-space:nowrap;
+  transition:box-shadow 90ms cubic-bezier(.2,.8,.3,1),transform 90ms cubic-bezier(.2,.8,.3,1)}
+.b-1{background:var(--rojo);color:var(--papel);box-shadow:4px 4px 0 var(--tinta)}
+.b-1.enc{background:var(--rojo-2);box-shadow:6px 6px 0 var(--tinta);transform:translate(-2px,-2px)}
+.b-1.pul{background:var(--rojo-2);box-shadow:0 0 0 var(--tinta);transform:translate(4px,4px)}
+.b-1.car{background:var(--rojo);box-shadow:4px 4px 0 var(--tinta)}
+.b-1.inh,.b-2.inh,.b-3.inh,.b-4.inh{background:var(--hueso);color:var(--gris);box-shadow:none;
+  border:1.5px solid var(--linea);transform:none}
+.b-1.foc{background:var(--rojo);box-shadow:4px 4px 0 var(--tinta),0 0 0 2px var(--papel),0 0 0 5px var(--azul)}
+.b-2{background:var(--papel);color:var(--tinta);border:2px solid var(--tinta);box-shadow:4px 4px 0 var(--tinta)}
+.b-2.enc{background:var(--hueso);box-shadow:6px 6px 0 var(--tinta);transform:translate(-2px,-2px)}
+.b-2.pul{background:var(--hueso);box-shadow:0 0 0 var(--tinta);transform:translate(4px,4px)}
+.b-2.car{background:var(--papel);box-shadow:4px 4px 0 var(--tinta)}
+.b-2.foc{box-shadow:4px 4px 0 var(--tinta),0 0 0 2px var(--papel),0 0 0 5px var(--azul)}
+.b-3{background:transparent;color:var(--azul);padding:0 4px;height:40px;
+  box-shadow:inset 0 -2px 0 var(--azul)}
+.b-3.enc{box-shadow:inset 0 -5px 0 var(--azul)}
+.b-3.pul{box-shadow:inset 0 -2px 0 var(--azul);transform:translateY(3px)}
+.b-3.car{box-shadow:inset 0 -2px 0 var(--azul)}
+.b-3.inh{background:transparent;border:0;color:var(--gris);box-shadow:inset 0 -2px 0 var(--linea)}
+.b-3.foc{box-shadow:inset 0 -2px 0 var(--azul),0 0 0 2px var(--papel),0 0 0 5px var(--azul)}
+.b-4{width:40px;height:40px;padding:0;background:var(--papel);border:2px solid var(--tinta);
+  box-shadow:4px 4px 0 var(--tinta);color:var(--tinta)}
+.b-4.enc{background:var(--hueso);box-shadow:6px 6px 0 var(--tinta);transform:translate(-2px,-2px)}
+.b-4.pul{background:var(--hueso);box-shadow:0 0 0 var(--tinta);transform:translate(4px,4px)}
+.b-4.car{box-shadow:4px 4px 0 var(--tinta)}
+.b-4.foc{box-shadow:4px 4px 0 var(--tinta),0 0 0 2px var(--papel),0 0 0 5px var(--azul)}
+
+/* el reloj de carga: tres cuadros, no un círculo que gira */
+.cargando{display:inline-flex;gap:3px;align-items:center}
+.cargando i{width:6px;height:6px;background:currentColor;display:block}
+.cargando i:nth-child(3){opacity:.32}
+
+/* ── campo, selector, chip ────────────────────────────────────────────── */
+.campo{height:44px;border:2px solid var(--tinta);background:var(--papel);padding:0 12px;
+  display:flex;align-items:center;font-family:var(--texto);font-size:14.5px;color:var(--tinta)}
+.campo.vacio{color:var(--gris)}
+.campo.foco{box-shadow:0 0 0 2px var(--papel),0 0 0 5px var(--azul)}
+.campo.mal{border-color:var(--rojo);box-shadow:inset 0 -3px 0 var(--rojo)}
+.campo.inh{background:var(--hueso);border-color:var(--linea);color:var(--gris)}
+.chip{height:32px;padding:0 13px;display:inline-flex;align-items:center;gap:6px;
+  border:1.5px solid var(--tinta);background:var(--papel);font-size:13.5px;font-weight:500}
+.chip.on{background:var(--tinta);color:var(--papel)}
+.chip.inh{border-color:var(--linea);color:var(--gris);background:var(--hueso)}
+
+/* ── teléfono ─────────────────────────────────────────────────────────── */
+.tel{width:390px;height:844px;background:var(--papel);position:relative;overflow:hidden;
+  border:2px solid var(--tinta);display:flex;flex-direction:column}
+.tel-barra{height:38px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px 0 20px;flex:none;font-family:var(--exp);font-weight:700;font-size:13px;
+  font-variant-numeric:tabular-nums}
+.tel-cab{flex:none;padding:6px 16px 12px;border-bottom:1.5px solid var(--tinta)}
+.tel-cuerpo{flex:1;overflow:hidden;padding:0 16px}
+.tel-pie{flex:none;border-top:1.5px solid var(--tinta);height:74px;display:flex;
+  align-items:flex-start;padding-top:9px;background:var(--papel)}
+.tel-pie a{flex:1;display:grid;justify-items:center;gap:5px;font-size:10.5px;color:var(--gris);
+  text-decoration:none;font-weight:500}
+.tel-pie a.on{color:var(--tinta);font-weight:700}
+.ico{width:19px;height:19px;display:block}
+.marca-tel{font-family:var(--exp);font-stretch:125%;font-weight:700;font-size:15px;
+  letter-spacing:.16em;text-transform:uppercase}
+
+/* la ficha de un local: 6 px de tinta suya a la izquierda y nada más */
+.ficha{border:1.5px solid var(--tinta);background:var(--papel);display:flex;position:relative}
+.ficha > .filo{width:6px;flex:none}
+
+.llamada{position:relative;font-size:11px;line-height:1.32;color:var(--tinta);
+  border-left:2px solid var(--rojo);padding-left:9px}
+.llamada > b:first-child{font-family:var(--exp);font-stretch:100%;font-weight:700;font-size:9px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--rojo);display:block;margin-bottom:2px}
+</style>
+</head>
+<body>
+
+<!-- el sello generado por Higgsfield, una sola vez, para reutilizarlo dentro de las pantallas -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="sello-tanda" viewBox="410 580 1228 890"><path fill="currentColor" fill-rule="evenodd" d="M 704.662 896.987 L 1341.89 897.211 L 1341.9 1448.86 L 704.719 1448.88 L 704.662 896.987 z M 841.664 1033 L 1207.05 1033.05 C 1207.16 1125.88 1208.13 1219.82 1207.17 1312.54 L 841.88 1312.08 C 840.777 1280.93 841.597 1245.5 841.628 1214.09 L 841.664 1033 z M 968.231 1118 L 1081.14 1118.25 C 1081.85 1156.07 1081.55 1194.95 1081.69 1232.85 L 968.055 1232.88 L 968.231 1118 z M 553.019 598.184 L 1497.01 598.105 L 1496.98 727.534 C 1537.39 768.271 1580.82 808.42 1620.26 849.636 L 1447.69 849.862 C 1414.22 849.878 1375.66 850.77 1342.48 849.522 C 1336.12 844.201 1325.47 833.148 1319.22 827.078 C 1300.17 808.484 1281.25 789.762 1262.45 770.911 C 1241.87 791.217 1220.96 811.175 1200.93 832.025 C 1195.33 837.851 1189.84 843.779 1183.46 848.773 C 1157.32 822.7 1129.44 794.082 1102.57 769.087 L 1024.62 846.736 C 1011.03 833.034 996.889 819.978 983.223 806.396 C 970.663 793.913 959.15 781.301 946.029 769.299 C 936.726 776.743 927.799 787.258 919.163 795.535 C 900.833 813.105 883.093 832.469 864.677 849.825 C 836.951 824.968 809.962 793.948 783.067 770.414 C 760.981 794.657 727.814 827.24 703.808 850.064 L 427.638 849.772 C 469.667 808.409 511.439 766.787 552.952 724.906 C 552.756 682.666 552.778 640.424 553.019 598.184 z"/></symbol></svg>
+
+
+<!-- ══════════════════════ 01 · PORTADA ══════════════════════════════════ -->
+<section class="pagina">
+  <div class="marco">
+    <div class="rotulo"><b>Tanda</b><span>libro de marca</span></div>
+    <div class="folio">01</div>
+    <div class="pie">Revisión 4 · septiembre de 2026 · dirección C</div>
+    <div class="pie-d">Portada</div>
+
+    <div class="lienzo" style="display:flex;flex-direction:column;padding-top:24px;padding-bottom:6px">
+
+      <div style="display:flex;align-items:center;gap:26px">
+        <img src="./logo/principal.svg" alt="" style="width:112px">
+        <div class="display" style="font-size:146px">Tanda</div>
+        <div class="dato" style="font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+             color:var(--gris);align-self:flex-end;padding-bottom:14px">Ciudad de Panamá</div>
+      </div>
+
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:20px">
+        <div class="epigrafe">Seis vecinos dentro del mismo marco</div>
+        <div class="nota" style="font-size:10.5px">Una sola casa. Seis caracteres. Y el sexto no ha subido nada todavía.</div>
+      </div>
+      <div class="filete" style="margin:7px 0 0"></div>
+
+      <div style="display:flex;gap:10px;height:236px;margin-top:14px">
+          <div class="vitrina"><div class="toldo" style="background:var(--l1)">Uñas Ávila</div><div class="festonado trama t0" style="--tt:var(--l1);background-color:var(--papel)"></div>
+            <div class="cuerpo"><div class="sello" style="width:44px;height:44px;background:var(--l1);font-size:16px">YH</div>
+              <div class="nota" style="font-size:10px;text-align:center;line-height:1.25">Yaritza Him<br>Bella Vista</div>
+              <div class="dato" style="border:1.5px solid var(--tinta);padding:3px 8px;font-size:13px">3:30</div>
+            </div></div>
+          <div class="vitrina"><div class="toldo" style="background:var(--l2)">Barbería Chorrillo</div><div class="festonado trama t0" style="--tt:var(--l2);background-color:var(--papel)"></div>
+            <div class="cuerpo"><div class="sello" style="width:44px;height:44px;background:var(--l2);font-size:16px">KB</div>
+              <div class="nota" style="font-size:10px;text-align:center;line-height:1.25">Kevin Barría<br>El Chorrillo</div>
+              <div class="dato" style="border:1.5px solid var(--tinta);padding:3px 8px;font-size:13px">4:00</div>
+            </div></div>
+          <div class="vitrina"><div class="toldo" style="background:var(--l3)">Spa Ancón</div><div class="festonado trama t0" style="--tt:var(--l3);background-color:var(--papel)"></div>
+            <div class="cuerpo"><div class="sello" style="width:44px;height:44px;background:var(--l3);font-size:16px">DC</div>
+              <div class="nota" style="font-size:10px;text-align:center;line-height:1.25">Dayra Castillo<br>Ancón</div>
+              <div class="dato" style="border:1.5px solid var(--tinta);padding:3px 8px;font-size:13px">5:15</div>
+            </div></div>
+          <div class="vitrina"><div class="toldo" style="background:var(--l4)">Cejas Obarrio</div><div class="festonado trama t0" style="--tt:var(--l4);background-color:var(--papel)"></div>
+            <div class="cuerpo"><div class="sello" style="width:44px;height:44px;background:var(--l4);font-size:16px">AS</div>
+              <div class="nota" style="font-size:10px;text-align:center;line-height:1.25">Ana Sanjur<br>Obarrio</div>
+              <div class="dato" style="border:1.5px solid var(--tinta);padding:3px 8px;font-size:13px">5:45</div>
+            </div></div>
+          <div class="vitrina"><div class="toldo" style="background:var(--l5)">Pestañas Obarrio</div><div class="festonado trama t0" style="--tt:var(--l5);background-color:var(--papel)"></div>
+            <div class="cuerpo"><div class="sello" style="width:44px;height:44px;background:var(--l5);font-size:16px">AP</div>
+              <div class="nota" style="font-size:10px;text-align:center;line-height:1.25">Aracelly Pinzón<br>Obarrio</div>
+              <div class="dato" style="border:1.5px solid var(--tinta);padding:3px 8px;font-size:13px">6:30</div>
+            </div></div>
+          <div class="vitrina"><div class="toldo trama t2" style="--tt:var(--linea);background-color:var(--hueso);color:var(--tinta)">Sin rótulo aún</div><div class="festonado trama t0" style="--tt:var(--linea);background-color:var(--papel)"></div>
+            <div class="cuerpo"><div class="sello vacio trama t0" style="--tt:var(--linea);width:44px;height:44px;font-size:16px;background-color:var(--papel)">MG</div>
+              <div class="nota" style="font-size:10px;text-align:center;line-height:1.25">Milagros Grajales<br>Vía Argentina</div>
+              <div class="dato" style="border:1.5px solid var(--tinta);padding:3px 8px;font-size:13px">3:45</div>
+            </div></div>
+      </div>
+
+      <div style="flex:1"></div>
+      <div class="filete"></div>
+
+      <div style="display:flex;gap:0;align-items:flex-end;padding-top:18px">
+        <div style="flex:1;padding-right:34px">
+          <div style="font-size:27px;line-height:1.16;font-weight:500;max-width:27ch">
+            Reservas de belleza y bienestar en Panamá. Eliges a la <em>persona</em>, no al local.
+            Y al salón no le cuesta nada.
+          </div>
+        </div>
+        <div style="width:1.5px;background:var(--tinta);align-self:stretch"></div>
+        <div style="width:330px;padding-left:28px">
+          <div class="nota" style="font-size:12px">
+            <em>Tanda</em> es la función de una hora concreta: la tanda de las tres. Lo que se
+            reserva aquí es una tanda con alguien, no un turno con un negocio.
+          </div>
+          <div class="nota" style="font-size:12px;margin-top:9px">
+            La plataforma pone el marco y no lo suelta. El color, el rótulo y la cara los pone
+            cada local — y ni uno solo puede bajar de AA.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════ 02 · ESTRATEGIA ═══════════════════════════════ -->
+<section class="pagina">
+  <div class="marco">
+    <div class="rotulo"><b>Tanda</b><span>libro de marca</span></div>
+    <div class="folio">02</div>
+    <div class="pie">La idea, y las tres verdades que la sostienen</div>
+    <div class="pie-d">Estrategia</div>
+
+    <div class="lienzo" style="padding-top:24px">
+      <div style="display:flex;gap:26px;align-items:flex-start">
+        <div style="flex:1">
+          <div class="epigrafe">La marca en una idea</div>
+          <div class="display" style="font-size:63px;margin-top:12px;max-width:15ch">
+            Tanda es el marco.<br>El salón es el cuadro.
+          </div>
+        </div>
+        <div style="width:250px;flex:none;border:1.5px solid var(--tinta);padding:14px 16px 16px">
+          <div class="epigrafe" style="color:var(--rojo)">El nombre</div>
+          <div style="font-size:13px;line-height:1.4;margin-top:8px">
+            Dos sílabas, cinco letras, se dice por teléfono sin deletrear y no hay una sola
+            letra dudosa. En Panamá una <em>tanda</em> es la función de una hora exacta.
+            No dice «belleza» ni «agenda»: dice <b>a las tres, con ella</b>.
+          </div>
+        </div>
+      </div>
+
+      <div class="filete" style="margin:26px 0 0"></div>
+
+      <div style="display:flex;margin-top:0">
+        <div style="flex:1;padding:22px 26px 0 0;border-right:1.5px solid var(--tinta)">
+          <div style="display:flex;align-items:baseline;gap:10px">
+            <div class="display" style="font-size:38px;color:var(--rojo)">01</div>
+            <div class="titulo" style="font-size:21px">No cobramos,<br>así que no mandamos</div>
+          </div>
+          <div class="nota" style="margin-top:14px;font-size:12.5px">
+            La plataforma es gratis para el salón, y por eso no tiene derecho a taparle la cara.
+            Aquí la marca cede tres cosas —una tinta, un rótulo y las fotos— y se queda con el
+            marco: retícula, tipografía, controles y el botón de reservar.
+          </div>
+          <div style="margin-top:15px;border:1.5px solid var(--tinta);padding:9px 11px">
+            <div class="epigrafe" style="font-size:8.5px">Lo que se ve en la calle</div>
+            <div style="font-size:12.5px;margin-top:4px;font-weight:500">
+              Una vitrina de Vía Argentina: el toldo es del edificio, el color es del negocio.
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:1;padding:22px 26px 0;border-right:1.5px solid var(--tinta)">
+          <div style="display:flex;align-items:baseline;gap:10px">
+            <div class="display" style="font-size:38px;color:var(--rojo)">02</div>
+            <div class="titulo" style="font-size:21px">Se reserva con<br>una persona</div>
+          </div>
+          <div class="nota" style="margin-top:14px;font-size:12.5px">
+            La unidad del sistema no es el local: es el sello de alguien con su nombre debajo.
+            Todo componente que enseñe un negocio tiene que poder enseñar, con el mismo hueco
+            y el mismo tamaño, a la persona que trabaja dentro.
+          </div>
+          <div style="margin-top:15px;display:flex;gap:9px;align-items:center">
+            <div class="sello" style="width:46px;height:46px;background:var(--l1);font-size:16px">YH</div>
+            <div>
+              <div style="font-weight:700;font-size:14.5px">Yaritza Him</div>
+              <div class="nota" style="font-size:11px">Uñas Ávila · 1.240 atendidas</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:1;padding:22px 0 0 26px">
+          <div style="display:flex;align-items:baseline;gap:10px">
+            <div class="display" style="font-size:38px;color:var(--rojo)">03</div>
+            <div class="titulo" style="font-size:21px">Panamá, de pie<br>y a pleno sol</div>
+          </div>
+          <div class="nota" style="margin-top:14px;font-size:12.5px">
+            390 px, una mano, datos móviles y una pantalla con el sol encima. De ahí sale todo lo
+            demás: papel claro siempre, tinta a 17,3:1, ningún control por debajo de 40 px y
+            ningún gris sobre gris.
+          </div>
+          <div style="margin-top:15px;display:flex;gap:7px;flex-wrap:wrap">
+            <span class="chip" style="height:27px;font-size:12px">Claro siempre</span>
+            <span class="chip" style="height:27px;font-size:12px">17,3:1</span>
+            <span class="chip" style="height:27px;font-size:12px">44 px</span>
+            <span class="chip" style="height:27px;font-size:12px">B/. y no $</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="filete" style="margin-top:22px"></div>
+      <div style="display:flex;gap:24px;margin-top:12px">
+        <div style="flex:1">
+          <div class="epigrafe">Lo que Tanda no es</div>
+          <div class="nota" style="margin-top:6px;font-size:12px">
+            No es una herramienta de escritorio, no es un directorio de negocios y no es una
+            marca que se pone por encima de la de nadie. Si la pantalla se puede confundir con
+            un panel de gestión, está mal.
+          </div>
+        </div>
+        <div style="flex:1">
+          <div class="epigrafe">Cómo suena</div>
+          <div class="nota" style="margin-top:6px;font-size:12px">
+            De tú, corto y sin cursilería. «Te queda la tanda de las 3:30 con Yaritza.»
+            Nunca «¡Reserva tu experiencia de belleza!». El producto habla como habla la
+            recepcionista, no como habla el marketing.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════ 03 · MOODBOARD ════════════════════════════════ -->
+<section class="pagina">
+  <div class="marco">
+    <div class="rotulo"><b>Tanda</b><span>libro de marca</span></div>
+    <div class="folio">03</div>
+    <div class="pie">Seis piezas dibujadas. Cinco de ellas son piezas reales del producto, no decoración</div>
+    <div class="pie-d">Moodboard</div>
+
+    <div class="lienzo" style="padding-top:22px;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between">
+        <div class="titulo">El escaparate, en seis piezas</div>
+        <div class="nota" style="max-width:52ch;text-align:right;font-size:11.5px">
+          Ninguna es una fotografía y ninguna es un adorno: cuatro son tramas que el producto
+          reparte de verdad, una es la materia de los controles y otra es la prueba del color.
+        </div>
+      </div>
+      <div class="filete" style="margin:12px 0 16px"></div>
+
+      <div style="flex:1;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:1fr 1fr;gap:16px">
+
+        <!-- 1 · el papel -->
+        <div style="border:1.5px solid var(--tinta);display:flex;flex-direction:column">
+          <div style="flex:1;background:var(--hueso);position:relative;overflow:hidden">
+            <div style="position:absolute;left:0;right:0;top:44%;height:1.5px;background:var(--linea)"></div>
+            <div style="position:absolute;left:0;right:0;top:calc(44% + 3px);height:6px;background:linear-gradient(var(--linea),transparent)"></div>
+            <div style="position:absolute;left:22px;top:16px;right:22px;height:26px;background:var(--tinta)"></div>
+            <div style="position:absolute;left:22px;top:50px;width:56%;height:9px;background:var(--gris);opacity:.35"></div>
+            <div style="position:absolute;left:22px;top:64px;width:40%;height:9px;background:var(--gris);opacity:.35"></div>
+            <div style="position:absolute;right:22px;bottom:18px;width:74px;height:30px;background:var(--rojo)"></div>
+          </div>
+          <div style="padding:9px 12px 10px;border-top:1.5px solid var(--tinta)">
+            <div class="epigrafe">01 · Materia</div>
+            <div style="font-size:13px;font-weight:700;margin-top:3px">Papel de kiosco, no cristal</div>
+            <div class="nota" style="font-size:10.5px;margin-top:2px">
+              Fondo hueso, doblez marcado, tinta que empapa. Nada brilla y nada flota.
+            </div>
+          </div>
+        </div>
+
+        <!-- 2 · el festón -->
+        <div style="border:1.5px solid var(--tinta);display:flex;flex-direction:column">
+          <div class="trama grande t0" style="--tt:var(--tinta);flex:1;background-color:var(--papel)"></div>
+          <div style="padding:9px 12px 10px;border-top:1.5px solid var(--tinta)">
+            <div class="epigrafe">02 · Trama 00 «festón»</div>
+            <div style="font-size:13px;font-weight:700;margin-top:3px">El pico del toldo</div>
+            <div class="nota" style="font-size:10.5px;margin-top:2px">
+              La misma forma que corta el sello. Es la trama por defecto del local sin color.
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 · la sombra maciza -->
+        <div style="border:1.5px solid var(--tinta);display:flex;flex-direction:column">
+          <div style="flex:1;background:var(--papel);display:grid;place-items:center;gap:0">
+            <div style="display:flex;gap:20px;align-items:center">
+              <div style="width:78px;height:52px;background:var(--rojo);box-shadow:7px 7px 0 var(--tinta)"></div>
+              <div style="width:78px;height:52px;background:var(--papel);border:2px solid var(--tinta);box-shadow:7px 7px 0 var(--tinta)"></div>
+              <div style="width:78px;height:52px;background:var(--hueso);border:1.5px solid var(--linea)"></div>
+            </div>
+          </div>
+          <div style="padding:9px 12px 10px;border-top:1.5px solid var(--tinta)">
+            <div class="epigrafe">03 · Materia</div>
+            <div style="font-size:13px;font-weight:700;margin-top:3px">Sombra maciza, cero desenfoque</div>
+            <div class="nota" style="font-size:10.5px;margin-top:2px">
+              4 px sólidos de tinta. Se pulsa y desaparece: el botón baja de verdad.
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 · damero -->
+        <div style="border:1.5px solid var(--tinta);display:flex;flex-direction:column">
+          <div class="trama grande t3" style="--tt:var(--tinta);flex:1;background-color:var(--papel);opacity:.92"></div>
+          <div style="padding:9px 12px 10px;border-top:1.5px solid var(--tinta)">
+            <div class="epigrafe">04 · Trama 03 «damero»</div>
+            <div style="font-size:13px;font-weight:700;margin-top:3px">El piso del Casco</div>
+            <div class="nota" style="font-size:10.5px;margin-top:2px">
+              Baldosa de zaguán panameño. Se reparte por el nombre del local, no al azar.
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 · veinte tintas, un peso -->
+        <div style="border:1.5px solid var(--tinta);display:flex;flex-direction:column">
+          <div style="flex:1;display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(4,1fr);gap:1.5px;background:var(--tinta);padding:1.5px"><div style="background:#9F3960"></div><div style="background:#A33949"></div><div style="background:#A43C2F"></div><div style="background:#A14206"></div><div style="background:#9A4A00"></div><div style="background:#905300"></div><div style="background:#825D00"></div><div style="background:#706600"></div><div style="background:#5A6D00"></div><div style="background:#3C740D"></div><div style="background:#007834"></div><div style="background:#007B4F"></div><div style="background:#007B66"></div><div style="background:#007A7C"></div><div style="background:#00768F"></div><div style="background:#00719E"></div><div style="background:#006AAA"></div><div style="background:#2063B0"></div><div style="background:#455BB2"></div><div style="background:#5D53AE"></div><div style="background:#714CA6"></div><div style="background:#804699"></div><div style="background:#8E4088"></div><div style="background:#983C75"></div></div>
+          <div style="padding:9px 12px 10px;border-top:1.5px solid var(--tinta)">
+            <div class="epigrafe">05 · Color</div>
+            <div style="font-size:13px;font-weight:700;margin-top:3px">Veinticuatro tintas, un solo peso</div>
+            <div class="nota" style="font-size:10.5px;margin-top:2px">
+              Todos los tonos del círculo, pasados por el filtro de vitrina. Ninguno pesa más.
+            </div>
+          </div>
+        </div>
+
+        <!-- 6 · el rótulo -->
+        <div style="border:1.5px solid var(--tinta);display:flex;flex-direction:column">
+          <div style="flex:1;background:var(--tinta);color:var(--papel);display:flex;flex-direction:column;
+                      align-items:center;justify-content:center;gap:7px;position:relative;overflow:hidden">
+            <div class="display" style="font-size:52px;letter-spacing:.02em">Tanda</div>
+            <div style="font-family:var(--exp);font-stretch:100%;font-weight:500;font-size:11px;
+                        letter-spacing:.34em;text-transform:uppercase;opacity:.75">Bella Vista</div>
+            <div class="trama t0" style="--tt:var(--papel);position:absolute;left:0;right:0;top:0;height:13px;background-color:transparent;opacity:.5"></div>
+          </div>
+          <div style="padding:9px 12px 10px;border-top:1.5px solid var(--tinta)">
+            <div class="epigrafe">06 · Rótulo</div>
+            <div style="font-size:13px;font-weight:700;margin-top:3px">Letra de rotulista, no de app</div>
+            <div class="nota" style="font-size:10.5px;margin-top:2px">
+              Grotesca ensanchada al 125 %, pintada a brocha ancha sobre la persiana.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════ 04 · LOGOTIPO ═════════════════════════════════ -->
+<section class="pagina">
+  <div class="marco">
+    <div class="rotulo"><b>Tanda</b><span>libro de marca</span></div>
+    <div class="folio">04</div>
+    <div class="pie">Generado en vectorial con Recraft V4.1 (Higgsfield) · seis intentos · el quinto</div>
+    <div class="pie-d">Logotipo</div>
+
+    <div class="lienzo" style="padding-top:22px;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between">
+        <div>
+          <div class="titulo">Una marquesina, un marco, y alguien dentro</div>
+          <div class="nota" style="margin-top:6px;max-width:70ch;font-size:12.5px">
+            El toldo vuela por encima y es de la casa; el marco es fijo; el cuadradito del centro
+            es quien esté trabajando ese día. El símbolo dice la estrategia entera sin una letra.
+          </div>
+        </div>
+        <div class="llamada" style="width:222px">
+          <b>El nombre no se genera</b>
+          Nunca se le pide el texto a un generador: se compone con Archivo al 125 % de anchura,
+          en 700, con 0,16 em de espaciado.
+        </div>
+      </div>
+      <div class="filete" style="margin:13px 0 16px"></div>
+
+      <div style="height:392px;display:flex;gap:18px">
+
+        <!-- principal, con la construcción encima -->
+        <div style="flex:1;border:1.5px solid var(--tinta);display:flex;flex-direction:column">
+          <div style="flex:1;position:relative;display:flex;align-items:center;justify-content:center;gap:0">
+            <div style="position:relative;display:flex;align-items:center">
+              <img src="./logo/principal.svg" alt="" style="width:132px;position:relative;z-index:1">
+              <div style="width:46px"></div>
+              <div class="display" style="font-size:82px;letter-spacing:.02em;position:relative;z-index:1">Tanda</div>
+              <!-- guías -->
+              <div style="position:absolute;left:132px;top:-34px;bottom:-34px;width:46px;
+                          border-left:1px dashed var(--rojo);border-right:1px dashed var(--rojo)"></div>
+              <div style="position:absolute;left:132px;top:-52px;width:46px;text-align:center">
+                <span class="dato" style="font-size:9.5px;color:var(--rojo);background:var(--papel);padding:0 2px">x</span></div>
+              <div style="position:absolute;left:-40px;right:-40px;top:-6px;height:1px;background:var(--rojo);opacity:.55"></div>
+              <div style="position:absolute;left:-40px;right:-40px;bottom:-1px;height:1px;background:var(--rojo);opacity:.55"></div>
+              <div style="position:absolute;left:-96px;top:-6px;bottom:-1px;width:1px;border-left:1px dashed var(--rojo)"></div>
+              <div style="position:absolute;left:-92px;top:50%;transform:translateY(-50%)">
+                <span class="dato" style="font-size:9.5px;color:var(--rojo);background:var(--papel);padding:2px 0;display:block;width:52px">altura<br>de caja</span></div>
+            </div>
+          </div>
+          <div style="padding:11px 15px 13px;border-top:1.5px solid var(--tinta)">
+            <div style="display:flex;justify-content:space-between;align-items:baseline">
+              <div class="epigrafe">Principal</div>
+              <div class="dato" style="font-size:10.5px;color:var(--gris)">tinta #17140F sobre papel #FBF8F2 · 17,33:1</div>
+            </div>
+            <div class="nota" style="font-size:11.5px;margin-top:5px">
+              El símbolo mide exactamente lo mismo de alto que la caja de mayúsculas del nombre, y
+              el aire entre los dos es <b>x</b>: el ancho del cuadradito interior del sello. Esa es
+              toda la construcción; no hay más medidas que memorizar.
+            </div>
+          </div>
+        </div>
+
+        <!-- invertida y una tinta -->
+        <div style="width:348px;flex:none;display:flex;flex-direction:column;gap:16px">
+          <div style="flex:1;border:1.5px solid var(--tinta);display:flex;flex-direction:column">
+            <div style="flex:1;background:var(--tinta);display:flex;align-items:center;justify-content:center;gap:18px">
+              <img src="./logo/invertida.svg" alt="" style="width:72px">
+              <div class="display" style="font-size:44px;color:var(--papel);letter-spacing:.02em">Tanda</div>
+            </div>
+            <div style="padding:10px 14px 12px;border-top:1.5px solid var(--tinta)">
+              <div class="epigrafe">Invertida · 17,33:1</div>
+              <div class="nota" style="font-size:11px;margin-top:4px">
+                La única superficie oscura admitida en todo el sistema: el reverso de una tarjeta
+                y el ícono de la app. Nunca una pantalla entera.
+              </div>
+            </div>
+          </div>
+          <div style="flex:1;border:1.5px solid var(--tinta);display:flex;flex-direction:column">
+            <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:16px;background:var(--hueso)">
+              <div style="background:var(--l3);padding:14px 18px;display:flex;align-items:center;gap:13px;color:var(--papel)">
+                <svg style="width:52px;height:38px"><use href="#sello-tanda"/></svg>
+                <div class="display" style="font-size:31px;letter-spacing:.02em">Tanda</div>
+              </div>
+              <div style="background:var(--papel);border:1.5px solid var(--tinta);padding:12px;display:grid;place-items:center">
+                <svg style="width:36px;height:26px;color:var(--tinta)"><use href="#sello-tanda"/></svg>
+              </div>
+            </div>
+            <div style="padding:10px 14px 12px;border-top:1.5px solid var(--tinta)">
+              <div class="epigrafe">A una tinta</div>
+              <div class="nota" style="font-size:11px;margin-top:4px">
+                Serigrafía, bordado o sello de caucho, en la tinta que haya. Aquí, sobre una tinta
+                de local ya filtrada (<span class="dato">#007A46</span>, 5,12:1 contra papel).
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filete" style="margin:16px 0 12px"></div>
+
+      <div style="display:flex;gap:16px">
+        <div class="epigrafe" style="width:112px;flex:none;padding-top:4px">Lo que nunca<br>se le hace</div>
+        <div style="flex:1;min-width:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px">
+          <div style="display:flex;gap:9px;align-items:flex-start">
+            <div style="width:46px;height:46px;flex:none;border:1.5px solid var(--linea);display:grid;place-items:center;background:var(--hueso)">
+              <svg style="width:30px;height:22px;color:var(--gris);transform:skewX(-16deg)"><use href="#sello-tanda"/></svg>
+            </div>
+            <div class="nota" style="font-size:10.5px">No se inclina, ni se estira, ni se estrecha.</div>
+          </div>
+          <div style="display:flex;gap:9px;align-items:flex-start">
+            <div style="width:46px;height:46px;flex:none;border:1.5px solid var(--linea);display:grid;place-items:center;background:var(--hueso)">
+              <svg style="width:30px;height:22px;color:var(--l1)"><use href="#sello-tanda"/></svg>
+            </div>
+            <div class="nota" style="font-size:10.5px">Nunca en la tinta de un local: el marco no cambia de color.</div>
+          </div>
+          <div style="display:flex;gap:9px;align-items:flex-start">
+            <div class="trama t1" style="--tt:var(--gris);width:46px;height:46px;flex:none;border:1.5px solid var(--linea);display:grid;place-items:center">
+              <svg style="width:30px;height:22px;color:var(--tinta)"><use href="#sello-tanda"/></svg>
+            </div>
+            <div class="nota" style="font-size:10.5px">Nunca sobre una trama ni sobre una foto.</div>
+          </div>
+          <div style="display:flex;gap:9px;align-items:flex-start">
+            <div style="width:46px;height:46px;flex:none;border:1.5px solid var(--linea);display:grid;place-items:center;background:var(--hueso)">
+              <svg style="width:30px;height:22px;color:var(--tinta);filter:drop-shadow(2px 2px 0 var(--rojo))"><use href="#sello-tanda"/></svg>
+            </div>
+            <div class="nota" style="font-size:10.5px">Sin sombra, sin relieve y sin contorno.</div>
+          </div>
+          <div style="display:flex;gap:9px;align-items:flex-start">
+            <div style="width:46px;height:46px;flex:none;border:1.5px solid var(--linea);display:flex;align-items:center;
+                        gap:1px;justify-content:center;background:var(--hueso);overflow:hidden">
+              <svg style="width:16px;height:12px;color:var(--tinta);flex:none"><use href="#sello-tanda"/></svg>
+              <span class="display" style="font-size:10px">Tanda</span>
+            </div>
+            <div class="nota" style="font-size:10.5px">El aire entre símbolo y nombre no se recorta jamás.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════ 05 · ÍCONO ════════════════════════════════════ -->
+<section class="pagina">
+  <div class="marco">
+    <div class="rotulo"><b>Tanda</b><span>libro de marca</span></div>
+    <div class="folio">05</div>
+    <div class="pie">Tres dibujos distintos, no tres tamaños del mismo · impresos aquí a tamaño real</div>
+    <div class="pie-d">Ícono</div>
+
+    <div class="lienzo" style="padding-top:22px;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between">
+        <div>
+          <div class="titulo">Qué se cae en cada escalón</div>
+          <div class="nota" style="margin-top:6px;max-width:74ch;font-size:12.5px">
+            El sello no se reduce: se poda. A 48 px cabe el festón de cinco picos; a 32 se quedan
+            tres; a 16 el festón desaparece del todo y el cuadradito de dentro crece, porque es lo
+            último que se puede perder — es la persona.
+          </div>
+        </div>
+        <div class="llamada" style="width:236px">
+          <b>Regla dura</b>
+          Por debajo de 16 px no existe el sello. Se pone la palabra <strong>Tanda</strong>, o no
+          se pone nada.
+        </div>
+      </div>
+      <div class="filete" style="margin:13px 0 16px"></div>
+
+      <div style="flex:1;display:flex;gap:18px">
+
+        <div style="flex:1;display:flex;flex-direction:column;gap:16px;min-width:0">
+          <div style="display:flex;gap:16px;height:152px">
+            <div style="flex:1;border:1.5px solid var(--tinta);display:flex;flex-direction:column">
+              <div style="flex:1;display:grid;place-items:center;background:var(--hueso)">
+                <div style="width:48px;height:48px;background:var(--papel);border:1px solid var(--linea);display:grid;place-items:center">
+                  <img src="./logo/sello-48.svg" alt="" style="width:38px"></div>
+              </div>
+              <div style="padding:8px 11px 9px;border-top:1.5px solid var(--tinta)">
+                <div class="epigrafe">48 px · entero</div>
+                <div class="nota" style="font-size:10.5px;margin-top:2px">Cinco picos, marco de 3 px, ventana calada y cuadro dentro.</div>
+              </div>
+            </div>
+            <div style="flex:1;border:1.5px solid var(--tinta);display:flex;flex-direction:column">
+              <div style="flex:1;display:grid;place-items:center;background:var(--hueso)">
+                <div style="width:32px;height:32px;background:var(--papel);border:1px solid var(--linea);display:grid;place-items:center">
+                  <img src="./logo/sello-32.svg" alt="" style="width:26px"></div>
+              </div>
+              <div style="padding:8px 11px 9px;border-top:1.5px solid var(--tinta)">
+                <div class="epigrafe">32 px · podado</div>
+                <div class="nota" style="font-size:10.5px;margin-top:2px">Se cae de cinco picos a tres. El resto no se toca.</div>
+              </div>
+            </div>
+            <div style="flex:1;border:1.5px solid var(--tinta);display:flex;flex-direction:column">
+              <div style="flex:1;display:grid;place-items:center;background:var(--hueso)">
+                <div style="width:16px;height:16px;background:var(--papel);border:1px solid var(--linea);display:grid;place-items:center">
+                  <img src="./logo/sello-16.svg" alt="" style="width:14px"></div>
+              </div>
+              <div style="padding:8px 11px 9px;border-top:1.5px solid var(--tinta)">
+                <div class="epigrafe">16 px · sin festón</div>
+                <div class="nota" style="font-size:10.5px;margin-top:2px">Toldo liso y cuadro interior un 50 % mayor, o se cierra.</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="flex:1;border:1.5px solid var(--tinta);padding:13px 17px 15px;display:flex;flex-direction:column">
+            <div class="epigrafe">Los mismos tres, ampliados ocho veces, para ver la poda</div>
+            <div style="flex:1;display:flex;gap:24px;align-items:center;margin-top:8px">
+              <div style="text-align:center"><img src="./logo/sello-48.svg" alt="" style="width:150px"><div class="nota dato" style="font-size:10px;margin-top:7px">48</div></div>
+              <div style="text-align:center"><img src="./logo/sello-32.svg" alt="" style="width:150px"><div class="nota dato" style="font-size:10px;margin-top:7px">32</div></div>
+              <div style="text-align:center"><img src="./logo/sello-16.svg" alt="" style="width:150px"><div class="nota dato" style="font-size:10px;margin-top:7px">16</div></div>
+              <div style="flex:1;min-width:0">
+                <div class="nota" style="font-size:11.5px">
+                  Los tres son <b>archivos distintos</b> y existen por separado en
+                  <span class="dato">logo/</span>. No se interpola entre ellos: por debajo de 40 px
+                  se sirve el de 32, y por debajo de 24 px el de 16.
+                </div>
+                <div class="nota" style="font-size:11.5px;margin-top:9px">
+                  El festón se pierde porque a 16 px un pico mide medio píxel y se convierte en un
+                  borde sucio. La ventana calada y el cuadro de dentro sobreviven porque son las
+                  dos cosas que hacen que el sello signifique algo.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="width:300px;flex:none;border:1.5px solid var(--tinta);display:flex;flex-direction:column">
+          <div style="padding:13px 15px 0">
+            <div class="epigrafe">El otro sello</div>
+            <div style="font-size:14.5px;font-weight:700;margin-top:4px;line-height:1.2">El hueco cuadrado donde va una persona</div>
+            <div class="nota" style="font-size:11px;margin-top:5px">
+              El mismo cuadrado del centro del ícono, crecido. Con foto, la lleva. Sin foto —el caso
+              del primer día— lleva iniciales sobre la tinta del local; y si no hay ni tinta, la
+              trama que le toque por su nombre.
+            </div>
+          </div>
+          <div style="padding:13px 15px 0;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div style="text-align:center">
+              <div class="sello" style="width:66px;height:66px;background:var(--l1);font-size:24px;margin:0 auto">YH</div>
+              <div class="nota" style="font-size:10px;margin-top:5px">Con tinta<br>del local</div>
+            </div>
+            <div style="text-align:center">
+              <div class="sello vacio trama t0" style="--tt:var(--linea);width:66px;height:66px;font-size:24px;margin:0 auto;background-color:var(--papel)">KB</div>
+              <div class="nota" style="font-size:10px;margin-top:5px">Sin nada:<br>trama 00</div>
+            </div>
+            <div style="text-align:center">
+              <div class="sello vacio trama t3" style="--tt:var(--linea);width:66px;height:66px;font-size:24px;margin:0 auto;background-color:var(--papel)">DC</div>
+              <div class="nota" style="font-size:10px;margin-top:5px">Sin nada:<br>trama 03</div>
+            </div>
+            <div style="text-align:center">
+              <div class="sello" style="width:66px;height:66px;background:var(--tinta);font-size:24px;margin:0 auto">
+                <svg style="width:36px;height:26px;color:var(--papel)"><use href="#sello-tanda"/></svg></div>
+              <div class="nota" style="font-size:10px;margin-top:5px">La casa<br>(solo Tanda)</div>
+            </div>
+          </div>
+
+          <div style="padding:14px 15px 0">
+            <div class="epigrafe" style="font-size:8.5px;color:var(--rojo)">Cómo se reparte la trama</div>
+            <div class="dato" style="background:var(--hueso);padding:7px 10px;font-size:11px;margin-top:6px;
+                        border-left:3px solid var(--rojo)">trama = hash(nombre) mód 6</div>
+            <div style="display:flex;gap:5px;margin-top:8px">
+              <div class="trama t0" style="--tt:var(--linea);flex:1;height:30px;border:1px solid var(--linea);background-color:var(--papel)"></div>
+              <div class="trama t1" style="--tt:var(--linea);flex:1;height:30px;border:1px solid var(--linea);background-color:var(--papel)"></div>
+              <div class="trama t2" style="--tt:var(--linea);flex:1;height:30px;border:1px solid var(--linea);background-color:var(--papel)"></div>
+              <div class="trama t3" style="--tt:var(--linea);flex:1;height:30px;border:1px solid var(--linea);background-color:var(--papel)"></div>
+              <div class="trama t4" style="--tt:var(--linea);flex:1;height:30px;border:1px solid var(--linea);background-color:var(--papel)"></div>
+              <div class="trama t5" style="--tt:var(--linea);flex:1;height:30px;border:1px solid var(--linea);background-color:var(--papel)"></div>
+            </div>
+            <div class="nota" style="font-size:10px;margin-top:5px">
+              Determinista, no aleatoria: el mismo salón lleva siempre la suya, y dos vecinos casi
+              nunca coinciden. Son las mismas seis de la página 03.
+            </div>
+          </div>
+
+          <div style="flex:1"></div>
+          <div style="border-top:1.5px solid var(--tinta);padding:10px 15px 11px">
+            <div class="nota" style="font-size:10.5px">
+              Las iniciales van en Archivo 700 al 118 % de anchura, a un tercio del lado del cuadro.
+              Papel sobre tinta filtrada: nunca por debajo de <b>4,98:1</b>.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════ 06 · COLOR ════════════════════════════════════ -->
+<section class="pagina">
+  <div class="marco">
+    <div class="rotulo"><b>Tanda</b><span>libro de marca</span></div>
+    <div class="folio">06</div>
+    <div class="pie">Seis tintas de la casa y un hueco. Todos los ratios medidos con WCAG 2.1 sobre el papel real</div>
+    <div class="pie-d">Color</div>
+
+    <div class="lienzo" style="padding-top:22px;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between">
+        <div class="titulo">Seis tintas nuestras y una que no lo es</div>
+        <div class="nota" style="max-width:56ch;text-align:right;font-size:11.5px">
+          La paleta tiene un agujero a propósito. La séptima tinta la pone el local, y el
+          sistema solo le impone la luminosidad y el croma para que veinte locales no
+          parezcan un mercadillo.
+        </div>
+      </div>
+      <div class="filete" style="margin:12px 0 0"></div>
+
+      <div style="flex:1;display:flex;gap:22px;padding-top:14px">
+
+        <!-- las seis de la casa -->
+        <div style="flex:1.32">
+          <div style="display:grid;grid-template-columns:56px 1fr 84px 118px 62px;gap:0 12px;
+                      font-size:9.5px;padding-bottom:6px;border-bottom:1.5px solid var(--tinta)"
+               class="epigrafe">
+            <div></div><div>Tinta y para qué sirve</div><div>Hex</div><div>RGB</div><div style="text-align:right">Contraste</div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:56px 1fr 84px 118px 62px;gap:0 12px;
+                      align-items:center;padding:9px 0;border-bottom:1px solid var(--linea)">
+            <div style="height:38px;background:#FBF8F2;border:1.5px solid var(--tinta)"></div>
+            <div><b style="font-size:13.5px">Papel</b><div class="nota" style="font-size:10.5px">El fondo. Siempre. No existe una pantalla que no arranque aquí.</div></div>
+            <div class="dato" style="font-size:11.5px">#FBF8F2</div>
+            <div class="dato" style="font-size:11.5px">251 · 248 · 242</div>
+            <div class="dato" style="font-size:11.5px;text-align:right">—</div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:56px 1fr 84px 118px 62px;gap:0 12px;
+                      align-items:center;padding:9px 0;border-bottom:1px solid var(--linea)">
+            <div style="height:38px;background:#EFE8DA"></div>
+            <div><b style="font-size:13.5px">Hueso</b><div class="nota" style="font-size:10.5px">Lo que se apoya sobre el papel: celdas, hora ocupada, botón inhabilitado.</div></div>
+            <div class="dato" style="font-size:11.5px">#EFE8DA</div>
+            <div class="dato" style="font-size:11.5px">239 · 232 · 218</div>
+            <div class="dato" style="font-size:11.5px;text-align:right">1,15:1</div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:56px 1fr 84px 118px 62px;gap:0 12px;
+                      align-items:center;padding:9px 0;border-bottom:1px solid var(--linea)">
+            <div style="height:38px;background:#17140F"></div>
+            <div><b style="font-size:13.5px">Tinta</b><div class="nota" style="font-size:10.5px">Todo el texto principal, el marco y los filetes fuertes.</div></div>
+            <div class="dato" style="font-size:11.5px">#17140F</div>
+            <div class="dato" style="font-size:11.5px">23 · 20 · 15</div>
+            <div class="dato" style="font-size:11.5px;text-align:right"><b>17,33:1</b></div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:56px 1fr 84px 118px 62px;gap:0 12px;
+                      align-items:center;padding:9px 0;border-bottom:1px solid var(--linea)">
+            <div style="height:38px;background:#6E6559"></div>
+            <div><b style="font-size:13.5px">Gris cinta</b><div class="nota" style="font-size:10.5px">Texto secundario. Sobre hueso baja a 4,7:1 y ahí se para: no hay gris más claro.</div></div>
+            <div class="dato" style="font-size:11.5px">#6E6559</div>
+            <div class="dato" style="font-size:11.5px">110 · 101 · 89</div>
+            <div class="dato" style="font-size:11.5px;text-align:right">5,40:1</div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:56px 1fr 84px 118px 62px;gap:0 12px;
+                      align-items:center;padding:9px 0;border-bottom:1px solid var(--linea)">
+            <div style="height:38px;background:#B31226"></div>
+            <div><b style="font-size:13.5px">Rojo marquesina</b><div class="nota" style="font-size:10.5px">La acción de la plataforma: reservar. Nunca la usa un local.</div></div>
+            <div class="dato" style="font-size:11.5px">#B31226</div>
+            <div class="dato" style="font-size:11.5px">179 · 18 · 38</div>
+            <div class="dato" style="font-size:11.5px;text-align:right">6,54:1</div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:56px 1fr 84px 118px 62px;gap:0 12px;
+                      align-items:center;padding:9px 0;border-bottom:1.5px solid var(--tinta)">
+            <div style="height:38px;background:#123C63"></div>
+            <div><b style="font-size:13.5px">Azul canal</b><div class="nota" style="font-size:10.5px">La persona: su nombre enlazado, y el anillo de foco de teclado.</div></div>
+            <div class="dato" style="font-size:11.5px">#123C63</div>
+            <div class="dato" style="font-size:11.5px">18 · 60 · 99</div>
+            <div class="dato" style="font-size:11.5px;text-align:right">10,70:1</div>
+          </div>
+
+          <div class="nota" style="font-size:10.5px;margin-top:7px">
+            Contraste medido siempre contra papel <span class="dato">#FBF8F2</span>. Con papel
+            encima: rojo 6,54:1, azul 10,70:1, tinta 17,33:1. El hueso nunca lleva texto directamente:
+            lleva tinta (15,06:1) o gris (4,70:1).
+          </div>
+
+          <div style="margin-top:12px">
+            <div class="epigrafe">Proporción de uso, medida sobre la pantalla de buscar</div>
+            <div style="display:flex;height:26px;margin-top:7px;border:1.5px solid var(--tinta)">
+              <div style="flex:63;background:#FBF8F2"></div>
+              <div style="flex:18;background:#EFE8DA"></div>
+              <div style="flex:11;background:#17140F"></div>
+              <div style="flex:3;background:#6E6559"></div>
+              <div style="flex:2;background:#B31226"></div>
+              <div style="flex:1;background:#123C63"></div>
+              <div style="flex:2;background:repeating-linear-gradient(45deg,#9D3A69 0 6px,#335FB2 6px 12px,#007A46 12px 18px)"></div>
+            </div>
+            <div style="display:flex;margin-top:5px" class="dato">
+              <div style="flex:63;font-size:10px">63 % papel</div>
+              <div style="flex:18;font-size:10px">18 % hueso</div>
+              <div style="flex:11;font-size:10px">11 % tinta</div>
+              <div style="flex:8;font-size:10px;text-align:right;white-space:nowrap">3 gris · 2 rojo · 1 azul · 2 del local</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- la séptima -->
+        <div style="width:352px;flex:none;border:1.5px solid var(--tinta);display:flex;flex-direction:column">
+          <div style="background:var(--tinta);color:var(--papel);padding:10px 15px">
+            <div class="display" style="font-size:19px">La séptima tinta<br>no es nuestra</div>
+          </div>
+          <div style="padding:13px 15px 0">
+            <div class="nota" style="font-size:11.5px;color:var(--tinta)">
+              El local sube el color que quiera. El sistema le respeta el <b>tono</b> entero y le
+              impone lo demás. Se llama el <b>filtro de vitrina</b> y es una línea:
+            </div>
+            <div class="dato" style="margin-top:9px;background:var(--hueso);padding:9px 11px;
+                        font-size:12px;line-height:1.5;border-left:3px solid var(--rojo)">
+              oklch(<b>0.50</b>, clamp(C, <b>0.06</b>, <b>0.16</b>), H<sub>suyo</sub>)
+            </div>
+            <div class="nota" style="font-size:10.5px;margin-top:7px">
+              Luminosidad fija y croma acotado: por eso un fucsia de uñas y un azul de barbería
+              pesan exactamente lo mismo en una lista. El tono, que es lo que la dueña reconoce
+              como «su color», no se toca.
+            </div>
+          </div>
+
+          <div style="padding:12px 15px 0">
+            <div class="epigrafe" style="font-size:8.5px">Lo que sube · lo que se pinta</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:7px">
+              <div><div style="height:24px;background:#FF2DA0"></div><div style="height:34px;background:#9D3A69;display:grid;place-items:center;color:#fff" class="dato" data-x="">6,11</div></div>
+              <div><div style="height:24px;background:#0B2E6F"></div><div style="height:34px;background:#335FB2;display:grid;place-items:center;color:#fff" class="dato">5,79</div></div>
+              <div><div style="height:24px;background:#0FA36B"></div><div style="height:34px;background:#007A46;display:grid;place-items:center;color:#fff" class="dato">5,12</div></div>
+              <div><div style="height:24px;background:#FF7A00"></div><div style="height:34px;background:#9F4500;display:grid;place-items:center;color:#fff" class="dato">5,96</div></div>
+              <div><div style="height:24px;background:#7B2FF7"></div><div style="height:34px;background:#6750AB;display:grid;place-items:center;color:#fff" class="dato">5,98</div></div>
+              <div><div style="height:24px;background:#C9962B"></div><div style="height:34px;background:#8B5700;display:grid;place-items:center;color:#fff" class="dato">5,72</div></div>
+            </div>
+            <div class="nota" style="font-size:10px;margin-top:5px">
+              Arriba lo que subió el local; abajo lo que pinta el producto, con su ratio contra papel.
+            </div>
+          </div>
+
+          <div style="flex:1"></div>
+          <div style="border-top:1.5px solid var(--tinta);padding:11px 15px 12px">
+            <div class="epigrafe" style="color:var(--rojo);font-size:8.5px">La garantía, barrida sobre los 360 tonos</div>
+            <div style="font-size:12.5px;margin-top:5px;line-height:1.35">
+              Peor caso de todo el círculo cromático: <b class="dato">4,70:1</b> de la tinta del
+              local sobre papel y <b class="dato">4,98:1</b> con papel encima. <b>Ningún color que
+              suba nadie puede bajar de AA.</b>
+            </div>
+            <div class="nota" style="font-size:10px;margin-top:6px">
+              Y hay un tope de superficie: la tinta del local no pasa del <b>6 %</b> de la pantalla
+              y solo pinta cuatro sitios — el filo de su ficha, el fondo de su sello, el subrayado
+              de su nombre y la trama de su cabecera. Nunca un botón, nunca un estado, nunca el fondo.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════ 07 · TIPOGRAFÍA ═══════════════════════════════ -->
+<section class="pagina">
+  <div class="marco">
+    <div class="rotulo"><b>Tanda</b><span>libro de marca</span></div>
+    <div class="folio">07</div>
+    <div class="pie">Dos familias, las dos de tipógrafos latinoamericanos. La tipografía no cede nunca al local</div>
+    <div class="pie-d">Tipografía</div>
+
+    <div class="lienzo" style="padding-top:22px;display:flex;flex-direction:column">
+
+      <div style="display:flex;gap:22px;align-items:stretch">
+        <div style="flex:1;border:1.5px solid var(--tinta);padding:13px 16px 14px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div class="display" style="font-size:34px">Archivo</div>
+            <div class="epigrafe">Rótulo · datos · botones</div>
+          </div>
+          <div style="font-family:'Archivo';font-stretch:125%;font-weight:700;font-size:44px;
+                      letter-spacing:-.02em;margin-top:8px;line-height:1">ABCDEFGHIJ 0123456789 ÑÁÉÍÓÚ</div>
+          <div class="nota" style="font-size:11px;margin-top:9px">
+            Omnibus-Type, Buenos Aires. Grotesca con eje de <b>anchura</b> de 62 a 125 %: es lo que
+            permite pintar el rótulo ancho de un toldo y, con la misma familia, meter una hora en
+            una celda estrecha. Pesos en uso: <b>500</b> y <b>700</b>. Anchuras: <b>100 %</b> para datos,
+            <b>106 %</b> para botones, <b>112 %</b> para titulares y <b>125 %</b> para el rótulo.
+          </div>
+        </div>
+        <div style="flex:1;border:1.5px solid var(--tinta);padding:13px 16px 14px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div style="font-family:'Alegreya Sans';font-weight:800;font-size:34px;line-height:1">Alegreya Sans</div>
+            <div class="epigrafe">Todo lo que se lee</div>
+          </div>
+          <div style="font-weight:400;font-size:31px;margin-top:11px;line-height:1.05">
+            abcdefghij 0123456789 ñáéíóú ¿?¡!</div>
+          <div class="nota" style="font-size:11px;margin-top:11px">
+            Huerta Tipográfica, Argentina, dibujada para el español: la eñe, las tildes y los signos
+            de apertura no son un añadido. Humanista, con caja x alta y trazo caligráfico, que es lo
+            que la separa de cualquier grotesca de plantilla.
+          </div>
+          <div style="display:flex;margin-top:11px;border-top:1px solid var(--linea);padding-top:9px">
+            <div style="flex:1"><div class="epigrafe" style="font-size:8.5px">400 · cuerpo</div>
+              <div style="font-weight:400;font-size:17px;margin-top:2px">Horas libres</div></div>
+            <div style="flex:1"><div class="epigrafe" style="font-size:8.5px">500 · dato</div>
+              <div style="font-weight:500;font-size:17px;margin-top:2px">Horas libres</div></div>
+            <div style="flex:1"><div class="epigrafe" style="font-size:8.5px">700 · rótulo</div>
+              <div style="font-weight:700;font-size:17px;margin-top:2px">Horas libres</div></div>
+            <div style="flex:1"><div class="epigrafe" style="font-size:8.5px">cursiva 400</div>
+              <div style="font-weight:400;font-style:italic;font-size:17px;margin-top:2px">Horas libres</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filete" style="margin:16px 0 0"></div>
+
+      <div style="flex:1;display:flex;gap:22px;padding-top:14px">
+        <div style="flex:1.42">
+          <div class="epigrafe">La jerarquía completa, tal cual sale en pantalla</div>
+
+          <div style="display:grid;grid-template-columns:1fr 176px;gap:0 16px;align-items:end;
+                      border-bottom:1px solid var(--linea);padding:10px 0 9px;margin-top:8px">
+            <div class="display" style="font-size:46px">La tanda de las 3</div>
+            <div class="nota dato" style="font-size:10px;text-align:right">Archivo 700 · 125 %<br>46/40 px · −0,018 em</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 176px;gap:0 16px;align-items:end;
+                      border-bottom:1px solid var(--linea);padding:10px 0 9px">
+            <div class="titulo" style="font-size:27px">Yaritza Him</div>
+            <div class="nota dato" style="font-size:10px;text-align:right">Archivo 700 · 112 %<br>27/28 px · −0,012 em</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 176px;gap:0 16px;align-items:end;
+                      border-bottom:1px solid var(--linea);padding:10px 0 9px">
+            <div style="font-weight:700;font-size:19px">Horas libres esta tarde</div>
+            <div class="nota dato" style="font-size:10px;text-align:right">Alegreya Sans 700<br>19/24 px</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 176px;gap:0 16px;align-items:end;
+                      border-bottom:1px solid var(--linea);padding:10px 0 9px">
+            <div style="font-size:15px;line-height:1.42;max-width:52ch">
+              Manicura completa con esmaltado semipermanente, una hora y cuarto. Se puede cancelar
+              hasta dos horas antes sin coste.
+            </div>
+            <div class="nota dato" style="font-size:10px;text-align:right">Alegreya Sans 400<br>15/21 px</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 176px;gap:0 16px;align-items:end;
+                      border-bottom:1px solid var(--linea);padding:10px 0 9px">
+            <div class="epigrafe" style="font-size:11px;color:var(--tinta)">Bella Vista · a 400 m</div>
+            <div class="nota dato" style="font-size:10px;text-align:right">Archivo 700 · 100 %<br>11 px · 0,18 em · versal</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 176px;gap:0 16px;align-items:end;
+                      padding:10px 0 0">
+            <div class="dato" style="font-size:23px">3:30 · B/. 28,00 · ★ 4,9</div>
+            <div class="nota dato" style="font-size:10px;text-align:right">Archivo 500 · 100 %<br>cifras tabulares</div>
+          </div>
+        </div>
+
+        <div style="width:314px;flex:none;display:flex;flex-direction:column;gap:12px">
+          <div style="border:1.5px solid var(--tinta);padding:12px 14px 13px">
+            <div class="epigrafe">Espécimen: el párrafo real</div>
+            <div style="font-size:13.5px;line-height:1.45;margin-top:7px">
+              Yaritza lleva seis años haciendo uñas en Bella Vista. Ha atendido a
+              <span class="dato">1.240</span> personas por aquí y tiene <b>★ 4,9</b> de
+              <span class="dato">312</span> reseñas. Hoy le quedan tres tandas libres:
+              <span class="dato">3:30</span>, <span class="dato">4:45</span> y
+              <span class="dato">6:15</span>. <em>Puedes reservar sin llamar.</em>
+            </div>
+          </div>
+          <div style="border:1.5px solid var(--tinta);padding:12px 14px 13px;flex:1">
+            <div class="epigrafe" style="color:var(--rojo)">Las tres reglas que no se rompen</div>
+            <div style="font-size:12px;line-height:1.4;margin-top:8px">
+              <b>1 · La tipografía nunca cede.</b> El local pone color, rótulo y fotos; la letra
+              es de la casa siempre. Un salón no sube su fuente.<br><br>
+              <b>2 · Cifras siempre tabulares.</b> Horas y precios en columna tienen que alinearse:
+              una agenda con cifras que bailan es ilegible de un vistazo.<br><br>
+              <b>3 · Nada por debajo de 12 px</b> en pantalla, ni 10,5 px en este libro. Y el cuerpo
+              base de la app es <b>15 px</b>, no 14: se lee de pie y con el sol encima.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════ 08 · BOTONES Y CONTROLES ══════════════════════ -->
+<section class="pagina">
+  <div class="marco">
+    <div class="rotulo"><b>Tanda</b><span>libro de marca</span></div>
+    <div class="folio">08</div>
+    <div class="pie">Los seis estados de los cuatro botones, dibujados. Ninguno está descrito con palabras</div>
+    <div class="pie-d">Botones y controles</div>
+
+    <div class="lienzo" style="padding-top:20px;display:flex;flex-direction:column">
+
+      <div style="display:flex;align-items:flex-end;justify-content:space-between">
+        <div>
+          <div class="titulo">Cuatro botones × seis estados</div>
+          <div class="nota" style="margin-top:5px;max-width:72ch;font-size:12px">
+            Esquina viva, filete de 2 px y sombra maciza de 4 px sin desenfoque: el botón es una
+            chapa apoyada en el papel. Se pulsa y baja de verdad — la sombra desaparece y la chapa
+            recorre los 4 px. Alto mínimo <b>40 px</b>; en pantalla de móvil, <b>44 px</b>.
+          </div>
+        </div>
+        <div class="llamada" style="width:250px">
+          <b>El botón de reservar no cede</b>
+          Es rojo marquesina en los 3.000 salones. Es la acción de la plataforma, no del local:
+          si cambiara de color en cada ficha, dejaría de reconocerse.
+        </div>
+      </div>
+
+      <div class="filete" style="margin:12px 0 0"></div>
+
+      <!-- cabecera de estados -->
+      <div style="display:grid;grid-template-columns:118px repeat(6,1fr);gap:0 10px;padding:8px 0 6px;
+                  border-bottom:1px solid var(--linea)" class="epigrafe">
+        <div></div><div>Reposo</div><div>Encima</div><div>Pulsado</div><div>Cargando</div><div>Inhabilitado</div><div>Foco de teclado</div>
+      </div>
+
+      <!-- fila 1 · principal -->
+      <div style="display:grid;grid-template-columns:118px repeat(6,1fr);gap:0 10px;
+                  align-items:center;height:66px;border-bottom:1px solid var(--linea)">
+        <div><b style="font-size:12.5px">Principal</b><div class="nota" style="font-size:10px">Reservar</div></div>
+        <div><button class="b b-1" style="width:112px">Reservar</button></div>
+        <div><button class="b b-1 enc" style="width:112px">Reservar</button></div>
+        <div><button class="b b-1 pul" style="width:112px">Reservar</button></div>
+        <div><button class="b b-1 car" style="width:112px"><span class="cargando"><i></i><i></i><i></i></span></button></div>
+        <div><button class="b b-1 inh" style="width:112px">Reservar</button></div>
+        <div><button class="b b-1 foc" style="width:112px">Reservar</button></div>
+      </div>
+
+      <!-- fila 2 · contorno -->
+      <div style="display:grid;grid-template-columns:118px repeat(6,1fr);gap:0 10px;
+                  align-items:center;height:66px;border-bottom:1px solid var(--linea)">
+        <div><b style="font-size:12.5px">Contorno</b><div class="nota" style="font-size:10px">Ver perfil</div></div>
+        <div><button class="b b-2" style="width:112px">Ver perfil</button></div>
+        <div><button class="b b-2 enc" style="width:112px">Ver perfil</button></div>
+        <div><button class="b b-2 pul" style="width:112px">Ver perfil</button></div>
+        <div><button class="b b-2 car" style="width:112px"><span class="cargando"><i></i><i></i><i></i></span></button></div>
+        <div><button class="b b-2 inh" style="width:112px">Ver perfil</button></div>
+        <div><button class="b b-2 foc" style="width:112px">Ver perfil</button></div>
+      </div>
+
+      <!-- fila 3 · texto -->
+      <div style="display:grid;grid-template-columns:118px repeat(6,1fr);gap:0 10px;
+                  align-items:center;height:66px;border-bottom:1px solid var(--linea)">
+        <div><b style="font-size:12.5px">De texto</b><div class="nota" style="font-size:10px">Cancelar</div></div>
+        <div><button class="b b-3">Cancelar</button></div>
+        <div><button class="b b-3 enc">Cancelar</button></div>
+        <div><button class="b b-3 pul">Cancelar</button></div>
+        <div><button class="b b-3 car"><span class="cargando"><i></i><i></i><i></i></span></button></div>
+        <div><button class="b b-3 inh">Cancelar</button></div>
+        <div><button class="b b-3 foc">Cancelar</button></div>
+      </div>
+
+      <!-- fila 4 · de ícono -->
+      <div style="display:grid;grid-template-columns:118px repeat(6,1fr);gap:0 10px;
+                  align-items:center;height:66px;border-bottom:1.5px solid var(--tinta)">
+        <div><b style="font-size:12.5px">De ícono</b><div class="nota" style="font-size:10px">Guardar · 40×40</div></div>
+        <div><button class="b b-4"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 2h10v14l-5-4-5 4z"/></svg></button></div>
+        <div><button class="b b-4 enc"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 2h10v14l-5-4-5 4z"/></svg></button></div>
+        <div><button class="b b-4 pul"><svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M4 2h10v14l-5-4-5 4z"/></svg></button></div>
+        <div><button class="b b-4 car"><span class="cargando"><i></i><i></i><i></i></span></button></div>
+        <div><button class="b b-4 inh"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 2h10v14l-5-4-5 4z"/></svg></button></div>
+        <div><button class="b b-4 foc"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 2h10v14l-5-4-5 4z"/></svg></button></div>
+      </div>
+
+      <!-- movimiento -->
+      <div style="display:flex;gap:16px;align-items:center;padding:9px 0 10px;border-bottom:1.5px solid var(--tinta)">
+        <div style="width:118px;flex:none">
+          <div class="epigrafe">Cómo se mueve</div>
+          <div class="nota" style="font-size:10px;margin-top:2px">Se mueve, no se desvanece.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px">
+          <div style="text-align:center"><div style="width:52px;height:26px;background:var(--rojo);box-shadow:4px 4px 0 var(--tinta);margin:0 0 5px"></div><div class="nota dato" style="font-size:9px">0 ms</div></div>
+          <div class="dato" style="font-size:15px;color:var(--gris)">&rsaquo;</div>
+          <div style="text-align:center"><div style="width:52px;height:26px;background:var(--rojo-2);box-shadow:6px 6px 0 var(--tinta);margin:0 0 5px;transform:translate(-2px,-2px)"></div><div class="nota dato" style="font-size:9px">90 ms</div></div>
+          <div class="dato" style="font-size:15px;color:var(--gris)">&rsaquo;</div>
+          <div style="text-align:center"><div style="width:52px;height:26px;background:var(--rojo-2);margin:0 0 5px;transform:translate(4px,4px)"></div><div class="nota dato" style="font-size:9px">90 ms</div></div>
+        </div>
+        <div style="flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px" class="nota">
+          <div style="font-size:10.5px"><b class="dato" style="color:var(--tinta)">90 ms · cubic-bezier(.2,.8,.3,1)</b><br>Sombra y traslación del botón. Es lo único que se anima en un botón.</div>
+          <div style="font-size:10.5px"><b class="dato" style="color:var(--tinta)">140 ms · el tope</b><br>Nada del sistema dura más. Una hora que se coge cambia de estado en 120 ms.</div>
+          <div style="font-size:10.5px"><b class="dato" style="color:var(--tinta)">0 ms · prefers-reduced-motion</b><br>Cae a cambio seco de color; el estado sigue leyéndose sin movimiento.</div>
+        </div>
+      </div>
+
+      <!-- campos, selector y chips -->
+      <div style="display:flex;gap:18px;padding-top:10px;flex:1">
+
+        <div style="flex:1.55">
+          <div class="epigrafe">Campo de texto · alto 44 px, filete de 2 px, etiqueta siempre fuera</div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:8px">
+            <div><div class="nota" style="font-size:9.5px;margin-bottom:4px">Vacío</div><div class="campo vacio">¿Qué te haces hoy?</div></div>
+            <div><div class="nota" style="font-size:9.5px;margin-bottom:4px">Relleno</div><div class="campo">Manicura</div></div>
+            <div><div class="nota" style="font-size:9.5px;margin-bottom:4px">Con foco</div><div class="campo foco">Manicura<span style="width:1.5px;height:19px;background:var(--tinta);margin-left:1px"></span></div></div>
+            <div><div class="nota" style="font-size:9.5px;margin-bottom:4px">Con error</div><div class="campo mal">6 de febrero</div><div style="font-size:10px;color:var(--rojo);margin-top:3px;font-weight:700">Esa fecha ya pasó</div></div>
+            <div><div class="nota" style="font-size:9.5px;margin-bottom:4px">Inhabilitado</div><div class="campo inh">Bella Vista</div></div>
+          </div>
+
+          <div style="display:flex;gap:16px;margin-top:14px">
+            <div>
+              <div class="epigrafe">Selector</div>
+              <div style="display:flex;gap:10px;margin-top:8px">
+                <div>
+                  <div class="campo" style="width:158px;justify-content:space-between">Bella Vista
+                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l5 5 5-5"/></svg></div>
+                  <div class="nota" style="font-size:9.5px;margin-top:4px">Cerrado</div>
+                </div>
+                <div>
+                  <div class="campo foco" style="width:158px;justify-content:space-between;position:relative">Bella Vista
+                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 7L6 2 1 7"/></svg></div>
+                  <div style="width:158px;border:2px solid var(--tinta);border-top:0;background:var(--papel)">
+                    <div style="padding:7px 11px;font-size:13px;background:var(--tinta);color:var(--papel);display:flex;justify-content:space-between">Bella Vista
+                      <svg width="12" height="10" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 5l3.5 3.5L11 1.5"/></svg></div>
+                    <div style="padding:7px 11px;font-size:13px;border-top:1px solid var(--linea)">El Cangrejo</div>
+                    <div style="padding:7px 11px;font-size:13px;border-top:1px solid var(--linea)">Casco Antiguo</div>
+                  </div>
+                  <div class="nota" style="font-size:9.5px;margin-top:4px">Abierto</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="width:1.5px;background:var(--tinta)"></div>
+
+        <div style="flex:1">
+          <div class="epigrafe">Chip · alto 32 px. Filtra, no navega</div>
+          <div style="display:flex;gap:9px;margin-top:9px;flex-wrap:wrap">
+            <span class="chip">Uñas</span>
+            <span class="chip on">Barbería
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l8 8M9 1l-8 8"/></svg></span>
+            <span class="chip inh">Depilación</span>
+          </div>
+          <div style="display:flex;gap:22px;margin-top:5px" class="nota">
+            <div style="width:56px;font-size:9.5px">Elegible</div>
+            <div style="width:86px;font-size:9.5px">Elegido</div>
+            <div style="font-size:9.5px">Sin resultados hoy</div>
+          </div>
+
+          <div class="epigrafe" style="margin-top:15px">La hora, que es el control propio de esto</div>
+          <div style="display:flex;gap:8px;margin-top:9px">
+            <div style="text-align:center">
+              <div class="dato" style="width:66px;height:42px;border:2px solid var(--tinta);display:grid;place-items:center;font-size:15px;background:var(--papel)">3:30</div>
+              <div class="nota" style="font-size:9.5px;margin-top:4px">Libre</div>
+            </div>
+            <div style="text-align:center">
+              <div class="dato" style="width:66px;height:42px;background:var(--tinta);color:var(--papel);display:grid;place-items:center;font-size:15px;box-shadow:4px 4px 0 var(--rojo)">4:45</div>
+              <div class="nota" style="font-size:9.5px;margin-top:4px">Cogida</div>
+            </div>
+            <div style="text-align:center">
+              <div class="dato" style="width:66px;height:42px;background:var(--hueso);color:var(--gris);display:grid;place-items:center;font-size:15px;border:1.5px solid var(--linea);position:relative;overflow:hidden">6:15
+                <div style="position:absolute;left:-6px;right:-6px;top:50%;height:1.5px;background:var(--gris)"></div></div>
+              <div class="nota" style="font-size:9.5px;margin-top:4px">Ocupada</div>
+            </div>
+            <div class="nota" style="flex:1;font-size:10px;padding-left:6px">
+              La hora cogida invierte a tinta y saca sombra <b>roja</b>: es el único sitio donde el
+              rojo aparece sin ser un botón, porque es la reserva a punto de existir.
+              Ocupada: hueso, gris a 4,70:1, tachada.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════ 09 · PANTALLAS ════════════════════════════════ -->
+<section class="pagina">
+  <div class="marco">
+    <div class="rotulo"><b>Tanda</b><span>libro de marca</span></div>
+    <div class="folio">09</div>
+    <div class="pie">390 × 844 px, enteras, de la barra de estado a la barra de pestañas. Reducidas al 68 %</div>
+    <div class="pie-d">Pantallas</div>
+
+    <div class="lienzo" style="padding-top:19px;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between">
+        <div class="titulo" style="font-size:26px">Tres pantallas completas</div>
+        <div class="nota" style="max-width:64ch;text-align:right;font-size:11px">
+          Cinco locales distintos con cinco tintas distintas conviviendo en la misma lista,
+          y uno que todavía no ha subido nada. Ninguna foto: lo que ve el usuario el primer
+          día es exactamente esto.
+        </div>
+      </div>
+      <div class="filete" style="margin:9px 0 11px"></div>
+
+      <div style="flex:1;display:flex;gap:24px">
+
+        <!-- ── 1 · BUSCAR ─────────────────────────────────────────────── -->
+        <div style="width:265px;flex:none">
+          <div style="width:265px;height:574px;position:relative;overflow:hidden">
+          <div class="tel" style="transform:scale(.68);transform-origin:top left">
+            <div class="tel-barra"><span>9:41</span>
+              <span style="display:flex;gap:4px;align-items:center">
+                <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><rect x="0" y="7" width="3" height="4"/><rect x="4.3" y="5" width="3" height="6"/><rect x="8.6" y="2.5" width="3" height="8.5"/><rect x="12.9" y="0" width="3" height="11"/></svg>
+                <svg width="20" height="11" viewBox="0 0 20 11" fill="none" stroke="currentColor" stroke-width="1.4"><rect x=".7" y=".7" width="16" height="9.6"/><rect x="2.4" y="2.4" width="10" height="6.2" fill="currentColor" stroke="none"/><rect x="18" y="3.6" width="1.6" height="3.8" fill="currentColor" stroke="none"/></svg>
+              </span></div>
+
+            <div class="tel-cab">
+              <div style="display:flex;align-items:center;justify-content:space-between;height:30px">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <svg style="width:26px;height:19px;color:var(--tinta)"><use href="#sello-tanda"/></svg>
+                  <span class="marca-tel">Tanda</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:5px;font-size:14px;font-weight:700">
+                  Bella Vista
+                  <svg width="11" height="7" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l5 5 5-5"/></svg>
+                </div>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:11px">
+                <div class="campo" style="flex:1;height:48px;gap:9px">
+                  <svg width="17" height="17" viewBox="0 0 19 19" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 2h11v11H2z"/><path d="M13 13l4.5 4.5"/></svg>
+                  <span style="color:var(--gris)">¿Qué te haces hoy?</span>
+                </div>
+                <button class="b b-4" style="width:48px;height:48px">
+                  <svg width="19" height="19" viewBox="0 0 19 19" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1.5 3h16M4.5 9.5h10M7.5 16h4"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="tel-cuerpo">
+              <div style="display:flex;gap:7px;padding:13px 0 12px">
+                <span class="chip on" style="height:34px">Uñas</span>
+                <span class="chip" style="height:34px">Barbería</span>
+                <span class="chip" style="height:34px">Pestañas</span>
+                <span class="chip" style="height:34px">Cejas</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:10px">
+                <div style="font-size:15px;font-weight:700">23 personas libres esta tarde</div>
+                <div class="dato" style="font-size:12.5px;color:var(--azul);box-shadow:inset 0 -2px 0 var(--azul)">Más cerca</div>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:10px">
+
+                <div class="ficha">
+                  <div class="filo" style="background:var(--l1)"></div>
+                  <div style="flex:1;padding:11px 12px;display:flex;gap:11px;align-items:flex-start">
+                    <div class="sello" style="width:54px;height:54px;background:var(--l1);font-size:19px">YH</div>
+                    <div style="flex:1;min-width:0">
+                      <div style="font-size:16.5px;font-weight:700;line-height:1.15">
+                        <span style="box-shadow:inset 0 -3px 0 var(--l1)">Yaritza Him</span></div>
+                      <div style="font-size:13px;color:var(--gris);margin-top:2px">Uñas Ávila · a 400 m</div>
+                      <div class="dato" style="font-size:12.5px;margin-top:3px">★ 4,9 (312) · 1.240 atendidas</div>
+                    </div>
+                    <div style="text-align:right;flex:none">
+                      <div class="dato" style="border:2px solid var(--tinta);padding:4px 8px;font-size:15px">3:30</div>
+                      <div class="dato" style="font-size:12.5px;margin-top:5px">B/. 28</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="ficha">
+                  <div class="filo" style="background:var(--l2)"></div>
+                  <div style="flex:1;padding:11px 12px;display:flex;gap:11px;align-items:flex-start">
+                    <div class="sello" style="width:54px;height:54px;background:var(--l2);font-size:19px">KB</div>
+                    <div style="flex:1;min-width:0">
+                      <div style="font-size:16.5px;font-weight:700;line-height:1.15">
+                        <span style="box-shadow:inset 0 -3px 0 var(--l2)">Kevin Barría</span></div>
+                      <div style="font-size:13px;color:var(--gris);margin-top:2px">Barbería El Chorrillo · a 900 m</div>
+                      <div class="dato" style="font-size:12.5px;margin-top:3px">★ 4,8 (196) · 870 atendidos</div>
+                    </div>
+                    <div style="text-align:right;flex:none">
+                      <div class="dato" style="border:2px solid var(--tinta);padding:4px 8px;font-size:15px">4:00</div>
+                      <div class="dato" style="font-size:12.5px;margin-top:5px">B/. 12</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="ficha">
+                  <div class="filo" style="background:var(--l3)"></div>
+                  <div style="flex:1;padding:11px 12px;display:flex;gap:11px;align-items:flex-start">
+                    <div class="sello" style="width:54px;height:54px;background:var(--l3);font-size:19px">DC</div>
+                    <div style="flex:1;min-width:0">
+                      <div style="font-size:16.5px;font-weight:700;line-height:1.15">
+                        <span style="box-shadow:inset 0 -3px 0 var(--l3)">Dayra Castillo</span></div>
+                      <div style="font-size:13px;color:var(--gris);margin-top:2px">Spa Ancón · a 1,2 km</div>
+                      <div class="dato" style="font-size:12.5px;margin-top:3px">★ 5,0 (74) · 410 atendidas</div>
+                    </div>
+                    <div style="text-align:right;flex:none">
+                      <div class="dato" style="border:2px solid var(--tinta);padding:4px 8px;font-size:15px">5:15</div>
+                      <div class="dato" style="font-size:12.5px;margin-top:5px">B/. 45</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="ficha">
+                  <div class="filo trama t0" style="--tt:var(--linea);background-color:var(--papel)"></div>
+                  <div style="flex:1;padding:11px 12px;display:flex;gap:11px;align-items:flex-start">
+                    <div class="sello vacio trama t0" style="--tt:var(--linea);width:54px;height:54px;font-size:19px;background-color:var(--papel)">MG</div>
+                    <div style="flex:1;min-width:0">
+                      <div style="font-size:16.5px;font-weight:700;line-height:1.15">Milagros Grajales</div>
+                      <div style="font-size:13px;color:var(--gris);margin-top:2px">Estudio Vía Argentina · a 1,4 km</div>
+                      <div class="dato" style="font-size:12.5px;margin-top:3px">Nueva aquí · 0 reseñas</div>
+                    </div>
+                    <div style="text-align:right;flex:none">
+                      <div class="dato" style="border:2px solid var(--tinta);padding:4px 8px;font-size:15px">3:45</div>
+                      <div class="dato" style="font-size:12.5px;margin-top:5px">B/. 25</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="ficha">
+                  <div class="filo" style="background:var(--l5)"></div>
+                  <div style="flex:1;padding:11px 12px;display:flex;gap:11px;align-items:flex-start">
+                    <div class="sello" style="width:54px;height:54px;background:var(--l5);font-size:19px">AP</div>
+                    <div style="flex:1;min-width:0">
+                      <div style="font-size:16.5px;font-weight:700;line-height:1.15">
+                        <span style="box-shadow:inset 0 -3px 0 var(--l5)">Aracelly Pinzón</span></div>
+                      <div style="font-size:13px;color:var(--gris);margin-top:2px">Pestañas Obarrio · a 1,6 km</div>
+                      <div class="dato" style="font-size:12.5px;margin-top:3px">★ 4,9 (523) · 2.100 atendidas</div>
+                    </div>
+                    <div style="text-align:right;flex:none">
+                      <div class="dato" style="border:2px solid var(--tinta);padding:4px 8px;font-size:15px">6:30</div>
+                      <div class="dato" style="font-size:12.5px;margin-top:5px">B/. 55</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tel-pie">
+              <a class="on"><svg class="ico" viewBox="0 0 19 19" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 2h11v11H2z"/><path d="M13 13l4.5 4.5"/></svg>Buscar</a>
+              <a><svg class="ico" viewBox="0 0 19 19" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1.5 4h16v13.5h-16z"/><path d="M1.5 8h16M6 1.5v4M13 1.5v4"/></svg>Mis tandas</a>
+              <a><svg class="ico" viewBox="0 0 19 19" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 1.5h11v16l-5.5-4.5L4 17.5z"/></svg>Guardados</a>
+              <a><svg class="ico" viewBox="0 0 19 19" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 1.5h7v6H6z"/><path d="M2.5 17.5v-2c0-2.2 2.8-3.6 7-3.6s7 1.4 7 3.6v2"/></svg>Yo</a>
+            </div>
+          </div>
+          <div style="position:absolute;left:214px;top:262px;width:20px;height:20px;background:var(--rojo);color:var(--papel);display:grid;place-items:center;font-size:11px" class="dato">1</div>
+          <div style="position:absolute;left:6px;top:452px;width:20px;height:20px;background:var(--rojo);color:var(--papel);display:grid;place-items:center;font-size:11px" class="dato">2</div>
+          </div>
+          <div class="epigrafe" style="margin-top:8px;color:var(--tinta)">A · Buscar</div>
+        </div>
+
+        <!-- ── 2 · FICHA ──────────────────────────────────────────────── -->
+        <div style="width:265px;flex:none">
+          <div style="width:265px;height:574px;position:relative;overflow:hidden">
+          <div class="tel" style="transform:scale(.68);transform-origin:top left">
+            <div class="tel-barra"><span>9:41</span>
+              <span style="display:flex;gap:4px;align-items:center">
+                <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><rect x="0" y="7" width="3" height="4"/><rect x="4.3" y="5" width="3" height="6"/><rect x="8.6" y="2.5" width="3" height="8.5"/><rect x="12.9" y="0" width="3" height="11"/></svg>
+                <svg width="20" height="11" viewBox="0 0 20 11" fill="none" stroke="currentColor" stroke-width="1.4"><rect x=".7" y=".7" width="16" height="9.6"/><rect x="2.4" y="2.4" width="10" height="6.2" fill="currentColor" stroke="none"/><rect x="18" y="3.6" width="1.6" height="3.8" fill="currentColor" stroke="none"/></svg>
+              </span></div>
+
+            <div class="tel-cab trama t2" style="--tt:var(--l1);background-color:var(--papel)">
+              <div style="display:flex;align-items:center;justify-content:space-between;height:44px">
+                <button class="b b-4" style="width:42px;height:42px;box-shadow:3px 3px 0 var(--tinta)">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 2L4 9l7 7"/></svg></button>
+                <div style="display:flex;gap:8px">
+                  <button class="b b-4" style="width:42px;height:42px;box-shadow:3px 3px 0 var(--tinta)">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 1.5h10V16l-5-4-5 4z"/></svg></button>
+                  <button class="b b-4" style="width:42px;height:42px;box-shadow:3px 3px 0 var(--tinta)">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M9 12V2M5 6l4-4 4 4M2.5 11v5h13v-5"/></svg></button>
+                </div>
+              </div>
+            </div>
+
+            <div class="tel-cuerpo" style="padding-top:0">
+              <div style="display:flex;gap:13px;align-items:flex-start;padding:15px 0 0">
+                <div class="sello" style="width:82px;height:82px;background:var(--l1);font-size:30px">YH</div>
+                <div style="flex:1;padding-top:3px">
+                  <div style="font-family:'Archivo';font-stretch:112%;font-weight:700;font-size:25px;line-height:1.05">
+                    <span style="box-shadow:inset 0 -4px 0 var(--l1)">Yaritza Him</span></div>
+                  <div style="font-size:14px;color:var(--gris);margin-top:5px">Uñas Ávila · Bella Vista</div>
+                  <div style="font-size:13px;margin-top:4px;color:var(--azul);box-shadow:inset 0 -2px 0 var(--azul);display:inline-block">Ver el salón y su equipo</div>
+                </div>
+              </div>
+
+              <div style="display:flex;border:1.5px solid var(--tinta);margin-top:15px">
+                <div style="flex:1;padding:8px 0;text-align:center;border-right:1px solid var(--linea)">
+                  <div class="dato" style="font-size:17px">★ 4,9</div><div class="nota" style="font-size:11px">312 reseñas</div></div>
+                <div style="flex:1;padding:8px 0;text-align:center;border-right:1px solid var(--linea)">
+                  <div class="dato" style="font-size:17px">1.240</div><div class="nota" style="font-size:11px">atendidas</div></div>
+                <div style="flex:1;padding:8px 0;text-align:center">
+                  <div class="dato" style="font-size:17px">6 años</div><div class="nota" style="font-size:11px">en Panamá</div></div>
+              </div>
+
+              <div style="display:flex;gap:7px;margin-top:14px">
+                <span class="chip on" style="height:34px">Manicura · 1 h 15</span>
+                <span class="chip" style="height:34px">Pedicura</span>
+                <span class="chip" style="height:34px">Acrílicas</span>
+              </div>
+
+              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:17px">
+                <div style="font-size:17px;font-weight:700">Sábado 12 de septiembre</div>
+                <div class="dato" style="font-size:12.5px;color:var(--azul);box-shadow:inset 0 -2px 0 var(--azul)">Otro día</div>
+              </div>
+              <div style="display:flex;gap:6px;margin-top:10px">
+                <div class="dato" style="flex:1;text-align:center;padding:7px 0;background:var(--tinta);color:var(--papel)"><div style="font-size:10.5px;letter-spacing:.1em">SÁB</div><div style="font-size:17px">12</div></div>
+                <div class="dato" style="flex:1;text-align:center;padding:7px 0;border:1.5px solid var(--tinta)"><div style="font-size:10.5px;letter-spacing:.1em">DOM</div><div style="font-size:17px">13</div></div>
+                <div class="dato" style="flex:1;text-align:center;padding:7px 0;border:1.5px solid var(--linea);color:var(--gris);background:var(--hueso)"><div style="font-size:10.5px;letter-spacing:.1em">LUN</div><div style="font-size:17px">14</div></div>
+                <div class="dato" style="flex:1;text-align:center;padding:7px 0;border:1.5px solid var(--tinta)"><div style="font-size:10.5px;letter-spacing:.1em">MAR</div><div style="font-size:17px">15</div></div>
+                <div class="dato" style="flex:1;text-align:center;padding:7px 0;border:1.5px solid var(--tinta)"><div style="font-size:10.5px;letter-spacing:.1em">MIÉ</div><div style="font-size:17px">16</div></div>
+              </div>
+
+              <div style="font-size:15px;font-weight:700;margin-top:17px">Horas libres · quedan 3</div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px">
+                <div class="dato" style="height:46px;display:grid;place-items:center;font-size:16px;background:var(--hueso);color:var(--gris);border:1.5px solid var(--linea);position:relative;overflow:hidden">1:00
+                  <div style="position:absolute;left:-4px;right:-4px;top:50%;height:1.5px;background:var(--gris)"></div></div>
+                <div class="dato" style="height:46px;display:grid;place-items:center;font-size:16px;background:var(--hueso);color:var(--gris);border:1.5px solid var(--linea);position:relative;overflow:hidden">2:15
+                  <div style="position:absolute;left:-4px;right:-4px;top:50%;height:1.5px;background:var(--gris)"></div></div>
+                <div class="dato" style="height:46px;display:grid;place-items:center;font-size:16px;background:var(--tinta);color:var(--papel);box-shadow:4px 4px 0 var(--rojo)">3:30</div>
+                <div class="dato" style="height:46px;display:grid;place-items:center;font-size:16px;border:2px solid var(--tinta)">4:45</div>
+                <div class="dato" style="height:46px;display:grid;place-items:center;font-size:16px;border:2px solid var(--tinta)">6:15</div>
+                <div class="dato" style="height:46px;display:grid;place-items:center;font-size:16px;background:var(--hueso);color:var(--gris);border:1.5px solid var(--linea);position:relative;overflow:hidden">7:30
+                  <div style="position:absolute;left:-4px;right:-4px;top:50%;height:1.5px;background:var(--gris)"></div></div>
+              </div>
+            </div>
+
+            <div style="flex:none;border-top:1.5px solid var(--tinta);padding:13px 16px 16px;
+                        display:flex;align-items:center;gap:14px;background:var(--papel)">
+              <div>
+                <div class="nota" style="font-size:12px">Manicura · 3:30</div>
+                <div class="dato" style="font-size:22px">B/. 28,00</div>
+              </div>
+              <button class="b b-1" style="flex:1;height:52px;font-size:14px">Reservar</button>
+            </div>
+          </div>
+          <div style="position:absolute;left:6px;top:82px;width:20px;height:20px;background:var(--rojo);color:var(--papel);display:grid;place-items:center;font-size:11px" class="dato">3</div>
+          </div>
+          <div class="epigrafe" style="margin-top:8px;color:var(--tinta)">B · La ficha, con la hora libre</div>
+        </div>
+
+        <!-- ── 3 · AGENDA ─────────────────────────────────────────────── -->
+        <div style="width:265px;flex:none">
+          <div style="width:265px;height:574px;position:relative;overflow:hidden">
+          <div class="tel" style="transform:scale(.68);transform-origin:top left">
+            <div class="tel-barra"><span>9:41</span>
+              <span style="display:flex;gap:4px;align-items:center">
+                <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><rect x="0" y="7" width="3" height="4"/><rect x="4.3" y="5" width="3" height="6"/><rect x="8.6" y="2.5" width="3" height="8.5"/><rect x="12.9" y="0" width="3" height="11"/></svg>
+                <svg width="20" height="11" viewBox="0 0 20 11" fill="none" stroke="currentColor" stroke-width="1.4"><rect x=".7" y=".7" width="16" height="9.6"/><rect x="2.4" y="2.4" width="10" height="6.2" fill="currentColor" stroke="none"/><rect x="18" y="3.6" width="1.6" height="3.8" fill="currentColor" stroke="none"/></svg>
+              </span></div>
+
+            <div class="tel-cab">
+              <div style="display:flex;align-items:center;justify-content:space-between;height:34px">
+                <div style="display:flex;align-items:center;gap:9px">
+                  <div class="sello" style="width:30px;height:30px;background:var(--l1);font-size:12px">UA</div>
+                  <div style="font-size:15px;font-weight:700">Uñas Ávila</div>
+                </div>
+                <button class="b b-4" style="width:38px;height:38px;box-shadow:3px 3px 0 var(--tinta)">
+                  <svg width="17" height="17" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M9 2v14M2 9h14"/></svg></button>
+              </div>
+              <div style="display:flex;align-items:baseline;gap:9px;margin-top:9px">
+                <div class="display" style="font-size:27px">Hoy</div>
+                <div class="dato" style="font-size:14px;color:var(--gris)">sábado 12 de septiembre</div>
+              </div>
+            </div>
+
+            <div class="tel-cuerpo">
+              <div style="display:flex;border:1.5px solid var(--tinta);margin-top:13px">
+                <div style="flex:1;padding:8px 0;text-align:center;border-right:1px solid var(--linea)">
+                  <div class="dato" style="font-size:18px">5</div><div class="nota" style="font-size:11px">tandas</div></div>
+                <div style="flex:1;padding:8px 0;text-align:center;border-right:1px solid var(--linea)">
+                  <div class="dato" style="font-size:18px">4 h 45</div><div class="nota" style="font-size:11px">ocupadas</div></div>
+                <div style="flex:1;padding:8px 0;text-align:center;background:var(--hueso)">
+                  <div class="dato" style="font-size:18px">B/. 183</div><div class="nota" style="font-size:11px">del día</div></div>
+              </div>
+
+              <div style="margin-top:14px;display:flex;flex-direction:column;gap:9px">
+
+                <div style="display:flex;gap:10px">
+                  <div class="dato" style="width:46px;flex:none;font-size:14px;padding-top:11px;text-align:right;color:var(--gris)">9:00</div>
+                  <div class="ficha" style="flex:1">
+                    <div class="filo" style="background:var(--l1)"></div>
+                    <div style="flex:1;padding:9px 11px;display:flex;gap:9px;align-items:center">
+                      <div class="sello" style="width:38px;height:38px;background:var(--l1);font-size:14px">YH</div>
+                      <div style="flex:1">
+                        <div style="font-size:14.5px;font-weight:700">Aracelly Pinzón</div>
+                        <div class="nota" style="font-size:12px">Manicura rusa · 1 h 15</div>
+                      </div>
+                      <div class="dato" style="font-size:13.5px">B/. 35</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="display:flex;gap:10px">
+                  <div class="dato" style="width:46px;flex:none;font-size:14px;padding-top:8px;text-align:right;color:var(--gris)">10:15</div>
+                  <div style="flex:1;height:42px;border:1.5px dashed var(--gris);display:flex;align-items:center;
+                              justify-content:space-between;padding:0 11px;background:var(--papel)">
+                    <span class="nota" style="font-size:12.5px">Hueco de 45 min</span>
+                    <span class="dato" style="font-size:12.5px;color:var(--azul);box-shadow:inset 0 -2px 0 var(--azul)">Ofrecerlo</span>
+                  </div>
+                </div>
+
+                <div style="display:flex;gap:10px">
+                  <div class="dato" style="width:46px;flex:none;font-size:14px;padding-top:11px;text-align:right;color:var(--gris)">11:00</div>
+                  <div class="ficha" style="flex:1">
+                    <div class="filo" style="background:var(--l3)"></div>
+                    <div style="flex:1;padding:9px 11px;display:flex;gap:9px;align-items:center">
+                      <div class="sello" style="width:38px;height:38px;background:var(--l3);font-size:14px">DC</div>
+                      <div style="flex:1">
+                        <div style="font-size:14.5px;font-weight:700">Melquiades Ruiz</div>
+                        <div class="nota" style="font-size:12px">Pedicura spa · 1 h</div>
+                      </div>
+                      <div class="dato" style="font-size:13.5px">B/. 30</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="display:flex;gap:10px">
+                  <div class="dato" style="width:46px;flex:none;font-size:14px;padding-top:8px;text-align:right;color:var(--gris)">12:00</div>
+                  <div class="trama t1" style="--tt:var(--linea);flex:1;height:38px;border:1.5px solid var(--linea);
+                              display:flex;align-items:center;padding:0 11px;background-color:var(--hueso)">
+                    <span class="nota" style="font-size:12.5px;background:var(--hueso);padding-right:6px">Almuerzo · cerrado</span>
+                  </div>
+                </div>
+
+                <div style="display:flex;gap:10px">
+                  <div class="dato" style="width:46px;flex:none;font-size:14px;padding-top:11px;text-align:right;color:var(--gris)">1:00</div>
+                  <div class="ficha" style="flex:1">
+                    <div class="filo" style="background:var(--l1)"></div>
+                    <div style="flex:1;padding:9px 11px;display:flex;gap:9px;align-items:center">
+                      <div class="sello" style="width:38px;height:38px;background:var(--l1);font-size:14px">YH</div>
+                      <div style="flex:1">
+                        <div style="font-size:14.5px;font-weight:700">Ivonne Sáenz</div>
+                        <div class="nota" style="font-size:12px">Uñas acrílicas · 1 h 30</div>
+                      </div>
+                      <div class="dato" style="font-size:13.5px">B/. 45</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="display:flex;gap:10px">
+                  <div class="dato" style="width:46px;flex:none;font-size:14px;padding-top:11px;text-align:right;color:var(--gris)">2:30</div>
+                  <div style="flex:1;border:2px solid var(--rojo);background:var(--papel)">
+                    <div style="padding:9px 11px 0;display:flex;gap:9px;align-items:center">
+                      <div class="sello" style="width:38px;height:38px;background:var(--l1);font-size:14px">YH</div>
+                      <div style="flex:1">
+                        <div style="font-size:14.5px;font-weight:700">Rosa Batista</div>
+                        <div class="nota" style="font-size:12px">Manicura · 1 h 15 · B/. 28</div>
+                      </div>
+                      <div class="epigrafe" style="color:var(--rojo);font-size:9px">Nueva</div>
+                    </div>
+                    <div style="display:flex;gap:8px;padding:10px 11px 11px">
+                      <button class="b b-1" style="flex:1;height:40px;box-shadow:3px 3px 0 var(--tinta)">Confirmar</button>
+                      <button class="b b-2" style="height:40px;box-shadow:3px 3px 0 var(--tinta)">No puedo</button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="tel-pie">
+              <a class="on"><svg class="ico" viewBox="0 0 19 19" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1.5 4h16v13.5h-16z"/><path d="M1.5 8h16M6 1.5v4M13 1.5v4"/></svg>Agenda</a>
+              <a><svg class="ico" viewBox="0 0 19 19" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 1.5h7v6H6z"/><path d="M2.5 17.5v-2c0-2.2 2.8-3.6 7-3.6s7 1.4 7 3.6v2"/></svg>Equipo</a>
+              <a><svg class="ico" viewBox="0 0 19 19" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1.5 2.5h16v14h-16z"/><path d="M5 6.5h10M5 10h10M5 13.5h6"/></svg>Clientes</a>
+              <a><svg class="ico" viewBox="0 0 19 19" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 7.5h15v10H2z"/><path d="M1 7.5l2-5h13l2 5"/></svg>Local</a>
+            </div>
+          </div>
+          <div style="position:absolute;left:6px;top:170px;width:20px;height:20px;background:var(--rojo);color:var(--papel);display:grid;place-items:center;font-size:11px" class="dato">4</div>
+          </div>
+          <div class="epigrafe" style="margin-top:8px;color:var(--tinta)">C · La agenda de la dueña</div>
+        </div>
+
+        <!-- llamadas -->
+        <div style="flex:1;display:flex;flex-direction:column;gap:11px;padding-left:2px">
+          <div class="llamada" style="border-left-color:var(--rojo)">
+            <b>1 · Cinco tintas, un peso</b>
+            Fucsia, azul, verde, morado y ninguno. Ninguna ficha pesa más que otra porque la
+            luminosidad la fija el sistema, no el local.
+          </div>
+          <div class="llamada">
+            <b>2 · El local que no subió nada</b>
+            Sin color y sin foto: trama 00 en el filo y en el sello, iniciales en tinta de la casa.
+            Digno, y distinto del vecino, sin haber hecho nada.
+          </div>
+          <div class="llamada">
+            <b>3 · La cabecera sí es suya</b>
+            Trama de retícula en tinta del local al 100 % detrás del encabezado. Es el cuarto y
+            último sitio donde puede pintar.
+          </div>
+          <div class="llamada">
+            <b>4 · La persona, también aquí</b>
+            En la agenda del negocio cada tanda lleva el sello de <em>quién</em> la atiende,
+            no solo la hora.
+          </div>
+          <div style="border:1.5px solid var(--tinta);padding:9px 11px;margin-top:2px">
+            <div class="epigrafe" style="font-size:8.5px">Lo que jamás cede</div>
+            <div class="nota" style="font-size:10px;margin-top:4px;color:var(--tinta)">
+              El fondo, la letra, la altura de los controles, el precio, la hora, el estado
+              libre/ocupada y el <b>botón rojo de reservar</b>. Todo eso lo compara la clienta
+              entre locales: si cambiara, dejaría de poder compararse.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════ 10 · APLICACIONES ═════════════════════════════ -->
+<section class="pagina">
+  <div class="marco">
+    <div class="rotulo"><b>Tanda</b><span>libro de marca</span></div>
+    <div class="folio">10</div>
+    <div class="pie">Donde la marca se despega de la pantalla: el ícono, la persona, el papel y la calle</div>
+    <div class="pie-d">Aplicaciones</div>
+
+    <div class="lienzo" style="padding-top:20px;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between">
+        <div class="titulo" style="font-size:26px">El marco fuera de la pantalla</div>
+        <div class="nota" style="max-width:60ch;text-align:right;font-size:11px">
+          En la calle la regla se invierte y se nota que funciona: en el local manda el local, y
+          Tanda aparece del tamaño de una pegatina. Es lo justo para algo que no cobra.
+        </div>
+      </div>
+      <div class="filete" style="margin:10px 0 14px"></div>
+
+      <div style="height:250px;display:flex;gap:16px">
+
+        <div style="width:222px;flex:none;border:1.5px solid var(--tinta);display:flex;flex-direction:column">
+          <div style="flex:1;background:var(--hueso);display:flex;align-items:center;justify-content:center;gap:15px">
+            <div style="text-align:center">
+              <div style="width:96px;height:96px;background:var(--tinta);display:grid;place-items:center">
+                <img src="./logo/invertida.svg" alt="" style="width:66px"></div>
+              <div class="nota dato" style="font-size:10px;margin-top:5px">1024</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:11px">
+              <div style="text-align:center">
+                <div style="width:54px;height:54px;background:var(--tinta);display:grid;place-items:center">
+                  <img src="./logo/sello-32.svg" alt="" style="width:36px;filter:invert(1)"></div>
+                <div class="nota dato" style="font-size:10px;margin-top:4px">180</div>
+              </div>
+              <div style="text-align:center">
+                <div style="width:34px;height:34px;background:var(--tinta);display:grid;place-items:center;margin:0 auto">
+                  <img src="./logo/sello-16.svg" alt="" style="width:22px;filter:invert(1)"></div>
+                <div class="nota dato" style="font-size:10px;margin-top:4px">76</div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:9px 12px 10px;border-top:1.5px solid var(--tinta)">
+            <div class="epigrafe">Ícono de app</div>
+            <div class="nota" style="font-size:10px;margin-top:3px">
+              Tinta a sangre y sello en papel. El redondeo lo pone el sistema operativo con su
+              máscara: <b>no es nuestro y no se dibuja</b>. Se poda igual que en la página 05.
+            </div>
+          </div>
+        </div>
+
+        <div style="width:244px;flex:none;border:1.5px solid var(--tinta);display:flex;flex-direction:column">
+          <div style="flex:1;background:var(--hueso);display:grid;place-items:center;padding:12px">
+            <div style="width:190px;background:var(--papel);border:1.5px solid var(--tinta);box-shadow:5px 5px 0 var(--tinta)">
+              <div class="trama t2" style="--tt:var(--l1);height:30px;background-color:var(--papel);border-bottom:1.5px solid var(--tinta)"></div>
+              <div style="padding:0 12px 12px;margin-top:-20px">
+                <div class="sello" style="width:44px;height:44px;background:var(--l1);font-size:16px;border:2px solid var(--papel)">YH</div>
+                <div style="font-family:'Archivo';font-stretch:112%;font-weight:700;font-size:16px;margin-top:7px">
+                  <span style="box-shadow:inset 0 -3px 0 var(--l1)">Yaritza Him</span></div>
+                <div class="nota" style="font-size:10.5px;margin-top:2px">Uñas · Bella Vista, Panamá</div>
+                <div class="dato" style="font-size:10.5px;margin-top:4px">★ 4,9 · 1.240 atendidas</div>
+                <div style="margin-top:9px;height:30px;background:var(--rojo);color:var(--papel);display:grid;
+                            place-items:center;font-family:'Archivo';font-stretch:106%;font-weight:700;
+                            font-size:9.5px;letter-spacing:.07em;box-shadow:3px 3px 0 var(--tinta)">RESERVAR CON YARITZA</div>
+                <div style="display:flex;align-items:center;gap:5px;margin-top:10px;justify-content:center">
+                  <svg style="width:14px;height:10px;color:var(--tinta)"><use href="#sello-tanda"/></svg>
+                  <span style="font-family:'Archivo';font-stretch:125%;font-weight:700;font-size:8px;letter-spacing:.2em">TANDA</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:9px 12px 10px;border-top:1.5px solid var(--tinta)">
+            <div class="epigrafe">Perfil para compartir</div>
+            <div class="nota" style="font-size:10px;margin-top:3px">
+              Lo que Yaritza pega en su WhatsApp. Su tinta arriba y en su nombre; nuestro sello,
+              abajo y a 14 px. La marca firma, no preside.
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:1;border:1.5px solid var(--tinta);display:flex;flex-direction:column;min-width:0">
+          <div style="flex:1;background:var(--hueso);display:flex;align-items:center;justify-content:center;gap:20px;padding:0 16px">
+            <div>
+              <div style="width:206px;height:120px;background:var(--papel);border:1.5px solid var(--tinta);
+                          box-shadow:5px 5px 0 var(--tinta);padding:13px 14px;display:flex;flex-direction:column;justify-content:space-between">
+                <div>
+                  <div style="font-family:'Archivo';font-stretch:112%;font-weight:700;font-size:16px">
+                    <span style="box-shadow:inset 0 -3px 0 var(--l1)">Yaritza Him</span></div>
+                  <div class="nota" style="font-size:10px;margin-top:3px">Uñas Ávila · Vía Argentina, casa 41</div>
+                </div>
+                <div style="display:flex;align-items:flex-end;justify-content:space-between">
+                  <div class="dato" style="font-size:10.5px">+507 6412 3387</div>
+                  <div style="display:flex;align-items:center;gap:4px">
+                    <svg style="width:12px;height:9px;color:var(--tinta)"><use href="#sello-tanda"/></svg>
+                    <span style="font-family:'Archivo';font-stretch:125%;font-weight:700;font-size:7.5px;letter-spacing:.2em">TANDA</span>
+                  </div>
+                </div>
+              </div>
+              <div class="nota dato" style="font-size:9.5px;margin-top:5px;text-align:center">Cara · del salón</div>
+            </div>
+            <div>
+              <div style="width:206px;height:120px;background:var(--tinta);box-shadow:5px 5px 0 var(--l1);
+                          display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;position:relative;overflow:hidden">
+                <div class="trama t0" style="--tt:var(--papel);position:absolute;left:0;right:0;top:0;height:11px;background-color:transparent;opacity:.45"></div>
+                <div class="display" style="font-size:29px;color:var(--papel)">tanda.pa</div>
+                <div style="font-family:'Archivo';font-stretch:100%;font-weight:500;font-size:8.5px;
+                            letter-spacing:.26em;color:var(--papel);opacity:.8;text-transform:uppercase">Reserva sin llamar</div>
+              </div>
+              <div class="nota dato" style="font-size:9.5px;margin-top:5px;text-align:center">Reverso · de la casa</div>
+            </div>
+          </div>
+          <div style="padding:9px 13px 10px;border-top:1.5px solid var(--tinta)">
+            <div class="epigrafe">Tarjeta · 85 × 55 mm</div>
+            <div class="nota" style="font-size:10px;margin-top:3px">
+              Dos caras y dos dueños. La de delante es del salón y solo lleva nuestro sello de firma;
+              el reverso ya es nuestro, y ahí sí aparece la superficie de tinta. La sombra maciza
+              también en papel: es un troquel, no una sombra.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filete" style="margin:15px 0 13px"></div>
+
+      <div style="flex:1;display:flex;gap:16px">
+        <div style="width:118px;flex:none">
+          <div class="epigrafe">El nombre<br>en la calle</div>
+          <div class="nota" style="font-size:10px;margin-top:8px">
+            Tres soportes y una sola regla: cuanto más cerca del negocio, más pequeña la marca.
+          </div>
+        </div>
+
+        <div style="width:214px;flex:none;display:flex;flex-direction:column">
+          <div style="height:172px;background:var(--hueso);border:1.5px solid var(--tinta);display:grid;place-items:center">
+            <div style="width:118px;background:var(--tinta);color:var(--papel);padding:14px 0 12px;text-align:center;box-shadow:5px 5px 0 rgba(0,0,0,.14)">
+              <svg style="width:30px;height:22px;color:var(--papel)"><use href="#sello-tanda"/></svg>
+              <div class="display" style="font-size:23px;margin-top:6px">Tanda</div>
+              <div style="font-family:'Archivo';font-stretch:100%;font-weight:500;font-size:7.5px;
+                          letter-spacing:.18em;margin-top:5px;opacity:.85;text-transform:uppercase">Reserva aquí sin llamar</div>
+            </div>
+          </div>
+          <div class="nota" style="font-size:10.5px;margin-top:7px">
+            <b style="color:var(--tinta)">Pegatina de puerta · 90 mm.</b> Lo único que se pega en un
+            local ajeno. Vinilo de una tinta, se despega sin dejar marca.
+          </div>
+        </div>
+
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+          <div style="height:172px;background:var(--hueso);border:1.5px solid var(--tinta);overflow:hidden;
+                      display:flex;flex-direction:column">
+            <div style="height:44px;background:var(--l1);display:flex;align-items:center;justify-content:center">
+              <div style="font-family:'Archivo';font-stretch:118%;font-weight:700;font-size:20px;
+                          color:var(--papel);letter-spacing:.05em">UÑAS ÁVILA</div>
+            </div>
+            <div class="trama t0" style="--tt:var(--l1);height:12px;background-color:var(--hueso)"></div>
+            <div style="flex:1;display:flex;align-items:flex-end;gap:10px;padding:0 18px 16px">
+              <div class="trama grande t2" style="--tt:var(--l1);flex:1;height:76px;border:1.5px solid var(--tinta);background-color:var(--papel)"></div>
+              <div style="width:82px;height:76px;border:1.5px solid var(--tinta);background:var(--papel);
+                          display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+                <svg style="width:20px;height:15px;color:var(--tinta)"><use href="#sello-tanda"/></svg>
+                <span style="font-family:'Archivo';font-stretch:125%;font-weight:700;font-size:8px;letter-spacing:.2em">TANDA</span>
+                <span class="nota" style="font-size:7.5px">Reserva aquí</span>
+              </div>
+            </div>
+          </div>
+          <div class="nota" style="font-size:10.5px;margin-top:7px">
+            <b style="color:var(--tinta)">La vitrina real.</b> El toldo es del salón y va en su tinta,
+            con el festón de la casa como remate. Nuestro sello ocupa un cuadro de 76 mm en la esquina
+            del escaparate: el <b>6 %</b> de la fachada, la misma regla que en pantalla.
+          </div>
+        </div>
+
+        <div style="width:276px;flex:none;display:flex;flex-direction:column">
+          <div style="height:172px;background:var(--hueso);border:1.5px solid var(--tinta);display:grid;place-items:center;padding:0 14px">
+            <div style="width:100%;background:var(--tinta);padding:15px 17px 14px;position:relative;overflow:hidden">
+              <div class="trama t0" style="--tt:var(--papel);position:absolute;left:0;right:0;top:0;height:10px;background-color:transparent;opacity:.4"></div>
+              <div class="display" style="font-size:26px;color:var(--papel);line-height:.96;margin-top:7px">
+                Hoy a las 3:30,<br>con Yaritza.</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:12px">
+                <svg style="width:18px;height:13px;color:var(--papel)"><use href="#sello-tanda"/></svg>
+                <span style="font-family:'Archivo';font-stretch:125%;font-weight:700;font-size:9px;
+                             letter-spacing:.2em;color:var(--papel)">TANDA</span>
+                <span class="dato" style="font-size:9px;color:var(--papel);opacity:.7;margin-left:auto">tanda.pa</span>
+              </div>
+            </div>
+          </div>
+          <div class="nota" style="font-size:10.5px;margin-top:7px">
+            <b style="color:var(--tinta)">Marquesina de parada.</b> El único soporte donde Tanda habla
+            sola, y aun así habla de una persona con nombre. Nunca de «tu experiencia de belleza».
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

@@ -2741,10 +2741,20 @@ export interface components {
             negocio_slug: string;
             /** Se Puede Cancelar */
             se_puede_cancelar: boolean;
+            /**
+             * Se Puede Resenar
+             * @default false
+             */
+            se_puede_resenar: boolean;
             /** Servicios */
             servicios: components["schemas"]["ServicioDeMiCita"][];
             /** Total Centavos */
             total_centavos: number;
+            /**
+             * Ya Resenada
+             * @default false
+             */
+            ya_resenada: boolean;
             /** Zona Horaria */
             zona_horaria: string;
         };
@@ -2995,6 +3005,8 @@ export interface components {
              * @description Claves de almacén. Nacen pendientes de moderar y no salen hasta aprobarse
              */
             fotos?: string[];
+            /** Nota */
+            nota: number;
             /** Nota Al Profesional */
             nota_al_profesional?: number | null;
             /**
@@ -3002,8 +3014,6 @@ export interface components {
              * @description Por defecto, quien atendió la cita (REV-2)
              */
             profesional_id?: string | null;
-            /** Rating */
-            rating: number;
             /** Texto */
             texto?: string | null;
         };

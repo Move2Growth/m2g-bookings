@@ -26,8 +26,8 @@
 
 *{box-sizing:border-box;margin:0;padding:0;border-radius:0}
 html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
-  font-feature-settings:"tnum" 0}
+body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon)}
+.cifras{font-variant-numeric:tabular-nums}
 
 .pagina{
   position:relative;width:1122.5px;height:793.7px;background:var(--cal);
@@ -85,64 +85,71 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
    envoltorio. Ese detalle es la razón de que exista .env-foco.            */
 .btn{
   position:relative;display:inline-flex;align-items:center;justify-content:center;gap:7px;
-  height:34px;padding:0 16px 0 16px;min-width:104px;
+  height:44px;padding:0 16px 0 16px;min-width:104px;
   font-family:'Chivo',sans-serif;font-size:12.5px;font-weight:700;letter-spacing:.01em;
   border:1.5px solid transparent;background:transparent;color:var(--carbon);cursor:pointer;
   clip-path:polygon(0 0,100% 0,100% 100%,13px 100%,13px calc(100% - 7px),0 calc(100% - 7px));
 }
 .btn .car{position:absolute;left:0;bottom:0;height:3px;background:currentColor;opacity:.85}
 .env-foco{display:inline-block;outline:2px solid var(--caribe);outline-offset:3px}
+/* Pulsado: el corte se cierra. Es la unica senal que sobrevive a un dedo tapando
+   el boton, y no depende de distinguir dos rojos casi iguales. Va en envoltorio
+   por el mismo motivo que el foco: el clip-path recorta el propio boton. */
+.env-pulsa{position:relative;display:inline-block}
+.env-pulsa::after{content:'';position:absolute;left:0;bottom:0;width:13px;height:7px;
+  background:var(--tinta-pulsa,var(--carbon))}
 
 .btn-1{background:var(--achiote);color:var(--cal);border-color:var(--achiote)}
 .btn-1.encima{background:#8E2712;border-color:#8E2712}
-.btn-1.pulsa{background:#741F0D;border-color:#741F0D;transform:translateY(1px)}
+.btn-1.pulsa{background:#741F0D;border-color:#741F0D}
 .btn-1.carga{background:#8E2712;border-color:#8E2712;color:#E9D9D2}
-.btn-1.inhab{background:var(--piedra15);border-color:var(--piedra15);color:#A29C91;cursor:not-allowed}
+.btn-1.inhab{background:var(--piedra15);border-color:var(--piedra15);color:#847D6E;cursor:not-allowed}
 
 .btn-2{background:transparent;color:var(--carbon);border-color:var(--carbon)}
 .btn-2.encima{background:var(--carbon);color:var(--cal)}
-.btn-2.pulsa{background:#000;color:var(--cal);transform:translateY(1px)}
+.btn-2.pulsa{background:var(--achiote);color:var(--cal);border-color:var(--achiote)}
 .btn-2.carga{background:transparent;color:var(--piedra);border-color:var(--piedra)}
-.btn-2.inhab{border-color:#C9C3B6;color:#A29C91;cursor:not-allowed}
+.btn-2.inhab{border-color:#B3AC9C;color:#847D6E;cursor:not-allowed}
 
 .btn-3{background:transparent;color:var(--achiote);border-color:transparent;min-width:0;padding:0 8px}
 .btn-3 span.sub{position:absolute;left:8px;right:8px;bottom:8px;height:1.5px;background:currentColor}
 .btn-3.encima{color:#741F0D}
-.btn-3.pulsa{color:#741F0D;transform:translateY(1px)}
+.btn-3.pulsa{background:var(--achiote);color:var(--cal);padding:0 12px}
+.btn-3.pulsa span.sub{display:none}
 .btn-3.carga{color:var(--piedra)}
-.btn-3.inhab{color:#A29C91;cursor:not-allowed}
+.btn-3.inhab{color:#847D6E;cursor:not-allowed}
 
 /* botón de hora: el control que define el producto */
-.btn-h{font-family:'Chivo Mono',monospace;font-weight:700;font-size:14px;letter-spacing:0;
-  height:38px;min-width:84px;padding:0 14px;background:var(--cal);color:var(--achiote);
+.btn-h{font-family:'Chivo Mono',monospace;font-weight:700;font-size:15px;letter-spacing:0;
+  height:44px;min-width:88px;padding:0 14px;background:var(--cal);color:var(--achiote);
   border:1.5px solid var(--achiote);
   clip-path:polygon(0 0,100% 0,100% 100%,11px 100%,11px calc(100% - 6px),0 calc(100% - 6px))}
 .btn-h.encima{background:#EBD3CB;border-color:#8E2712;color:#8E2712}
-.btn-h.pulsa{background:var(--achiote);color:var(--cal);transform:translateY(1px)}
+.btn-h.pulsa{background:var(--achiote);color:var(--cal);border-color:var(--achiote)}
 .btn-h.carga{background:#EBD3CB;color:#8E2712;border-color:#8E2712}
-.btn-h.inhab{background:var(--piedra15);border-color:#CFC8BA;color:#A29C91;text-decoration:line-through;cursor:not-allowed}
+.btn-h.inhab{background:var(--piedra15);border-color:#B3AC9C;color:#847D6E;text-decoration:line-through;cursor:not-allowed}
 
 /* campo de texto */
 .campo{width:212px}
 .campo .et{font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--piedra);margin-bottom:5px}
-.campo .caja{height:36px;border:1.5px solid #BDB6A8;background:var(--papel);
+.campo .caja{height:44px;border:1.5px solid #BDB6A8;background:var(--papel);
   display:flex;align-items:center;padding:0 11px;font-size:13px;color:#9C968B}
 .campo .caja.lleno{color:var(--carbon);border-color:var(--carbon)}
 .campo .caja.foco{border-color:var(--caribe);outline:2px solid var(--caribe);outline-offset:2px;color:var(--carbon)}
 .campo .caja.mal{border-color:var(--achiote);border-width:2px;color:var(--carbon)}
-.campo .caja.inhab{background:var(--piedra15);border-color:#D3CCBE;color:#A29C91}
+.campo .caja.inhab{background:var(--piedra15);border-color:#B3AC9C;color:#847D6E}
 .campo .ayuda{font-size:10px;margin-top:4px;color:var(--piedra)}
 .campo .ayuda.mal{color:var(--achiote);font-weight:700}
 .cursor{display:inline-block;width:1.5px;height:16px;background:var(--carbon);margin-left:1px}
 
 /* selector */
 .sel{width:212px;position:relative}
-.sel .caja{height:36px;border:1.5px solid #BDB6A8;background:var(--papel);
+.sel .caja{height:44px;border:1.5px solid #BDB6A8;background:var(--papel);
   display:flex;align-items:center;justify-content:space-between;padding:0 11px;font-size:13px;color:var(--carbon)}
 .sel .caja.abierto{border-color:var(--carbon)}
-.sel .caja.inhab{background:var(--piedra15);border-color:#D3CCBE;color:#A29C91}
+.sel .caja.inhab{background:var(--piedra15);border-color:#B3AC9C;color:#847D6E}
 .sel .lista{border:1.5px solid var(--carbon);border-top:0;background:var(--papel)}
-.sel .op{padding:7px 11px;font-size:12.5px;border-bottom:1px solid var(--filete)}
+.sel .op{padding:11px 11px;font-size:12.5px;border-bottom:1px solid var(--filete)}
 .sel .op:last-child{border-bottom:0}
 .sel .op.sobre{background:var(--achiote);color:var(--cal);font-weight:700}
 .flecha{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid var(--carbon)}
@@ -154,7 +161,7 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
 .chip.eleg{background:var(--achiote);color:var(--cal)}
 .chip.ult{background:var(--guayacan);border-color:var(--guayacan);color:var(--carbon)}
 .chip.ocu{background:var(--piedra15);border-color:var(--piedra15);color:var(--piedra);text-decoration:line-through}
-.chip.tom{background:transparent;border-style:dashed;border-color:var(--achiote);color:var(--achiote);text-decoration:line-through;opacity:.72}
+.chip.tom{background:transparent;border-style:dashed;border-color:var(--achiote);color:var(--achiote);text-decoration:line-through}
 .chip .et{font-family:'Chivo',sans-serif;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase}
 
 /* ---- teléfono: 390 px de ancho reales, reducidos con zoom (el zoom sí
@@ -163,8 +170,8 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
 .tel{width:390px;height:790px;background:var(--cal);border:1.5px solid var(--carbon);
   display:flex;flex-direction:column;overflow:hidden;position:relative}
 .tel .status{height:26px;background:var(--carbon);color:var(--cal);display:flex;
-  align-items:center;justify-content:space-between;padding:0 14px;
-  font-family:'Chivo Mono',monospace;font-size:11px;font-weight:700}
+  align-items:center;justify-content:space-between;padding:0 14px;font-size:11px;font-weight:700}
+.tel .status .h{font-family:'Chivo Mono',monospace}
 .tel .barra{height:52px;border-bottom:1.5px solid var(--carbon);display:flex;align-items:center;
   gap:10px;padding:0 14px;background:var(--cal);flex:none}
 .tel .barra .m{width:22px;height:22px;color:var(--carbon)}
@@ -184,9 +191,12 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
 .avat{width:44px;height:44px;background:var(--carbon);color:var(--cal);display:flex;
   align-items:center;justify-content:center;font-weight:900;font-size:17px;letter-spacing:-.03em;flex:none}
 .avat.b{background:var(--caribe)} .avat.c{background:var(--achiote)}
-.estrellas{display:inline-flex;gap:2px;vertical-align:-1px}
-.estrellas i{width:7px;height:7px;background:var(--carbon);display:block;
-  clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
+/* La valoracion se dibuja con la gramatica de la regla del dia: bloques llenos
+   y bloques vacios. No un widget de estrellas prestado. */
+.estrellas{display:inline-flex;gap:1.5px;vertical-align:-1px;align-items:flex-end}
+.estrellas i{width:5px;height:11px;background:var(--carbon);display:block}
+.estrellas i.medio{height:6px}
+.estrellas i.vacio{background:var(--piedra15);height:11px}
 
 /* ---- moodboard ---------------------------------------------------------- */
 .mb{border:1.5px solid var(--carbon);display:flex;flex-direction:column;overflow:hidden;background:var(--papel)}
@@ -373,7 +383,7 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
             <div class="regla" data-patron="xxxxxxxxxxxxxxxxxxxxxxxx" style="height:21px"></div></div>
           <div><div class="pequeno mono" style="font-size:9px;margin-bottom:4px">SALÓN LA 12 · CERRADO HOY</div>
             <div class="regla" data-patron="cccccccccccccccccccccccc" style="height:21px"></div>
-            <div class="reglarot" style="font-size:8px"><span>8:00</span><span>2:00</span><span>8:00 PM</span></div></div>
+            <div class="reglarot" style="font-size:9.5px"><span>8:00</span><span>2:00</span><span>8:00 PM</span></div></div>
         </div>
         <div class="pieCap"><b>La regla del día</b><span>Doce horas de 8 a 20. Gris lo vendido, achiote lo que
           queda, rayado lo que está cerrado. Un salón lleno se apaga solo.</span></div>
@@ -804,7 +814,9 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
           <div class="mono" style="font-size:11px;margin-top:5px">#F2B705<br>242 · 183 · 5</div>
           <div class="filete" style="margin:8px 0"></div>
           <div class="mono" style="font-size:10.5px;font-weight:700;color:var(--achiote)">1,59:1 sobre cal · prohibido</div>
-          <p class="pequeno" style="margin-top:auto">Solo el último cupo del día, y siempre como fondo con carbón encima. Nunca como texto ni como filete.</p>
+          <div class="mono" style="font-size:10.5px;font-weight:700;color:var(--caribe)">10,04:1 sobre carbón · permitido</div>
+          <p class="pequeno" style="margin-top:auto">Solo el último cupo del día. <b>Sobre cal no es nunca texto ni filete.</b>
+            Sobre carbón sí: ahí vive el rótulo de calle y el perfil que se comparte.</p>
         </div>
       </div>
 
@@ -847,17 +859,33 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
         <div class="pequeno" style="margin-top:7px">Cal 68 · carbón 17 · piedra 8 · <b style="color:var(--achiote)">achiote 5</b> ·
           caribe 1,5 · <b>guayacán 0,5</b>. Si el achiote pasa del 5 % es que se está pintando de rojo lo que ya está vendido.</div>
       </div>
-      <div style="width:410px">
+      <div style="width:250px">
         <div class="eyebrow" style="margin-bottom:9px">Superficies derivadas</div>
         <table class="tab">
           <tr><th>Nombre</th><th>Hex</th><th>Para qué</th><th>Ratio</th></tr>
           <tr><td><span style="display:inline-block;width:12px;height:12px;background:#fff;border:1px solid var(--filete);vertical-align:-2px"></span> Papel</td>
-            <td class="mono">#FFFFFF</td><td>Ficha sobre cal</td><td class="mono">18,25:1</td></tr>
+            <td class="mono">#FFFFFF</td><td>Ficha</td><td class="mono">18,25:1</td></tr>
           <tr><td><span style="display:inline-block;width:12px;height:12px;background:var(--piedra15);vertical-align:-2px"></span> Piedra 15</td>
-            <td class="mono">#E3DED3</td><td>Relleno de lo ocupado</td><td class="mono">13,61:1</td></tr>
+            <td class="mono">#E3DED3</td><td>Ocupado</td><td class="mono">13,61:1</td></tr>
         </table>
-        <div class="pequeno" style="margin-top:7px">Ratio medido con carbón encima. Piedra sobre piedra 15 da 4,72:1,
-          justo por encima del mínimo: por eso ahí no se baja de 12 px.</div>
+        <div class="pequeno" style="margin-top:7px">Ratio con carbón encima. Piedra sobre piedra 15 da 4,72:1: por eso
+          sobre piedra 15 no se baja del cuerpo de 13 px.</div>
+      </div>
+
+      <div style="width:296px">
+        <div class="eyebrow" style="margin-bottom:9px">Tonos de estado · también con su ratio</div>
+        <table class="tab">
+          <tr><th style="width:76px">Hex</th><th>Dónde</th><th style="width:52px">Ratio</th></tr>
+          <tr><td class="mono">#8E2712</td><td>Primario encima</td><td class="mono">7,49:1</td></tr>
+          <tr><td class="mono">#741F0D</td><td>Primario pulsado · texto encima</td><td class="mono">9,43:1</td></tr>
+          <tr><td class="mono">#EBD3CB</td><td>Fondo de hora encima</td><td class="mono">6,01:1</td></tr>
+          <tr><td class="mono">#E9D9D2</td><td>Texto de «cargando»</td><td class="mono">6,26:1</td></tr>
+          <tr><td class="mono">#B9B2A5</td><td>Apoyo sobre carbón</td><td class="mono">8,67:1</td></tr>
+          <tr><td class="mono">#847D6E</td><td>Texto inhabilitado</td><td class="mono">3,57:1</td></tr>
+          <tr><td class="mono">#B3AC9C</td><td>Filete inhabilitado · no es texto</td><td class="mono">1,97:1</td></tr>
+        </table>
+        <div class="pequeno" style="margin-top:6px">El inhabilitado está exento de AA por ser control inactivo
+          (WCAG 1.4.3), pero se sube a 3,57:1 y se imprime igual: aquí nada se queda sin medir.</div>
       </div>
     </div>
 
@@ -969,8 +997,12 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
             <td><span class="h2" style="font-size:17px">Barberas cerca de Calidonia</span></td></tr>
           <tr><td>Cuerpo</td><td class="mono">Chivo 400 · 13/19,5</td>
             <td><span class="p">Corte de dama con lavado, 45 minutos.</span></td></tr>
+          <tr><td>Cuerpo menor</td><td class="mono">Chivo 400 · 11,5/16</td>
+            <td><span class="p" style="font-size:11.5px">Barbera · Salón La 12 · 400 m</span></td></tr>
           <tr><td>Etiqueta</td><td class="mono">Chivo 700 · 10,5 · +16 % · caja alta</td>
             <td><span class="eyebrow" style="color:var(--carbon)">Último cupo de hoy</span></td></tr>
+          <tr><td>Micro</td><td class="mono">Chivo 400/700 · 9,5/13 · el suelo</td>
+            <td><span class="p" style="font-size:9.5px">312 reseñas · a 400 m · cancela gratis</span></td></tr>
           <tr><td style="color:var(--achiote);font-weight:700">Hora</td><td class="mono" style="color:var(--achiote)">Chivo Mono 700 · tabular</td>
             <td><span class="mono" style="font-size:20px;font-weight:700;color:var(--achiote)">3:00 PM</span></td></tr>
         </table>
@@ -978,9 +1010,12 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
       <div style="width:300px">
         <div class="eyebrow" style="margin-bottom:10px">La regla que no se salta</div>
         <div style="border:1.5px solid var(--achiote);padding:12px;background:var(--papel)">
-          <p class="p" style="font-weight:700;margin-bottom:8px">Toda hora va en Chivo Mono. Y nada más va en Chivo Mono.</p>
-          <p class="pequeno">Ni los precios, ni los nombres, ni las distancias. La consecuencia es que en cualquier
-            pantalla se distingue una hora del resto sin leerla, y que dos columnas de horas nunca bailan.</p>
+          <p class="p" style="font-weight:700;margin-bottom:8px">En el producto, toda hora va en Chivo Mono. Y nada más.</p>
+          <p class="pequeno">Ni los precios, ni los nombres, ni las distancias, <b>ni las cuentas</b>: «31 cupos hoy»,
+            «4,9» y «1.240 atendidas» van en Chivo con cifras tabulares. Así, en cualquier pantalla se distingue una
+            hora del resto sin llegar a leerla.</p>
+          <p class="pequeno" style="margin-top:7px"><b>Este manual es la excepción declarada:</b> aquí Chivo Mono hace
+            además de voz técnica —hex, ratios, cotas y nombres de archivo—. Eso es documentación, no producto.</p>
           <div class="filete" style="margin:10px 0"></div>
           <div style="display:flex;gap:16px;align-items:center">
             <div>
@@ -997,8 +1032,8 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
             </div>
           </div>
         </div>
-        <p class="pequeno" style="margin-top:9px">Petrona solo aparece en frases de marca y en citas de clientas.
-          En la interfaz del producto no hay serif: a 390 px estorba.</p>
+        <p class="pequeno" style="margin-top:9px"><b>Nada baja de 9,5 px</b>, ni dentro de la agenda. Petrona solo
+          aparece en frases de marca y en citas de clientas: en la interfaz no hay serif, que a 390 px estorba.</p>
       </div>
     </div>
   </div>
@@ -1009,9 +1044,11 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
   <div class="cuerpo" style="display:flex;flex-direction:column">
     <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:11px">
       <div class="h2">Cuatro controles, seis estados cada uno</div>
-      <div class="pequeno" style="max-width:520px;text-align:right">Radio de esquina 0 en todo. Cada botón lleva
-        cortado el escalón del símbolo abajo a la izquierda; como el recorte se come el contorno, el foco de
-        teclado se pinta en un envoltorio de 2 px en caribe con 3 px de aire. Alto de toque: 38 px el botón de hora, 34 el resto.</div>
+      <div class="pequeno" style="max-width:530px;text-align:right">Radio de esquina 0 en todo. Cada botón lleva
+        cortado el escalón del símbolo abajo a la izquierda, y <b>al pulsarlo el corte se cierra</b>: es la única señal
+        que aguanta con un dedo encima y no obliga a distinguir dos rojos parecidos. «Encima» solo existe con ratón.
+        Alto de toque <b>44 px</b> en todo control y 8 px de separación (iOS pide 44 pt, Android 48 dp). Foco y pulsado
+        van en envoltorio porque el recorte se come el contorno del propio botón.</div>
     </div>
 
     <!-- matriz de estados -->
@@ -1025,48 +1062,48 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
       <div class="eyebrow" style="padding:6px 0 7px;color:var(--caribe)">Foco de teclado</div>
 
       <!-- primario -->
-      <div style="border-top:1px solid var(--filete);padding:14px 10px 14px 0">
+      <div style="border-top:1px solid var(--filete);padding:16px 10px 14px 0">
         <div style="font-size:12px;font-weight:700">Primario</div>
         <div class="pequeno" style="font-size:9px;margin-top:2px">Reservar</div></div>
-      <div style="border-top:1px solid var(--filete);padding:12px 0"><button class="btn btn-1">Reservar</button></div>
-      <div style="border-top:1px solid var(--filete);padding:12px 0"><button class="btn btn-1 encima">Reservar</button></div>
-      <div style="border-top:1px solid var(--filete);padding:12px 0"><button class="btn btn-1 pulsa">Reservar</button></div>
-      <div style="border-top:1px solid var(--filete);padding:12px 0"><button class="btn btn-1 carga">Reservando…<span class="car" style="width:44%"></span></button></div>
-      <div style="border-top:1px solid var(--filete);padding:12px 0"><button class="btn btn-1 inhab">Reservar</button></div>
-      <div style="border-top:1px solid var(--filete);padding:12px 0"><span class="env-foco"><button class="btn btn-1">Reservar</button></span></div>
+      <div style="border-top:1px solid var(--filete);padding:8px 0"><button class="btn btn-1">Reservar</button></div>
+      <div style="border-top:1px solid var(--filete);padding:8px 0"><button class="btn btn-1 encima">Reservar</button></div>
+      <div style="border-top:1px solid var(--filete);padding:8px 0"><span class="env-pulsa" style="--tinta-pulsa:#741F0D"><button class="btn btn-1 pulsa">Reservar</button></span></div>
+      <div style="border-top:1px solid var(--filete);padding:8px 0"><button class="btn btn-1 carga">Reservando…<span class="car" style="width:44%"></span></button></div>
+      <div style="border-top:1px solid var(--filete);padding:8px 0"><button class="btn btn-1 inhab">Reservar</button></div>
+      <div style="border-top:1px solid var(--filete);padding:8px 0"><span class="env-foco"><button class="btn btn-1">Reservar</button></span></div>
 
       <!-- secundario -->
-      <div style="border-top:1px solid var(--filete);padding:14px 10px 14px 0">
+      <div style="border-top:1px solid var(--filete);padding:16px 10px 14px 0">
         <div style="font-size:12px;font-weight:700">Secundario</div>
         <div class="pequeno" style="font-size:9px;margin-top:2px">Ver el día</div></div>
-      <div style="border-top:1px solid var(--filete);padding:12px 0"><button class="btn btn-2">Ver el día</button></div>
-      <div style="border-top:1px solid var(--filete);padding:12px 0"><button class="btn btn-2 encima">Ver el día</button></div>
-      <div style="border-top:1px solid var(--filete);padding:12px 0"><button class="btn btn-2 pulsa">Ver el día</button></div>
-      <div style="border-top:1px solid var(--filete);padding:12px 0"><button class="btn btn-2 carga">Cargando…<span class="car" style="width:30%"></span></button></div>
-      <div style="border-top:1px solid var(--filete);padding:12px 0"><button class="btn btn-2 inhab">Ver el día</button></div>
-      <div style="border-top:1px solid var(--filete);padding:12px 0"><span class="env-foco"><button class="btn btn-2">Ver el día</button></span></div>
+      <div style="border-top:1px solid var(--filete);padding:8px 0"><button class="btn btn-2">Ver el día</button></div>
+      <div style="border-top:1px solid var(--filete);padding:8px 0"><button class="btn btn-2 encima">Ver el día</button></div>
+      <div style="border-top:1px solid var(--filete);padding:8px 0"><span class="env-pulsa" style="--tinta-pulsa:var(--achiote)"><button class="btn btn-2 pulsa">Ver el día</button></span></div>
+      <div style="border-top:1px solid var(--filete);padding:8px 0"><button class="btn btn-2 carga">Cargando…<span class="car" style="width:30%"></span></button></div>
+      <div style="border-top:1px solid var(--filete);padding:8px 0"><button class="btn btn-2 inhab">Ver el día</button></div>
+      <div style="border-top:1px solid var(--filete);padding:8px 0"><span class="env-foco"><button class="btn btn-2">Ver el día</button></span></div>
 
       <!-- de texto -->
-      <div style="border-top:1px solid var(--filete);padding:14px 10px 14px 0">
+      <div style="border-top:1px solid var(--filete);padding:16px 10px 14px 0">
         <div style="font-size:12px;font-weight:700">De texto</div>
         <div class="pequeno" style="font-size:9px;margin-top:2px">Cambiar hora</div></div>
-      <div style="border-top:1px solid var(--filete);padding:12px 0"><button class="btn btn-3">Cambiar hora<span class="sub"></span></button></div>
-      <div style="border-top:1px solid var(--filete);padding:12px 0"><button class="btn btn-3 encima">Cambiar hora<span class="sub"></span></button></div>
-      <div style="border-top:1px solid var(--filete);padding:12px 0"><button class="btn btn-3 pulsa">Cambiar hora<span class="sub"></span></button></div>
-      <div style="border-top:1px solid var(--filete);padding:12px 0"><button class="btn btn-3 carga">Buscando…<span class="sub" style="right:auto;width:36px"></span></button></div>
-      <div style="border-top:1px solid var(--filete);padding:12px 0"><button class="btn btn-3 inhab">Cambiar hora<span class="sub"></span></button></div>
-      <div style="border-top:1px solid var(--filete);padding:12px 0"><span class="env-foco"><button class="btn btn-3">Cambiar hora<span class="sub"></span></button></span></div>
+      <div style="border-top:1px solid var(--filete);padding:8px 0"><button class="btn btn-3">Cambiar hora<span class="sub"></span></button></div>
+      <div style="border-top:1px solid var(--filete);padding:8px 0"><button class="btn btn-3 encima">Cambiar hora<span class="sub"></span></button></div>
+      <div style="border-top:1px solid var(--filete);padding:8px 0"><span class="env-pulsa" style="--tinta-pulsa:var(--achiote)"><button class="btn btn-3 pulsa">Cambiar hora<span class="sub"></span></button></span></div>
+      <div style="border-top:1px solid var(--filete);padding:8px 0"><button class="btn btn-3 carga">Buscando…<span class="sub" style="right:auto;width:36px"></span></button></div>
+      <div style="border-top:1px solid var(--filete);padding:8px 0"><button class="btn btn-3 inhab">Cambiar hora<span class="sub"></span></button></div>
+      <div style="border-top:1px solid var(--filete);padding:8px 0"><span class="env-foco"><button class="btn btn-3">Cambiar hora<span class="sub"></span></button></span></div>
 
       <!-- botón de hora -->
-      <div style="border-top:1px solid var(--filete);border-bottom:1.5px solid var(--carbon);padding:16px 10px 16px 0">
+      <div style="border-top:1px solid var(--filete);border-bottom:1.5px solid var(--carbon);padding:16px 10px 14px 0">
         <div style="font-size:12px;font-weight:700;color:var(--achiote)">De hora</div>
         <div class="pequeno" style="font-size:9px;margin-top:2px">El control<br>del producto</div></div>
-      <div style="border-top:1px solid var(--filete);border-bottom:1.5px solid var(--carbon);padding:14px 0"><button class="btn btn-h">3:00 PM</button></div>
-      <div style="border-top:1px solid var(--filete);border-bottom:1.5px solid var(--carbon);padding:14px 0"><button class="btn btn-h encima">3:00 PM</button></div>
-      <div style="border-top:1px solid var(--filete);border-bottom:1.5px solid var(--carbon);padding:14px 0"><button class="btn btn-h pulsa">3:00 PM</button></div>
-      <div style="border-top:1px solid var(--filete);border-bottom:1.5px solid var(--carbon);padding:14px 0"><button class="btn btn-h carga">3:00 PM<span class="car" style="width:52%;background:var(--achiote)"></span></button></div>
-      <div style="border-top:1px solid var(--filete);border-bottom:1.5px solid var(--carbon);padding:14px 0"><button class="btn btn-h inhab">3:00 PM</button></div>
-      <div style="border-top:1px solid var(--filete);border-bottom:1.5px solid var(--carbon);padding:14px 0"><span class="env-foco"><button class="btn btn-h">3:00 PM</button></span></div>
+      <div style="border-top:1px solid var(--filete);border-bottom:1.5px solid var(--carbon);padding:8px 0"><button class="btn btn-h">3:00 PM</button></div>
+      <div style="border-top:1px solid var(--filete);border-bottom:1.5px solid var(--carbon);padding:8px 0"><button class="btn btn-h encima">3:00 PM</button></div>
+      <div style="border-top:1px solid var(--filete);border-bottom:1.5px solid var(--carbon);padding:8px 0"><span class="env-pulsa" style="--tinta-pulsa:var(--achiote)"><button class="btn btn-h pulsa">3:00 PM</button></span></div>
+      <div style="border-top:1px solid var(--filete);border-bottom:1.5px solid var(--carbon);padding:8px 0"><button class="btn btn-h carga">3:00 PM<span class="car" style="width:52%;background:var(--achiote)"></span></button></div>
+      <div style="border-top:1px solid var(--filete);border-bottom:1.5px solid var(--carbon);padding:8px 0"><button class="btn btn-h inhab">3:00 PM</button></div>
+      <div style="border-top:1px solid var(--filete);border-bottom:1.5px solid var(--carbon);padding:8px 0"><span class="env-foco"><button class="btn btn-h">3:00 PM</button></span></div>
     </div>
 
     <!-- controles de formulario -->
@@ -1119,8 +1156,9 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
           <span class="chip tom">3:00 PM</span>
           <span class="env-foco"><span class="chip">3:45 PM</span></span>
         </div>
-        <div class="pequeno mono" style="margin-top:7px;font-size:9px;line-height:1.6">
-          libre · elegido · último del día<br>ocupado · te lo quitaron · foco</div>
+        <div class="pequeno" style="margin-top:7px;font-size:9.5px;line-height:1.55">
+          libre · elegido · último del día · ocupado · te lo quitaron · foco.
+          <b>A 28 px el chip es informativo y no se toca</b>; cuando es tocable —la rejilla de horas de la ficha— sube a 44.</div>
         <div style="border:1.5px solid var(--achiote);background:var(--papel);padding:9px 10px;margin-top:11px">
           <div style="font-size:11.5px;font-weight:700;color:var(--achiote)">Te ganaron las 3:00</div>
           <p class="pequeno" style="margin-top:3px">Alguien la tomó mientras decidías. Yaritza tiene
@@ -1150,7 +1188,7 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
       <div>
       <div style="zoom:.68">
       <div class="tel">
-        <div class="status"><span>9:41</span><span>Panamá · 4G</span></div>
+        <div class="status"><span class="h">9:41</span><span>Panamá · 4G</span></div>
         <div class="barra">
           <div class="m"><svg viewBox="0 0 1011.26 1028.46" fill="currentColor" style="width:100%;height:100%;display:block"><use href="#simbolo"/></svg></div><div class="nom">cupo</div>
           <div class="lugar">Calidonia<br><span style="font-weight:400">Ciudad de Panamá</span></div>
@@ -1165,7 +1203,7 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
             </div>
             <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;padding-bottom:7px;border-bottom:1.5px solid var(--carbon)">
               <span style="font-size:12px;font-weight:700">14 profesionales cerca</span>
-              <span class="mono" style="font-size:12px;font-weight:700;color:var(--achiote)">31 cupos hoy</span>
+              <span class="cifras" style="font-size:12px;font-weight:700;color:var(--achiote)">31 cupos hoy</span>
             </div>
           </div>
 
@@ -1176,15 +1214,15 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
                 <div style="font-size:14px;font-weight:700;letter-spacing:-.01em">Yaritza Mendoza</div>
                 <div class="pequeno" style="font-size:10px">Barbera · Salón La 12 · 400 m</div>
                 <div style="margin-top:3px;display:flex;align-items:center;gap:5px">
-                  <span class="estrellas"><i></i><i></i><i></i><i></i><i></i></span>
-                  <span class="mono" style="font-size:10px;font-weight:700">4,9</span>
+                  <span class="estrellas"><i></i><i></i><i></i><i></i><i class="medio"></i></span>
+                  <span class="cifras" style="font-size:10.5px;font-weight:700">4,9</span>
                   <span class="pequeno" style="font-size:9.5px">· 1.240 atendidas</span>
                 </div>
               </div>
             </div>
             <div style="margin-top:10px">
               <div class="regla" data-patron="xxxxxx.xxxxxxxx..xxxxux" style="height:13px"></div>
-              <div class="reglarot" style="font-size:8px"><span>8:00</span><span>2:00</span><span>8:00 PM</span></div>
+              <div class="reglarot" style="font-size:9.5px"><span>8:00</span><span>2:00</span><span>8:00 PM</span></div>
             </div>
             <div style="display:flex;gap:6px;margin-top:9px">
               <button class="btn btn-h" style="height:32px;min-width:0;font-size:12.5px;padding:0 11px">11:00</button>
@@ -1200,15 +1238,15 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
                 <div style="font-size:14px;font-weight:700;letter-spacing:-.01em">Rubén Castillo</div>
                 <div class="pequeno" style="font-size:10px">Barbero · Salón La 12 · 400 m</div>
                 <div style="margin-top:3px;display:flex;align-items:center;gap:5px">
-                  <span class="estrellas"><i></i><i></i><i></i><i></i><i></i></span>
-                  <span class="mono" style="font-size:10px;font-weight:700">4,7</span>
+                  <span class="estrellas"><i></i><i></i><i></i><i></i><i class="medio"></i></span>
+                  <span class="cifras" style="font-size:10.5px;font-weight:700">4,7</span>
                   <span class="pequeno" style="font-size:9.5px">· 860 atendidas</span>
                 </div>
               </div>
             </div>
             <div style="margin-top:10px">
               <div class="regla" data-patron=".xxxxxxxx..xxxxxxxxxxxx" style="height:13px"></div>
-              <div class="reglarot" style="font-size:8px"><span>8:00</span><span>2:00</span><span>8:00 PM</span></div>
+              <div class="reglarot" style="font-size:9.5px"><span>8:00</span><span>2:00</span><span>8:00 PM</span></div>
             </div>
             <div style="display:flex;gap:6px;margin-top:9px">
               <button class="btn btn-h" style="height:32px;min-width:0;font-size:12.5px;padding:0 11px">12:00</button>
@@ -1223,12 +1261,12 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
               <div style="flex:1">
                 <div style="font-size:14px;font-weight:700;letter-spacing:-.01em;color:var(--piedra)">Dayana Pérez</div>
                 <div class="pequeno" style="font-size:10px">Uñas · Studio Vía España · 2,1 km</div>
-                <div class="mono" style="margin-top:3px;font-size:10px;font-weight:700;color:var(--piedra)">CERRADO AHORA · ABRE MAÑANA 9:00</div>
+                <div style="margin-top:3px;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--piedra)">CERRADO AHORA · ABRE MAÑANA <span class="mono">9:00</span></div>
               </div>
             </div>
             <div style="margin-top:10px">
               <div class="regla" data-patron="ccccccccccccccccccccccc" style="height:13px"></div>
-              <div class="reglarot" style="font-size:8px"><span>8:00</span><span>hoy no trabaja</span><span>8:00 PM</span></div>
+              <div class="reglarot" style="font-size:9.5px"><span>8:00</span><span style="font-family:'Chivo',sans-serif">hoy no trabaja</span><span>8:00 PM</span></div>
             </div>
             <div style="display:flex;gap:6px;margin-top:9px">
               <button class="btn btn-2" style="height:32px;min-width:0;font-size:12px;padding:0 12px">Ver mañana</button>
@@ -1261,7 +1299,7 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
       <div>
       <div style="zoom:.68">
       <div class="tel">
-        <div class="status"><span>9:41</span><span>Panamá · 4G</span></div>
+        <div class="status"><span class="h">9:41</span><span>Panamá · 4G</span></div>
         <div class="barra">
           <div style="width:18px;height:18px;border-left:2.5px solid var(--carbon);border-bottom:2.5px solid var(--carbon);transform:rotate(45deg);margin-left:4px"></div>
           <div style="font-size:16px;font-weight:700;letter-spacing:-.02em;margin-left:6px">Yaritza Mendoza</div>
@@ -1272,11 +1310,11 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
             <div class="avat" style="width:56px;height:56px;font-size:21px">YM</div>
             <div style="flex:1">
               <div style="display:flex;align-items:center;gap:5px">
-                <span class="estrellas"><i></i><i></i><i></i><i></i><i></i></span>
-                <span class="mono" style="font-size:11px;font-weight:700">4,9</span>
+                <span class="estrellas"><i></i><i></i><i></i><i></i><i class="medio"></i></span>
+                <span class="cifras" style="font-size:11px;font-weight:700">4,9</span>
                 <span class="pequeno" style="font-size:10px">· 312 reseñas</span>
               </div>
-              <div class="mono" style="font-size:15px;font-weight:700;margin-top:3px">1.240 <span style="font-family:'Chivo';font-size:11px;font-weight:400;color:var(--piedra)">personas atendidas</span></div>
+              <div class="cifras" style="font-size:16px;font-weight:900;letter-spacing:-.02em;margin-top:3px">1.240 <span style="font-size:11px;font-weight:400;letter-spacing:0;color:var(--piedra)">personas atendidas</span></div>
               <div class="pequeno" style="font-size:10px;margin-top:2px">Barbera desde 2019 · fade, barba, corte de dama</div>
             </div>
           </div>
@@ -1288,11 +1326,11 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
           <div style="padding:13px 14px 0">
             <div style="display:flex;justify-content:space-between;align-items:baseline">
               <span style="font-size:13px;font-weight:700">Hoy, jueves 10</span>
-              <span class="mono" style="font-size:11px;font-weight:700;color:var(--achiote)">4 cupos</span>
+              <span class="cifras" style="font-size:11.5px;font-weight:700;color:var(--achiote)">4 cupos</span>
             </div>
             <div style="margin-top:8px">
               <div class="regla" data-patron="xxxxxx.xxxxxxxx..xxxxux" style="height:17px"></div>
-              <div class="reglarot" style="font-size:8.5px"><span>8:00</span><span>2:00</span><span>8:00 PM</span></div>
+              <div class="reglarot" style="font-size:9.5px"><span>8:00</span><span>2:00</span><span>8:00 PM</span></div>
             </div>
           </div>
 
@@ -1307,7 +1345,7 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
               <span class="chip eleg" style="justify-content:center;height:32px">3:00 PM</span>
               <span class="chip" style="justify-content:center;height:32px">3:45</span>
               <span class="chip ocu" style="justify-content:center;height:32px">5:00</span>
-              <span class="chip ult" style="justify-content:center;height:32px;flex-direction:column;gap:0;line-height:1.05">6:30<span class="et" style="font-size:7px">último</span></span>
+              <span class="chip ult" style="justify-content:center;height:32px;flex-direction:column;gap:0;line-height:1.05">6:30<span class="et" style="font-size:9.5px">último</span></span>
             </div>
           </div>
 
@@ -1318,9 +1356,9 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
             <div class="filete" style="margin:11px 0 9px"></div>
             <div class="eyebrow" style="font-size:9.5px;margin-bottom:7px">Si hoy no te sirve</div>
             <div style="display:flex;gap:6px">
-              <span class="chip" style="height:34px;flex-direction:column;gap:0;line-height:1.1;flex:1;justify-content:center">vie 11<span class="et" style="font-size:7.5px">7 cupos</span></span>
-              <span class="chip" style="height:34px;flex-direction:column;gap:0;line-height:1.1;flex:1;justify-content:center">sáb 12<span class="et" style="font-size:7.5px">2 cupos</span></span>
-              <span class="chip ocu" style="height:34px;flex-direction:column;gap:0;line-height:1.1;flex:1;justify-content:center;text-decoration:none">dom 13<span class="et" style="font-size:7.5px">cerrado</span></span>
+              <span class="chip" style="height:34px;flex-direction:column;gap:0;line-height:1.1;flex:1;justify-content:center">vie 11<span class="et" style="font-size:9.5px">7 cupos</span></span>
+              <span class="chip" style="height:34px;flex-direction:column;gap:0;line-height:1.1;flex:1;justify-content:center">sáb 12<span class="et" style="font-size:9.5px">2 cupos</span></span>
+              <span class="chip ocu" style="height:34px;flex-direction:column;gap:0;line-height:1.1;flex:1;justify-content:center;text-decoration:none">dom 13<span class="et" style="font-size:9.5px">cerrado</span></span>
             </div>
             <div class="filete" style="margin:11px 0 9px"></div>
             <div style="display:flex;gap:10px;align-items:flex-start">
@@ -1362,28 +1400,28 @@ body{background:#8C877E;font-family:'Chivo',sans-serif;color:var(--carbon);
       <div>
       <div style="zoom:.68">
       <div class="tel">
-        <div class="status"><span>9:41</span><span>Panamá · 4G</span></div>
+        <div class="status"><span class="h">9:41</span><span>Panamá · 4G</span></div>
         <div class="barra">
           <div class="m"><svg viewBox="0 0 1011.26 1028.46" fill="currentColor" style="width:100%;height:100%;display:block"><use href="#simbolo"/></svg></div><div class="nom" style="font-size:16px;letter-spacing:-.015em">Salón La 12</div>
           <div class="lugar">jue 10 sep<br><span style="font-weight:400">‹&nbsp;&nbsp;›</span></div>
         </div>
         <div style="display:flex;border-bottom:1.5px solid var(--carbon);flex:none">
           <div style="flex:1;padding:9px 14px;border-right:1px solid var(--filete)">
-            <div class="mono" style="font-size:19px;font-weight:700;color:var(--achiote);line-height:1">4</div>
+            <div class="cifras" style="font-size:20px;font-weight:900;letter-spacing:-.03em;color:var(--achiote);line-height:1">4</div>
             <div class="pequeno" style="font-size:9.5px">cupos libres hoy</div></div>
           <div style="flex:1;padding:9px 14px;border-right:1px solid var(--filete)">
-            <div class="mono" style="font-size:19px;font-weight:700;line-height:1">21</div>
+            <div class="cifras" style="font-size:20px;font-weight:900;letter-spacing:-.03em;line-height:1">21</div>
             <div class="pequeno" style="font-size:9.5px">citas</div></div>
           <div style="flex:1;padding:9px 14px">
-            <div class="mono" style="font-size:19px;font-weight:700;color:var(--caribe);line-height:1">B/. 0</div>
+            <div class="cifras" style="font-size:20px;font-weight:900;letter-spacing:-.03em;color:var(--caribe);line-height:1">B/. 0</div>
             <div class="pequeno" style="font-size:9.5px">te cuesta</div></div>
         </div>
         <div class="scroll" style="padding:0 8px">
           <div style="display:grid;grid-template-columns:30px repeat(3,1fr);gap:0;padding-top:7px">
             <div></div>
-            <div class="eyebrow" style="font-size:8.5px;text-align:center;padding-bottom:5px">Yaritza</div>
-            <div class="eyebrow" style="font-size:8.5px;text-align:center;padding-bottom:5px">Rubén</div>
-            <div class="eyebrow" style="font-size:8.5px;text-align:center;padding-bottom:5px">Dayana</div>
+            <div class="eyebrow" style="font-size:9.5px;letter-spacing:.06em;text-align:center;padding-bottom:5px">Yaritza</div>
+            <div class="eyebrow" style="font-size:9.5px;letter-spacing:.06em;text-align:center;padding-bottom:5px">Rubén</div>
+            <div class="eyebrow" style="font-size:9.5px;letter-spacing:.06em;text-align:center;padding-bottom:5px">Dayana</div>
           </div>
           <div id="agenda" style="display:grid;grid-template-columns:30px repeat(3,1fr);grid-template-rows:repeat(24,21px);gap:0;position:relative"></div>
         </div>

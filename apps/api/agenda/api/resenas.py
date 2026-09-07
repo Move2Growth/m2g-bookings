@@ -102,7 +102,10 @@ class ResenasDelPerfil(BaseModel):
 
 
 class NuevaResena(BaseModel):
-    rating: int = Field(ge=1, le=5)
+    #: Se llama `nota`, como en todo lo demás que devuelve la API. Se llamaba `rating`, y era el
+    #: único sitio: se **escribía** `rating` y se **leía** `nota`, el mismo dato con dos nombres
+    #: dentro de la misma función. Eso no se descubre leyendo, se descubre depurando.
+    nota: int = Field(ge=1, le=5)
     texto: str | None = Field(default=None, max_length=2000)
     profesional_id: uuid.UUID | None = Field(
         default=None, description="Por defecto, quien atendió la cita (REV-2)"
@@ -163,7 +166,7 @@ async def dejar_resena(
         sesion,
         reserva,
         autor_user_id=identidad.usuario_id,
-        nota=nueva.rating,
+        nota=nueva.nota,
         texto=nueva.texto,
         nota_al_profesional=nueva.nota_al_profesional,
         profesional_id=nueva.profesional_id,

@@ -29,8 +29,9 @@ from agenda.errores import (
 )
 from agenda.modelos.clientes import BusinessClient
 from agenda.modelos.identidad import Membership, User
-from agenda.modelos.negocio import Business
+from agenda.modelos.negocio import Business, BusinessSettings
 from agenda.modelos.reservas import Booking, BookingItem
+from agenda.modelos.reviews import Review
 from agenda.servicios import reservas as servicio_reservas
 
 router = APIRouter(prefix="/api/v1/mi", tags=["cliente"])
@@ -57,6 +58,10 @@ class MiCita(BaseModel):
     #: Si todavía se puede cancelar sin llamar al salón (RSV-4). Lo calcula el servidor: si lo
     #: decidiera la pantalla, dos relojes distintos darían dos respuestas distintas.
     se_puede_cancelar: bool
+    #: Si se puede opinar de ella (REV-1): atendida, dentro del plazo del salón y sin reseña.
+    #: También lo decide el servidor, y por lo mismo: cada salón pone su propio plazo.
+    se_puede_resenar: bool = False
+    ya_resenada: bool = False
 
 
 class NegocioDeLaPersona(BaseModel):
@@ -123,19 +128,34 @@ async def mis_reservas(
     las fichas de cliente de cada negocio, la pantalla de inicio de la app haría una consulta
     por salón (ADR sobre el modelo, §8.1).
     """
-    filas = (
-        (
-            await sesion.execute(
-                select(Booking)
-                .where(Booking.client_user_id == identidad.usuario_id)
-                .order_by(Booking.starts_at.desc())
-                .limit(50)
+    ahora = datetime.now(UTC)
+
+    # **Dos consultas y no una.** Pedir «las 50 más recientes por fecha de inicio» parecía
+    # razonable y era un historial que nunca enseñaba historia: quien tiene sesenta citas
+    # futuras llena la lista entera con ellas y las pasadas no entran jamás. Y encima salían de
+    # la más lejana a la más próxima, que es el orden contrario al que se abre esta pantalla.
+    #
+    # Así que se piden las dos mitades por separado, cada una en su orden natural: lo que viene,
+    # de lo más cercano en adelante; lo que fue, de lo más reciente hacia atrás.
+    async def _mitad(futuras: bool, tope: int) -> list[Booking]:
+        condicion = Booking.starts_at >= ahora if futuras else Booking.starts_at < ahora
+        orden = Booking.starts_at.asc() if futuras else Booking.starts_at.desc()
+        return list(
+            (
+                await sesion.execute(
+                    select(Booking)
+                    .where(Booking.client_user_id == identidad.usuario_id, condicion)
+                    .order_by(orden)
+                    .limit(tope)
+                )
             )
+            .scalars()
+            .all()
         )
-        .scalars()
-        .all()
-    )
-    return [await _pintar(sesion, reserva) for reserva in filas]
+
+    proximas = await _mitad(futuras=True, tope=30)
+    pasadas = await _mitad(futuras=False, tope=30)
+    return [await _pintar(sesion, reserva, ahora=ahora) for reserva in [*proximas, *pasadas]]
 
 
 @router.post("/reservas", status_code=201, summary="Reservar (RSV-1, AGD-4)")
@@ -238,8 +258,9 @@ async def cancelar(
     return await _pintar(sesion, reserva)
 
 
-async def _pintar(sesion, reserva: Booking) -> MiCita:
+async def _pintar(sesion, reserva: Booking, *, ahora: datetime | None = None) -> MiCita:
     """Serializador **del cliente**. No comparte código con el del negocio, a propósito."""
+    ahora = ahora or datetime.now(UTC)
     await sesion.execute(
         text("SELECT set_config('app.current_business_id', :negocio, true)"),
         {"negocio": str(reserva.business_id)},
@@ -263,7 +284,21 @@ async def _pintar(sesion, reserva: Booking) -> MiCita:
     # La ventana la sirve el servidor ya resuelta: si la pantalla la calculara, el reloj del
     # teléfono decidiría quién puede cancelar.
     margen = timedelta(hours=2)
-    se_puede_cancelar = vive and reserva.starts_at > datetime.now(UTC) + margen
+    se_puede_cancelar = vive and reserva.starts_at > ahora + margen
+
+    # Poder opinar es lo mismo que valida el servicio de reseñas al escribirlas, resuelto aquí
+    # para que la lista pueda enseñar el botón. Preguntarlo con una llamada por cita sería una
+    # consulta por fila en la pantalla que más se abre.
+    ya_resenada = (
+        await sesion.execute(select(Review.id).where(Review.booking_id == reserva.id))
+    ).scalar_one_or_none() is not None
+    ajustes = await sesion.get(BusinessSettings, reserva.business_id)
+    ventana = timedelta(days=ajustes.review_window_days) if ajustes else timedelta(days=14)
+    se_puede_resenar = (
+        estado is EstadoReserva.COMPLETADA
+        and not ya_resenada
+        and ahora <= reserva.ends_at + ventana
+    )
 
     return MiCita(
         id=reserva.id,
@@ -283,4 +318,6 @@ async def _pintar(sesion, reserva: Booking) -> MiCita:
         ],
         total_centavos=reserva.total_amount_minor,
         se_puede_cancelar=se_puede_cancelar,
+        se_puede_resenar=se_puede_resenar,
+        ya_resenada=ya_resenada,
     )

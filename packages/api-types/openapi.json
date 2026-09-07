@@ -2395,6 +2395,11 @@
             "title": "Se Puede Cancelar",
             "type": "boolean"
           },
+          "se_puede_resenar": {
+            "default": false,
+            "title": "Se Puede Resenar",
+            "type": "boolean"
+          },
           "servicios": {
             "items": {
               "$ref": "#/components/schemas/ServicioDeMiCita"
@@ -2405,6 +2410,11 @@
           "total_centavos": {
             "title": "Total Centavos",
             "type": "integer"
+          },
+          "ya_resenada": {
+            "default": false,
+            "title": "Ya Resenada",
+            "type": "boolean"
           },
           "zona_horaria": {
             "title": "Zona Horaria",
@@ -3090,6 +3100,12 @@
             "title": "Fotos",
             "type": "array"
           },
+          "nota": {
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Nota",
+            "type": "integer"
+          },
           "nota_al_profesional": {
             "anyOf": [
               {
@@ -3116,12 +3132,6 @@
             "description": "Por defecto, quien atendió la cita (REV-2)",
             "title": "Profesional Id"
           },
-          "rating": {
-            "maximum": 5.0,
-            "minimum": 1.0,
-            "title": "Rating",
-            "type": "integer"
-          },
           "texto": {
             "anyOf": [
               {
@@ -3136,7 +3146,7 @@
           }
         },
         "required": [
-          "rating"
+          "nota"
         ],
         "title": "NuevaResena",
         "type": "object"

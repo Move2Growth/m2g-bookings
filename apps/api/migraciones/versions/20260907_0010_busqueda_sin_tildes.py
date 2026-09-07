@@ -1,7 +1,7 @@
 """Buscar «barberia» tiene que encontrar «Barbería».
 
-Revision ID: 0011_busqueda_sin_tildes
-Revises: 0010_portal_del_dueno
+Revision ID: 0010_busqueda_sin_tildes
+Revises: 0009_profesional_entidad
 Create Date: 2026-09-07
 
 Escribir la tilde en el teclado de un teléfono cuesta una pulsación larga, así que casi nadie
@@ -27,8 +27,8 @@ from __future__ import annotations
 
 from alembic import op
 
-revision = "0011_busqueda_sin_tildes"
-down_revision = "0008_acceso_contrasena"  # PROVISIONAL: se re-encadena a 0010 al fusionar
+revision = "0010_busqueda_sin_tildes"
+down_revision = "0009_profesional_entidad"
 branch_labels = None
 depends_on = None
 
