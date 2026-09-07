@@ -2004,6 +2004,33 @@
         "title": "DecisionDeModeracion",
         "type": "object"
       },
+      "DecisionSobreFoto": {
+        "properties": {
+          "accion": {
+            "description": "«rechazar» la quita del perfil público; «aprobar» la devuelve",
+            "pattern": "^(aprobar|rechazar)$",
+            "title": "Accion",
+            "type": "string"
+          },
+          "nota": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nota"
+          }
+        },
+        "required": [
+          "accion"
+        ],
+        "title": "DecisionSobreFoto",
+        "type": "object"
+      },
       "DiaEnColumnas": {
         "description": "El día entero del salón, persona a persona.",
         "properties": {
@@ -2497,6 +2524,89 @@
           "importe_centavos"
         ],
         "title": "FilaDelMes",
+        "type": "object"
+      },
+      "FotoDeProfesionalEnCola": {
+        "description": "Una foto de trabajo, con quién la subió y de qué salón, para poder decidir sin salir.",
+        "properties": {
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion"
+          },
+          "estado": {
+            "title": "Estado",
+            "type": "string"
+          },
+          "fecha": {
+            "format": "date-time",
+            "title": "Fecha",
+            "type": "string"
+          },
+          "foto_id": {
+            "format": "uuid",
+            "title": "Foto Id",
+            "type": "string"
+          },
+          "negocio": {
+            "title": "Negocio",
+            "type": "string"
+          },
+          "negocio_slug": {
+            "title": "Negocio Slug",
+            "type": "string"
+          },
+          "profesional": {
+            "title": "Profesional",
+            "type": "string"
+          },
+          "profesional_id": {
+            "format": "uuid",
+            "title": "Profesional Id",
+            "type": "string"
+          },
+          "servicio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Servicio"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          }
+        },
+        "required": [
+          "foto_id",
+          "profesional_id",
+          "profesional",
+          "negocio",
+          "negocio_slug",
+          "url",
+          "descripcion",
+          "servicio",
+          "estado",
+          "fecha"
+        ],
+        "title": "FotoDeProfesionalEnCola",
         "type": "object"
       },
       "FotoDeResena": {
@@ -7928,6 +8038,168 @@
           }
         },
         "summary": "Panel de la plataforma (ADM-1)",
+        "tags": [
+          "consola interna"
+        ]
+      }
+    },
+    "/api/v1/consola/moderacion/fotos": {
+      "get": {
+        "description": "Las fotos que los profesionales suben a su perfil, para poder **bajar una**.\n\nNo es una cola de aprobación previa y es deliberado: una foto que no se ve hasta que alguien\nde M2G la mira convierte cada galería en una espera, y ninguna se vería el primer día. Entran\npublicadas, como las reseñas, y esto es lo que faltaba: la manera de retirar una.\n\nLas más nuevas primero, que es donde está lo que nadie ha mirado todavía.",
+        "operationId": "fotos_de_profesionales_api_v1_consola_moderacion_fotos_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "estado",
+            "required": false,
+            "schema": {
+              "default": "todas",
+              "pattern": "^(todas|pendiente|aprobada|rechazada)$",
+              "title": "Estado",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pagina",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Pagina",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FotoDeProfesionalEnCola"
+                  },
+                  "title": "Response Fotos De Profesionales Api V1 Consola Moderacion Fotos Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Fotos de trabajo de los profesionales (ADM-3)",
+        "tags": [
+          "consola interna"
+        ]
+      }
+    },
+    "/api/v1/consola/moderacion/fotos/{foto_id}": {
+      "post": {
+        "description": "Rechazarla la retira del perfil público **en el acto**: la política del rol del\nmarketplace exige `aprobada`, así que no depende de que ninguna pantalla se acuerde.",
+        "operationId": "decidir_sobre_foto_api_v1_consola_moderacion_fotos__foto_id__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "foto_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Foto Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "user-agent",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "User-Agent"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionSobreFoto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FotoDeProfesionalEnCola"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Bajar o devolver una foto (ADM-3)",
         "tags": [
           "consola interna"
         ]

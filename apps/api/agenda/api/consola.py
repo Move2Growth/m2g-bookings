@@ -35,9 +35,12 @@ from pydantic import BaseModel, Field
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from agenda.api.comunes import url_de_media
 from agenda.api.dependencias import SesionConsola, SesionConsolaAnonima
 from agenda.errores import DatoInvalido, NoExiste
+from agenda.modelos.catalogo import Service
 from agenda.modelos.clientes import BusinessClient
+from agenda.modelos.equipo import StaffMedia, StaffProfile
 from agenda.modelos.interno import AuditLog
 from agenda.modelos.marketplace import ListingClickDaily, ListingImpressionDaily, RankingWeights
 from agenda.modelos.monetizacion import Plan
@@ -121,6 +124,29 @@ class DecisionDeModeracion(BaseModel):
     accion: str = Field(
         pattern="^(ocultar|mantener)$",
         description="«ocultar» retira la reseña del perfil; «mantener» descarta el reporte",
+    )
+    nota: str | None = Field(default=None, max_length=500)
+
+
+class FotoDeProfesionalEnCola(BaseModel):
+    """Una foto de trabajo, con quién la subió y de qué salón, para poder decidir sin salir."""
+
+    foto_id: uuid.UUID
+    profesional_id: uuid.UUID
+    profesional: str
+    negocio: str
+    negocio_slug: str
+    url: str | None
+    descripcion: str | None
+    servicio: str | None
+    estado: str
+    fecha: datetime
+
+
+class DecisionSobreFoto(BaseModel):
+    accion: str = Field(
+        pattern="^(aprobar|rechazar)$",
+        description="«rechazar» la quita del perfil público; «aprobar» la devuelve",
     )
     nota: str | None = Field(default=None, max_length=500)
 
@@ -418,6 +444,109 @@ async def cola_de_moderacion(
         )
         for reporte, resena, negocio in (await sesion.execute(consulta)).all()
     ]
+
+
+@router.get("/moderacion/fotos", summary="Fotos de trabajo de los profesionales (ADM-3)")
+async def fotos_de_profesionales(
+    sesion_consola: SesionConsola,
+    estado: Annotated[str, Query(pattern="^(todas|pendiente|aprobada|rechazada)$")] = "todas",
+    pagina: Annotated[int, Query(ge=1)] = 1,
+) -> list[FotoDeProfesionalEnCola]:
+    """Las fotos que los profesionales suben a su perfil, para poder **bajar una**.
+
+    No es una cola de aprobación previa y es deliberado: una foto que no se ve hasta que alguien
+    de M2G la mira convierte cada galería en una espera, y ninguna se vería el primer día. Entran
+    publicadas, como las reseñas, y esto es lo que faltaba: la manera de retirar una.
+
+    Las más nuevas primero, que es donde está lo que nadie ha mirado todavía.
+    """
+    sesion, _ = sesion_consola
+
+    consulta = (
+        select(StaffMedia, StaffProfile, Business)
+        .join(StaffProfile, StaffProfile.id == StaffMedia.staff_id)
+        .join(Business, Business.id == StaffMedia.business_id)
+        .order_by(StaffMedia.created_at.desc())
+        .offset((pagina - 1) * POR_PAGINA)
+        .limit(POR_PAGINA)
+    )
+    if estado != "todas":
+        consulta = consulta.where(StaffMedia.moderation_status == estado)
+
+    filas = (await sesion.execute(consulta)).all()
+    servicios = {}
+    ids = [f[0].service_id for f in filas if f[0].service_id is not None]
+    if ids:
+        servicios = {
+            s.id: s.name
+            for s in (await sesion.execute(select(Service).where(Service.id.in_(ids))))
+            .scalars()
+            .all()
+        }
+
+    return [
+        FotoDeProfesionalEnCola(
+            foto_id=foto.id,
+            profesional_id=ficha.id,
+            profesional=ficha.display_name,
+            negocio=negocio.display_name,
+            negocio_slug=negocio.slug,
+            url=url_de_media(foto.storage_key),
+            descripcion=foto.alt_text,
+            servicio=servicios.get(foto.service_id) if foto.service_id else None,
+            estado=foto.moderation_status,
+            fecha=foto.created_at,
+        )
+        for foto, ficha, negocio in filas
+    ]
+
+
+@router.post("/moderacion/fotos/{foto_id}", summary="Bajar o devolver una foto (ADM-3)")
+async def decidir_sobre_foto(
+    foto_id: uuid.UUID,
+    decision: DecisionSobreFoto,
+    sesion_consola: SesionConsola,
+    user_agent: Annotated[str | None, Header()] = None,
+) -> FotoDeProfesionalEnCola:
+    """Rechazarla la retira del perfil público **en el acto**: la política del rol del
+    marketplace exige `aprobada`, así que no depende de que ninguna pantalla se acuerde."""
+    sesion, identidad = sesion_consola
+
+    foto = await sesion.get(StaffMedia, foto_id)
+    if foto is None:
+        raise NoExiste("Esa foto ya no existe.")
+
+    antes = {"estado": foto.moderation_status}
+    foto.moderation_status = "aprobada" if decision.accion == "aprobar" else "rechazada"
+    await sesion.flush()
+
+    await _auditar(
+        sesion,
+        identidad,
+        accion=f"foto_profesional.{decision.accion}",
+        entidad="staff_media",
+        entidad_id=foto.id,
+        negocio_id=foto.business_id,
+        antes=antes,
+        despues={"estado": foto.moderation_status, "nota": decision.nota},
+        agente=user_agent,
+    )
+
+    ficha = await sesion.get(StaffProfile, foto.staff_id)
+    negocio = await sesion.get(Business, foto.business_id)
+    servicio = await sesion.get(Service, foto.service_id) if foto.service_id else None
+    return FotoDeProfesionalEnCola(
+        foto_id=foto.id,
+        profesional_id=foto.staff_id,
+        profesional=ficha.display_name if ficha else "",
+        negocio=negocio.display_name if negocio else "",
+        negocio_slug=negocio.slug if negocio else "",
+        url=url_de_media(foto.storage_key),
+        descripcion=foto.alt_text,
+        servicio=servicio.name if servicio else None,
+        estado=foto.moderation_status,
+        fecha=foto.created_at,
+    )
 
 
 @router.post("/moderacion/resenas/{reporte_id}", summary="Resolver un reporte (ADM-3, REV-4)")

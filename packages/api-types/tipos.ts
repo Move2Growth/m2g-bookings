@@ -262,6 +262,53 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/consola/moderacion/fotos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Fotos de trabajo de los profesionales (ADM-3)
+         * @description Las fotos que los profesionales suben a su perfil, para poder **bajar una**.
+         *
+         *     No es una cola de aprobación previa y es deliberado: una foto que no se ve hasta que alguien
+         *     de M2G la mira convierte cada galería en una espera, y ninguna se vería el primer día. Entran
+         *     publicadas, como las reseñas, y esto es lo que faltaba: la manera de retirar una.
+         *
+         *     Las más nuevas primero, que es donde está lo que nadie ha mirado todavía.
+         */
+        get: operations["fotos_de_profesionales_api_v1_consola_moderacion_fotos_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/consola/moderacion/fotos/{foto_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bajar o devolver una foto (ADM-3)
+         * @description Rechazarla la retira del perfil público **en el acto**: la política del rol del
+         *     marketplace exige `aprobada`, así que no depende de que ninguna pantalla se acuerde.
+         */
+        post: operations["decidir_sobre_foto_api_v1_consola_moderacion_fotos__foto_id__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/consola/moderacion/resenas": {
         parameters: {
             query?: never;
@@ -2930,6 +2977,16 @@ export interface components {
             /** Nota */
             nota?: string | null;
         };
+        /** DecisionSobreFoto */
+        DecisionSobreFoto: {
+            /**
+             * Accion
+             * @description «rechazar» la quita del perfil público; «aprobar» la devuelve
+             */
+            accion: string;
+            /** Nota */
+            nota?: string | null;
+        };
         /**
          * DiaEnColumnas
          * @description El día entero del salón, persona a persona.
@@ -3205,6 +3262,41 @@ export interface components {
             servicio_id?: string | null;
             /** Url */
             url: string;
+        };
+        /**
+         * FotoDeProfesionalEnCola
+         * @description Una foto de trabajo, con quién la subió y de qué salón, para poder decidir sin salir.
+         */
+        FotoDeProfesionalEnCola: {
+            /** Descripcion */
+            descripcion: string | null;
+            /** Estado */
+            estado: string;
+            /**
+             * Fecha
+             * Format: date-time
+             */
+            fecha: string;
+            /**
+             * Foto Id
+             * Format: uuid
+             */
+            foto_id: string;
+            /** Negocio */
+            negocio: string;
+            /** Negocio Slug */
+            negocio_slug: string;
+            /** Profesional */
+            profesional: string;
+            /**
+             * Profesional Id
+             * Format: uuid
+             */
+            profesional_id: string;
+            /** Servicio */
+            servicio: string | null;
+            /** Url */
+            url: string | null;
         };
         /** FotoDeResena */
         FotoDeResena: {
@@ -5428,6 +5520,78 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Metricas"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fotos_de_profesionales_api_v1_consola_moderacion_fotos_get: {
+        parameters: {
+            query?: {
+                estado?: string;
+                pagina?: number;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FotoDeProfesionalEnCola"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    decidir_sobre_foto_api_v1_consola_moderacion_fotos__foto_id__post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+                "user-agent"?: string | null;
+            };
+            path: {
+                foto_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DecisionSobreFoto"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FotoDeProfesionalEnCola"];
                 };
             };
             /** @description Validation Error */

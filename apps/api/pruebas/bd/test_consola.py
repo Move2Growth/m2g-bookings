@@ -277,3 +277,63 @@ async def test_suspender_no_borra_ni_una_cita(motor):
         await sesion.close()
 
     assert citas == 2, "Suspender ha hecho desaparecer citas, y no puede."
+
+
+async def test_rechazar_una_foto_de_trabajo_la_apaga_en_el_perfil_publico():
+    """La foto de un profesional se publica sola, y hasta ahora **no había forma de bajarla**.
+
+    No es una cola de aprobación previa y es deliberado: una foto que no se ve hasta que alguien
+    de M2G la mira convierte cada galería en una espera, y ninguna se vería el primer día. Lo que
+    faltaba era la manera de retirar una, y quien la retira es la política del rol del
+    marketplace —exige `aprobada`—, no una pantalla que se acuerde de filtrar.
+    """
+    salon = await montar_salon()
+    motor = create_async_engine(URL_APP, poolclass=None)
+    crear = async_sessionmaker(motor, class_=AsyncSession, expire_on_commit=False)
+
+    async with conexion_de_dueno() as duenno:
+        # El identificador se pone a mano: en esta tabla lo genera la aplicación (UUID v7), no
+        # un valor por defecto de la columna.
+        foto_id = uuid.uuid4()
+        await duenno.execute(
+            text(
+                "INSERT INTO staff_media (id, business_id, staff_id, storage_key, alt_text)"
+                " VALUES (:id, :negocio, :staff, '/fotos/prueba.webp', 'Un corte')"
+            ),
+            {"id": foto_id, "negocio": salon.negocio_id, "staff": salon.kevin.id},
+        )
+
+    motor_publico = create_async_engine(
+        URL_APP.replace("agenda_api", "agenda_publico"), poolclass=None
+    )
+    crear_publica = async_sessionmaker(motor_publico, class_=AsyncSession, expire_on_commit=False)
+
+    async def visibles() -> int:
+        async with crear_publica() as sesion, sesion.begin():
+            return (
+                await sesion.execute(
+                    text("SELECT count(*) FROM staff_media WHERE id = :id"), {"id": str(foto_id)}
+                )
+            ).scalar_one()
+
+    try:
+        assert await visibles() == 1, "Una foto nueva se ve: entra aprobada, como las reseñas."
+
+        # Lo que hace la consola al rechazarla.
+        async with crear() as sesion, sesion.begin():
+            await sesion.execute(
+                text("SELECT set_config('app.current_business_id', :negocio, true)"),
+                {"negocio": str(salon.negocio_id)},
+            )
+            await sesion.execute(
+                text("UPDATE staff_media SET moderation_status = 'rechazada' WHERE id = :id"),
+                {"id": str(foto_id)},
+            )
+
+        assert await visibles() == 0, (
+            "Rechazada, el rol del marketplace no puede verla. Si esto falla, bajar una foto "
+            "depende de que ninguna pantalla se olvide de filtrar."
+        )
+    finally:
+        await motor.dispose()
+        await motor_publico.dispose()
