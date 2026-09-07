@@ -61,6 +61,10 @@ services:
       DATABASE_URL_ADMIN: postgresql+asyncpg://agenda_admin:agenda@db:5432/agenda
       DATABASE_URL_TRABAJOS: postgresql+asyncpg://agenda_admin:agenda@db:5432/agenda
       REDIS_URL: redis://redis:6379/0
+      # La web de este entorno vive en el 3100, no en el 3000. Sin esto, el enlace que viaja en
+      # el correo de una invitación apunta a un puerto donde no hay nada, y el fallo no se ve
+      # hasta que alguien intenta aceptarla.
+      URL_PUBLICA_WEB: http://localhost:3100
       # Las de la base de PRUEBAS, por el mismo motivo y con el mismo despiste: `make pruebas`
       # corre `pytest` **dentro de este contenedor**, y los conftest apuntan por defecto a
       # `localhost:5433`. Sin esto, la batería entera sale en ERROR de conexión —no en fallo—,
@@ -90,6 +94,7 @@ services:
       DATABASE_URL: postgresql+asyncpg://agenda_api:agenda@db:5432/agenda
       DATABASE_URL_TRABAJOS: postgresql+asyncpg://agenda_admin:agenda@db:5432/agenda
       REDIS_URL: redis://redis:6379/0
+      URL_PUBLICA_WEB: http://localhost:3100
     volumes:
       - ../../apps/api:/app
     depends_on:
@@ -97,7 +102,35 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: ["arq", "agenda.trabajos.worker.WorkerSettings"]
+    command: ["arq", "agenda.trabajos.worker.TrabajadorReactivo"]
+
+  planificador:
+    # El segundo trabajador, y hacía falta. `WorkerSettings` apunta al **reactivo**, que es el
+    # que entrega lo recién encolado; los trabajos programados —recordatorios de 24 h y de 2 h,
+    # la invitación a opinar, el cierre de las citas pasadas y el barrido de la cola— viven en
+    # otra clase y en otra cola, y aquí no arrancaba ninguno.
+    #
+    # El efecto era un entorno local donde **la mitad del trabajo de fondo no ocurría nunca**:
+    # las citas de ayer se quedaban en «confirmada» para siempre y no salía ni un recordatorio.
+    # Se ve al mirar los datos, no el código: la lógica tiene sus pruebas, lo que faltaba era
+    # el cable.
+    build:
+      context: ../../apps/api
+      dockerfile: Dockerfile
+    env_file: ../../.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://agenda_api:agenda@db:5432/agenda
+      DATABASE_URL_TRABAJOS: postgresql+asyncpg://agenda_admin:agenda@db:5432/agenda
+      REDIS_URL: redis://redis:6379/0
+      URL_PUBLICA_WEB: http://localhost:3100
+    volumes:
+      - ../../apps/api:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["arq", "agenda.trabajos.worker.TrabajadorProgramado"]
 
   web:
     # La web pública y los tres portales. Se construye desde la raíz del monorepo porque
