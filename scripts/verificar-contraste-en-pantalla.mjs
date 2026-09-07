@@ -51,11 +51,34 @@ const RUTAS = [
   '/entrar',
   '/legal/privacidad',
   '/consola',
+  //: Las del encargo del 7 de septiembre. Nacieron después de este verificador y por eso su
+  //: contraste no se había medido nunca: la ficha de una persona, la búsqueda de personas y el
+  //: mapa, que además pinta texto encima de una fotografía aérea.
+  '/buscar/personas',
+  '/spa-costa-del-este/ivonne-saavedra',
+  '/mapa',
 ]
 
 /** Las pantallas con sesión. Se recorren aparte porque hay que entrar antes. */
 const CON_SESION = {
-  panel: ['/panel/agenda', '/panel/servicios', '/panel/equipo', '/panel/horario', '/panel/clientes', '/panel/resenas', '/panel/ficha'],
+  panel: [
+    '/panel/agenda',
+    '/panel/servicios',
+    '/panel/equipo',
+    '/panel/horario',
+    '/panel/clientes',
+    '/panel/resenas',
+    '/panel/ficha',
+    //: El portal del dueño entero, que es donde hay más números pequeños y más color de estado.
+    '/panel/local',
+    '/panel/local/calendarios',
+    '/panel/local/finanzas',
+    '/panel/local/mejor-del-mes',
+    '/panel/local/publicidad',
+    '/panel/local/fichaje',
+    '/panel/local/personas',
+    '/panel/alta',
+  ],
   consola: ['/consola/negocios', '/consola/moderacion', '/consola/metricas', '/consola/ranking'],
 }
 const ANCHOS = [390, 1440]
@@ -88,6 +111,20 @@ const MEDIR = `(() => {
     if (!e.textContent?.trim() || e.children.length > 0) continue
     const c = getComputedStyle(e)
     if (c.visibility === 'hidden' || c.display === 'none' || c.opacity === '0') continue
+
+    // **El texto que solo leen los lectores de pantalla no se mide.** No se ve, así que su
+    // contraste no significa nada: en la pantalla de finanzas eran doce descripciones de la
+    // gráfica, medidas contra un fondo sobre el que nunca se pintan.
+    //
+    // Pero no se salta por su clase, sino **comprobando que de verdad está oculto**: un
+    // «oculto-visualmente» al que le falta el antepasado posicionado se ve, y ya rompió una
+    // pantalla en este proyecto. Si mide más de dos píxeles, se mide como cualquier otro texto.
+    // Lo que de verdad lo esconde es el recorte, no el tamaño de la caja: con
+    // clip-path: inset(50%) no se pinta ni un píxel aunque el rectángulo mida 28 de ancho.
+    // Se mira el recorte y también la caja, por si alguien lo esconde de otra manera.
+    const caja = e.getBoundingClientRect()
+    const recortado = (c.clipPath || '').split(' ').join('').startsWith('inset(50%')
+    if (recortado || caja.width <= 2 || caja.height <= 2) continue
     const px = parseFloat(c.fontSize)
     // AA pide 3:1 para texto grande y 4,5:1 para el resto.
     const grande = px >= 24 || (px >= 18.66 && parseInt(c.fontWeight, 10) >= 700)
