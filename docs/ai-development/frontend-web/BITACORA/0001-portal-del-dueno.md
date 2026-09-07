@@ -181,6 +181,13 @@ nuevas pesan lo mismo que el resto del panel (~110 kB de primera carga).
   **enseñando su estado de error**. Se vio con estos ojos: con el CORS bloqueando, las ocho
   pantallas nuevas salían «OK» mientras ponían «Failed to fetch». No se tocó para no romper el
   barrido de las demás, pero hay que añadirle una comprobación de `.aviso--error` visible.
+- **Un hallazgo de camino, en una pantalla que no es mía:** `/panel/agenda` —la lista del día—
+  **sale partida en dos columnas**. `.agenda` (`globales.css:777`) es una sobra de la dirección
+  oscura descartada, `display:grid` con `58px minmax(0,1fr)`, y choca con la lista `<ul>` que usa
+  esa pantalla: medido en el navegador, el `<ul>` computa `58px 300px` y cada `<li>` cae en una
+  celda, con la hora repetida. **No se ha tocado a propósito**: esa pantalla está en la lista de
+  «rehacer, no añadir» y arreglarla suelta antes de que haya dirección visual es tocar dos veces
+  lo mismo. Anotado en el tablero.
 - **Basura en la demo local**, que se va con `python -m agenda.semilla`: cuatro anuncios apagados
   con el texto «Jueves de brushing…» en *Salón Obarrio* y un negocio en borrador «Local de prueba
   del portal 664432» de `nadia@demo.pa`, los dos de probar las pantallas de punta a punta.
