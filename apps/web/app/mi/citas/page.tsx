@@ -157,8 +157,13 @@ function Contenido() {
       {reciente && (
         <p role="status" className="aviso aviso--exito" style={{ marginTop: 'var(--espacio-4)' }}>
           Cita confirmada en <strong>{reciente.negocio}</strong>, el{' '}
-          <span className="cifras primera-mayuscula">{cuandoEs(reciente)}</span>. Puedes cancelarla
-          desde aquí.
+          <span className="cifras primera-mayuscula">{cuandoEs(reciente)}</span>.{' '}
+          {/* Lo de cancelar se dice **solo si se puede**. Quien decide es el servidor, y cada
+              salón tiene su plazo: prometerlo siempre hacía que el aviso dijera «puedes
+              cancelarla» justo encima de una cita que ya avisaba de lo contrario. */}
+          {reciente.se_puede_cancelar
+            ? 'Puedes cancelarla desde aquí.'
+            : 'Para cambiarla, habla con el salón.'}
         </p>
       )}
 

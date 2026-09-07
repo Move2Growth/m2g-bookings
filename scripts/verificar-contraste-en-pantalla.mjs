@@ -12,8 +12,34 @@
 //
 // Sale con error si hay algo por debajo de AA, para poder colgarlo de una comprobación.
 
-import { execSync } from 'node:child_process'
+import { createHmac } from 'node:crypto'
 import { chromium } from 'playwright'
+
+//: La cuenta de consola de la semilla, que vive solo en local. El código del segundo factor se
+//: calcula aquí en vez de sacarlo llamando a Python: una dependencia menos y un fallo menos.
+const CONSOLA_2FA = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP'
+
+/** TOTP a mano: base32 a bytes, contador de 30 s, HMAC-SHA1 y truncado dinámico. */
+function base32aBytes(texto) {
+  const alfabeto = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
+  let bits = ''
+  for (const letra of texto.replace(/=+$/, '')) {
+    bits += alfabeto.indexOf(letra.toUpperCase()).toString(2).padStart(5, '0')
+  }
+  const bytes = []
+  for (let i = 0; i + 8 <= bits.length; i += 8) bytes.push(parseInt(bits.slice(i, i + 8), 2))
+  return Buffer.from(bytes)
+}
+
+function codigoDeDosFactores(secreto) {
+  const contador = Math.floor(Date.now() / 1000 / 30)
+  const mensaje = Buffer.alloc(8)
+  mensaje.writeUInt32BE(Math.floor(contador / 2 ** 32), 0)
+  mensaje.writeUInt32BE(contador >>> 0, 4)
+  const resumen = createHmac('sha1', base32aBytes(secreto)).update(mensaje).digest()
+  const desde = resumen[19] & 0xf
+  return String((resumen.readUInt32BE(desde) & 0x7fffffff) % 1e6).padStart(6, '0')
+}
 
 const WEB = process.env.BASE ?? 'http://127.0.0.1:3100'
 const RUTAS = [
@@ -123,42 +149,26 @@ async function recorrerConSesion(contexto, rutas, etiqueta) {
 }
 
 try {
-  // Se prueba con varios dueños del seed: el código tiene límite por teléfono y dos pasadas
-  // seguidas con el mismo chocan. Que la comprobación falle por eso sería confundir «no pude
-  // mirar» con «hay un fallo de contraste», y son cosas distintas.
-  const DUENOS = process.env.TELEFONO_SALON
-    ? [process.env.TELEFONO_SALON]
-    : ['+50760000002', '+50760000005', '+50760000009', '+50760000003']
+  // Se entra con correo y contraseña, como se entra ahora. Antes esto pedía un código por
+  // teléfono y fallaba cuando el límite de envíos se agotaba, que es como decir «no pude
+  // mirar» y contarlo igual que «hay un fallo de contraste»: dos cosas distintas.
+  const CORREO = process.env.CORREO_SALON ?? 'dueno.salon-obarrio@demo.pa'
+  const CLAVE = process.env.CONTRASENA_DEMO ?? 'demo-panama-2026'
 
-  let salon = null
-  for (const telefono of DUENOS) {
-    const contexto = await navegador.newContext({ viewport: { width: 390, height: 844 } })
-    const entrada = await contexto.newPage()
-    try {
-      await entrada.goto(`${WEB}/entrar`, { waitUntil: 'networkidle' })
-      await entrada.fill('input[type="tel"]', telefono)
-      await entrada.click('button[type="submit"]')
-      await entrada.waitForSelector('input[inputmode="numeric"]', { timeout: 15000 })
-      const pista = await entrada.locator('text=Tu código es').textContent()
-      await entrada.fill('input[inputmode="numeric"]', pista.match(/(\d{6})/)[1])
-      await entrada.click('button[type="submit"]')
-      await entrada.waitForURL('**/panel**', { timeout: 15000 })
-      await entrada.close()
-      salon = contexto
-      break
-    } catch {
-      await contexto.close()
-    }
-  }
-  if (!salon) throw new Error('ningún dueño del seed pudo entrar; ¿límite de códigos?')
+  const salon = await navegador.newContext({ viewport: { width: 390, height: 844 } })
+  const entrada = await salon.newPage()
+  await entrada.goto(`${WEB}/entrar`, { waitUntil: 'networkidle' })
+  await entrada.fill('#correo', CORREO)
+  await entrada.fill('#contrasena', CLAVE)
+  await entrada.click('button[type="submit"]')
+  await entrada.waitForURL('**/panel**', { timeout: 20000 })
+  await entrada.close()
 
   await recorrerConSesion(salon, CON_SESION.panel, 'panel')
 
   const consola = await navegador.newContext({ viewport: { width: 390, height: 844 } })
   const c = await consola.newPage()
-  const codigo = execSync('./.venv/bin/python -m agenda.consola_codigo', { cwd: 'apps/api' })
-    .toString()
-    .match(/(\d{6})/)[1]
+  const codigo = codigoDeDosFactores(CONSOLA_2FA)
   await c.goto(`${WEB}/consola`, { waitUntil: 'networkidle' })
   await c.fill('input[type="email"]', 'consola@bukeo.local')
   await c.fill('input[type="password"]', 'consola-de-demo-solo-en-local')
@@ -169,7 +179,7 @@ try {
   await recorrerConSesion(consola, CON_SESION.consola, 'consola')
 } catch (error) {
   // Que no se pueda entrar no puede dar el visto bueno por omisión: se dice y se cuenta.
-  const limitado = /DEMASIADOS|muchos códigos/i.test(error.message)
+  const limitado = /DEMASIADOS|muchos intentos/i.test(error.message)
   console.error(
     `\nNo se pudieron comprobar las pantallas con sesión: ${error.message}` +
       (limitado
