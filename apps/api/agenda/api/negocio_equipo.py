@@ -22,6 +22,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from agenda.api.comunes import url_de_media
 from agenda.api.dependencias import SesionNegocio, exigir_dueno
+from agenda.api.perfil_profesional import aplicar_datos_publicos
 from agenda.errores import DatoInvalido, NoExiste
 from agenda.modelos.catalogo import Service
 from agenda.modelos.equipo import StaffHours, StaffProfile, StaffService
@@ -47,8 +48,17 @@ class TramoDeHorario(BaseModel):
 class ProfesionalDelPanel(BaseModel):
     id: uuid.UUID
     nombre: str
+    #: La URL de su perfil público, única dentro de este salón.
+    slug: str | None = None
+    #: La descripción de una línea, distinta de la bio larga.
+    titular: str | None = None
     bio: str | None
     foto: str | None
+    anos_de_experiencia: int | None = None
+    #: **El usuario, no la URL** (`agenda.dominio.textos`). La dirección se compone al pintar.
+    instagram: str | None = None
+    facebook: str | None = None
+    x: str | None = None
     activo: bool
     visible_en_marketplace: bool
     acepta_cualquiera: bool = Field(
@@ -66,9 +76,22 @@ class ProfesionalDelPanel(BaseModel):
 
 
 class CambioDeProfesional(BaseModel):
+    """Lo que el dueño puede cambiar de una ficha del equipo.
+
+    Lleva **más** campos que `CambioDeMiPerfil` porque `activo`, `visible en el marketplace` y
+    el orden son suyos: quién trabaja y quién sale en el marketplace lo decide quien lleva el
+    salón, no cada quien sobre sí mismo (STF-3).
+    """
+
     nombre: str | None = Field(default=None, min_length=2, max_length=120)
+    slug: str | None = Field(default=None, max_length=80)
+    titular: str | None = Field(default=None, max_length=140)
     bio: str | None = None
     foto: str | None = None
+    anos_de_experiencia: int | None = Field(default=None, ge=0, le=80)
+    instagram: str | None = None
+    facebook: str | None = None
+    x: str | None = None
     activo: bool | None = None
     visible_en_marketplace: bool | None = None
     acepta_cualquiera: bool | None = None
@@ -126,6 +149,22 @@ async def editar_profesional(
         valor = getattr(cambio, campo)
         if valor is not None:
             setattr(profesional, columna, valor)
+
+    # El perfil público —slug, titular, años y redes— se escribe con la misma función que usa
+    # el propio profesional desde `/mi/perfil-profesional`. Dos sitios normalizando un usuario
+    # de Instagram serían dos formas de guardarlo, y una de las dos acabaría guardando la URL.
+    await aplicar_datos_publicos(
+        sesion,
+        identidad.negocio_id,
+        profesional,
+        slug=cambio.slug,
+        titular=cambio.titular,
+        anos_de_experiencia=cambio.anos_de_experiencia,
+        instagram=cambio.instagram,
+        facebook=cambio.facebook,
+        x=cambio.x,
+        campos_enviados=set(cambio.model_fields_set),
+    )
 
     await sesion.flush()
     return (await _pintar_equipo(sesion, identidad.negocio_id, [profesional]))[0]
@@ -416,8 +455,14 @@ async def _pintar_equipo(
         ProfesionalDelPanel(
             id=p.id,
             nombre=p.display_name,
+            slug=p.slug,
+            titular=p.headline,
             bio=p.bio,
             foto=url_de_media(p.photo_key),
+            anos_de_experiencia=p.years_experience,
+            instagram=p.instagram,
+            facebook=p.facebook,
+            x=p.x,
             activo=p.active,
             visible_en_marketplace=p.visible_in_marketplace,
             acepta_cualquiera=p.accepts_any_staff,

@@ -14,7 +14,13 @@ from agenda.modelos.base import Base, FechasMixin, IdMixin, TenantMixin, nuevo_i
 from agenda.modelos.catalogo import Service, ServiceCategory, ServiceVariant
 from agenda.modelos.clientes import BusinessClient, ClientProfile, Favorite
 from agenda.modelos.comunes import CreadoEnMixin, MarcasDeTiempoMixin
-from agenda.modelos.equipo import StaffHours, StaffProfile, StaffService, TimeBlockRule
+from agenda.modelos.equipo import (
+    StaffHours,
+    StaffMedia,
+    StaffProfile,
+    StaffService,
+    TimeBlockRule,
+)
 from agenda.modelos.identidad import (
     AdminSession,
     AdminUser,
@@ -155,6 +161,7 @@ __all__ = [
     "Session",
     "SlugRedirect",
     "StaffHours",
+    "StaffMedia",
     "StaffOccupancy",
     "StaffProfile",
     "StaffService",

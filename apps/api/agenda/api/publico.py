@@ -13,6 +13,7 @@ puerta y apuntar en una lista que hay que cerrarla.
 from __future__ import annotations
 
 import uuid
+from collections.abc import Sequence
 from datetime import UTC, date, datetime, time, timedelta
 from typing import Annotated
 
@@ -21,13 +22,14 @@ from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from agenda.api.comunes import url_de_media
 from agenda.api.dependencias import SesionPublica
 from agenda.bd import sesion_de_negocio
 from agenda.errores import DatoInvalido, NegocioNoPublicado, NoExiste
 from agenda.modelos.catalogo import Service
-from agenda.modelos.equipo import StaffProfile
+from agenda.modelos.equipo import StaffMedia, StaffProfile
 from agenda.modelos.marketplace import ListingClickDaily
 from agenda.modelos.negocio import (
     AttributeValue,
@@ -63,6 +65,20 @@ class RespuestaDisponibilidad(BaseModel):
     slots: list[SlotPublico]
 
 
+class TrabajoDeProfesional(BaseModel):
+    """Una foto de este servicio **hecha por alguien del equipo**.
+
+    Es lo que pidió Luis con una frase: «que se vea quién hizo qué». Sin el nombre al lado, la
+    foto es decoración; con él, es la razón por la que alguien elige a una persona concreta.
+    """
+
+    id: uuid.UUID
+    url: str
+    descripcion: str | None = None
+    profesional_id: uuid.UUID
+    profesional: str
+
+
 class ServicioPublico(BaseModel):
     id: uuid.UUID
     nombre: str
@@ -70,11 +86,17 @@ class ServicioPublico(BaseModel):
     #: En centavos, como se guarda. Formatear es cosa de quien pinta, no de la API.
     precio_centavos: int | None
     tipo_de_precio: str = Field(description="fijo | desde | consultar")
+    #: Vacío salvo en el perfil del negocio, que es donde se pinta la galería del servicio.
+    trabajos: list[TrabajoDeProfesional] = Field(default_factory=list)
 
 
 class ProfesionalPublico(BaseModel):
     id: uuid.UUID
     nombre: str
+    #: Para enlazar su perfil desde la ficha del salón: `/{negocio}/{profesional}`.
+    slug: str | None = None
+    titular: str | None = Field(default=None, description="La descripción de una línea")
+    foto: str | None = None
 
 
 class NegocioEnLista(BaseModel):
@@ -371,6 +393,7 @@ async def perfil(slug: str, sesion: SesionPublica) -> PerfilPublico:
         .all()
     )
     stats = await sesion.get(BusinessRatingStats, negocio.id)
+    trabajos = await _trabajos_por_servicio(sesion, [s.id for s in servicios], equipo)
 
     urls = [u for f in fotos if (u := url_de_media(f.storage_key)) is not None]
 
@@ -404,10 +427,20 @@ async def perfil(slug: str, sesion: SesionPublica) -> PerfilPublico:
                 duracion_minutos=s.duration_min,
                 precio_centavos=s.price_minor,
                 tipo_de_precio=s.price_kind,
+                trabajos=trabajos.get(s.id, []),
             )
             for s in servicios
         ],
-        equipo=[ProfesionalPublico(id=p.id, nombre=p.display_name) for p in equipo],
+        equipo=[
+            ProfesionalPublico(
+                id=p.id,
+                nombre=p.display_name,
+                slug=p.slug,
+                titular=p.headline,
+                foto=url_de_media(p.photo_key),
+            )
+            for p in equipo
+        ],
     )
 
 
@@ -529,3 +562,47 @@ async def disponibilidad(
             for slot in resultado.slots
         ],
     )
+
+
+async def _trabajos_por_servicio(
+    sesion: AsyncSession,
+    servicios_ids: list[uuid.UUID],
+    equipo: Sequence[StaffProfile],
+) -> dict[uuid.UUID, list[TrabajoDeProfesional]]:
+    """Las fotos que el equipo ató a cada servicio: «esto lo hizo esta persona».
+
+    Una consulta para el perfil entero, no una por servicio. Y solo salen las aprobadas de
+    quien está visible en el marketplace, porque eso lo decide la política del rol público:
+    ocultar a alguien apaga también sus trabajos, sin que este código tenga que acordarse.
+    """
+    if not servicios_ids:
+        return {}
+
+    nombres = {p.id: p.display_name for p in equipo}
+    salida: dict[uuid.UUID, list[TrabajoDeProfesional]] = {}
+    for foto in (
+        (
+            await sesion.execute(
+                select(StaffMedia)
+                .where(StaffMedia.service_id.in_(servicios_ids))
+                .order_by(StaffMedia.position, StaffMedia.created_at)
+            )
+        )
+        .scalars()
+        .all()
+    ):
+        url = url_de_media(foto.storage_key)
+        # Una foto de alguien que ya no está visible no se pinta con «Profesional» a secas: no
+        # se pinta. El nombre es la mitad del dato.
+        if url is None or foto.staff_id not in nombres or foto.service_id is None:
+            continue
+        salida.setdefault(foto.service_id, []).append(
+            TrabajoDeProfesional(
+                id=foto.id,
+                url=url,
+                descripcion=foto.alt_text,
+                profesional_id=foto.staff_id,
+                profesional=nombres[foto.staff_id],
+            )
+        )
+    return salida

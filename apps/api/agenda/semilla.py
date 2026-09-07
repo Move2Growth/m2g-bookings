@@ -32,7 +32,7 @@ from agenda.dominio.ranking import PesosRanking
 from agenda.dominio.totp import desde_base32
 from agenda.modelos.catalogo import Service, ServiceCategory
 from agenda.modelos.clientes import BusinessClient
-from agenda.modelos.equipo import StaffHours, StaffProfile, StaffService
+from agenda.modelos.equipo import StaffHours, StaffMedia, StaffProfile, StaffService
 from agenda.modelos.identidad import AdminUser, Membership, User
 from agenda.modelos.marketplace import RankingWeights, Zone
 from agenda.modelos.monetizacion import Plan
@@ -46,6 +46,7 @@ from agenda.modelos.negocio import (
 )
 from agenda.modelos.reservas import Booking, BookingItem, StaffOccupancy
 from agenda.modelos.reviews import Review, ReviewReply
+from agenda.servicios import profesionales as servicio_profesionales
 from agenda.servicios import resenas as servicio_resenas
 from agenda.servicios.consola import hashear_password
 
@@ -99,6 +100,116 @@ CONSOLA_DEMO_2FA = "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP"
 PORTADAS = {
     "spa-costa-del-este": "/fotos/spa.webp",
     "unas-por-vanessa": "/fotos/unas.webp",
+}
+
+
+#: El perfil público de cada profesional (encargo 2026-09-07 §3): su descripción de una línea,
+#: los años de oficio y sus redes. **El usuario, nunca la URL** — es lo que guarda la columna.
+#:
+#: Está aquí y no dentro de cada salón para que la lista se lea de una vez y se vea que son
+#: personas y no «Profesional 1»: quien mire el seed tiene que reconocer un salón panameño.
+#: Quien no aparezca en esta tabla se queda sin titular, que también es un caso real —la ficha
+#: que el dueño creó en dos minutos desde el mostrador y nadie completó todavía—.
+PERFILES_DEL_EQUIPO: dict[str, dict[str, object]] = {
+    "Kevin Ortega": {
+        "bio": (
+            "Empecé en la barbería de mi tío en Chorrillo y llevo nueve años detrás de la "
+            "silla. Lo mío es el fade y dejar la barba a raya."
+        ),
+        "titular": "Barbero. Fades y perfilado de barba",
+        "anos": 9,
+        "instagram": "kevincortes507",
+    },
+    "Yaritza Beitía": {
+        "titular": "Barbera de tarde. Cortes de niño con paciencia",
+        "anos": 4,
+        "instagram": "yari.barber",
+    },
+    "Marielys Ruiz": {
+        "bio": (
+            "Doce años haciendo color. Trabajo mucho la corrección: si te fue mal en otro "
+            "sitio, tráemelo y lo vemos con calma."
+        ),
+        "titular": "Colorista. Balayage y corrección de color",
+        "anos": 12,
+        "instagram": "marielys.color",
+        "facebook": "marielys.ruiz.color",
+    },
+    "Ana Lucía Ábrego": {
+        "titular": "Estilista. Keratinas y tratamientos",
+        "anos": 6,
+        "instagram": "analu.hair",
+    },
+    "Dayana Pinzón": {"titular": "Peinados y recogidos de fiesta", "anos": 3},
+    "Josué Camaño": {"titular": "Corte masculino y color", "anos": 5, "x": "josuecamano"},
+    "Ivonne Saavedra": {
+        "bio": (
+            "Masajista terapéutica titulada. Atiendo sobre todo espalda y cuello de "
+            "oficina, que es lo que más llega."
+        ),
+        "titular": "Masajista terapéutica. Descontracturante",
+        "anos": 11,
+        "instagram": "ivonne.spa",
+    },
+    "Rita Achurra": {"titular": "Facialista. Limpieza profunda", "anos": 7},
+    "Vanessa Him": {
+        "bio": (
+            "Ocho años de uñas. Acrílicas, semipermanente y diseño; me gusta que duren y no "
+            "que solo se vean bonitas el primer día."
+        ),
+        "titular": "Nail artist. Acrílicas y semipermanente",
+        "anos": 8,
+        "instagram": "unasporvanessa",
+        "facebook": "unasporvanessa",
+    },
+    "Elvia Cedeño": {
+        "bio": "Abrí el salón en 1998 y sigo aquí, con las mismas clientas y sus hijas.",
+        "titular": "Peluquera de barrio desde 1998",
+        "anos": 27,
+    },
+    "Aníbal Rodríguez": {"titular": "Barbero. Abre tarde, cierra tarde", "anos": 15},
+    "Katherine Sánchez": {
+        "titular": "Diseño de cejas y laminado",
+        "anos": 5,
+        "instagram": "kathycejas",
+    },
+    "Génesis Batista": {"titular": "Lifting de pestañas", "anos": 2},
+    "Yulissa Caballero": {
+        "titular": "Uñas esculpidas y nail art",
+        "anos": 6,
+        "instagram": "yuli.nails.pty",
+    },
+    "Rosangela Díaz": {"titular": "Extensiones de pestañas pelo a pelo", "anos": 4},
+    "Keyla Montenegro": {"titular": "Pedicura spa y podología estética", "anos": 9},
+    "Lorena Justavino": {"titular": "Masaje relajante y piedras calientes", "anos": 10},
+    "Ariel Mendoza": {"titular": "Masaje deportivo", "anos": 7},
+    "Sheila Prado": {"titular": "Faciales y depilación", "anos": 3},
+    "Karla Him": {
+        "bio": (
+            "Maquillo novias desde hace trece años. Hago prueba antes, siempre, porque el "
+            "día de la boda no es para probar nada."
+        ),
+        "titular": "Maquilladora de novias",
+        "anos": 13,
+        "instagram": "maquillajeporkarla",
+        "facebook": "maquillajeporkarla",
+    },
+    "Dra. Marisol Tejeira": {"titular": "Medicina estética facial", "anos": 18},
+    "Odalis Barría": {"titular": "Cosmetóloga. Peelings y limpiezas", "anos": 8},
+    "Jorge Icaza": {"titular": "Masajes y drenaje linfático", "anos": 6},
+    "Nitzia Gómez": {"titular": "Manicura y pedicura", "anos": 5},
+}
+
+#: Fotos de trabajo del equipo. **Solo las dos que la web sirve de verdad** desde `public/`:
+#: sembrar rutas que no existen llenaría el perfil de imágenes rotas, que es peor que un
+#: perfil sin fotos. Cuando haya subida de archivos (BE-T029) esto crece solo.
+FOTOS_DEL_EQUIPO: dict[str, list[tuple[str, str | None]]] = {
+    "Ivonne Saavedra": [("/fotos/spa.webp", "Masaje relajante")],
+    "Rita Achurra": [("/fotos/spa.webp", None)],
+    "Vanessa Him": [
+        ("/fotos/unas.webp", "Uñas acrílicas"),
+        ("/fotos/unas.webp", None),
+    ],
 }
 
 
@@ -515,7 +626,7 @@ async def _limpiar(sesion: AsyncSession) -> None:
     await sesion.execute(
         text(
             "TRUNCATE bookings, booking_items, booking_events, staff_occupancy, "
-            "business_clients, staff_services, staff_hours, staff_profiles, services, "
+            "business_clients, staff_services, staff_hours, staff_media, staff_profiles, services, "
             "business_hours, business_settings, business_categories, business_media, "
             "reviews, review_media, review_replies, review_reports, business_rating_stats, "
             "favorites, locations, memberships, businesses, users, zones, ranking_weights, plans, "
@@ -819,15 +930,44 @@ async def _negocio(
                 )
             )
 
+        perfil_publico = PERFILES_DEL_EQUIPO.get(persona["nombre"], {})
         profesional = StaffProfile(
             business_id=negocio.id,
             display_name=persona["nombre"],
             user_id=cuenta.id if cuenta else None,
             position=posicion,
+            # El slug se calcula aquí y no en la base: es la misma función que usa el alta
+            # desde el panel, así que el seed y el producto producen la misma URL.
+            slug=await servicio_profesionales.slug_libre(sesion, negocio.id, persona["nombre"]),
+            headline=perfil_publico.get("titular"),
+            bio=perfil_publico.get("bio"),
+            years_experience=perfil_publico.get("anos"),
+            instagram=perfil_publico.get("instagram"),
+            facebook=perfil_publico.get("facebook"),
+            x=perfil_publico.get("x"),
         )
         sesion.add(profesional)
         await sesion.flush()
         equipo.append(profesional)
+
+        # Las fotos de trabajo. La que lleva servicio es «esto lo hizo esta persona» y sale en
+        # la ficha del servicio; la que no, es su galería.
+        for posicion_foto, (clave, nombre_servicio) in enumerate(
+            FOTOS_DEL_EQUIPO.get(persona["nombre"], [])
+        ):
+            servicio_atado = next((s for s in servicios if s.name == nombre_servicio), None)
+            sesion.add(
+                StaffMedia(
+                    business_id=negocio.id,
+                    staff_id=profesional.id,
+                    service_id=servicio_atado.id if servicio_atado else None,
+                    storage_key=clave,
+                    alt_text=(
+                        f"{nombre_servicio} por {persona['nombre']}" if nombre_servicio else None
+                    ),
+                    position=posicion_foto,
+                )
+            )
 
         for weekday, empieza, termina in persona["horario"]:
             sesion.add(
