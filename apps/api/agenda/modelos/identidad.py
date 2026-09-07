@@ -35,15 +35,33 @@ from agenda.modelos.comunes import CreadoEnMixin, MarcasDeTiempoMixin
 
 
 class User(IdMixin, MarcasDeTiempoMixin, Base):
-    """Una fila por persona. El teléfono verificado en E.164 es su identificador natural."""
+    """Una fila por persona.
+
+    **Quién eres es el correo; el teléfono es cómo te llama el salón.** Era al revés hasta la
+    migración 0008, cuando el acceso pasó a correo y contraseña.
+    """
 
     __tablename__ = "users"
 
     # Siempre normalizado a E.164 y en un único sitio del código: dos formatos del mismo
     # número son dos cuentas, y el día que pase el cliente jura que ya tenía una y tiene razón.
-    phone_e164: Mapped[str] = mapped_column(Text, nullable=False)
+    # Admite nulo desde que se entra con correo (migración 0008): quien se da de alta con
+    # correo y contraseña todavía no ha dado su número. Se le pide y se le verifica **antes de
+    # la primera reserva**, que es donde hace falta de verdad, porque el salón tiene que poder
+    # llamar. Los nulos no chocan en el único: muchas cuentas sin teléfono conviven.
+    phone_e164: Mapped[str | None] = mapped_column(Text)
     phone_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Siempre en minúsculas: es una credencial, y el único es sobre `lower(email)`.
     email: Mapped[str | None] = mapped_column(Text)
+    # Nulo significa «entra por otra vía» (código de un solo uso, y mañana Google o Apple),
+    # no «contraseña vacía». Sin hash no se puede entrar con contraseña.
+    password_hash: Mapped[str | None] = mapped_column(Text)
+    # El freno contra la fuerza bruta. El código de un solo uso traía el suyo de fábrica; al
+    # pasar a contraseña hay que traérselo, o el cambio es un retroceso de seguridad.
+    failed_logins: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, server_default=text("0")
+    )
+    locked_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     email_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     full_name: Mapped[str] = mapped_column(Text, nullable=False)
     # La clave en el almacén de objetos, no una URL firmada: las URL caducan y guardarlas
@@ -97,7 +115,8 @@ class AuthIdentity(IdMixin, Base):
         UniqueConstraint("provider", "subject", name="uq_auth_identities_provider_subject"),
         UniqueConstraint("user_id", "provider", name="uq_auth_identities_user_id_provider"),
         CheckConstraint(
-            "provider IN ('telefono','google','apple')", name="ck_auth_identities_provider_valido"
+            "provider IN ('telefono','email','google','apple')",
+            name="ck_auth_identities_provider_valido",
         ),
     )
 

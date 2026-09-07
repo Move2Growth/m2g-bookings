@@ -479,13 +479,15 @@ NEGOCIOS = [
     },
 ]
 
+#: Nombre, teléfono y correo. El correo es la credencial desde que se entra con contraseña
+#: (migración 0008); el teléfono se queda porque es por donde el salón llama.
 CLIENTES = [
-    ("Abdiel Him", "+50761230001"),
-    ("Zuleika Rodríguez", "+50761230002"),
-    ("Carlos Alberto Vega", "+50761230003"),
-    ("Milagros Espino", "+50761230004"),
-    ("Ricardo Sanjur", "+50761230005"),
-    ("Nadia Quintero", "+50761230006"),
+    ("Abdiel Him", "+50761230001", "abdiel@demo.pa"),
+    ("Zuleika Rodríguez", "+50761230002", "zuleika@demo.pa"),
+    ("Carlos Alberto Vega", "+50761230003", "carlos@demo.pa"),
+    ("Milagros Espino", "+50761230004", "milagros@demo.pa"),
+    ("Ricardo Sanjur", "+50761230005", "ricardo@demo.pa"),
+    ("Nadia Quintero", "+50761230006", "nadia@demo.pa"),
 ]
 
 
@@ -646,13 +648,28 @@ async def _categorias(sesion: AsyncSession) -> dict[str, ServiceCategory]:
     return creadas
 
 
+#: Todas las cuentas de ejemplo comparten contraseña, y el hash se calcula **una sola vez**.
+#: argon2 tarda a propósito —es lo que la hace buena—, así que hashear veinte veces lo mismo
+#: son dos segundos de espera en cada carga de la semilla a cambio de nada.
+_HASH_DEMO: str | None = None
+
+
+def _hash_demo() -> str:
+    global _HASH_DEMO
+    if _HASH_DEMO is None:
+        _HASH_DEMO = hashear_password(ajustes.semilla_contrasena)
+    return _HASH_DEMO
+
+
 async def _clientes_plataforma(sesion: AsyncSession) -> list[User]:
     usuarios = []
-    for nombre, telefono in CLIENTES:
+    for nombre, telefono, correo in CLIENTES:
         usuario = User(
             full_name=nombre,
             phone_e164=telefono,
             phone_verified_at=datetime.now(UTC),
+            email=correo,
+            password_hash=_hash_demo(),
         )
         sesion.add(usuario)
         usuarios.append(usuario)
@@ -673,6 +690,10 @@ async def _negocio(
         # las credenciales de la demo cambiarían en cada carga y no habría forma de anotarlas.
         phone_e164=definicion["telefono_dueno"],
         phone_verified_at=datetime.now(UTC),
+        # El correo se deriva del slug del salón, así que se adivina sin consultar una tabla:
+        # el dueño de `pura-vida` entra con `dueno.pura-vida@demo.pa`.
+        email=f"dueno.{definicion['slug']}@demo.pa",
+        password_hash=_hash_demo(),
     )
     sesion.add(dueno)
     await sesion.flush()
@@ -783,6 +804,8 @@ async def _negocio(
                 phone_e164=persona["telefono"],
                 full_name=persona["nombre"],
                 phone_verified_at=datetime.now(UTC),
+                email=f"pro.{definicion['slug']}@demo.pa",
+                password_hash=_hash_demo(),
             )
             sesion.add(cuenta)
             await sesion.flush()

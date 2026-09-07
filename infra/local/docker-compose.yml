@@ -54,7 +54,21 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://agenda_api:agenda@db:5432/agenda
       DATABASE_URL_MIGRACIONES: postgresql+psycopg://agenda_owner:agenda@db:5432/agenda
+      # Los otros tres roles también, o el contenedor busca la base en `localhost:5433`, que es
+      # el puerto del portátil y dentro de Docker no existe. Se cobró una demo: la portada
+      # cargaba y el marketplace daba 500 porque solo el rol público estaba mal.
+      DATABASE_URL_PUBLICO: postgresql+asyncpg://agenda_publico:agenda@db:5432/agenda
+      DATABASE_URL_ADMIN: postgresql+asyncpg://agenda_admin:agenda@db:5432/agenda
+      DATABASE_URL_TRABAJOS: postgresql+asyncpg://agenda_admin:agenda@db:5432/agenda
       REDIS_URL: redis://redis:6379/0
+      # Las de la base de PRUEBAS, por el mismo motivo y con el mismo despiste: `make pruebas`
+      # corre `pytest` **dentro de este contenedor**, y los conftest apuntan por defecto a
+      # `localhost:5433`. Sin esto, la batería entera sale en ERROR de conexión —no en fallo—,
+      # que es peor: parece un problema de entorno y se ignora.
+      DATABASE_URL_PRUEBAS: postgresql+asyncpg://agenda_api:agenda@db:5432/agenda_pruebas
+      DATABASE_URL_PRUEBAS_DUENO: postgresql+psycopg://agenda_owner:agenda@db:5432/agenda_pruebas
+      DATABASE_URL_PRUEBAS_SISTEMA: postgresql+asyncpg://agenda_admin:agenda@db:5432/agenda_pruebas
+      DATABASE_URL_DUENO_ASYNC: postgresql+asyncpg://agenda_owner:agenda@db:5432/agenda_pruebas
     ports:
       - "8000:8000"
     volumes:
@@ -84,6 +98,22 @@ services:
       redis:
         condition: service_healthy
     command: ["arq", "agenda.trabajos.worker.WorkerSettings"]
+
+  web:
+    # La web pública y los tres portales. Se construye desde la raíz del monorepo porque
+    # consume `@agenda/tokens`, que es un paquete del espacio de trabajo.
+    build:
+      context: ../..
+      dockerfile: apps/web/Dockerfile
+    environment:
+      # Dentro de la red de Docker la API es `api`; en el navegador es localhost, y por eso son
+      # dos valores distintos y no uno.
+      API_URL: http://api:8000
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3100:3100"
+    depends_on:
+      - api
 
 volumes:
   datos_db:

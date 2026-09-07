@@ -41,6 +41,7 @@
 | `REFRESCO_ADMIN_HORAS` | Duración del refresco de la consola interna (default 8) | variable | `.env` |
 | `CONSOLA_EMAIL_INICIAL` | Correo de la **primera cuenta** de la consola, que crea `python -m agenda.consola_alta`. Sin valor en el repositorio | variable | `.env` |
 | `CONSOLA_PASSWORD_INICIAL` | Contraseña de esa primera cuenta. Si se deja vacía, el comando **genera una al azar y la enseña una sola vez** junto con la URI `otpauth://` del segundo factor. Ni la contraseña ni el secreto del 2FA se vuelven a mostrar | secreto | `.env` / Bitwarden |
+| `SEMILLA_CONTRASENA` | Contraseña común de las cuentas de ejemplo de `python -m agenda.semilla`. **No es un secreto y no debe tratarse como tal**: la semilla se niega a correr fuera de local y esas cuentas se rehacen en cada carga. Existe para poder cambiarla sin tocar el código | variable | `.env` |
 
 ### Mensajería y notificaciones
 

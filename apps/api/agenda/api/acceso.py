@@ -1,5 +1,14 @@
 """Entrar, refrescar y salir.
 
+**La puerta principal es correo y contraseña** (`/registrar` y `/entrar`). El código de un solo
+uso se queda para lo que siempre debió ser: verificar el teléfono antes de la primera reserva,
+porque el salón tiene que poder llamar. Entrar con un código que caduca a los cinco minutos era
+un peaje en cada pantalla mientras se desarrolla, y no aportaba seguridad que la contraseña no
+dé —al contrario: un WhatsApp interceptado es una sesión, y aquí ni siquiera hay canal todavía—.
+
+Lo que viene después y por eso está el sitio hecho: **segundo factor opcional** y entrada con
+Google o Apple. `password_hash` admite nulo justamente para eso.
+
 El código del OTP **no se devuelve en la respuesta** salvo en local. Es la diferencia entre un
 segundo factor y un adorno: si la API lo enseña, cualquiera que llegue al endpoint entra.
 En local se devuelve porque no hay canal —las credenciales de Meta aún no existen— y el flujo
@@ -17,9 +26,46 @@ from pydantic import BaseModel, Field
 from agenda.ajustes import obtener_ajustes
 from agenda.api.dependencias import Identidad, SesionPlataforma, identidad_actual
 from agenda.servicios import identidad as servicio_identidad
+from agenda.servicios.identidad import LARGO_MAXIMO_CONTRASENA, LARGO_MINIMO_CONTRASENA
 
 router = APIRouter(prefix="/api/v1/auth", tags=["acceso"])
 ajustes = obtener_ajustes()
+
+
+class PeticionAlta(BaseModel):
+    nombre: str = Field(min_length=1, max_length=120)
+    correo: str = Field(max_length=254)
+    contrasena: str = Field(
+        min_length=LARGO_MINIMO_CONTRASENA,
+        max_length=LARGO_MAXIMO_CONTRASENA,
+        description=(
+            "Al menos diez caracteres. No se piden mayúsculas ni símbolos: esa regla produce "
+            "la misma contraseña en todas las cuentas del país"
+        ),
+    )
+    telefono: str | None = Field(
+        default=None,
+        description=(
+            "Opcional en el alta. Se pide y se verifica antes de la primera reserva, que es "
+            "donde hace falta: el salón tiene que poder llamar"
+        ),
+    )
+    superficie: str = "web"
+
+
+class PeticionEntrada(BaseModel):
+    correo: str = Field(max_length=254)
+    contrasena: str = Field(max_length=LARGO_MAXIMO_CONTRASENA)
+    superficie: str = "web"
+
+
+class PeticionCambioDeContrasena(BaseModel):
+    actual: str | None = Field(
+        default=None,
+        description="Solo puede faltar si la cuenta todavía no tiene contraseña",
+        max_length=LARGO_MAXIMO_CONTRASENA,
+    )
+    nueva: str = Field(min_length=LARGO_MINIMO_CONTRASENA, max_length=LARGO_MAXIMO_CONTRASENA)
 
 
 class PeticionOtp(BaseModel):
@@ -61,7 +107,51 @@ class PeticionModoNegocio(BaseModel):
     superficie: str = "web"
 
 
-@router.post("/otp/solicitar", summary="Pide un código por WhatsApp (ONB-1)")
+@router.post("/registrar", summary="Crea una cuenta con correo y contraseña (ONB-1)")
+async def registrar(peticion: PeticionAlta, sesion: SesionPlataforma) -> RespuestaCredenciales:
+    """Da de alta y deja dentro en el mismo paso.
+
+    Registrarse y luego tener que entrar es un formulario de más para nada: quien acaba de
+    escribir su contraseña ya demostró quién es.
+    """
+    credenciales = await servicio_identidad.registrar(
+        sesion,
+        nombre=peticion.nombre,
+        correo=peticion.correo,
+        contrasena=peticion.contrasena,
+        telefono=peticion.telefono,
+        superficie=peticion.superficie,
+    )
+    return RespuestaCredenciales(**credenciales.__dict__)
+
+
+@router.post("/entrar", summary="Entra con correo y contraseña (ONB-1)")
+async def entrar(peticion: PeticionEntrada, sesion: SesionPlataforma) -> RespuestaCredenciales:
+    """Correo incorrecto y contraseña incorrecta dan **el mismo error**, a propósito: separarlos
+    le confirma a quien prueba combinaciones qué cuentas existen."""
+    credenciales = await servicio_identidad.entrar(
+        sesion,
+        correo=peticion.correo,
+        contrasena=peticion.contrasena,
+        superficie=peticion.superficie,
+    )
+    return RespuestaCredenciales(**credenciales.__dict__)
+
+
+@router.post("/contrasena", status_code=204, summary="Cambia la contraseña")
+async def cambiar_contrasena(
+    peticion: PeticionCambioDeContrasena,
+    sesion: SesionPlataforma,
+    identidad: Annotated[Identidad, Depends(identidad_actual)],
+) -> None:
+    """Cambiarla **cierra las demás sesiones**: es lo que hace quien cree que alguien entró en
+    su cuenta, y dejar al intruso dentro vaciaría el gesto de sentido."""
+    await servicio_identidad.cambiar_contrasena(
+        sesion, usuario_id=identidad.usuario_id, actual=peticion.actual, nueva=peticion.nueva
+    )
+
+
+@router.post("/otp/solicitar", summary="Pide un código para verificar el teléfono (D9)")
 async def solicitar(peticion: PeticionOtp, sesion: SesionPlataforma) -> RespuestaOtp:
     """Limitado por teléfono: es seguridad y es control de gasto.
 

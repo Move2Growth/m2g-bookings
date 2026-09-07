@@ -83,6 +83,12 @@ class Ajustes(BaseSettings):
     consola_email_inicial: str = ""
     consola_password_inicial: str = ""
 
+    # La contraseña que comparten todas las cuentas de ejemplo de `python -m agenda.semilla`.
+    # **No es un secreto y no pretende serlo**: la semilla se niega a correr fuera de local, y
+    # todas esas cuentas se borran y se rehacen en cada carga. Está aquí, y no escrita dentro
+    # del código, para poder cambiarla en una máquina sin tocar el repositorio.
+    semilla_contrasena: str = "demo-panama-2026"
+
     @property
     def es_local(self) -> bool:
         return self.entorno is Entorno.LOCAL

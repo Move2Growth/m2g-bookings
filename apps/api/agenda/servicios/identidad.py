@@ -1,4 +1,4 @@
-"""Entrar y salir: OTP por teléfono, sesión con refresco rotatorio y cambio a modo negocio.
+"""Entrar y salir: correo y contraseña, sesión con refresco rotatorio y cambio a modo negocio.
 
 Tres decisiones de ADR-0006 se materializan aquí y conviene no deshacerlas sin leerlo:
 
@@ -10,6 +10,12 @@ Tres decisiones de ADR-0006 se materializan aquí y conviene no deshacerlas sin 
 * **El token de acceso no lleva permisos**, solo quién eres y en qué negocio estás. Los
   permisos se resuelven contra la membresía en cada petición, así que echar a un profesional
   surte efecto en la siguiente llamada y no cuando caduque su token.
+
+Desde la migración 0008 la puerta principal es **correo y contraseña**. El código de un solo
+uso sigue existiendo, pero para lo que siempre debió ser: **verificar el teléfono** antes de la
+primera reserva, porque el salón tiene que poder llamar. Más adelante entran el segundo factor
+opcional y Google y Apple, y por eso `password_hash` admite nulo: una cuenta puede demostrar
+quién es por otra vía.
 """
 
 from __future__ import annotations
@@ -18,15 +24,26 @@ import hashlib
 import hmac
 import secrets
 import uuid
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager, suppress
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
 import jwt
-from sqlalchemy import select, text
+from argon2 import PasswordHasher
+from argon2.exceptions import VerificationError, VerifyMismatchError
+from sqlalchemy import func, select, text, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from agenda.ajustes import obtener_ajustes
-from agenda.errores import DemasiadosIntentos, NoAutorizado, OtpInvalido
+from agenda.errores import (
+    CredencialesInvalidas,
+    DatoInvalido,
+    DemasiadosIntentos,
+    NoAutorizado,
+    OtpInvalido,
+    YaExiste,
+)
 from agenda.modelos.identidad import AuthIdentity, Membership, OtpCode, Session, User
 
 ajustes = obtener_ajustes()
@@ -42,6 +59,24 @@ VIDA_REFRESCO = timedelta(days=30)
 #: mensaje de WhatsApp se paga, y el SMS de respaldo es el vector clásico de fraude.
 MAXIMO_ENVIOS = 5
 VENTANA_ENVIOS = timedelta(minutes=15)
+#: Diez caracteres. No se piden mayúsculas ni símbolos a propósito: esas reglas producen
+#: «Panama1!» en todas las cuentas del país, y una frase larga y fácil de recordar es mejor
+#: contraseña que un jeroglífico corto que acaba en un papel pegado al espejo.
+LARGO_MINIMO_CONTRASENA = 10
+#: argon2 hashea lo que le des, y darle un megabyte es una forma barata de tumbar el servidor.
+LARGO_MAXIMO_CONTRASENA = 128
+#: Fallos seguidos antes de cerrar la puerta un rato. Una contraseña sin freno se prueba a
+#: miles por segundo; el código de un solo uso traía su límite de fábrica y al cambiar de
+#: método hay que traérselo, o esto es un retroceso de seguridad disfrazado de comodidad.
+MAXIMO_FALLOS = 8
+BLOQUEO_TRAS_FALLOS = timedelta(minutes=15)
+
+_hasher = PasswordHasher()
+
+#: Un hash real de una contraseña que no es de nadie. Se verifica contra él cuando el correo no
+#: existe, para que «no hay cuenta» y «la contraseña está mal» tarden lo mismo. Sin esto, el
+#: tiempo de respuesta dice si un correo está registrado, y eso es media filtración.
+_HASH_SENUELO = _hasher.hash("una contrasena que no es de nadie")
 
 
 @dataclass(frozen=True)
@@ -172,8 +207,11 @@ async def verificar_otp(
     # Comparación en tiempo constante: comparar hashes con `==` filtra información por el
     # tiempo que tarda en fallar.
     if not hmac.compare_digest(vigente.code_hash, _hash(codigo)):
-        vigente.attempts += 1
-        await sesion.flush()
+        # El intento se apunta **en otra transacción**. Escribirlo aquí y lanzar acto seguido
+        # no servía de nada: `sesion.begin()` deshace todo al salir con excepción, así que el
+        # contador volvía a cero en cada intento y `max_attempts` no llegaba a dispararse
+        # nunca. Un límite de cinco intentos que no cuenta es un límite que no existe.
+        await _apuntar_intento_de_otp(sesion, vigente.id)
         raise OtpInvalido()
 
     vigente.consumed_at = ahora
@@ -191,6 +229,37 @@ async def verificar_otp(
         usuario.phone_verified_at = ahora
 
     return await _abrir_sesion(sesion, usuario=usuario, superficie=superficie)
+
+
+@asynccontextmanager
+async def _transaccion_aparte(sesion: AsyncSession) -> AsyncIterator[AsyncSession]:
+    """Una transacción propia **en la misma base y con el mismo rol** que la que ya está abierta.
+
+    Sirve para lo que tiene que sobrevivir a un `raise`: los contadores de intentos fallidos.
+    La transacción de la petición se abre con `sesion.begin()`, que **deshace todo al salir con
+    excepción**, así que un contador incrementado ahí y seguido de un `raise` se borra solo.
+
+    El motor sale de la sesión que se pasa, y no de la fábrica global, porque si no las pruebas
+    escribirían sus contadores en la base de desarrollo mientras leen de la de pruebas: pasarían
+    en verde sin comprobar nada.
+    """
+    aparte = AsyncSession(bind=sesion.bind, expire_on_commit=False)
+    try:
+        async with aparte.begin():
+            yield aparte
+    finally:
+        await aparte.close()
+
+
+async def _apuntar_intento_de_otp(sesion: AsyncSession, codigo_id: uuid.UUID) -> None:
+    """Suma un intento fallido al código, en su propia transacción y sin pisar el resto."""
+    async with _transaccion_aparte(sesion) as aparte:
+        fila = await aparte.get(OtpCode, codigo_id)
+        if fila is None:
+            return
+        fila.attempts += 1
+        if fila.attempts >= fila.max_attempts:
+            fila.invalidated_at = datetime.now(UTC)
 
 
 async def _abrir_sesion(
@@ -349,3 +418,193 @@ async def cerrar_sesion(sesion: AsyncSession, *, refresco: str) -> None:
         fila.revoked_at = datetime.now(UTC)
         fila.revoked_reason = "cierre_sesion"
         await sesion.flush()
+
+
+# ---------------------------------------------------------------------------------------------
+# Correo y contraseña
+# ---------------------------------------------------------------------------------------------
+
+
+def normalizar_correo(correo: str) -> str:
+    """Un correo es una credencial, así que se compara siempre en minúsculas y sin espacios.
+
+    El único de la base es sobre `lower(email)`. Si el código no normaliza al escribir,
+    «Ana@x.com» y «ana@x.com» son la misma fila para el índice y dos cadenas distintas para
+    cualquier comparación: así se cuela un «no existe» con la contraseña correcta.
+    """
+    return correo.strip().lower()
+
+
+def _revisar_contrasena(contrasena: str) -> None:
+    if len(contrasena) < LARGO_MINIMO_CONTRASENA:
+        raise DatoInvalido(f"La contraseña necesita al menos {LARGO_MINIMO_CONTRASENA} caracteres.")
+    if len(contrasena) > LARGO_MAXIMO_CONTRASENA:
+        raise DatoInvalido(f"La contraseña no puede pasar de {LARGO_MAXIMO_CONTRASENA} caracteres.")
+    if contrasena.isdigit():
+        raise DatoInvalido("Una contraseña de solo números se adivina. Mezcla letras.")
+
+
+async def _apuntar_fallo(sesion: AsyncSession, usuario_id: uuid.UUID) -> None:
+    """Suma un intento fallido **en su propia transacción**, y bloquea al llegar al límite.
+
+    Que sea otra transacción no es un capricho: ver `_transaccion_aparte`. Un bloqueo por
+    intentos escrito dentro de la transacción que se deshace es un bloqueo de adorno, y eso se
+    descubre el día que alguien prueba diez mil contraseñas y entra.
+    """
+    ahora = datetime.now(UTC)
+    async with _transaccion_aparte(sesion) as aparte:
+        usuario = await aparte.get(User, usuario_id)
+        if usuario is None:
+            return
+        usuario.failed_logins = (usuario.failed_logins or 0) + 1
+        if usuario.failed_logins >= MAXIMO_FALLOS:
+            usuario.failed_logins = 0
+            usuario.locked_until = ahora + BLOQUEO_TRAS_FALLOS
+
+
+async def registrar(
+    sesion: AsyncSession,
+    *,
+    nombre: str,
+    correo: str,
+    contrasena: str,
+    telefono: str | None = None,
+    superficie: str = "web",
+) -> Credenciales:
+    """Da de alta una cuenta con correo y contraseña, y la deja dentro.
+
+    **No se pide el teléfono aquí.** Se pide y se verifica antes de la primera reserva, que es
+    donde de verdad hace falta porque el salón tiene que poder llamar (D9). Exigirlo en el alta
+    devolvería el trámite que este cambio venía a quitar.
+    """
+    correo = normalizar_correo(correo)
+    nombre = nombre.strip()
+    if not nombre:
+        raise DatoInvalido("Hace falta un nombre.")
+    if "@" not in correo or correo.startswith("@") or correo.endswith("@"):
+        raise DatoInvalido("Ese correo no parece un correo.")
+    _revisar_contrasena(contrasena)
+
+    # El único de la base es la garantía de verdad —dos altas a la vez pasarían las dos por
+    # aquí—, pero comprobarlo antes convierte un 500 por violación de unicidad en un mensaje
+    # que se entiende.
+    repetido = (
+        await sesion.execute(select(User.id).where(func.lower(User.email) == correo))
+    ).scalar_one_or_none()
+    if repetido is not None:
+        raise YaExiste("Ya hay una cuenta con ese correo. Entra con tu contraseña.")
+
+    if telefono:
+        ocupado = (
+            await sesion.execute(select(User.id).where(User.phone_e164 == telefono))
+        ).scalar_one_or_none()
+        if ocupado is not None:
+            raise YaExiste("Ya hay una cuenta con ese teléfono.")
+
+    usuario = User(
+        full_name=nombre,
+        email=correo,
+        password_hash=_hasher.hash(contrasena),
+        phone_e164=telefono or None,
+    )
+    sesion.add(usuario)
+    await sesion.flush()
+    sesion.add(AuthIdentity(user_id=usuario.id, provider="email", subject=correo))
+
+    return await _abrir_sesion(sesion, usuario=usuario, superficie=superficie)
+
+
+async def entrar(
+    sesion: AsyncSession, *, correo: str, contrasena: str, superficie: str = "web"
+) -> Credenciales:
+    """Correo y contraseña. **Los dos fallan con el mismo mensaje**, a propósito.
+
+    Distinguir «ese correo no existe» de «la contraseña está mal» le regala a quien prueba
+    combinaciones la mitad del trabajo: le confirma qué cuentas existen. Por eso, además del
+    mensaje, cuando el correo no existe se verifica igualmente contra un hash señuelo: si no,
+    lo que no dice el texto lo dice el cronómetro.
+    """
+    correo = normalizar_correo(correo)
+    ahora = datetime.now(UTC)
+
+    usuario = (
+        await sesion.execute(select(User).where(func.lower(User.email) == correo))
+    ).scalar_one_or_none()
+
+    if usuario is None or usuario.password_hash is None:
+        with suppress(VerifyMismatchError, VerificationError):
+            _hasher.verify(_HASH_SENUELO, contrasena)
+        raise CredencialesInvalidas("Correo o contraseña incorrectos.")
+
+    if usuario.locked_until is not None and usuario.locked_until > ahora:
+        raise DemasiadosIntentos(
+            "Demasiados intentos fallidos. Prueba otra vez dentro de unos minutos."
+        )
+
+    if usuario.status != "activo":
+        raise NoAutorizado("Esta cuenta no está activa.")
+
+    try:
+        _hasher.verify(usuario.password_hash, contrasena)
+    except (VerifyMismatchError, VerificationError):
+        await _apuntar_fallo(sesion, usuario.id)
+        raise CredencialesInvalidas("Correo o contraseña incorrectos.") from None
+
+    # argon2 sube sus parámetros con los años. Rehashear al entrar es el único momento en que
+    # se tiene la contraseña en claro para poder hacerlo.
+    if _hasher.check_needs_rehash(usuario.password_hash):
+        usuario.password_hash = _hasher.hash(contrasena)
+
+    if usuario.failed_logins or usuario.locked_until is not None:
+        usuario.failed_logins = 0
+        usuario.locked_until = None
+
+    identidad = (
+        await sesion.execute(
+            select(AuthIdentity).where(
+                AuthIdentity.user_id == usuario.id, AuthIdentity.provider == "email"
+            )
+        )
+    ).scalar_one_or_none()
+    if identidad is None:
+        sesion.add(AuthIdentity(user_id=usuario.id, provider="email", subject=correo))
+    else:
+        identidad.last_used_at = ahora
+
+    return await _abrir_sesion(sesion, usuario=usuario, superficie=superficie)
+
+
+async def cambiar_contrasena(
+    sesion: AsyncSession, *, usuario_id: uuid.UUID, actual: str | None, nueva: str
+) -> None:
+    """Cambia la contraseña. Quien ya tiene una, la demuestra antes.
+
+    `actual` solo puede venir vacío cuando la cuenta **no tiene contraseña todavía** —entró con
+    código y ahora se pone una—. Si no se comprobara, una sesión robada bastaría para
+    quedarse con la cuenta para siempre.
+    """
+    _revisar_contrasena(nueva)
+    usuario = await sesion.get(User, usuario_id)
+    if usuario is None:
+        raise NoAutorizado("La sesión no es válida.")
+
+    if usuario.password_hash is not None:
+        if not actual:
+            raise CredencialesInvalidas("Escribe tu contraseña actual.")
+        try:
+            _hasher.verify(usuario.password_hash, actual)
+        except (VerifyMismatchError, VerificationError):
+            await _apuntar_fallo(sesion, usuario.id)
+            raise CredencialesInvalidas("La contraseña actual no es correcta.") from None
+
+    usuario.password_hash = _hasher.hash(nueva)
+    usuario.failed_logins = 0
+    usuario.locked_until = None
+
+    # Cambiar la contraseña cierra las demás sesiones. Es lo que hace la gente cuando cree que
+    # alguien entró en su cuenta, y si el intruso sigue dentro el gesto no sirvió de nada.
+    await sesion.execute(
+        update(Session)
+        .where(Session.user_id == usuario_id, Session.revoked_at.is_(None))
+        .values(revoked_at=datetime.now(UTC), revoked_reason="cierre_sesion")
+    )
