@@ -6,7 +6,7 @@ API     := $(COMPOSE) exec -T api
 
 .DEFAULT_GOAL := ayuda
 
-.PHONY: ayuda arriba abajo logs migrar migracion semilla pruebas barrer lint contrato consola reiniciar limpiar
+.PHONY: ayuda arriba abajo logs migrar migracion semilla pruebas barrer variables lint contrato consola reiniciar limpiar
 
 ayuda:  ## Muestra esta ayuda
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -45,6 +45,9 @@ pruebas:  ## Ejecuta todas las pruebas contra un Postgres real
 
 barrer:  ## Barre las 20 pantallas a 390 px: que carguen, no revienten y no desborden
 	node scripts/barrer-pantallas.mjs
+
+variables:  ## Comprueba que toda variable de configuración está documentada en los dos sitios
+	python3 scripts/comprobar-variables.py
 
 lint:  ## Formatea y revisa el código
 	$(COMPOSE) run --rm api ruff format .
