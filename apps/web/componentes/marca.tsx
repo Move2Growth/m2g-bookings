@@ -1,5 +1,5 @@
 /**
- * El wordmark de Bukeo.
+ * El wordmark de la marca.
  *
  * Está dibujado a trazo, con las letras construidas como geometría y no como tipografía: así el
  * logotipo no depende de que una fuente cargue, se pinta con `currentColor` y funciona igual en
@@ -9,13 +9,15 @@
  * alguien acaba usando en el sitio equivocado.
  */
 
+import { NOMBRE } from '@/lib/marca'
+
 export function Marca({ alto = 26 }: { alto?: number }) {
   return (
     <svg
       viewBox="0 0 304 96"
       height={alto}
       role="img"
-      aria-label="Bukeo"
+      aria-label={NOMBRE}
       fill="none"
       stroke="currentColor"
       strokeWidth={13}
@@ -47,7 +49,7 @@ export function Marca({ alto = 26 }: { alto?: number }) {
  */
 export function Icono({ alto = 24 }: { alto?: number }) {
   return (
-    <svg viewBox="0 0 24 24" height={alto} width={alto} role="img" aria-label="Bukeo" fill="none">
+    <svg viewBox="0 0 24 24" height={alto} width={alto} role="img" aria-label={NOMBRE} fill="none">
       <path
         fillRule="evenodd"
         clipRule="evenodd"

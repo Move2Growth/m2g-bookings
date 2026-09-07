@@ -1,7 +1,11 @@
 # M2G Agenda — comandos del entorno local.
 # El despliegue no es de este equipo: aquí solo hay desarrollo y validación en local.
 
-COMPOSE := docker compose -f infra/local/docker-compose.yml
+# `--env-file .env` es lo que hace que las variables del repositorio lleguen también a la
+# **plantilla** del compose (`${NOMBRE_COMERCIAL}`). Sin esto, compose solo mira el `.env`
+# de al lado del archivo —`infra/local/.env`, que no existe— y sustituye en silencio por el
+# valor por defecto: se cambia el `.env` del repositorio y no pasa nada.
+COMPOSE := docker compose --env-file .env -f infra/local/docker-compose.yml
 API     := $(COMPOSE) exec -T api
 
 .DEFAULT_GOAL := ayuda
@@ -64,7 +68,9 @@ recargar:  ## Aplica cambios del .env a los contenedores (restart NO los relee)
 	# `docker compose restart` reinicia el proceso pero **conserva el entorno con el que se creó
 	# el contenedor**: un cambio en el .env no llega, y el síntoma es que la pantalla carga y no
 	# sale ni una petición. Hay que recrear.
-	$(COMPOSE) up -d --force-recreate api worker planificador
+	# La web también: desde que el nombre comercial sale del entorno (`NOMBRE_COMERCIAL`),
+	# dejarla fuera hacía que se cambiara el `.env` y la cabecera siguiera diciendo lo de antes.
+	$(COMPOSE) up -d --force-recreate api worker planificador web
 
 reiniciar:  ## Recrea la base desde cero: borra los datos, migra y siembra
 	$(COMPOSE) down -v

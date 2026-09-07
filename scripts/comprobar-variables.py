@@ -20,6 +20,8 @@ RAIZ = Path(__file__).resolve().parent.parent
 AJUSTES = RAIZ / "apps/api/agenda/ajustes.py"
 EJEMPLO = RAIZ / ".env.example"
 INVENTARIO = RAIZ / "docs/operacion/SECRETOS-Y-VARIABLES.md"
+MARCA = RAIZ / "apps/web/lib/marca.ts"
+CODIGO_WEB = (RAIZ / "apps/web/app", RAIZ / "apps/web/componentes", RAIZ / "apps/web/lib")
 
 
 def variables() -> set[str]:
@@ -32,6 +34,36 @@ def variables() -> set[str]:
     }
 
 
+def nombre_comercial() -> str:
+    """El codename que hay hoy en `lib/marca.ts`, sacado de su valor por defecto."""
+    encontrado = re.search(r"\?\?\s*['\"](\w+)['\"]", MARCA.read_text())
+    return encontrado.group(1) if encontrado else ""
+
+
+def nombre_a_fuego() -> list[str]:
+    """Dónde está escrito el nombre comercial en vez de salir de la configuración.
+
+    El nombre está **sin decidir** (D1): «Bukeo» es codename y las tres direcciones de marca
+    traen el suyo. La regla escrita es que salga de configuración y que cambiarlo no toque ni
+    una pantalla; lo que había era la regla en un documento y el nombre repetido en dieciséis
+    sitios —el pie, los términos, la privacidad, «cómo funciona»—, que es exactamente el fallo
+    que el propio tablero de deuda anunciaba: «si aparece escrito a fuego en algún sitio, es un
+    fallo de QA». Esto lo vuelve comprobable.
+    """
+    nombre = nombre_comercial()
+    if not nombre:
+        return ["apps/web/lib/marca.ts ya no declara un nombre por defecto"]
+    culpables = []
+    for carpeta in CODIGO_WEB:
+        for archivo in sorted(carpeta.rglob("*.ts*")):
+            if archivo == MARCA:
+                continue
+            for numero, linea in enumerate(archivo.read_text().splitlines(), 1):
+                if nombre in linea:
+                    culpables.append(f"{archivo.relative_to(RAIZ)}:{numero}")
+    return culpables
+
+
 def main() -> int:
     declaradas = variables()
     fallos = []
@@ -42,12 +74,20 @@ def main() -> int:
         if ausentes:
             fallos.append(f"{archivo.relative_to(RAIZ)}: faltan {', '.join(ausentes)}")
 
+    a_fuego = nombre_a_fuego()
+    if a_fuego:
+        fallos.append(
+            f"el nombre comercial «{nombre_comercial()}» está escrito a fuego en "
+            + ", ".join(a_fuego)
+        )
+
     print(f"{len(declaradas)} variables declaradas en ajustes.py")
     if fallos:
-        print("\nSIN DOCUMENTAR:")
+        print("\nHAY QUE ARREGLAR:")
         for fallo in fallos:
             print(f" · {fallo}")
-        print("\nSe documentan en los dos sitios: nombre y para qué sirve, nunca el valor.")
+        print("\nLas variables se documentan en los dos sitios: nombre y para qué sirve,")
+        print("nunca el valor. El nombre comercial sale de `lib/marca.ts`, de ningún sitio más.")
         return 1
 
     print("Todas están en .env.example y en el inventario de secretos.")

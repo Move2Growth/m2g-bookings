@@ -2,10 +2,11 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Cabecera } from '@/componentes/cabecera'
 import { Pie } from '@/componentes/pie'
+import { NOMBRE } from '@/lib/marca'
 
 export const metadata: Metadata = {
   title: 'Términos de uso',
-  description: 'Las reglas de Bukeo para quien reserva y para el salón que publica su agenda.',
+  description: `Las reglas de ${NOMBRE} para quien reserva y para el salón que publica su agenda.`,
 }
 
 /**
@@ -25,11 +26,11 @@ export default function Terminos() {
         </p>
 
         <div className="prosa">
-          <h2>Qué es Bukeo</h2>
+          <h2>Qué es {NOMBRE}</h2>
           <p>
-            Bukeo conecta a quien busca un servicio de belleza o bienestar con el salón que lo
+            {NOMBRE} conecta a quien busca un servicio de belleza o bienestar con el salón que lo
             presta, y le da al salón una agenda para gestionarlo. <strong>El servicio lo presta
-            el salón, no Bukeo.</strong> El precio, la calidad y el cumplimiento de la cita son
+            el salón, no {NOMBRE}.</strong> El precio, la calidad y el cumplimiento de la cita son
             responsabilidad suya.
           </p>
 
@@ -72,7 +73,7 @@ export default function Terminos() {
           <h2>Qué no se permite</h2>
           <p>
             Publicar servicios que no prestas, suplantar a otro negocio, raspar el sitio para
-            copiar la base de salones, o usar Bukeo para cualquier cosa que sea ilegal en Panamá.
+            copiar la base de salones, o usar {NOMBRE} para cualquier cosa que sea ilegal en Panamá.
           </p>
 
           <h2>Qué falta en este texto</h2>

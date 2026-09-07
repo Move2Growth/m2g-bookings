@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { Marca } from '@/componentes/marca'
+import { NOMBRE } from '@/lib/marca'
 import { Pestanas, type Pestana } from '@/componentes/pestanas'
 import { borrarSesion } from '@/lib/sesion'
 
@@ -38,7 +39,7 @@ export function Armazon({
   return (
     <div className="app">
       <header className="app__barra">
-        <Link href="/" aria-label="Bukeo, inicio">
+        <Link href="/" aria-label={`${NOMBRE}, inicio`}>
           <Marca alto={20} />
         </Link>
         {contexto && (

@@ -2,11 +2,12 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Cabecera } from '@/componentes/cabecera'
 import { Pie } from '@/componentes/pie'
+import { NOMBRE } from '@/lib/marca'
 
 export const metadata: Metadata = {
-  title: 'Cómo funciona Bukeo',
+  title: `Cómo funciona ${NOMBRE}`,
   description:
-    'Cómo se reserva en Bukeo, cómo funciona para un salón, qué cuesta y qué pasa con tu teléfono. Explicado sin letra pequeña.',
+    `Cómo se reserva en ${NOMBRE}, cómo funciona para un salón, qué cuesta y qué pasa con tu teléfono. Explicado sin letra pequeña.`,
 }
 
 /**
@@ -32,7 +33,7 @@ const PASOS_CLIENTA = [
   {
     titulo: 'Reserva con tu teléfono, sin contraseña',
     texto:
-      'Te llega un código por WhatsApp y ya está. Sin registro, sin contraseña que recordar y sin tarjeta: en Bukeo no se paga la cita, se paga en el salón como siempre.',
+      `Te llega un código por WhatsApp y ya está. Sin registro, sin contraseña que recordar y sin tarjeta: en ${NOMBRE} no se paga la cita, se paga en el salón como siempre.`,
   },
   {
     titulo: 'Te avisamos, y si no puedes ir lo cambias tú',
@@ -70,7 +71,7 @@ const PREGUNTAS = [
     r: 'Nada. Sin tarjeta para registrarte, sin mensualidad y sin comisión por cada reserva que entra. Ni ahora, ni cuando tengas la agenda llena.',
   },
   {
-    p: 'Entonces, ¿de qué vive Bukeo?',
+    p: `Entonces, ¿de qué vive ${NOMBRE}?`,
     r: 'De que un salón quiera más clientas y compre aparecer primero en su categoría y su zona durante unos días. Es opcional, va siempre marcado como patrocinado, nunca esconde a los salones que no pagan y no toca la nota de nadie. Si nunca compras visibilidad, nunca pagas nada.',
   },
   {
@@ -82,12 +83,12 @@ const PREGUNTAS = [
     r: 'Sí, desde tus citas, hasta el plazo que ponga cada salón. Pasado ese plazo el botón desaparece y te decimos por qué: ahí toca escribirle al salón, que son ellos quienes se quedan con el hueco vacío.',
   },
   {
-    p: '¿Y si el salón no usa Bukeo todavía?',
+    p: `¿Y si el salón no usa ${NOMBRE} todavía?`,
     r: 'Puedes decírselo. Darse de alta es gratis y no tienen que instalar nada ni cambiar cómo trabajan: la agenda se abre desde el mismo teléfono que ya usan.',
   },
   {
     p: '¿Se paga la cita por aquí?',
-    r: 'No. Se paga en el salón, como siempre. Bukeo no pide datos de tarjeta a nadie para reservar.',
+    r: `No. Se paga en el salón, como siempre. ${NOMBRE} no pide datos de tarjeta a nadie para reservar.`,
   },
 ]
 
@@ -104,7 +105,7 @@ export default function ComoFunciona() {
               Reservar sin llamar y sin esperar respuesta
             </h1>
             <p className="medida" style={{ marginTop: 'var(--espacio-4)', fontSize: 'var(--tipografia-tamano-mayor)' }}>
-              Bukeo es dos cosas a la vez: la agenda de un salón, que es gratis, y el sitio donde
+              {NOMBRE} es dos cosas a la vez: la agenda de un salón, que es gratis, y el sitio donde
               sus clientas lo encuentran. Aquí está entero, sin letra pequeña.
             </p>
           </div>

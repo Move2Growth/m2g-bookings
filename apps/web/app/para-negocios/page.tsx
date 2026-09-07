@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Cabecera } from '@/componentes/cabecera'
 import { Pie } from '@/componentes/pie'
+import { NOMBRE } from '@/lib/marca'
 
 export const metadata: Metadata = {
   title: 'Tu agenda, gratis',
@@ -95,7 +96,7 @@ export default function ParaNegocios() {
           <div className="contenedor">
             <h2>Dónde está el truco</h2>
             <p className="apagado medida" style={{ marginTop: 'var(--espacio-4)' }}>
-              En ningún sitio, y por eso conviene explicarlo. Bukeo gana cuando un salón quiere
+              En ningún sitio, y por eso conviene explicarlo. {NOMBRE} gana cuando un salón quiere
               más clientas y compra aparecer primero en su categoría y su zona durante unos días.
               Es opcional, va siempre marcado como patrocinado, nunca esconde a los salones que
               no pagan y no toca la nota de nadie. Si nunca compras visibilidad, nunca pagas nada.

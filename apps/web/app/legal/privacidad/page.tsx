@@ -2,11 +2,12 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Cabecera } from '@/componentes/cabecera'
 import { Pie } from '@/componentes/pie'
+import { NOMBRE } from '@/lib/marca'
 
 export const metadata: Metadata = {
   title: 'Política de privacidad',
   description:
-    'Qué datos guarda Bukeo, para qué, cuánto tiempo y cómo ejercer tus derechos según la Ley 81 de 2019 de Panamá.',
+    `Qué datos guarda ${NOMBRE}, para qué, cuánto tiempo y cómo ejercer tus derechos según la Ley 81 de 2019 de Panamá.`,
 }
 
 /**

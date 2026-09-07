@@ -143,6 +143,10 @@ services:
       # dos valores distintos y no uno.
       API_URL: http://api:8000
       NEXT_PUBLIC_API_URL: http://localhost:8000
+      # El nombre comercial. Está sin decidir (D1) y por eso es una variable y no una constante:
+      # el día que Luis elija entre Buenamano, Cupo y Tanda se cambia aquí y en el `.env`, y no
+      # se toca ni una pantalla. `Bukeo` es el codename mientras tanto.
+      NEXT_PUBLIC_NOMBRE_COMERCIAL: ${NOMBRE_COMERCIAL:-Bukeo}
     ports:
       - "3100:3100"
     # El código va montado y el servidor corre en modo desarrollo, como la API con `--reload`.
