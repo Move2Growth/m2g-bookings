@@ -21,8 +21,9 @@ from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Query
+from geoalchemy2.functions import ST_DWithin, ST_SetSRID
 from pydantic import BaseModel, Field
-from sqlalchemy import or_, select
+from sqlalchemy import Float, cast, func, literal, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from agenda.api.comunes import url_de_media
@@ -246,7 +247,10 @@ async def buscar_profesionales(
         str | None, Query(description="Slug de zona, por ejemplo «el-cangrejo»")
     ] = None,
     negocio: Annotated[str | None, Query(description="Slug de un salón concreto")] = None,
-    orden: Annotated[str, Query(pattern="^(relevancia|nota|nombre)$")] = "relevancia",
+    longitud: Annotated[float | None, Query(description="Desde dónde busca quien pregunta")] = None,
+    latitud: Annotated[float | None, Query()] = None,
+    radio_metros: Annotated[int, Query(ge=100, le=50_000)] = 10_000,
+    orden: Annotated[str, Query(pattern="^(relevancia|nota|nombre|distancia)$")] = "relevancia",
     pagina: Annotated[int, Query(ge=1)] = 1,
 ) -> list[ProfesionalEnLista]:
     """Buscar **personas**, que es por donde entra quien ya sabe con quién quiere ir.
@@ -259,11 +263,22 @@ async def buscar_profesionales(
     costaría abrir una conexión por negocio en la consulta que más se va a repetir. Está en el
     perfil, que es donde alguien lo mira de verdad.
     """
+    # La distancia se calcula en la base, como en la búsqueda de salones: es lo único que
+    # depende de quién pregunta, y traérsela a Python obligaría a leer la geometría de cada fila.
+    hay_punto = longitud is not None and latitud is not None
+    punto = ST_SetSRID(func.ST_MakePoint(longitud, latitud), 4326) if hay_punto else None
+    distancia = cast(func.ST_Distance(Location.geo, punto), Float) if hay_punto else literal(None)
+
     consulta = (
-        select(StaffProfile, Business, Location)
+        select(StaffProfile, Business, Location, distancia.label("distancia"))
         .join(Business, Business.id == StaffProfile.business_id)
         .join(Location, Location.business_id == Business.id, isouter=True)
     )
+
+    if hay_punto:
+        # Se acota al radio, igual que la de salones: sin esto, «ordenar por distancia» devuelve
+        # también a quien está en la otra punta del país, solo que al final de la lista.
+        consulta = consulta.where(ST_DWithin(Location.geo, punto, radio_metros))
 
     if texto:
         patron = f"%{texto.strip()}%"
@@ -299,6 +314,8 @@ async def buscar_profesionales(
 
     if orden == "nombre":
         consulta = consulta.order_by(StaffProfile.display_name)
+    elif orden == "distancia" and hay_punto:
+        consulta = consulta.order_by(distancia)
     else:
         # Sin señal de calidad todavía: se ordena por salón y posición, que es el orden que el
         # propio salón puso en su equipo. Ordenar por nota se hace después, con los agregados
@@ -314,6 +331,7 @@ async def buscar_profesionales(
     fichas = [fila[0] for fila in filas]
     negocios = {fila[1].id: fila[1] for fila in filas}
     ubicaciones = {fila[2].business_id: fila[2] for fila in filas if fila[2] is not None}
+    distancias = {fila[0].id: fila[3] for fila in filas}
 
     pesos = await servicio_pesos.pesos_vigentes(sesion)
     notas = await servicio_profesionales.notas(sesion, [f.id for f in fichas], pesos)
@@ -335,11 +353,19 @@ async def buscar_profesionales(
             zona=(
                 ubicaciones[f.business_id].address_line if f.business_id in ubicaciones else None
             ),
+            distancia_metros=(
+                round(distancias[f.id]) if distancias.get(f.id) is not None else None
+            ),
         )
         for f in fichas
     ]
 
-    if orden == "nota":
+    if orden == "distancia" and not hay_punto:
+        # Pedir «por distancia» sin decir desde dónde no puede ordenar por distancia. Se deja el
+        # orden que ya traía en vez de fingir uno: una lista ordenada al azar y presentada como
+        # ordenada por cercanía manda a la gente al otro lado de la ciudad.
+        pass
+    elif orden == "nota":
         # Quien no tiene nota va al final, no al principio: un `None` que ordena primero
         # pondría arriba justo a quien menos se sabe de él.
         salida.sort(key=lambda p: (p.nota is None, -(p.nota or 0), p.nombre))

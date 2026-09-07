@@ -505,3 +505,80 @@ async def test_editar_el_propio_slug_no_choca_consigo_mismo():
             sesion, salon.negocio_id, "yaris", excluir_id=salon.kevin.id
         )
     assert de_nuevo == "yaris"
+
+
+async def test_buscar_personas_por_distancia_las_ordena_de_cerca_a_lejos():
+    """`distancia_metros` viajaba en la respuesta y venía **siempre nulo**: un campo que miente.
+
+    Se comprueba con dos salones separados y un punto pegado a uno de ellos. Lo que importa no es
+    el número exacto —eso lo calcula PostGIS— sino que la lista salga en el orden que promete: si
+    ordenar por distancia devolviera el orden de siempre, la pantalla mandaría a la gente al otro
+    lado de la ciudad diciéndole que es lo más cercano.
+    """
+    cerca = await montar_salon_con_perfiles()
+    lejos = await montar_salon_con_perfiles()
+
+    marca = uuid.uuid4().hex[:8]
+    async with conexion_de_dueno() as duenno:
+        # **Se les crea la ubicación aquí**: el escenario base no la pone, y sin ella el filtro
+        # por radio los descarta. Esa fue la trampa de la primera versión de esta prueba, que
+        # comparaba una lista **vacía** consigo misma y pasaba también con el orden desactivado.
+        # Ciudad de Panamá, y el segundo a unos siete kilómetros.
+        for negocio_id, longitud, etiqueta in (
+            (cerca.salon.negocio_id, -79.5231, "Obarrio"),
+            (lejos.salon.negocio_id, -79.4600, "Costa del Este"),
+        ):
+            await duenno.execute(
+                text(
+                    "INSERT INTO locations (business_id, address_line, geo)"
+                    " VALUES (:id, :donde, ST_SetSRID(ST_MakePoint(:lon, 8.9819), 4326))"
+                ),
+                {"id": negocio_id, "donde": etiqueta, "lon": longitud},
+            )
+        # **Los nombres se ponen al revés a propósito.** Sin esto, el orden por defecto —por
+        # nombre de salón— podía coincidir con el de distancia y la prueba pasaba igual con el
+        # orden desactivado, que es lo mismo que no probar nada. Se comprobó quitándolo.
+        for negocio_id, nombre in (
+            (lejos.salon.negocio_id, f"AAA lejos {marca}"),
+            (cerca.salon.negocio_id, f"ZZZ cerca {marca}"),
+        ):
+            await duenno.execute(
+                text("UPDATE businesses SET display_name = :nombre WHERE id = :id"),
+                {"nombre": nombre, "id": negocio_id},
+            )
+            # La marca va también en el titular de su gente: el buscador filtra por la persona,
+            # no por el salón, y hace falta acotar la búsqueda a estos dos y no a los cien que
+            # deja cada ejecución anterior en la base de pruebas.
+            await duenno.execute(
+                text("UPDATE staff_profiles SET headline = :marca WHERE business_id = :id"),
+                {"marca": marca, "id": negocio_id},
+            )
+
+    async with sesion_publica() as sesion:
+        resultados = await api_profesionales.buscar_profesionales(
+            sesion,
+            texto=marca,
+            longitud=-79.5231,
+            latitud=8.9819,
+            orden="distancia",
+            radio_metros=20_000,
+        )
+
+    assert resultados, "El texto de búsqueda tiene que acotar a los dos salones de esta prueba."
+    assert resultados[0].negocio.startswith("ZZZ cerca"), (
+        "El primero tiene que ser el de al lado. Si sale el que se llama «AAA», lo que ordena es "
+        "el nombre y no la distancia."
+    )
+    distancias = [r.distancia_metros for r in resultados]
+    assert all(d is not None for d in distancias), (
+        "Con un punto de búsqueda, la distancia no puede venir nula: es el campo que decide el "
+        "orden y la pantalla lo enseña."
+    )
+    assert distancias == sorted(distancias), "La lista tiene que salir de cerca a lejos."
+
+    # Y sin decir desde dónde, no se inventa una distancia ni un orden.
+    async with sesion_publica() as sesion:
+        sin_punto = await api_profesionales.buscar_profesionales(
+            sesion, texto=marca, orden="distancia"
+        )
+    assert all(r.distancia_metros is None for r in sin_punto)

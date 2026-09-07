@@ -8945,10 +8945,14 @@ export interface operations {
     buscar_profesionales_api_v1_publico_profesionales_get: {
         parameters: {
             query?: {
+                latitud?: number | null;
+                /** @description Desde dónde busca quien pregunta */
+                longitud?: number | null;
                 /** @description Slug de un salón concreto */
                 negocio?: string | null;
                 orden?: string;
                 pagina?: number;
+                radio_metros?: number;
                 /** @description Slug de una categoría global, por ejemplo «barberia» */
                 servicio?: string | null;
                 /** @description Nombre o titular: «Yaris», «colorista» */

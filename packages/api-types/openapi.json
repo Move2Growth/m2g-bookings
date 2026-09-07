@@ -14852,12 +14852,58 @@
             }
           },
           {
+            "description": "Desde dónde busca quien pregunta",
+            "in": "query",
+            "name": "longitud",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Desde dónde busca quien pregunta",
+              "title": "Longitud"
+            }
+          },
+          {
+            "in": "query",
+            "name": "latitud",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Latitud"
+            }
+          },
+          {
+            "in": "query",
+            "name": "radio_metros",
+            "required": false,
+            "schema": {
+              "default": 10000,
+              "maximum": 50000,
+              "minimum": 100,
+              "title": "Radio Metros",
+              "type": "integer"
+            }
+          },
+          {
             "in": "query",
             "name": "orden",
             "required": false,
             "schema": {
               "default": "relevancia",
-              "pattern": "^(relevancia|nota|nombre)$",
+              "pattern": "^(relevancia|nota|nombre|distancia)$",
               "title": "Orden",
               "type": "string"
             }
