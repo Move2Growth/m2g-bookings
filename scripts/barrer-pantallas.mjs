@@ -22,7 +22,10 @@ import { createHmac } from 'node:crypto'
 
 const BASE = 'http://localhost:3100'
 const API = 'http://localhost:8000'
-const ANCHO = 390
+//: 390 es un iPhone y es donde vive esto; 1440 es un portátil. Se barren los dos porque los
+//: fallos son distintos: en el teléfono desborda, en el escritorio se estira sin límite.
+const ANCHOS = [390, 1440]
+let ANCHO = ANCHOS[0]
 
 const PUBLICAS = ['/', '/buscar', '/barberia-el-cangrejo', '/como-funciona', '/para-negocios', '/entrar']
 const CLIENTA = ['/mi/citas', '/mi/favoritos', '/mi/perfil']
@@ -94,6 +97,13 @@ async function barrer(titulo, rutas, sesion, llave = 'agenda.sesion') {
   await pagina.close()
 }
 
+for (const ancho of ANCHOS) {
+  ANCHO = ancho
+  console.log(`\n══ ${ancho} px ══`)
+  await todo()
+}
+
+async function todo() {
 await barrer('Sin sesión', PUBLICAS, null)
 await barrer('Clienta', CLIENTA, await sesionDe('abdiel@demo.pa'))
 
@@ -127,10 +137,12 @@ if (!consola.ok) {
   await barrer('Consola de M2G', CONSOLA, await consola.json(), 'agenda.consola')
 }
 
+}
+
 await navegador.close()
 if (fallos.length) {
   console.error(`\n${fallos.length} PANTALLAS MAL:`)
   for (const f of fallos) console.error(' · ' + f)
   process.exit(1)
 }
-console.log(`\nTodas las pantallas cargan, ninguna revienta y ninguna desborda a ${ANCHO} px.`)
+console.log(`\nTodas las pantallas cargan, ninguna revienta y ninguna desborda, en ${ANCHOS.join(' y ')} px.`)
