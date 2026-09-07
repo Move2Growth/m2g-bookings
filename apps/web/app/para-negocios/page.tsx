@@ -67,7 +67,7 @@ export default function ParaNegocios() {
                 menos de diez minutos en dejarlo funcionando desde el teléfono.
               </p>
               <p style={{ marginTop: 'var(--espacio-5)', display: 'flex', gap: 'var(--espacio-3)', flexWrap: 'wrap' }}>
-                <Link href="/entrar" className="boton boton--primario">
+                <Link href="/panel/alta" className="boton boton--primario">
                   Crear mi salón
                 </Link>
                 <Link href="/buscar" className="boton boton--secundario">
@@ -143,7 +143,7 @@ export default function ParaNegocios() {
               existe en borrador y no lo ve nadie.
             </p>
             <p style={{ marginTop: 'var(--espacio-6)' }}>
-              <Link href="/entrar" className="boton boton--primario">
+              <Link href="/panel/alta" className="boton boton--primario">
                 Empezar ahora
               </Link>
             </p>

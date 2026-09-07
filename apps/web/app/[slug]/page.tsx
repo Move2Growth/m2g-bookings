@@ -222,6 +222,16 @@ export default async function PaginaDeNegocio({ params, searchParams }: Props) {
             />
           </div>
 
+          {/* El cartel del salón: lo escribe el dueño desde su portal y la API solo lo manda
+              mientras está vigente. Va **antes** de la descripción porque es lo que caduca: una
+              promoción de esta semana importa más que el texto de siempre. Si no hay ninguno
+              encendido, aquí no queda ningún hueco. */}
+          {perfil.anuncio && (
+            <p className="aviso aviso--exito" style={{ marginTop: 'var(--espacio-4)' }}>
+              {perfil.anuncio.texto}
+            </p>
+          )}
+
           {perfil.descripcion && <p className="medida identidad__texto">{perfil.descripcion}</p>}
 
           {perfil.atributos && perfil.atributos.length > 0 && (

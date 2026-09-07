@@ -8,6 +8,10 @@
  *
  * · Que la pantalla **carga** con el rol que le toca.
  * · Que **no revienta**: ni error de JavaScript, ni pantalla de error de Next.
+ * · Que **no está enseñando su propio error**. Esto faltaba, y es lo que convierte el barrido en
+ *   una promesa que no cumple: ocho pantallas salían «OK» diciendo «Failed to fetch» porque el
+ *   CORS las bloqueaba. Respondían 200, no desbordaban y no reventaban; el HTTP estaba bien y la
+ *   pantalla no servía para nada.
  * · Que **no desborda a lo ancho**. `scrollWidth` del documento es la medida honesta;
  *   `getBoundingClientRect` la recorta cualquier `overflow-x: hidden` de por medio y entonces
  *   el desbordamiento existe, se arrastra con el dedo, y la prueba dice que todo va bien.
@@ -20,12 +24,15 @@
 import { chromium } from 'playwright'
 import { createHmac } from 'node:crypto'
 
-//: El 3100 es el entorno de `make arriba`. Se puede apuntar a otro con `BASE=…`, que es lo que
-//: hace falta para barrer un árbol de trabajo levantado en otro puerto **antes** de fusionarlo.
-//: Si se cambia, el puerto tiene que estar en `ORIGENES_PERMITIDOS` de la API o las pantallas
-//: con sesión cargan enteras y no sale ni una petición.
+//: El 3100 es el entorno de `make arriba`. Se puede apuntar a otro con
+//: `BASE=http://localhost:3300 node scripts/barrer-pantallas.mjs`, y hace falta cuando alguien
+//: trabaja en un árbol aparte y levanta **su** web en otro puerto: sin esto se barrería la del
+//: repositorio principal y se diría que todo va bien sin haber mirado su código.
+//:
+//: Si se cambia, el puerto tiene que estar en `ORIGENES_PERMITIDOS` de la API o las pantallas con
+//: sesión cargan enteras y no sale ni una petición.
 const BASE = process.env.BASE ?? 'http://localhost:3100'
-const API = 'http://localhost:8000'
+const API = process.env.API ?? 'http://localhost:8000'
 //: 390 es un iPhone y es donde vive esto; 1440 es un portátil. Se barren los dos porque los
 //: fallos son distintos: en el teléfono desborda, en el escritorio se estira sin límite.
 const ANCHOS = [390, 1440]
@@ -58,6 +65,20 @@ const PROFESIONAL = [
   '/panel/mi-perfil',
   '/panel/mis-fotos',
   '/panel/fichar',
+]
+
+//: El portal del dueño. Va aparte de NEGOCIO porque es una zona con su propia navegación y
+//: porque un profesional **no puede entrar**: barrerlas con la sesión equivocada solo mediría el
+//: desvío. El alta del local se barre aquí aunque no necesite negocio: la abre un dueño.
+const DUENO = [
+  '/panel/local',
+  '/panel/local/calendarios',
+  '/panel/local/finanzas',
+  '/panel/local/mejor-del-mes',
+  '/panel/local/publicidad',
+  '/panel/local/fichaje',
+  '/panel/local/personas',
+  '/panel/alta',
 ]
 const CONSOLA = ['/consola', '/consola/negocios', '/consola/moderacion', '/consola/metricas', '/consola/ranking']
 
@@ -121,13 +142,36 @@ async function barrer(titulo, rutas, sesion, llave = 'agenda.sesion') {
     const ancho = await pagina.evaluate(() => document.documentElement.scrollWidth)
     const texto = await pagina.locator('body').innerText().catch(() => '')
     const roto = /Application error|Internal Server Error|Algo salió mal/i.test(texto)
+
+    // **Una pantalla que carga enseñando su propio error no está bien.** Este barredor daba «OK»
+    // a ocho pantallas que decían «Failed to fetch» porque el CORS las bloqueaba: respondían 200,
+    // no desbordaban y no reventaban. El HTTP estaba bien y la pantalla no servía para nada.
+    //
+    // Se mira el bloque de error del producto —`.aviso--error`, `role="alert"`— y solo si está
+    // **visible**: uno oculto es el que se pinta cuando algo falla, y aquí no ha fallado nada.
+    const avisoDeError = await pagina
+      .evaluate(() => {
+        const posibles = [...document.querySelectorAll('.aviso--error, [role="alert"]')]
+        const visible = posibles.find((e) => e.getClientRects().length > 0)
+        return visible ? (visible.textContent || '').trim().slice(0, 90) : null
+      })
+      .catch(() => null)
+
     const bien =
       (estado === 200 || (seEsperaUn404 && estado === 404)) &&
       ancho <= ANCHO &&
       !roto &&
+      !avisoDeError &&
       errores.length === 0
-    console.log(`${bien ? 'OK  ' : 'MAL '} ${ruta.padEnd(26)} ${estado} · ancho ${ancho}${errores.length ? ` · ${errores[0]}` : ''}${roto ? ' · PANTALLA ROTA' : ''}`)
-    if (!bien) fallos.push(`${titulo} ${ruta}: estado ${estado}, ancho ${ancho}${errores.length ? `, ${errores[0]}` : ''}${roto ? ', pantalla rota' : ''}`)
+    const porque = [
+      errores.length ? errores[0] : '',
+      roto ? 'PANTALLA ROTA' : '',
+      avisoDeError ? `enseña un error: «${avisoDeError}»` : '',
+    ]
+      .filter(Boolean)
+      .join(' · ')
+    console.log(`${bien ? 'OK  ' : 'MAL '} ${ruta.padEnd(26)} ${estado} · ancho ${ancho}${porque ? ` · ${porque}` : ''}`)
+    if (!bien) fallos.push(`${titulo} ${ruta}: estado ${estado}, ancho ${ancho}${porque ? `, ${porque}` : ''}`)
   }
   await pagina.close()
 }
@@ -149,11 +193,13 @@ const conNegocio = await fetch(`${API}/api/v1/auth/modo-negocio`, {
   headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${duena.acceso}` },
   body: JSON.stringify({ negocio_id: negocios[0].id }),
 }).then((r) => r.json())
-await barrer('Dueña de salón', NEGOCIO, {
+const sesionDeDuena = {
   ...conNegocio,
   negocio_nombre: negocios[0].nombre,
   negocio_rol: negocios[0].rol,
-})
+}
+await barrer('Dueña de salón', NEGOCIO, sesionDeDuena)
+await barrer('Portal del dueño', DUENO, sesionDeDuena)
 
 //: Un profesional del salón, que ve otras pestañas y otras pantallas. `/panel/fichar` sale
 //: apagado mientras el dueño no le active el fichaje, y eso también hay que verlo cargar.

@@ -1,10 +1,11 @@
-# Las pantallas que faltan · Estado: sin iniciar
+# Las pantallas que faltan · Estado: en proceso
 
 > **La API de todo esto ya existe y está probada.** Lo que falta es la pantalla. Se construye
 > cuando Luis elija dirección visual, y por eso está aquí escrito: para que ese día sea montar
 > pantallas y no volver a decidir qué hacen.
 >
-> Ninguna de estas pantallas existe hoy en `apps/web`.
+> **Las siete «Del dueño» ya están construidas** (7 de septiembre). Las del cliente y las del
+> profesional siguen sin existir en `apps/web`.
 
 ## Del cliente
 
@@ -38,17 +39,30 @@ para empezar; hace falta elegir para publicar.
 | **Mis fotos** | Subirlas y **atarlas a un servicio del salón**, que es lo que hace que se vea quién hizo qué | `/mi/perfil-profesional/fotos` |
 | **Fichar** | «Ya llegué» y «ya salgo», y solo si el dueño se lo ha activado | `POST /negocio/fichajes` |
 
-## Del dueño
+## Del dueño — ✅ **hechas** el 7 de septiembre
 
-| Pantalla | Qué tiene que hacer | Con qué |
+> Están construidas y probadas en el navegador a 390 y a 1440 px. Viven todas en **`/panel/local`**,
+> que es una zona con nombre propio y navegación propia: así es como se diferencia el portal del
+> dueño del panel de un profesional sin depender del color, que se va a cambiar entero.
+> Detalle en [`../ai-development/frontend-web/BITACORA/0001-portal-del-dueno.md`](../ai-development/frontend-web/BITACORA/0001-portal-del-dueno.md).
+
+| Pantalla | Dónde está | Con qué |
 |---|---|---|
-| **Todos los calendarios** | El día del salón con una columna por persona | `GET /negocio/agenda/columnas` |
-| **Finanzas** | Lo facturado por día, semana y mes, con el ticket medio y cuántas citas no tenían precio | `GET /negocio/finanzas` |
-| **Mejor del mes** | Por importe o por número de servicios, filtrable por categoría | `GET /negocio/mejor-del-mes` |
-| **Publicidad flash** | Escribir el banner del salón, ponerle fecha de fin y apagarlo | `/negocio/anuncios` |
-| **Fichaje, persona a persona** | El interruptor por profesional, y el parte de horas | `PUT /negocio/profesionales/{id}/fichaje`, `GET /negocio/fichajes` |
-| **Personas del local** | Invitar por correo con su papel, y quitar a alguien | `/negocio/miembros` |
-| **Alta del local en tres pasos** | Crear el local → asignar personas → dar de alta servicios. El precio es opcional y ya se puede decir «a consultar» | `POST /negocios`, `/negocio/miembros/invitaciones`, `POST /negocio/servicios` |
+| **Todos los calendarios** | `/panel/local/calendarios` | `GET /negocio/agenda/columnas` |
+| **Finanzas** | `/panel/local/finanzas` | `GET /negocio/finanzas` |
+| **Mejor del mes** | `/panel/local/mejor-del-mes` | `GET /negocio/mejor-del-mes` |
+| **Publicidad flash** | `/panel/local/publicidad` | `/negocio/anuncios` |
+| **Fichaje, persona a persona** | `/panel/local/fichaje` | `PUT /negocio/profesionales/{id}/fichaje`, `GET /negocio/fichajes` |
+| **Personas del local** | `/panel/local/personas` | `/negocio/miembros` |
+| **Alta del local en tres pasos** | `/panel/alta` | `POST /negocios`, `/negocio/miembros/invitaciones`, `POST /negocio/servicios` |
+
+**Dos cosas que salieron de construirlas:**
+
+- La **ficha pública no pintaba el anuncio** aunque la API ya lo devolvía. Se añadió, porque si no
+  la previsualización del dueño sería una mentira.
+- **`GET /mi/negocios` no ve los locales en borrador**, así que quien acaba de dar de alta el suyo
+  y cierra sesión **no puede volver a entrar en él**. Es de la API y está en la deuda viva del
+  tablero.
 
 ## Lo que hay que rehacer, no añadir
 
