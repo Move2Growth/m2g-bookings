@@ -2873,3 +2873,84 @@ h1, h2, .titular-adaptativo { }
   color: var(--color-tinta-tenue);
   font-size: 15px;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MAPA
+   El mapa ocupa la pantalla y todo lo demás flota encima. Es al revés que el resto del
+   producto —donde el contenido manda y el fondo acompaña— porque aquí el fondo **es** el
+   contenido: tapar medio mapa con una cabecera es tapar medio contenido.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.mapa { position: relative; height: 100dvh; }
+
+.mapa__lienzo { position: absolute; inset: 0; }
+
+/* Encima del mapa pero sin robarle el arrastre: solo los hijos reciben el dedo. */
+.mapa__encima {
+  position: absolute;
+  inset: 0;
+  z-index: 500;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-3);
+  padding: var(--espacio-4);
+}
+
+.mapa__encima > * { pointer-events: auto; }
+
+.mapa__barra {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+  background: var(--color-lienzo);
+  border: 1px solid var(--color-borde-fuerte);
+  padding: var(--espacio-2) var(--espacio-3);
+}
+
+/* La chincheta dice el nombre y la nota. En un mapa de veinte salones eso es lo que se compara,
+   y obligar a tocar cada alfiler para saberlo convierte el mapa en un juego de memoria. */
+.mapa__chincheta {
+  display: inline-block;
+  white-space: nowrap;
+  transform: translate(-50%, -100%);
+  background: var(--color-tinta);
+  color: var(--color-papel);
+  font-size: var(--tipografia-tamano-menor);
+  font-weight: var(--tipografia-pesos-fuerte);
+  padding: 3px var(--espacio-2);
+  border: 1px solid var(--color-tinta);
+}
+
+.mapa__ficha {
+  margin-top: auto;
+  position: relative;
+  background: var(--color-lienzo);
+  border: 1px solid var(--color-borde-fuerte);
+  padding: var(--espacio-4);
+  display: grid;
+  gap: var(--espacio-3);
+}
+
+.mapa__cerrar { position: absolute; top: 0; right: 0; padding: var(--espacio-3); }
+
+/* Leaflet trae su propia hoja y pinta sus controles en blanco puro con texto gris claro. Sobre
+   el tema del producto eso queda ilegible, así que se le imponen las tintas de la casa. */
+.leaflet-container { font: inherit; background: var(--color-arena); }
+
+.leaflet-control-zoom a,
+.leaflet-control-attribution {
+  background: var(--color-lienzo) !important;
+  color: var(--color-tinta) !important;
+}
+
+.leaflet-control-attribution a { color: var(--color-tinta-suave) !important; }
+
+/* La chincheta corta: solo la nota. Se usa cuando el mapa está lejos y los nombres se pisarían.
+   Redonda a propósito y es la única excepción a la regla de la forma: sobre un mapa, una chapa
+   cuadrada de dos caracteres se confunde con la cartografía de debajo. */
+.mapa__chincheta--corta {
+  border-radius: 999px;
+  padding: 3px 7px;
+  transform: translate(-50%, -50%);
+}

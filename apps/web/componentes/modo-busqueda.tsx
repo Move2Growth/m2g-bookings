@@ -9,6 +9,10 @@ import Link from 'next/link'
  * años y el salón donde está. Meterlas en la misma fila obligaría a que una de las dos mienta.
  *
  * Son enlaces y no botones: cada modo es una dirección que se comparte y que indexa Google.
+ *
+ * El mapa va aquí y no en otro sitio porque es **la tercera forma de buscar lo mismo**: quien no
+ * sabe el nombre de nada pero sabe por dónde va a pasar. Escondido en un menú no lo encuentra
+ * nadie.
  */
 export function ModoDeBusqueda({
   modo,
@@ -36,6 +40,11 @@ export function ModoDeBusqueda({
         className="ficha ficha--modo"
       >
         Personas
+      </Link>
+      {/* El mapa no lleva la consulta: enseña lo que hay **donde se está mirando**, y arrastrar
+          un texto escrito para una lista lo dejaría vacío sin explicar por qué. */}
+      <Link href="/mapa" role="tab" aria-selected={false} className="ficha ficha--modo">
+        Mapa
       </Link>
     </div>
   )

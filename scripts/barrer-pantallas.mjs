@@ -45,6 +45,9 @@ const PUBLICAS = [
   //: tienen que aguantar el barrido.
   '/buscar/personas',
   '/buscar/personas?texto=barbero',
+  //: El mapa. Se barre como pública porque lo es, y porque es la única pantalla que carga algo
+  //: de fuera —las baldosas—: si ese proveedor se cae, aquí se ve.
+  '/mapa',
   '/barberia-el-cangrejo',
   //: El perfil de una persona. Es la pantalla con más piezas del marketplace —datos, servicios,
   //: horas, fotos y reseñas— y la que más fácil desborda a lo ancho.

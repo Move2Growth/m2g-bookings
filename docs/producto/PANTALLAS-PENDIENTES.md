@@ -14,7 +14,7 @@
 | **Perfil de un profesional** | Foto, titular, descripción, años, cuánta gente ha atendido, nota y reseñas, sus servicios, sus fotos de trabajo, sus redes y su calendario | `GET /publico/negocios/{slug}/profesionales/{slug}` |
 | **Buscar personas, no locales** | La misma búsqueda pero devolviendo profesionales, con su salón y su próxima hora | `GET /publico/profesionales` |
 | **Reservar empezando por la persona** | Elegir profesional → uno de **sus** servicios → hora. El camino de siempre se queda | `GET /publico/profesionales/{id}/disponibilidad` |
-| **Mapa** | Los salones del rectángulo visible, con nota y número de reseñas, y la ficha al tocar | `GET /publico/mapa` |
+| ~~**Mapa**~~ | ✅ **Hecho.** Los salones del rectángulo visible, con nota y número de reseñas, y la ficha al tocar. Baldosas de OpenStreetMap, que no piden clave; cambiar de proveedor es cambiar una URL | `GET /publico/mapa` |
 | **Aceptar una invitación** | Quien recibe el correo entra, ve a qué salón y con qué papel, y acepta | `POST /invitaciones/ver` y `/aceptar` |
 
 **El mapa necesita una decisión de Luis**, pero conviene saber que **no es una decisión de pagar
@@ -27,9 +27,9 @@ baldosas, y ahí hay tres caminos distintos:
 | **Mapbox o Google** | Clave y factura por cargas de mapa. Es la decisión D8, abierta desde el 1 de septiembre |
 | **Teselas propias** | Sin coste por carga y sin límite de uso, pero hay que servirlas |
 
-Lo importante: **el primer camino permite construir la pantalla entera hoy** y cambiar de
-proveedor el día que se decida, porque lo que cambia es una URL de teselas. No hace falta elegir
-para empezar; hace falta elegir para publicar.
+**Es lo que se hizo:** la pantalla está construida con teselas de OpenStreetMap y funciona. Lo
+que queda es elegir con qué se publica, y ese cambio es **una URL** en `app/mapa/page.tsx`, no
+otra pantalla.
 
 ## Del profesional
 
