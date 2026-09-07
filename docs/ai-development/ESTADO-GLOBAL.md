@@ -122,6 +122,9 @@
 | Fase 0 · documentación | Modelo de datos · plan de fases y preguntas abiertas · flujos y design system · método de trabajo | `docs/arquitectura`, `docs/diseno`, `docs/ai-development` | ✅ cerrado y commiteado | Ninguno: zonas disjuntas, un archivo por agente |
 | Fase 0 · esquema | Migración inicial, modelos y seed | `apps/api/agenda/modelos`, `apps/api/migraciones`, `apps/api/agenda/semilla.py` | ✅ cerrado | — |
 | Fase 1 · notificaciones | Cola idempotente, proveedores y worker | `apps/api/agenda/notificaciones`, `apps/api/agenda/trabajos` | ✅ cerrado | — |
+| **Marca · revisión 4** | Tres brandbooks en PDF a ciegas (Buenamano, Cupo, Tanda) + logotipo generado + nombre nuevo | `docs/marca/revision-4/direcciones/` | 🔄 en vuelo | Ninguno: una carpeta por dirección |
+| **Encargo 07-09 · A y B** | El profesional como entidad pública y elegir profesional primero | `apps/api` (árbol de trabajo aparte, base `agenda_pruebas_w1`) | 🔄 en vuelo | **Migración `0009_profesional_entidad`** |
+| **Encargo 07-09 · C, D y E** | Portal del dueño, mapa por rectángulo y asignar personas al local | `apps/api` (árbol de trabajo aparte, base `agenda_pruebas_w2`) | 🔄 en vuelo | **Migración `0010_portal_del_dueno`: nace con `down_revision = 0008` y hay que re-encadenarla a `0009` al fusionar** |
 
 > **Zonas serializadas de este proyecto** —nunca dos agentes a la vez, ni con worktree—: `apps/api/migraciones`, `apps/api/disponibilidad`, `packages/tokens`, `docs/arquitectura/adr/`, y este mismo archivo.
 
@@ -143,7 +146,8 @@
 |---|---|---|---|
 | **Credenciales de Meta WhatsApp Cloud API** y plantillas aprobadas | Luis | 2026-09-01 | Backend (identidad y notificaciones), Testing y QA. **No bloquea construir la Fase 1**: bloquea darla por verificada en el canal real |
 | **Pasarela de pago** (D5) y sus credenciales | Luis | 2026-09-01 | Backend (planes y pagos). **Bloquea la Fase 4, no antes** |
-| **Proveedor de mapas** (D8) por coste | Luis | 2026-09-01 | Frontend Web y Backend (marketplace). **Bloquea el mapa interactivo y el geocoding de la Fase 2**, no la búsqueda por zona |
-| **Nombre comercial y dominio** (D1) | Luis | 2026-09-01 | Mockuper, Frontend Web y Arquitecto. Mientras tanto, todo sale de configuración |
+| **Proveedor de mapas** (D8) por coste | Luis | 2026-09-01 | Frontend Web y Backend (marketplace). **Bloquea pintar el mapa**, no la consulta: el endpoint por rectángulo es PostGIS y no necesita proveedor. Lo que necesita clave es dibujar las baldosas en la pantalla, y eso se pregunta cuando haya dirección visual |
+| **Nombre comercial y dominio** (D1) | Luis | 2026-09-01 | Mockuper, Frontend Web y Arquitecto. **«Bukeo» queda descartado el 07-09**; las tres direcciones de la revisión 4 traen nombre propio y Luis elige |
+| **Elegir dirección visual** entre los tres brandbooks de la revisión 4 | Luis | 2026-09-07 | Frontend Web y Mockuper. **Los frontales no se rehacen hasta que elija**; mientras tanto se construye API, modelo y pruebas |
 | **Aprobación de la Fase 0** | Luis | 2026-09-01 | Todo el equipo: la Fase 1 no arranca sin ella |
 | **La contradicción de ADR-0016 con los filetes de 1 px**, y **la aprobación de la decisión de imágenes** (el rótulo dibujado) | Luis | 2026-09-02 | Frontend Web y Mockuper. **No bloquea construir**: bloquea dar la identidad por buena y bloquea el ADR-0017 |
