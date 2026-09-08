@@ -39,12 +39,14 @@ html {
   color: var(--color-tinta);
   background-color: var(--superficie-calle);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
 }
 
 body {
   margin: 0;
   background-color: var(--superficie-calle);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta);
   font-family: var(--tipografia-familia);
   font-size: var(--tipografia-tamano-cuerpo);
@@ -91,8 +93,13 @@ textarea {
   color: inherit;
 }
 
+/* **El color del enlace lo decide la superficie**, como el del anillo de foco y por lo mismo:
+   `--color-acento` es un cobalto pensado para papel, y dentro de un bloque cobalto un enlace de
+   ese color es invisible —1,00:1 medido en la portada, con el enlace al mapa recién puesto—.
+   `--color-enlace` se hereda: cada superficie lo declara una vez y todo lo que cae dentro lo
+   toma. */
 a {
-  color: var(--color-acento);
+  color: var(--color-enlace, var(--color-acento));
   text-decoration-thickness: var(--canto-menor);
   text-underline-offset: var(--espacio-1);
 }
@@ -140,6 +147,7 @@ a:hover {
 ::selection {
   background-color: var(--color-acento-suave);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta);
 }
 
@@ -211,6 +219,7 @@ a:hover {
 [data-superficie='local'] {
   background-color: var(--superficie-local);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
 }
 
 .contenido {
@@ -228,6 +237,7 @@ a:hover {
   padding: var(--espacio-2) var(--espacio-3);
   background-color: var(--color-tinta);
   --foco-color: var(--color-acento-texto);
+  --color-enlace: var(--color-acento-texto);
   color: var(--color-papel);
   transform: translateY(-200%);
   transition: transform var(--movimiento-rapido) var(--movimiento-curva);
@@ -245,6 +255,7 @@ a:hover {
   z-index: 10;
   background-color: var(--superficie-local);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   border-bottom: 1px solid var(--color-borde);
 }
 
@@ -323,6 +334,7 @@ a:hover {
   margin-top: var(--espacio-8);
   background-color: var(--color-tinta);
   --foco-color: var(--color-acento-texto);
+  --color-enlace: var(--color-acento-texto);
   color: var(--color-papel);
 }
 
@@ -464,18 +476,21 @@ a:hover {
 .bloque--cobalto {
   background-color: var(--color-acento);
   --foco-color: var(--color-acento-texto);
+  --color-enlace: var(--color-acento-texto);
   color: var(--color-acento-texto);
 }
 
 .bloque--fucsia {
   background-color: var(--color-cierra);
   --foco-color: var(--color-acento-texto);
+  --color-enlace: var(--color-acento-texto);
   color: var(--color-cierra-texto);
 }
 
 .bloque--aviso {
   background-color: var(--color-aviso-suave);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta);
   border-left: var(--filo-grosor) solid var(--color-aviso);
 }
@@ -483,12 +498,14 @@ a:hover {
 .bloque--arena {
   background-color: var(--color-arena);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta);
 }
 
 .bloque--lienzo {
   background-color: var(--color-lienzo);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta);
   border: 1px solid var(--color-borde);
 }
@@ -496,6 +513,7 @@ a:hover {
 .bloque--peligro {
   background-color: var(--color-peligro-suave);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta);
   border-left: var(--filo-grosor) solid var(--color-peligro);
 }
@@ -503,6 +521,7 @@ a:hover {
 .bloque--exito {
   background-color: var(--color-exito-suave);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta);
   border-left: var(--filo-grosor) solid var(--color-exito);
 }
@@ -559,6 +578,7 @@ a:hover {
 .boton--abre {
   background-color: var(--color-acento);
   --foco-color: var(--color-acento-texto);
+  --color-enlace: var(--color-acento-texto);
   color: var(--color-acento-texto);
   box-shadow: inset 0 calc(-1 * var(--canto-principal)) 0 0 var(--color-acento-hover);
 }
@@ -566,6 +586,7 @@ a:hover {
 .boton--cierra {
   background-color: var(--color-cierra);
   --foco-color: var(--color-acento-texto);
+  --color-enlace: var(--color-acento-texto);
   color: var(--color-cierra-texto);
   box-shadow: inset 0 calc(-1 * var(--canto-principal)) 0 0 var(--color-cierra-hover);
 }
@@ -573,6 +594,7 @@ a:hover {
 .boton--secundario {
   background-color: var(--color-lienzo);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta);
   box-shadow:
     inset 0 0 0 1px var(--color-borde-fuerte),
@@ -590,6 +612,7 @@ a:hover {
 .boton--riesgo {
   background-color: var(--color-lienzo);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-peligro);
   box-shadow:
     inset 0 0 0 1px var(--color-peligro),
@@ -616,18 +639,21 @@ a:hover {
   .boton--abre:hover:not(:disabled):not([aria-busy='true']) {
     background-color: var(--color-acento-hover);
     --foco-color: var(--color-acento-texto);
+    --color-enlace: var(--color-acento-texto);
     box-shadow: inset 0 calc(-1 * var(--canto-alzado)) 0 0 var(--color-tinta);
   }
 
   .boton--cierra:hover:not(:disabled):not([aria-busy='true']) {
     background-color: var(--color-cierra-hover);
     --foco-color: var(--color-acento-texto);
+    --color-enlace: var(--color-acento-texto);
     box-shadow: inset 0 calc(-1 * var(--canto-alzado)) 0 0 var(--color-tinta);
   }
 
   .boton--secundario:hover:not(:disabled):not([aria-busy='true']) {
     background-color: var(--color-arena);
     --foco-color: var(--color-foco);
+    --color-enlace: var(--color-acento);
     box-shadow:
       inset 0 0 0 1px var(--color-tinta),
       inset 0 calc(-1 * var(--canto-alzado)) 0 0 var(--color-tinta);
@@ -636,12 +662,14 @@ a:hover {
   .boton--texto:hover:not(:disabled):not([aria-busy='true']) {
     background-color: var(--color-acento-suave);
     --foco-color: var(--color-foco);
+    --color-enlace: var(--color-acento);
     box-shadow: inset 0 calc(-1 * var(--canto-secundario)) 0 0 var(--color-acento-hover);
   }
 
   .boton--riesgo:hover:not(:disabled):not([aria-busy='true']) {
     background-color: var(--color-peligro-suave);
     --foco-color: var(--color-foco);
+    --color-enlace: var(--color-acento);
     box-shadow:
       inset 0 0 0 1px var(--color-peligro),
       inset 0 calc(-1 * var(--canto-secundario)) 0 0 var(--color-peligro);
@@ -650,6 +678,7 @@ a:hover {
   .boton--riesgo-suave:hover:not(:disabled):not([aria-busy='true']) {
     background-color: var(--color-peligro-suave);
     --foco-color: var(--color-foco);
+    --color-enlace: var(--color-acento);
     box-shadow: inset 0 calc(-1 * var(--canto-secundario)) 0 0 var(--color-peligro);
   }
 }
@@ -669,6 +698,7 @@ a:hover {
 .boton--riesgo-suave:active:not(:disabled):not([aria-busy='true']) {
   background-color: var(--color-peligro-suave);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   box-shadow: inset 0 0 0 0 transparent;
 }
 
@@ -698,6 +728,7 @@ a:hover {
 .boton:disabled {
   background-color: var(--color-arena);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta-tenue);
   box-shadow: inset 0 calc(-1 * var(--canto-principal)) 0 0 var(--color-borde);
   cursor: not-allowed;
@@ -712,6 +743,7 @@ a:hover {
 .boton--abre[aria-busy='true']:disabled {
   background-color: var(--color-acento-hover);
   --foco-color: var(--color-acento-texto);
+  --color-enlace: var(--color-acento-texto);
   color: var(--color-acento-texto);
   box-shadow: inset 0 calc(-1 * var(--canto-principal)) 0 0 var(--color-tinta);
   cursor: progress;
@@ -720,6 +752,7 @@ a:hover {
 .boton--cierra[aria-busy='true']:disabled {
   background-color: var(--color-cierra-hover);
   --foco-color: var(--color-acento-texto);
+  --color-enlace: var(--color-acento-texto);
   color: var(--color-cierra-texto);
   box-shadow: inset 0 calc(-1 * var(--canto-principal)) 0 0 var(--color-tinta);
   cursor: progress;
@@ -730,6 +763,7 @@ a:hover {
 .boton--riesgo[aria-busy='true']:disabled {
   background-color: var(--color-lienzo);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta);
   box-shadow:
     inset 0 0 0 1px var(--color-tinta),
@@ -740,6 +774,7 @@ a:hover {
 .boton--texto[aria-busy='true']:disabled {
   background-color: var(--color-acento-suave);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-acento-hover);
   box-shadow: inset 0 calc(-1 * var(--canto-menor)) 0 0 var(--color-acento-hover);
   cursor: progress;
@@ -772,6 +807,7 @@ a:hover {
   padding: var(--espacio-2) var(--espacio-3);
   background-color: var(--color-lienzo);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta);
   border: 1px solid var(--color-borde-fuerte);
   border-bottom-width: var(--canto-menor);
@@ -791,6 +827,7 @@ a:hover {
 .campo__caja:disabled {
   background-color: var(--color-arena);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta-tenue);
   cursor: not-allowed;
 }
@@ -844,6 +881,7 @@ a:hover {
   padding-inline: var(--espacio-3);
   background-color: var(--color-lienzo);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta);
   border: 1px solid var(--color-borde-fuerte);
   border-radius: var(--radio-control);
@@ -862,6 +900,7 @@ a:hover {
 .opcion:hover {
   background-color: var(--color-arena);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta);
 }
 
@@ -869,6 +908,7 @@ a:hover {
 .opcion[data-elegida='si'] {
   background-color: var(--color-tinta);
   --foco-color: var(--color-acento-texto);
+  --color-enlace: var(--color-acento-texto);
   color: var(--color-papel);
   border-color: var(--color-tinta);
 }
@@ -877,6 +917,7 @@ a:hover {
 .opcion[data-elegida='si']:hover {
   background-color: var(--color-tinta-suave);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-papel);
 }
 
@@ -902,12 +943,14 @@ a:hover {
 .bloque--cobalto .opcion:hover {
   background-color: var(--color-acento-hover);
   --foco-color: var(--color-acento-texto);
+  --color-enlace: var(--color-acento-texto);
   color: var(--color-acento-texto);
 }
 
 .bloque--cobalto .opcion[data-elegida='si'] {
   background-color: var(--color-acento-texto);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-acento);
   border-color: var(--color-acento-texto);
 }
@@ -915,6 +958,7 @@ a:hover {
 .bloque--cobalto .opcion[data-elegida='si']:hover {
   background-color: var(--color-acento-texto);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-acento-hover);
 }
 
@@ -1025,6 +1069,7 @@ a:hover {
   height: var(--espacio-8);
   background-color: var(--color-acento-suave);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-acento);
   font-family: var(--tipografia-familia-display);
   font-size: var(--tipografia-tamano-titulo-4);
@@ -1035,6 +1080,7 @@ a:hover {
 .inicial--persona {
   background-color: var(--color-cierra-suave);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-cierra-hover);
 }
 
@@ -1063,6 +1109,7 @@ a:hover {
 .marca--pagado {
   background-color: var(--color-aviso-suave);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta);
   border-left: var(--canto-secundario) solid var(--color-aviso);
 }
@@ -1070,12 +1117,14 @@ a:hover {
 .marca--abierto {
   background-color: var(--color-exito-suave);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-exito);
 }
 
 .marca--cerrado {
   background-color: var(--color-arena);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta-suave);
 }
 
@@ -1139,6 +1188,7 @@ a:hover {
   padding-inline: var(--espacio-2);
   background-color: var(--color-lienzo);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta);
   border: 0;
   border-radius: var(--radio-control);
@@ -1175,6 +1225,7 @@ a:hover {
 .hora[aria-pressed='true'] {
   background-color: var(--color-cierra);
   --foco-color: var(--color-acento-texto);
+  --color-enlace: var(--color-acento-texto);
   color: var(--color-cierra-texto);
   box-shadow: inset 0 calc(-1 * var(--canto-principal)) 0 0 var(--color-cierra-hover);
   /* Confirma que se ha tocado. Corre una vez y se acaba. */
@@ -1184,6 +1235,7 @@ a:hover {
 .hora:disabled {
   background-color: var(--color-arena);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta-tenue);
   box-shadow: inset 0 0 0 1px var(--color-borde);
   cursor: not-allowed;
@@ -1199,6 +1251,7 @@ a:hover {
   padding-inline: var(--espacio-3);
   background-color: var(--color-cierra);
   --foco-color: var(--color-acento-texto);
+  --color-enlace: var(--color-acento-texto);
   color: var(--color-cierra-texto);
   border-radius: var(--radio-control);
   box-shadow: inset 0 calc(-1 * var(--canto-principal)) 0 0 var(--color-cierra-hover);
@@ -1216,6 +1269,7 @@ a:hover {
     color: var(--color-cierra-texto);
     background-color: var(--color-cierra-hover);
     --foco-color: var(--color-acento-texto);
+    --color-enlace: var(--color-acento-texto);
     transform: translateY(calc(-1 * var(--canto-menor)));
     box-shadow: inset 0 calc(-1 * var(--canto-alzado)) 0 0 var(--color-tinta);
   }
@@ -1417,12 +1471,14 @@ a:hover {
   inset: 0;
   background-color: var(--color-acento);
   --foco-color: var(--color-acento-texto);
+  --color-enlace: var(--color-acento-texto);
   animation: barrido var(--movimiento-lento) var(--movimiento-curva) infinite;
 }
 
 .hueso {
   background-color: var(--color-arena);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   border-radius: var(--radio-superficie);
 }
 
@@ -1491,8 +1547,13 @@ a:hover {
   color: var(--color-tinta-tenue);
 }
 
-.migas a {
-  color: var(--color-acento);
+.migas /* **El color del enlace lo decide la superficie**, como el del anillo de foco y por lo mismo:
+   `--color-acento` es un cobalto pensado para papel, y dentro de un bloque cobalto un enlace de
+   ese color es invisible —1,00:1 medido en la portada, con el enlace al mapa recién puesto—.
+   `--color-enlace` se hereda: cada superficie lo declara una vez y todo lo que cae dentro lo
+   toma. */
+a {
+  color: var(--color-enlace, var(--color-acento));
 }
 
 .pasos {
@@ -1563,6 +1624,7 @@ a:hover {
   height: var(--espacio-3);
   background-color: var(--color-arena);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
 }
 
 .reparto__parte {
@@ -1570,6 +1632,7 @@ a:hover {
   height: 100%;
   background-color: var(--color-acento);
   --foco-color: var(--color-acento-texto);
+  --color-enlace: var(--color-acento-texto);
 }
 
 .resena {
@@ -1583,6 +1646,7 @@ a:hover {
   padding: var(--espacio-3);
   background-color: var(--color-arena);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   border-left: var(--canto-secundario) solid var(--color-borde-fuerte);
   font-size: var(--tipografia-tamano-menor);
   color: var(--color-tinta-suave);
@@ -1594,6 +1658,7 @@ a:hover {
   padding: var(--espacio-3);
   background-color: var(--color-lienzo);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   border: 1px solid var(--color-borde);
 }
 
@@ -1692,6 +1757,7 @@ a:hover {
   border-radius: var(--radio-control);
   background-color: var(--color-lienzo);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta);
   text-decoration: none;
   white-space: nowrap;
@@ -1700,6 +1766,7 @@ a:hover {
 .nav-local__sitio[data-elegida='si'] {
   background-color: var(--color-tinta);
   --foco-color: var(--color-acento-texto);
+  --color-enlace: var(--color-acento-texto);
   color: var(--color-papel);
   border-color: var(--color-tinta);
 }
@@ -1715,6 +1782,7 @@ a:hover {
   border: 1px solid var(--color-borde);
   background-color: var(--color-lienzo);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
 }
 
 .ficha-persona__quien {
@@ -1736,6 +1804,7 @@ a:hover {
   padding-inline: var(--espacio-2);
   background-color: var(--color-arena);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta-tenue);
   font-size: var(--tipografia-tamano-micro);
   text-transform: uppercase;
@@ -1756,6 +1825,7 @@ a:hover {
   padding: var(--espacio-3);
   background-color: var(--color-arena);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
 }
 
 .cifras-grandes__valor {
@@ -1789,6 +1859,7 @@ a:hover {
   block-size: var(--espacio-3);
   background-color: var(--color-arena);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
 }
 
 .barras__relleno {
@@ -1796,6 +1867,7 @@ a:hover {
   block-size: 100%;
   background-color: var(--color-acento);
   --foco-color: var(--color-acento-texto);
+  --color-enlace: var(--color-acento-texto);
 }
 
 .barras__cuanto {
@@ -1815,6 +1887,7 @@ a:hover {
 .podio__puesto[data-primero='si'] {
   background-color: var(--color-tinta);
   --foco-color: var(--color-acento-texto);
+  --color-enlace: var(--color-acento-texto);
   color: var(--color-papel);
 }
 
@@ -1843,6 +1916,7 @@ a:hover {
   border: 1px solid var(--color-borde);
   background-color: var(--color-lienzo);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
 }
 
 /* ── El mapa ──────────────────────────────────────────────────────────────────────────────── */
@@ -1852,6 +1926,7 @@ a:hover {
   border: 1px solid var(--color-borde);
   background-color: var(--color-arena);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
 }
 
 /* Alto fijo y no `vh`: en el teléfono la barra del navegador entra y sale, y con `vh` el mapa
@@ -1877,6 +1952,7 @@ a:hover {
   padding: 2px var(--espacio-2);
   background-color: var(--color-tinta);
   --foco-color: var(--color-acento-texto);
+  --color-enlace: var(--color-acento-texto);
   color: var(--color-papel);
   font-size: var(--tipografia-tamano-micro);
   white-space: nowrap;
@@ -1900,6 +1976,7 @@ a:hover {
   border: 1px solid var(--color-borde);
   background-color: var(--color-lienzo);
   --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
   color: var(--color-tinta);
   text-decoration: none;
 }
