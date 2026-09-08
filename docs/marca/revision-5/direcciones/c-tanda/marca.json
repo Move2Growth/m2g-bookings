@@ -1,0 +1,31 @@
+{
+  "clave": "c-tanda",
+  "nombre": "Tanda",
+  "layout": "bloques",
+  "promesa": "Te toca. Reserva en un minuto.",
+  "idea": "Ir al salón es un turno que vuelve. La marca es el turno, no el negocio.",
+  "porQueElNombre": "En Panamá una tanda es el turno que va rotando. Es exactamente lo que hace una clienta que vuelve cada tres semanas.",
+  "verdades": [
+    ["La cita es de la persona", "El sistema recuerda cuándo te toca. El salón no persigue, el turno vuelve solo."],
+    ["Color en bloques, no en degradados", "Cada bloque es una decisión: azul lo que informa, fucsia lo que se toca, amarillo lo que urge."],
+    ["Grande y directo", "Titulares que se leen a un brazo de distancia, porque esto se usa de pie y con una mano."]
+  ],
+  "paleta": [
+    { "nombre": "Tinta", "hex": "#101014", "uso": "Texto sobre claro y sobre amarillo.", "proporcion": 18 },
+    { "nombre": "Hueso", "hex": "#FBFBF9", "uso": "Fondo. Claro por defecto, siempre.", "proporcion": 46 },
+    { "nombre": "Cobalto", "hex": "#1B34C4", "uso": "Bloques que informan y enlaces.", "proporcion": 18 },
+    { "nombre": "Fucsia", "hex": "#C81E64", "uso": "Lo que se toca: reservar y el turno de hoy.", "proporcion": 12 },
+    { "nombre": "Amarillo", "hex": "#F5C400", "uso": "Aviso y urgencia. Solo con texto tinta encima.", "proporcion": 6 }
+  ],
+  "tipos": {
+    "display": { "familia": "Familjen Grotesk", "css": "'Familjen Grotesk', system-ui, sans-serif", "nota": "Grotesca con carácter en las diagonales. Rótulos en 700 y muy grandes." },
+    "texto": { "familia": "Public Sans", "css": "'Public Sans', system-ui, sans-serif", "nota": "Neutra y de lectura larga. Aguanta 14 px en pantalla mala." }
+  },
+  "voz": [
+    ["Se dice", "«Te toca el jueves»"],
+    ["No se dice", "«Recordatorio de su cita»"],
+    ["Se dice", "«Vas de 3 en 3 semanas»"],
+    ["No se dice", "«Frecuencia de visita estimada»"]
+  ],
+  "reglaLogo": "Falta un sexto: ese hueco es el turno que viene y no se rellena. No se le pone contorno, no se gira para «equilibrarlo» y nunca va sobre una foto."
+}

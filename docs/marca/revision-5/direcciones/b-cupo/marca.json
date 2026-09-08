@@ -1,0 +1,31 @@
+{
+  "clave": "b-cupo",
+  "nombre": "Cupo",
+  "layout": "sistema",
+  "promesa": "El cupo de tu salón, siempre a la vista",
+  "idea": "Una agenda es un inventario de huecos. Se diseña como se diseña una señal, no como se decora una app.",
+  "porQueElNombre": "«Cupo» es la palabra que ya usa el salón cuando queda sitio. Es corta, se escribe igual que se dice y no hay que traducirla.",
+  "verdades": [
+    ["El hueco es la unidad", "Todo el sistema pinta lo mismo: hay cupo o no hay. Sin estados intermedios y sin adornos que lo disimulen."],
+    ["Sin esquinas blandas", "Radio cero en todo. Un botón se distingue por su peso y su color, no por estar redondeado."],
+    ["Un solo acento", "El naranja solo significa «esto se toca». Si aparece en algo que no se toca, es un error."]
+  ],
+  "paleta": [
+    { "nombre": "Negro", "hex": "#0B0C0E", "uso": "Texto, rótulos y la barra de arriba.", "proporcion": 20 },
+    { "nombre": "Cemento", "hex": "#EDEEF0", "uso": "Fondo. Gris frío, no blanco: el blanco se reserva.", "proporcion": 52 },
+    { "nombre": "Señal", "hex": "#B23A08", "uso": "Lo único que se toca: reservar, el hueco elegido.", "proporcion": 12 },
+    { "nombre": "Gris", "hex": "#5A6068", "uso": "Etiquetas, unidades, texto de apoyo.", "proporcion": 10 },
+    { "nombre": "Blanco", "hex": "#FFFFFF", "uso": "Las fichas de hora. Se levantan del cemento.", "proporcion": 6 }
+  ],
+  "tipos": {
+    "display": { "familia": "Schibsted Grotesk", "css": "'Schibsted Grotesk', system-ui, sans-serif", "nota": "Grotesca cerrada, sin humor. Los rótulos van en 800 y con el interletrado apretado." },
+    "texto": { "familia": "IBM Plex Mono", "css": "'IBM Plex Mono', ui-monospace, monospace", "nota": "Monoespaciada para horas, precios y códigos: las cifras se alinean solas en columna." }
+  },
+  "voz": [
+    ["Se dice", "«4 cupos · hoy»"],
+    ["No se dice", "«¡Todavía quedan plazas!»"],
+    ["Se dice", "«Sin cupo hasta el jueves»"],
+    ["No se dice", "«Lo sentimos, no hay disponibilidad»"]
+  ],
+  "reglaLogo": "La rejilla no se rellena nunca: el hueco es la marca. No se gira, no se le añaden celdas y el vacío va siempre abajo a la derecha."
+}

@@ -1,0 +1,31 @@
+{
+  "clave": "a-buenamano",
+  "nombre": "Buenamano",
+  "layout": "editorial",
+  "promesa": "Reservas y agenda para salones de Panamá",
+  "idea": "El salón de barrio, tratado como una publicación seria.",
+  "porQueElNombre": "«Tener buena mano» es lo que se dice de quien corta bien. No hay que explicarlo en Panamá y no se parece a un producto de software.",
+  "verdades": [
+    ["Manda el oficio", "La foto del trabajo va antes que la foto del local. Quien elige, elige a una persona."],
+    ["Gratis de verdad", "El salón no paga por tener agenda. Se paga por salir arriba, y eso se dice en voz alta."],
+    ["Se lee de un vistazo", "Una hora libre es un dato, no una tarjeta con sombra. La retícula hace el trabajo que hacía el adorno."]
+  ],
+  "paleta": [
+    { "nombre": "Tinta", "hex": "#14161A", "uso": "Texto y titulares. La única tinta oscura.", "proporcion": 22 },
+    { "nombre": "Papel", "hex": "#F4F4F2", "uso": "Fondo de todo. El producto arranca en claro.", "proporcion": 58 },
+    { "nombre": "Savia", "hex": "#0F6B4F", "uso": "Acción: reservar, confirmar, la hora elegida.", "proporcion": 12 },
+    { "nombre": "Humo", "hex": "#5C6169", "uso": "Texto secundario, etiquetas, filetes.", "proporcion": 6 },
+    { "nombre": "Cal", "hex": "#FFFFFF", "uso": "Superficies que se levantan del papel.", "proporcion": 2 }
+  ],
+  "tipos": {
+    "display": { "familia": "Archivo", "css": "'Archivo', system-ui, sans-serif", "nota": "Ancho 112 % en rótulo, 100 % en texto, 125 % en cifras. Una familia, tres anchos." },
+    "texto": { "familia": "Newsreader", "css": "'Newsreader', Georgia, serif", "nota": "Serif de texto con eje óptico: a 9 pt abre, a 60 pt cierra." }
+  },
+  "voz": [
+    ["Se dice", "«Quedan 4 horas hoy»"],
+    ["No se dice", "«Disponibilidad limitada»"],
+    ["Se dice", "«Kevin no trabaja los martes»"],
+    ["No se dice", "«Profesional no disponible»"]
+  ],
+  "reglaLogo": "La mano no se inclina, no se encierra en un círculo, no lleva sombra y no cambia de proporción entre dedos. Si hay que reducirla, se reduce entera."
+}

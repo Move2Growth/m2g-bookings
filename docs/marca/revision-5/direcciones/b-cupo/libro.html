@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Cupo · Manual de marca</title>
+<link rel="stylesheet" href="./fuentes/fuentes.css">
+<style>
+@page { size: 297mm 210mm; margin: 0 }
+* { box-sizing: border-box; margin: 0; padding: 0 }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact }
+body { background: #EDEEF0; color: #0B0C0E; font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+.pagina {
+  width: 297mm; height: 210mm; overflow: hidden; position: relative;
+  background: #EDEEF0; padding: 16mm 18mm 17mm;
+  display: flex; flex-direction: column; gap: 6mm;
+}
+.cifra { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1 }
+.rotulo {
+  font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 9pt; font-weight: 600;
+  letter-spacing: .14em; text-transform: uppercase; color: #5A6068;
+}
+.titulo { font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 26pt; line-height: 1.1; font-weight: 700; max-width: 22ch }
+.folio {
+  position: absolute; left: 18mm; right: 18mm; bottom: 8mm;
+  display: flex; justify-content: space-between; font-family: 'Schibsted Grotesk', system-ui, sans-serif;
+  font-size: 8pt; letter-spacing: .1em; text-transform: uppercase; color: #5A6068;
+}
+.regla { font-size: 10pt; line-height: 1.5; max-width: 78ch; color: #5A6068 }
+.regla strong { color: #0B0C0E }
+
+/* Moodboard */
+.mosaico { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 46mm; gap: 5mm; flex: 1 }
+.pieza { position: relative; display: flex; align-items: flex-end; padding: 4mm; overflow: hidden }
+.pieza span { font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 9pt; letter-spacing: .1em; text-transform: uppercase; position: relative }
+.pieza--llena { background: #B23A08; color: #EDEEF0 }
+.pieza--rayas { background: repeating-linear-gradient(90deg, #0B0C0E 0 1px, #EDEEF0 1px 6px); color: #0B0C0E }
+.pieza--rejilla { background:
+  repeating-linear-gradient(90deg, #5A6068 0 .5px, transparent .5px 9mm),
+  repeating-linear-gradient(0deg, #5A6068 0 .5px, transparent .5px 9mm), #EDEEF0; color: #0B0C0E }
+.pieza--arco { background: #0B0C0E; color: #EDEEF0 }
+.pieza--arco::before { content: ''; position: absolute; inset: -30% -10% auto; height: 130%; border-radius: 50%; background: #B23A08 }
+.pieza--cifras { background: #EDEEF0; border: 1.5px solid #0B0C0E; color: #0B0C0E; align-items: center; justify-content: center }
+.pieza--cifras span { font-size: 30pt; letter-spacing: -.02em }
+.pieza--puntos { background: radial-gradient(#0B0C0E 22%, transparent 23%) 0 0/4mm 4mm, #EDEEF0; color: #0B0C0E }
+
+/* Logotipo e ícono */
+.versiones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6mm; flex: 1 }
+.v { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6mm; padding: 8mm }
+.v figcaption { font-size: 9pt; letter-spacing: .04em }
+.v--principal { background: #EDEEF0; border: 1px solid #5A6068; color: #0B0C0E }
+.v--invertida { background: #0B0C0E; color: #EDEEF0 }
+.v--tinta { background: #B23A08; color: #EDEEF0 }
+.escalones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8mm; flex: 1; align-items: start }
+.caja-icono { display: grid; place-items: center; background: #0B0C0E; color: #EDEEF0; margin-bottom: 4mm }
+.i48 { width: 48px; height: 48px } .i32 { width: 32px; height: 32px } .i16 { width: 16px; height: 16px }
+.escalones figcaption { font-size: 9.5pt; line-height: 1.5; color: #5A6068 }
+.escalones figcaption .cifra { color: #0B0C0E; font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-weight: 700 }
+
+/* Color */
+.tabla-color { width: 100%; border-collapse: collapse; font-size: 9.5pt }
+.tabla-color th { text-align: left; font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-weight: 600 }
+.tabla-color thead th { font-size: 8pt; letter-spacing: .1em; text-transform: uppercase; color: #5A6068; padding-bottom: 2mm }
+.tabla-color td, .tabla-color tbody th { padding: 2.6mm 3mm 2.6mm 0; border-top: 1px solid #5A606844; vertical-align: middle }
+.tabla-color small { color: #5A6068; font-size: 7.5pt; margin-left: .4em }
+.muestra { display: block; width: 13mm; height: 9mm; border: 1px solid #0B0C0E22 }
+.uso { color: #5A6068 }
+.sello { font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 8pt; font-weight: 700; letter-spacing: .08em; padding: .8mm 2mm; background: #0B0C0E; color: #EDEEF0 }
+.sello--mal { background: #B00020; color: #fff }
+.proporcion { display: flex; height: 9mm; margin-top: 1mm; border: 1px solid #0B0C0E55 }
+.proporcion span + span { border-left: 1px solid #0B0C0E55 }
+
+/* Tipografía */
+.tipos { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm }
+.espec-display { font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 44pt; line-height: 1; font-weight: 700; margin: 3mm 0 }
+.espec-cifras { font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 16pt; font-weight: 600 }
+.espec-texto { font-size: 15pt; line-height: 1.45; margin: 3mm 0 }
+.nota { font-size: 9.5pt; color: #5A6068; line-height: 1.5; margin-top: 2mm }
+.jerarquia { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin-top: 2mm }
+.jerarquia th { text-align: left; width: 22mm; font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 8pt; letter-spacing: .1em; text-transform: uppercase; color: #5A6068 }
+.jerarquia td { padding: 1.6mm 0; border-top: 1px solid #5A606844 }
+.jerarquia td:last-child { color: #5A6068; text-align: right }
+.j-display { font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 20pt; font-weight: 700 }
+.j-h1 { font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 15pt; font-weight: 700 }
+.j-h2 { font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 12pt; font-weight: 600 }
+.j-cuerpo { font-size: 11pt } .j-etiqueta { font-size: 8.5pt; letter-spacing: .06em; text-transform: uppercase }
+
+/* Componentes */
+.estados { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4mm }
+.estados figcaption { font-size: 8.5pt; color: #5A6068; margin-top: 2mm; text-align: center }
+.btn {
+  width: 100%; font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 10pt; font-weight: 700;
+  padding: 3.4mm 3mm; border: 2px solid transparent; background: #B23A08; color: #EDEEF0;
+  display: flex; align-items: center; justify-content: center; gap: 2mm; cursor: default;
+}
+.btn.ancho { width: 100%; margin-top: 3mm }
+.e1 { filter: brightness(.88) }
+.e2 { filter: brightness(.76); transform: translateY(1px) }
+.e3 { opacity: .92 }
+.e4 { background: #5A606855; color: #5A6068 }
+.e5 { outline: 3px solid #0B0C0E; outline-offset: 2px }
+.rueda { width: 3mm; height: 3mm; border: 1.6px solid #EDEEF0; border-top-color: transparent; border-radius: 50% }
+.otros { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 6mm; align-items: start }
+.campo label { display: block; font-size: 9pt; color: #5A6068; margin: 2mm 0 1.4mm }
+.entrada { border: 1.5px solid #0B0C0E; padding: 3mm; font-size: 11pt; background: #FFFFFF }
+.horas { display: flex; flex-wrap: wrap; gap: 2mm; margin-top: 2mm }
+.hora { font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 10pt; font-weight: 600; padding: 2.4mm 3mm; border: 1.5px solid #0B0C0E; background: #FFFFFF }
+.hora--elegida { background: #B23A08; color: #EDEEF0; border-color: #B23A08 }
+.hora--ida { color: #5A6068; border-color: #5A606866; text-decoration: line-through }
+.aviso { margin-top: 2mm; border-left: 3px solid #B23A08; padding: 2mm 0 2mm 3mm; font-size: 10pt; line-height: 1.45 }
+
+/* Pantalla */
+.con-telefono { display: grid; grid-template-columns: 390px 1fr; gap: 10mm; flex: 1; align-items: start }
+.telefono { width: 390px; height: 132mm; background: #FFFFFF; border: 1.5px solid #0B0C0E; display: flex; flex-direction: column; overflow: hidden }
+.app-cabecera { display: flex; align-items: center; gap: 3mm; padding: 3mm 4mm; border-bottom: 1px solid #5A606844; font-size: 9pt; color: #5A6068 }
+.app-entrar { margin-left: auto; color: #0B0C0E; font-weight: 700 }
+.app-cuerpo { padding: 4mm; flex: 1 }
+.app-h1 { font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 17pt; font-weight: 700; line-height: 1.15 }
+.app-dir, .app-nota { font-size: 9.5pt; color: #5A6068; margin-top: 1mm }
+.app-cuerpo .rotulo { margin: 4mm 0 1.6mm }
+.app-servicios { list-style: none; font-size: 10pt }
+.app-servicios li { display: flex; justify-content: space-between; padding: 2.2mm 2mm; border-bottom: 1px solid #5A606833 }
+.app-servicios .elegido { background: #B23A0818; border-left: 3px solid #B23A08; font-weight: 700 }
+.app-horas { display: flex; flex-wrap: wrap; gap: 1.6mm; font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 9.5pt; font-weight: 600 }
+.app-horas span { padding: 2mm 2.6mm; border: 1.4px solid #0B0C0E }
+.app-horas .sel { background: #B23A08; color: #EDEEF0; border-color: #B23A08 }
+.app-pestanas { display: flex; border-top: 1px solid #5A606844; font-size: 8.5pt; color: #5A6068 }
+.app-pestanas span { flex: 1; text-align: center; padding: 3mm 0 }
+.app-pestanas .on { color: #0B0C0E; font-weight: 700; box-shadow: inset 0 2px 0 #B23A08 }
+.explica p { font-size: 10.5pt; line-height: 1.55; margin-bottom: 4mm; max-width: 52ch }
+
+/* Voz y cierre */
+.voz { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm 8mm }
+.voz p { font-size: 12pt; line-height: 1.4; padding: 3mm 0; border-top: 1px solid #5A606844 }
+.voz .rotulo { display: block; margin-bottom: 1mm }
+.voz .no { color: #5A6068; text-decoration: line-through #5A6068 }
+.cierre { display: grid; grid-template-columns: 90mm 1fr; gap: 10mm; align-items: end; flex: 1 }
+.tarjeta { background: #0B0C0E; color: #EDEEF0; padding: 8mm; height: 52mm; display: flex; flex-direction: column; justify-content: space-between }
+.t-nombre { font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 15pt; font-weight: 700 }
+.t-linea { font-size: 9pt; opacity: .75 }
+.firma { font-size: 10.5pt; line-height: 1.55; color: #5A6068; max-width: 56ch }
+
+/* Estrategia */
+.nota-nombre { font-size: 11pt; line-height: 1.55; max-width: 80ch }
+.verdades { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8mm; margin-top: 2mm }
+.verdades h3 { font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 13pt; font-weight: 700; margin: 2mm 0 1.6mm }
+.verdades p { font-size: 10.5pt; line-height: 1.55; color: #5A6068 }
+.ordinal { font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 30pt; font-weight: 700; color: #B23A08; line-height: 1 }
+
+.portada-sistema { display: flex; flex-direction: column; gap: 6mm; flex: 1 }
+.barra { display: flex; justify-content: space-between; background: #0B0C0E; color: #EDEEF0; padding: 2.6mm 4mm; font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 9pt; font-weight: 700; letter-spacing: .18em }
+.centro { display: flex; align-items: center; gap: 10mm; flex: 1 }
+.titulazo { font-family: 'Schibsted Grotesk', system-ui, sans-serif; font-size: 92pt; font-weight: 900; letter-spacing: -.045em; line-height: .9 }
+.promesa { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13pt; letter-spacing: -.01em }
+.rejilla-cupos { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2mm; height: 22mm }
+.rejilla-cupos i { background: #0B0C0E }
+.rejilla-cupos i.libre { background: #B23A08 }
+.titulo { letter-spacing: -.03em }
+.rotulo { letter-spacing: .18em }
+.pieza--arco::before { border-radius: 0; inset: auto -10% -40%; height: 90% }
+</style>
+</head>
+<body>
+<section class="pagina portada">
+  <div class="portada-sistema">
+        <div class="barra"><span>CUPO</span><span class="cifra">REV 5 · 2026</span></div>
+        <div class="centro">
+          <svg viewBox="0 0 910.000000 911.000000" height="190" role="img" aria-label="Cupo" style="display:block"><g transform="translate(0.000000,911.000000) scale(0.100000,-0.100000)"
+fill="currentColor" stroke="none">
+<path d="M620 7415 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3470 7415 l0 -1075 1080 0 1080 0 0 1075 0 1075 -1080 0 -1080 0 0
+-1075z"/>
+<path d="M6330 7415 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3474 5631 l-4 -4 0 -1074 0 -1073 1078 2 1077 3 3 1072 2 1073
+-1076 2 -1076 3 -4 -4z"/>
+<path d="M620 4555 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M6330 4555 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M620 1705 l0 -1075 1075 -2 1075 -3 0 1078 0 1077 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3477 2773 l-7 -6 0 -1069 0 -1068 1070 0 1070 0 8 0 7 0 0 1073 0
+1072 -1071 3 -1071 2 -6 -7z"/>
+</g>
+</svg>
+          <h1 class="titulazo">Cupo</h1>
+        </div>
+        <p class="promesa">El cupo de tu salón, siempre a la vista</p>
+        <div class="rejilla-cupos"><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class="libre"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></div>
+      </div>
+  <footer class="folio"><span>Cupo</span><span>Portada</span><span class="cifra">01</span></footer>
+</section>
+<section class="pagina estrategia">
+  <p class="rotulo">02 · Estrategia</p>
+    <h2 class="titulo">Una agenda es un inventario de huecos. Se diseña como se diseña una señal, no como se decora una app.</h2>
+    <p class="nota-nombre"><strong>Por qué se llama así.</strong> «Cupo» es la palabra que ya usa el salón cuando queda sitio. Es corta, se escribe igual que se dice y no hay que traducirla.</p>
+    <div class="verdades">
+      <article><span class="cifra ordinal">01</span><h3>El hueco es la unidad</h3><p>Todo el sistema pinta lo mismo: hay cupo o no hay. Sin estados intermedios y sin adornos que lo disimulen.</p></article><article><span class="cifra ordinal">02</span><h3>Sin esquinas blandas</h3><p>Radio cero en todo. Un botón se distingue por su peso y su color, no por estar redondeado.</p></article><article><span class="cifra ordinal">03</span><h3>Un solo acento</h3><p>El naranja solo significa «esto se toca». Si aparece en algo que no se toca, es un error.</p></article>
+    </div>
+  <footer class="folio"><span>Cupo</span><span>Estrategia</span><span class="cifra">02</span></footer>
+</section>
+<section class="pagina moodboard">
+  <p class="rotulo">03 · Moodboard</p>
+    <h2 class="titulo">De qué está hecho</h2>
+    <div class="mosaico">
+      <div class="pieza pieza--llena"><span>Bloque</span></div>
+      <div class="pieza pieza--rayas"><span>Trama fina</span></div>
+      <div class="pieza pieza--rejilla"><span>Retícula</span></div>
+      <div class="pieza pieza--arco"><span>Curva</span></div>
+      <div class="pieza pieza--cifras"><span class="cifra">09:45</span></div>
+      <div class="pieza pieza--puntos"><span>Grano</span></div>
+    </div>
+  <footer class="folio"><span>Cupo</span><span>Moodboard</span><span class="cifra">03</span></footer>
+</section>
+<section class="pagina logotipo">
+  <p class="rotulo">04 · Logotipo</p>
+    <h2 class="titulo">Tres versiones y ninguna más</h2>
+    <div class="versiones">
+      <figure class="v v--principal"><svg viewBox="0 0 910.000000 911.000000" height="96" role="img" aria-label="Cupo" style="display:block"><g transform="translate(0.000000,911.000000) scale(0.100000,-0.100000)"
+fill="currentColor" stroke="none">
+<path d="M620 7415 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3470 7415 l0 -1075 1080 0 1080 0 0 1075 0 1075 -1080 0 -1080 0 0
+-1075z"/>
+<path d="M6330 7415 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3474 5631 l-4 -4 0 -1074 0 -1073 1078 2 1077 3 3 1072 2 1073
+-1076 2 -1076 3 -4 -4z"/>
+<path d="M620 4555 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M6330 4555 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M620 1705 l0 -1075 1075 -2 1075 -3 0 1078 0 1077 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3477 2773 l-7 -6 0 -1069 0 -1068 1070 0 1070 0 8 0 7 0 0 1073 0
+1072 -1071 3 -1071 2 -6 -7z"/>
+</g>
+</svg><figcaption>Principal · sobre fondo claro</figcaption></figure>
+      <figure class="v v--invertida"><svg viewBox="0 0 910.000000 911.000000" height="96" role="img" aria-label="Cupo" style="display:block"><g transform="translate(0.000000,911.000000) scale(0.100000,-0.100000)"
+fill="currentColor" stroke="none">
+<path d="M620 7415 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3470 7415 l0 -1075 1080 0 1080 0 0 1075 0 1075 -1080 0 -1080 0 0
+-1075z"/>
+<path d="M6330 7415 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3474 5631 l-4 -4 0 -1074 0 -1073 1078 2 1077 3 3 1072 2 1073
+-1076 2 -1076 3 -4 -4z"/>
+<path d="M620 4555 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M6330 4555 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M620 1705 l0 -1075 1075 -2 1075 -3 0 1078 0 1077 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3477 2773 l-7 -6 0 -1069 0 -1068 1070 0 1070 0 8 0 7 0 0 1073 0
+1072 -1071 3 -1071 2 -6 -7z"/>
+</g>
+</svg><figcaption>Invertida · sobre tinta</figcaption></figure>
+      <figure class="v v--tinta"><svg viewBox="0 0 910.000000 911.000000" height="96" role="img" aria-label="Cupo" style="display:block"><g transform="translate(0.000000,911.000000) scale(0.100000,-0.100000)"
+fill="currentColor" stroke="none">
+<path d="M620 7415 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3470 7415 l0 -1075 1080 0 1080 0 0 1075 0 1075 -1080 0 -1080 0 0
+-1075z"/>
+<path d="M6330 7415 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3474 5631 l-4 -4 0 -1074 0 -1073 1078 2 1077 3 3 1072 2 1073
+-1076 2 -1076 3 -4 -4z"/>
+<path d="M620 4555 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M6330 4555 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M620 1705 l0 -1075 1075 -2 1075 -3 0 1078 0 1077 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3477 2773 l-7 -6 0 -1069 0 -1068 1070 0 1070 0 8 0 7 0 0 1073 0
+1072 -1071 3 -1071 2 -6 -7z"/>
+</g>
+</svg><figcaption>Una tinta · sello y sobre acento</figcaption></figure>
+    </div>
+    <p class="regla"><strong>Lo que nunca se le hace.</strong> La rejilla no se rellena nunca: el hueco es la marca. No se gira, no se le añaden celdas y el vacío va siempre abajo a la derecha.</p>
+  <footer class="folio"><span>Cupo</span><span>Logotipo</span><span class="cifra">04</span></footer>
+</section>
+<section class="pagina icono">
+  <p class="rotulo">05 · Ícono</p>
+    <h2 class="titulo">Qué se cae en cada escalón</h2>
+    <div class="escalones">
+      <figure><div class="caja-icono i48"><svg viewBox="0 0 910.000000 911.000000" height="30" role="img" aria-label="Cupo" style="display:block"><g transform="translate(0.000000,911.000000) scale(0.100000,-0.100000)"
+fill="currentColor" stroke="none">
+<path d="M620 7415 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3470 7415 l0 -1075 1080 0 1080 0 0 1075 0 1075 -1080 0 -1080 0 0
+-1075z"/>
+<path d="M6330 7415 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3474 5631 l-4 -4 0 -1074 0 -1073 1078 2 1077 3 3 1072 2 1073
+-1076 2 -1076 3 -4 -4z"/>
+<path d="M620 4555 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M6330 4555 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M620 1705 l0 -1075 1075 -2 1075 -3 0 1078 0 1077 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3477 2773 l-7 -6 0 -1069 0 -1068 1070 0 1070 0 8 0 7 0 0 1073 0
+1072 -1071 3 -1071 2 -6 -7z"/>
+</g>
+</svg></div><figcaption><span class="cifra">48 px</span><br>Se ve entera: se usa en la pestaña y en el atajo del móvil.</figcaption></figure>
+      <figure><div class="caja-icono i32"><svg viewBox="0 0 910.000000 911.000000" height="20" role="img" aria-label="Cupo" style="display:block"><g transform="translate(0.000000,911.000000) scale(0.100000,-0.100000)"
+fill="currentColor" stroke="none">
+<path d="M620 7415 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3470 7415 l0 -1075 1080 0 1080 0 0 1075 0 1075 -1080 0 -1080 0 0
+-1075z"/>
+<path d="M6330 7415 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3474 5631 l-4 -4 0 -1074 0 -1073 1078 2 1077 3 3 1072 2 1073
+-1076 2 -1076 3 -4 -4z"/>
+<path d="M620 4555 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M6330 4555 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M620 1705 l0 -1075 1075 -2 1075 -3 0 1078 0 1077 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3477 2773 l-7 -6 0 -1069 0 -1068 1070 0 1070 0 8 0 7 0 0 1073 0
+1072 -1071 3 -1071 2 -6 -7z"/>
+</g>
+</svg></div><figcaption><span class="cifra">32 px</span><br>Se pierden los remates finos; la silueta aguanta.</figcaption></figure>
+      <figure><div class="caja-icono i16"><svg viewBox="0 0 910.000000 911.000000" height="11" role="img" aria-label="Cupo" style="display:block"><g transform="translate(0.000000,911.000000) scale(0.100000,-0.100000)"
+fill="currentColor" stroke="none">
+<path d="M620 7415 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3470 7415 l0 -1075 1080 0 1080 0 0 1075 0 1075 -1080 0 -1080 0 0
+-1075z"/>
+<path d="M6330 7415 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3474 5631 l-4 -4 0 -1074 0 -1073 1078 2 1077 3 3 1072 2 1073
+-1076 2 -1076 3 -4 -4z"/>
+<path d="M620 4555 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M6330 4555 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M620 1705 l0 -1075 1075 -2 1075 -3 0 1078 0 1077 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3477 2773 l-7 -6 0 -1069 0 -1068 1070 0 1070 0 8 0 7 0 0 1073 0
+1072 -1071 3 -1071 2 -6 -7z"/>
+</g>
+</svg></div><figcaption><span class="cifra">16 px</span><br>Queda la mancha. Por eso la marca es maciza y no de línea.</figcaption></figure>
+    </div>
+    <p class="regla"><strong>La prueba.</strong> A 16 px se mira entornando los ojos: si dos formas se tocan y se funden, el ícono está mal dibujado, no mal exportado.</p>
+  <footer class="folio"><span>Cupo</span><span>Ícono</span><span class="cifra">05</span></footer>
+</section>
+<section class="pagina color">
+  <p class="rotulo">06 · Color</p>
+    <h2 class="titulo">Cinco tintas, cada una con su trabajo</h2>
+    <table class="tabla-color">
+      <thead><tr><th></th><th>Nombre</th><th>Hex</th><th>RGB</th><th>Contraste</th><th>WCAG</th><th>Para qué</th></tr></thead>
+      <tbody><tr>
+        <td><span class="muestra" style="background:#0B0C0E"></span></td>
+        <th>Negro</th>
+        <td class="cifra">#0B0C0E</td>
+        <td class="cifra">11 · 12 · 14</td>
+        <td class="cifra">16.85:1<small> sobre papel</small></td>
+        <td><span class="sello ">AAA</span></td>
+        <td class="uso">Texto, rótulos y la barra de arriba.</td>
+      </tr><tr>
+        <td><span class="muestra" style="background:#EDEEF0"></span></td>
+        <th>Cemento</th>
+        <td class="cifra">#EDEEF0</td>
+        <td class="cifra">237 · 238 · 240</td>
+        <td class="cifra">16.85:1<small> sobre tinta</small></td>
+        <td><span class="sello ">AAA</span></td>
+        <td class="uso">Fondo. Gris frío, no blanco: el blanco se reserva.</td>
+      </tr><tr>
+        <td><span class="muestra" style="background:#B23A08"></span></td>
+        <th>Señal</th>
+        <td class="cifra">#B23A08</td>
+        <td class="cifra">178 · 58 · 8</td>
+        <td class="cifra">5.16:1<small> sobre papel</small></td>
+        <td><span class="sello ">AA</span></td>
+        <td class="uso">Lo único que se toca: reservar, el hueco elegido.</td>
+      </tr><tr>
+        <td><span class="muestra" style="background:#5A6068"></span></td>
+        <th>Gris</th>
+        <td class="cifra">#5A6068</td>
+        <td class="cifra">90 · 96 · 104</td>
+        <td class="cifra">5.46:1<small> sobre papel</small></td>
+        <td><span class="sello ">AA</span></td>
+        <td class="uso">Etiquetas, unidades, texto de apoyo.</td>
+      </tr><tr>
+        <td><span class="muestra" style="background:#FFFFFF"></span></td>
+        <th>Blanco</th>
+        <td class="cifra">#FFFFFF</td>
+        <td class="cifra">255 · 255 · 255</td>
+        <td class="cifra">19.56:1<small> sobre tinta</small></td>
+        <td><span class="sello ">AAA</span></td>
+        <td class="uso">Las fichas de hora. Se levantan del cemento.</td>
+      </tr></tbody>
+    </table>
+    <div class="proporcion"><span style="flex:20;background:#0B0C0E"></span><span style="flex:52;background:#EDEEF0"></span><span style="flex:12;background:#B23A08"></span><span style="flex:10;background:#5A6068"></span><span style="flex:6;background:#FFFFFF"></span></div>
+    <p class="regla"><strong>Los ratios están calculados, no escritos.</strong> Salen de estos mismos hex al generar el libro, así que no pueden decir una cosa y pintar otra.</p>
+  <footer class="folio"><span>Cupo</span><span>Color</span><span class="cifra">06</span></footer>
+</section>
+<section class="pagina tipografia">
+  <p class="rotulo">07 · Tipografía</p>
+    <h2 class="titulo">Schibsted Grotesk y IBM Plex Mono</h2>
+    <div class="tipos">
+      <div class="columna-tipo">
+        <p class="rotulo">Rótulo · Schibsted Grotesk</p>
+        <p class="espec-display">Aa Bb Cc Ññ</p>
+        <p class="espec-cifras cifra">0123456789 · 09:45 · $18.00</p>
+        <p class="nota">Grotesca cerrada, sin humor. Los rótulos van en 800 y con el interletrado apretado.</p>
+      </div>
+      <div class="columna-tipo">
+        <p class="rotulo">Texto · IBM Plex Mono</p>
+        <p class="espec-texto">Reserva con Kevin el martes a las nueve y cuarto. Si no puedes, lo cambias desde aquí sin llamar a nadie.</p>
+        <p class="nota">Monoespaciada para horas, precios y códigos: las cifras se alinean solas en columna.</p>
+      </div>
+    </div>
+    <table class="jerarquia">
+      <tr><th>Display</th><td class="j-display">40 / 40</td><td>Portada y titulares de página</td></tr>
+      <tr><th>H1</th><td class="j-h1">28 / 32</td><td>Título de pantalla</td></tr>
+      <tr><th>H2</th><td class="j-h2">20 / 26</td><td>Sección dentro de una pantalla</td></tr>
+      <tr><th>Cuerpo</th><td class="j-cuerpo">15 / 23</td><td>Todo lo que se lee seguido</td></tr>
+      <tr><th>Etiqueta</th><td class="j-etiqueta">12 / 16</td><td>Rótulos, unidades y estados</td></tr>
+    </table>
+  <footer class="folio"><span>Cupo</span><span>Tipografía</span><span class="cifra">07</span></footer>
+</section>
+<section class="pagina componentes">
+  <p class="rotulo">08 · Componentes</p>
+    <h2 class="titulo">Un botón son seis estados</h2>
+    <div class="estados">
+      <figure><button class="btn e0" >Reservar</button><figcaption>Reposo</figcaption></figure><figure><button class="btn e1" >Reservar</button><figcaption>Encima</figcaption></figure><figure><button class="btn e2" >Reservar</button><figcaption>Pulsado</figcaption></figure><figure><button class="btn e3" ><span class="rueda"></span>Reservando</button><figcaption>Cargando</figcaption></figure><figure><button class="btn e4" disabled>Reservar</button><figcaption>Inhabilitado</figcaption></figure><figure><button class="btn e5" >Reservar</button><figcaption>Con foco</figcaption></figure>
+    </div>
+    <div class="otros">
+      <div>
+        <p class="rotulo">Campo</p>
+        <div class="campo"><label>Tu teléfono</label><div class="entrada"><span class="cifra">+507 6000-0000</span></div></div>
+      </div>
+      <div>
+        <p class="rotulo">Hora libre y hora tomada</p>
+        <div class="horas"><span class="hora">09:00</span><span class="hora">09:15</span><span class="hora hora--elegida">09:30</span><span class="hora hora--ida">09:45</span><span class="hora">10:00</span></div>
+      </div>
+      <div>
+        <p class="rotulo">Aviso</p>
+        <p class="aviso">Sin cupo este día. El jueves abre a las nueve.</p>
+      </div>
+    </div>
+  <footer class="folio"><span>Cupo</span><span>Componentes</span><span class="cifra">08</span></footer>
+</section>
+<section class="pagina pantalla">
+  <p class="rotulo">09 · Pantalla entera</p>
+    <h2 class="titulo">La ficha de un salón, a 390 px</h2>
+    <div class="con-telefono">
+      <div class="telefono">
+        <header class="app-cabecera"><svg viewBox="0 0 910.000000 911.000000" height="18" role="img" aria-label="Cupo" style="display:block"><g transform="translate(0.000000,911.000000) scale(0.100000,-0.100000)"
+fill="currentColor" stroke="none">
+<path d="M620 7415 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3470 7415 l0 -1075 1080 0 1080 0 0 1075 0 1075 -1080 0 -1080 0 0
+-1075z"/>
+<path d="M6330 7415 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3474 5631 l-4 -4 0 -1074 0 -1073 1078 2 1077 3 3 1072 2 1073
+-1076 2 -1076 3 -4 -4z"/>
+<path d="M620 4555 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M6330 4555 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M620 1705 l0 -1075 1075 -2 1075 -3 0 1078 0 1077 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3477 2773 l-7 -6 0 -1069 0 -1068 1070 0 1070 0 8 0 7 0 0 1073 0
+1072 -1071 3 -1071 2 -6 -7z"/>
+</g>
+</svg><span>Buscar</span><span class="app-entrar">Entrar</span></header>
+        <div class="app-cuerpo">
+          <h3 class="app-h1">Barbería El Cangrejo</h3>
+          <p class="app-dir">Calle 47 con Vía Argentina · El Cangrejo</p>
+          <p class="app-nota"><span class="cifra">4,32</span> · 12 reseñas</p>
+          <p class="rotulo">Servicios</p>
+          <ul class="app-servicios">
+            <li><span>Corte clásico</span><span class="cifra">45 min · $12.00</span></li>
+            <li class="elegido"><span>Corte + barba</span><span class="cifra">60 min · $18.00</span></li>
+          </ul>
+          <p class="rotulo">Horas libres · martes 8</p>
+          <div class="app-horas"><span>16:00</span><span>16:15</span><span class="sel">16:30</span><span>16:45</span><span>17:00</span><span>17:15</span></div>
+          <button class="btn e0 ancho">Reservar 16:30</button>
+        </div>
+        <nav class="app-pestanas"><span class="on">Buscar</span><span>Mis citas</span><span>Yo</span></nav>
+      </div>
+      <div class="explica">
+        <p><strong>Se enseña entera</strong>, con su cabecera y su barra de abajo, porque un recorte bonito esconde justo lo que suele estar mal: qué se ve al llegar y qué se ve al final.</p>
+        <p>La hora elegida no lleva sombra ni redondeo: cambia de color y de peso. Es la misma regla del acento — el color solo marca lo que se toca.</p>
+        <p>El precio y la hora van en cifra tabular: en una columna de seis horas, si no se alinean, se leen mal de un vistazo.</p>
+      </div>
+    </div>
+  <footer class="folio"><span>Cupo</span><span>Pantalla</span><span class="cifra">09</span></footer>
+</section>
+<section class="pagina voz">
+  <p class="rotulo">10 · Voz y cierre</p>
+    <h2 class="titulo">Cómo habla Cupo</h2>
+    <div class="voz">
+      <p class="si"><span class="rotulo">Se dice</span>«4 cupos · hoy»</p><p class="no"><span class="rotulo">No se dice</span>«¡Todavía quedan plazas!»</p><p class="si"><span class="rotulo">Se dice</span>«Sin cupo hasta el jueves»</p><p class="no"><span class="rotulo">No se dice</span>«Lo sentimos, no hay disponibilidad»</p>
+    </div>
+    <div class="cierre">
+      <div class="tarjeta">
+        <svg viewBox="0 0 910.000000 911.000000" height="28" role="img" aria-label="Cupo" style="display:block"><g transform="translate(0.000000,911.000000) scale(0.100000,-0.100000)"
+fill="currentColor" stroke="none">
+<path d="M620 7415 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3470 7415 l0 -1075 1080 0 1080 0 0 1075 0 1075 -1080 0 -1080 0 0
+-1075z"/>
+<path d="M6330 7415 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3474 5631 l-4 -4 0 -1074 0 -1073 1078 2 1077 3 3 1072 2 1073
+-1076 2 -1076 3 -4 -4z"/>
+<path d="M620 4555 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M6330 4555 l0 -1075 1075 0 1075 0 0 1075 0 1075 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M620 1705 l0 -1075 1075 -2 1075 -3 0 1078 0 1077 -1075 0 -1075 0 0
+-1075z"/>
+<path d="M3477 2773 l-7 -6 0 -1069 0 -1068 1070 0 1070 0 8 0 7 0 0 1073 0
+1072 -1071 3 -1071 2 -6 -7z"/>
+</g>
+</svg>
+        <p class="t-nombre">Barbería El Cangrejo</p>
+        <p class="t-linea cifra">cupo.com/barberia-el-cangrejo</p>
+      </div>
+      <p class="firma">Una dirección de marca para M2G Bookings. El nombre, el color y la letra se deciden aquí; lo demás ya está construido.</p>
+    </div>
+  <footer class="folio"><span>Cupo</span><span>Cierre</span><span class="cifra">10</span></footer>
+</section>
+</body>
+</html>
