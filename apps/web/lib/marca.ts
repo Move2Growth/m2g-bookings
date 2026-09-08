@@ -2,7 +2,7 @@
  * La marca. Vive aquí, en configuración, y **no se escribe a fuego en ninguna pantalla**: si
  * mañana cambia, se cambia este valor y los tokens, no el JSX de treinta componentes.
  */
-export const NOMBRE = process.env.NEXT_PUBLIC_NOMBRE_COMERCIAL ?? 'Bukeo'
+export const NOMBRE = process.env.NEXT_PUBLIC_NOMBRE_COMERCIAL ?? 'Tanda'
 
 /**
  * El sitio donde vive la web, tal y como se lo enseñamos a un salón para que lo copie en su bio

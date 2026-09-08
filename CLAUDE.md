@@ -6,7 +6,7 @@
 
 **Es una plataforma de reservas y marketplace de belleza y bienestar para Panamá, gratis para el negocio:** el salón gestiona agenda, equipo y clientes sin pagar nada, el cliente descubre y reserva desde el móvil, y M2G monetiza con posicionamiento pagado y una suscripción cuyo precio es un parámetro (0 al lanzamiento).
 
-**El nombre comercial está sin decidir.** «Bukeo» (ADR-0015) lo descartó Luis el 7 de septiembre; las tres direcciones de `docs/marca/revision-4/` traen nombre propio —**Buenamano**, **Cupo** y **Tanda**— y elige él. Por eso el nombre **no se escribe a fuego en ninguna pantalla**: sale de configuración y de los tokens, para que cambiarlo sea cambiar valores y no componentes.
+**El nombre comercial es «Tanda»**, elegido por Luis el 7 de septiembre de 2026 sobre la dirección C de `docs/marca/revision-5/`. Aun así el nombre **no se escribe a fuego en ninguna pantalla**: sale de `NOMBRE_COMERCIAL` y de los tokens, y `make variables` falla si alguien lo teclea en un componente. La dirección visual es bloques de color: cobalto abre e informa, fucsia cierra, amarillo avisa.
 
 ## Principio rector (NO cambia)
 

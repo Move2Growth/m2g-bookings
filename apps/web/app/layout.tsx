@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from 'next'
-// Archivo variable con el eje de anchura: una sola familia hace de rótulo, de texto y de cifra
-// cambiando de ancho, y baja un solo archivo. Autoalojada, nunca enlazada a un tercero: sería
-// una dependencia ajena, un problema de política de contenido y una petición más en 3G.
-import '@fontsource-variable/big-shoulders-display/wght'
-import '@fontsource-variable/chivo/wght'
+// Las dos familias de la dirección Tanda, **variables y autoalojadas**: cada una baja un solo
+// archivo con todo su eje de peso, y ninguna se enlaza a un tercero — sería una dependencia
+// ajena, un problema de política de contenido y una petición más en 3G.
+import '@fontsource-variable/familjen-grotesk/wght'
+import '@fontsource-variable/public-sans/wght'
 import './globales.css'
 import { NOMBRE, PROMESA } from '@/lib/marca'
 

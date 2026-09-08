@@ -1,6 +1,6 @@
 # ADR-0015 · La marca es Bukeo
 
-- **Estado:** aceptada
+- **Estado:** superada por [ADR-0022](0022-la-marca-es-tanda.md)
 - **Fecha:** 2026-09-01
 - **Supera:** el «por definir» de la decisión D1 del brief
 

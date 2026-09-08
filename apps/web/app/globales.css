@@ -120,8 +120,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* Foco visible siempre. Sin esto, quien navega con teclado deja de saber dónde está, y eso no
    se arregla más adelante: se nota el primer día y no lo reporta nadie.
-   El anillo va en tinta, no en el azul de marca: el azul sobre el bloque azul y sobre el botón
-   naranja se queda en 2:1, y un anillo que no se ve es no tener anillo. */
+   El anillo va en tinta, no en un color de marca: el cobalto sobre el bloque cobalto y sobre el
+   botón fucsia se queda en 2:1, y un anillo que no se ve es no tener anillo (ADR-0016). */
 :focus-visible {
   outline: 3px solid var(--color-tinta);
   outline-offset: 2px;
@@ -161,13 +161,13 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .seccion--azul h1, .seccion--azul h2, .seccion--azul h3 { color: var(--color-acento-texto); }
 .seccion--azul a:not(.boton) { color: var(--color-acento-texto); }
 
-/* Bloque naranja. Se usa poco y para abrir: la sección que pide dar el paso. */
-.seccion--naranja { background: var(--color-abre); color: var(--color-abre-texto); }
-.seccion--naranja h1, .seccion--naranja h2, .seccion--naranja h3 { color: var(--color-abre-texto); }
-.seccion--naranja a:not(.boton) { color: var(--color-abre-texto); }
+/* Bloque fucsia. Se usa poco y para cerrar: la sección que pide dar el paso. */
+.seccion--cierra { background: var(--color-cierra); color: var(--color-cierra-texto); }
+.seccion--cierra h1, .seccion--cierra h2, .seccion--cierra h3 { color: var(--color-cierra-texto); }
+.seccion--cierra a:not(.boton) { color: var(--color-cierra-texto); }
 
 /* Filo de bloque: la línea gruesa de color que corta la página como el canto de un rótulo. */
-.filo { border-top: 6px solid var(--color-abre); }
+.filo { border-top: 6px solid var(--color-cierra); }
 .filo--azul { border-top-color: var(--color-acento); }
 
 /* Cifras tabulares: en una agenda las columnas de horas tienen que alinearse o no se leen de
@@ -223,54 +223,28 @@ button, input, select, textarea { font: inherit; color: inherit; }
      EL ROTULO    donde no hay foto va el nombre a tamaño de cartel sobre
                   papel, no una persiana metálica.
 
-   Tres ambientes, ahora todos claros porque el producto abre en claro:
-   la CALLE (papel), el LOCAL (papel un punto más cálido) y la TRASTIENDA de
-   M2G (papel frío). Cruzar de uno a otro se nota en la temperatura, no en
-   la oscuridad.
+   Tres ambientes, todos claros porque el producto abre en claro: la CALLE
+   (hueso, lo público), el LOCAL (blanco puro, donde se trabaja) y la
+   TRASTIENDA de M2G (frío). Cruzar de uno a otro se nota en la temperatura,
+   no en la oscuridad.
 
-   Los dos saturados mantienen su reparto de trabajo: el ACHIOTE ABRE
-   (buscar, crear, publicar) y el AÑIL CIERRA (elegir hora, confirmar).
-   Ninguno de los dos es color de texto largo.
+   Los saturados de Tanda reparten el trabajo: el COBALTO ABRE e informa
+   (buscar, crear, publicar, enlaces), el FUCSIA CIERRA (elegir hora,
+   confirmar) y el AMARILLO solo avisa, siempre con tinta encima. Ninguno de
+   los tres es color de texto largo.
+
+   **Aquí ya no hay ni un hexadecimal.** Los había —cuarenta líneas de color
+   escritas a mano justo detrás del `@import` de los tokens, que los tapaban
+   sin que nada avisara—, así que `pnpm contraste` medía una paleta y la
+   pantalla pintaba otra. Ahora todo sale de `@agenda/tokens`: cambiar de
+   dirección es cambiar `tokens.json`.
    ========================================================================== */
 
 :root{
   color-scheme: light;
 
-  /* --- La calle: papel crudo, lo público --- */
-  --superficie-calle:        #F7F2E9;
-  --superficie-calle-media:  #F1EADD;
-  --superficie-calle-alta:   #EAE1D0;
-  --superficie-calle-borde:  #D6CAB4;
-
-  /* --- El local: el mismo papel, un punto más cálido --- */
-  --superficie-local:        #F7F0E2;
-  --superficie-local-media:  #F1E7D4;
-  --superficie-local-alta:   #E9DCC4;
-  --superficie-local-borde:  #D3C3A4;
-
-  /* --- La trastienda de M2G: papel frío, sin calidez --- */
-  --superficie-trastienda:         #F6F4F0;
-  --superficie-trastienda-media:   #EFECE6;
-  --superficie-trastienda-alta:    #E7E3DB;
-  --superficie-trastienda-borde:   #CFC9BE;
-
-  /* --- Tinta --- */
-  --color-tinta:          #14100D;   /* 16,9:1 sobre papel */
-  --color-tinta-suave:    #453C34;
-  --color-tinta-tenue:    #6B6157;   /* ceniza · 5,4:1 sobre papel */
-
-  /* --- El que cierra --- */
-  --color-acento:         #1D3FB0;   /* añil · 7,9:1 sobre papel */
-  --color-acento-hover:   #16308A;
-
-  /* --- El que abre --- */
-  --color-abre:           #B23320;   /* achiote · 5,6:1 sobre papel */
-
-  /* --- Semánticos --- */
-  --color-exito:          #1B6B4A;
-  --color-peligro:        #B23320;
-
-  /* --- Medidas --- */
+  /* Los tres ambientes y toda la tinta vienen de los tokens: aquí solo se les
+     da el nombre corto que usa el resto de la hoja. */
   --espacio-1: 4px;  --e2: 8px;  --e3: 12px; --e4: 16px;
   --espacio-5: 24px; --e6: 32px; --e7: 48px; --e8: 64px;
   --neon-tubo: 2px;      /* el filete: en papel, 3 px de trazo es un subrayado gordo */
@@ -316,13 +290,13 @@ body.amb-trastienda{
 
 [hidden]{ display: none !important; }
 
-html{ background: var(--superficie-trastienda); }
+html{ background: var(--superficie-calle); }
 
 body{
   margin: 0;
   background: var(--superficie-calle);
   color: var(--color-tinta);
-  font-family: "Chivo", "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--tipografia-familia);
   font-size: 17px;
   line-height: 1.5;
   font-variant-numeric: tabular-nums;
@@ -334,8 +308,8 @@ body{
 }
 
 h1,h2,h3,h4,.display{
-  font-family: "Big Shoulders Display", "Chivo", "Arial Narrow", sans-serif;
-  font-weight: 800;
+  font-family: var(--tipografia-familia-display);
+  font-weight: var(--tipografia-pesos-display);
   line-height: .88;
   letter-spacing: .004em;
   margin: 0;
@@ -347,7 +321,7 @@ img{ display: block; max-width: 100%; }
 
 button{ font: inherit; color: inherit; }
 
-:focus-visible{ outline: 3px solid var(--color-abre); outline-offset: 2px; }
+:focus-visible{ outline: 3px solid var(--color-cierra); outline-offset: 2px; }
 
 .oculto-visualmente{
   position:absolute; width:1px; height:1px; margin:-1px; padding:0;
@@ -363,7 +337,7 @@ button{ font: inherit; color: inherit; }
 
 .tenue{ color: var(--color-tinta-tenue); }
 
-.precio{ font-weight: 800; color: var(--color-abre); }
+.precio{ font-weight: 800; color: var(--color-cierra); }
 
 .neon-txt{ color: var(--color-acento); }
 
@@ -374,7 +348,7 @@ button{ font: inherit; color: inherit; }
 
 .tubo--apagado{ background: var(--color-acento-hover); }
 
-.tubo--calido{ background: var(--color-abre); }
+.tubo--cierra{ background: var(--color-cierra); }
 
 @keyframes barrer{ from{ transform: scaleX(0) } to{ transform: scaleX(1) } }
 
@@ -418,7 +392,7 @@ button{ font: inherit; color: inherit; }
 
 .boton--principal{ background: var(--color-acento);      color: var(--superficie-trastienda); box-shadow: var(--neon-golpe) var(--neon-golpe) 0 0 var(--color-acento-hover); }
 
-.boton--calido   { background: var(--color-abre);  color: var(--superficie-trastienda); box-shadow: var(--neon-golpe) var(--neon-golpe) 0 0 var(--superficie-local-borde); }
+.boton--cierra-fuerte   { background: var(--color-cierra);  color: var(--superficie-trastienda); box-shadow: var(--neon-golpe) var(--neon-golpe) 0 0 var(--superficie-local-borde); }
 
 .boton--secundario{ background: var(--superficie-calle-alta); color: var(--color-tinta); box-shadow: var(--neon-golpe) var(--neon-golpe) 0 0 var(--superficie-calle-borde); }
 
@@ -426,7 +400,7 @@ button{ font: inherit; color: inherit; }
 
 .boton--principal:hover { box-shadow: 6px 6px 0 0 var(--color-acento-hover); }
 
-.boton--calido:hover    { box-shadow: 6px 6px 0 0 var(--superficie-local-borde); }
+.boton--cierra-fuerte:hover    { box-shadow: 6px 6px 0 0 var(--superficie-local-borde); }
 
 .boton--secundario:hover{ box-shadow: 6px 6px 0 0 var(--superficie-calle-borde); }
 
@@ -509,7 +483,7 @@ button{ font: inherit; color: inherit; }
   background: var(--superficie-trastienda); border-left: var(--neon-tubo) solid currentColor;
 }
 
-.sello--pendiente { color: var(--color-abre); }
+.sello--pendiente { color: var(--color-cierra); }
 
 .sello--confirmada{ color: var(--color-acento); }
 
@@ -592,7 +566,7 @@ button{ font: inherit; color: inherit; }
 
 .paso p{ color: var(--color-tinta-suave); margin:0; }
 
-.aviso{ border-left: var(--neon-tubo) solid var(--color-abre); background: var(--superficie-calle-alta); padding: var(--espacio-3) var(--espacio-4); color: var(--color-tinta-suave); }
+.aviso{ border-left: var(--neon-tubo) solid var(--color-cierra); background: var(--superficie-calle-alta); padding: var(--espacio-3) var(--espacio-4); color: var(--color-tinta-suave); }
 
 /* ==========================================================================
    ESTADOS
@@ -662,7 +636,7 @@ button{ font: inherit; color: inherit; }
 
 .marca-patrocinado{
   font-size: 14px; font-weight:800; letter-spacing:.1em; text-transform:uppercase;
-  color: var(--color-abre); border: 1px solid var(--color-abre); padding: 1px 6px 2px;
+  color: var(--color-cierra); border: 1px solid var(--color-cierra); padding: 1px 6px 2px;
 }
 
 /* ==========================================================================
@@ -765,7 +739,7 @@ button{ font: inherit; color: inherit; }
 .vistazo{
   display:flex; flex-wrap:wrap; gap: var(--espacio-5);
   padding: var(--espacio-4); margin: var(--espacio-4) 0;
-  background: var(--superficie-calle-alta); border-left: var(--neon-tubo) solid var(--color-abre);
+  background: var(--superficie-calle-alta); border-left: var(--neon-tubo) solid var(--color-cierra);
 }
 
 .vistazo div{ display:grid; gap:2px; }
@@ -801,11 +775,11 @@ button{ font: inherit; color: inherit; }
 
 .agenda__hora small{ font-weight: 400; color: var(--color-tinta-tenue); }
 
-.agenda__ahora{ position:absolute; left:0; right:0; height:2px; background: var(--color-abre); z-index: 3; }
+.agenda__ahora{ position:absolute; left:0; right:0; height:2px; background: var(--color-cierra); z-index: 3; }
 
 .agenda__ahora::after{
   content: attr(data-hora); position:absolute; right: 2px; top: -19px;
-  font-size: 14px; font-weight: 800; color: var(--superficie-trastienda); background: var(--color-abre); padding: 0 5px 1px;
+  font-size: 14px; font-weight: 800; color: var(--superficie-trastienda); background: var(--color-cierra); padding: 0 5px 1px;
 }
 
 .cita{
@@ -830,7 +804,7 @@ button{ font: inherit; color: inherit; }
 
 .cita time{ font-size: 14px; font-weight: 800; color: var(--color-tinta-tenue); letter-spacing:.03em; }
 
-.cita--pendiente { border-left-color: var(--color-abre); }
+.cita--pendiente { border-left-color: var(--color-cierra); }
 
 .cita--confirmada{ border-left-color: var(--color-acento); }
 
@@ -924,7 +898,7 @@ button{ font: inherit; color: inherit; }
 .boton--primario,
 .boton--principal { background: var(--color-acento); color: var(--color-acento-texto); }
 .boton--cierra,
-.boton--calido { background: var(--color-abre); color: var(--color-abre-texto); }
+.boton--cierra-fuerte { background: var(--color-cierra); color: var(--color-cierra-texto); }
 .boton--llano { background: transparent; color: var(--color-tinta-suave); box-shadow: none; }
 .boton--llano:hover { color: var(--color-tinta); }
 
@@ -977,7 +951,7 @@ button{ font: inherit; color: inherit; }
 /* Sobre un bloque de color el cintillo hereda el color del bloque; en tenue no se leería. */
 .seccion--azul .etiqueta,
 .seccion--tinta .etiqueta,
-.seccion--naranja .etiqueta { color: inherit; opacity: 0.88; }
+.seccion--cierra .etiqueta { color: inherit; opacity: 0.88; }
 
 .categorias {
   display: grid;
@@ -1051,8 +1025,8 @@ button{ font: inherit; color: inherit; }
   padding-top: var(--espacio-4);
   border-top: 1px solid var(--color-borde-fuerte);
 }
-/* El número de paso es un **bloque naranja con tinta encima**, no una cifra naranja.
-   Era 2,34:1 sobre cal, que incumple la regla del propio brandbook: el naranja nunca es color
+/* El número de paso es un **bloque de color con tinta encima**, no una cifra de color.
+   Era 2,34:1 sobre cal, que incumple la regla del propio brandbook: el saturado nunca es color
    de texto. Convertirlo en bloque lo arregla y además es lo que dice la dirección: el color es
    estructura, no tinte. */
 .pasos__numero {
@@ -1060,15 +1034,15 @@ button{ font: inherit; color: inherit; }
   place-items: center;
   min-width: 2.4ch;
   padding: 0 var(--espacio-2);
-  background: var(--color-abre);
-  color: var(--color-abre-texto);
+  background: var(--color-cierra);
+  color: var(--color-cierra-texto);
   font-size: var(--tipografia-tamano-titulo-3);
   line-height: 1.6;
   align-self: start;
 }
 .seccion--azul .pasos__numero,
-.seccion--tinta .pasos__numero { background: var(--color-abre); color: var(--color-abre-texto); }
-.seccion--naranja .pasos__numero { background: var(--color-tinta); color: var(--color-papel); }
+.seccion--tinta .pasos__numero { background: var(--color-cierra); color: var(--color-cierra-texto); }
+.seccion--cierra .pasos__numero { background: var(--color-tinta); color: var(--color-papel); }
 /* La línea de texto no crece con la pantalla. Un párrafo de 1.100 px se lee saltando de
    renglón: el ojo pierde el principio de la línea siguiente. */
 .pasos p { max-width: 68ch; }
@@ -1243,7 +1217,7 @@ a:has(> svg) {
   background: var(--superficie-local-alta);
   color: var(--color-tinta);
   --foco-anillo: var(--color-papel);
-  border-bottom: var(--filo-grosor) solid var(--color-abre);
+  border-bottom: var(--filo-grosor) solid var(--color-cierra);
   position: sticky;
   top: 0;
   z-index: 20;
@@ -1255,7 +1229,7 @@ a:has(> svg) {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: var(--tipografia-pesos-medio);
-  color: var(--color-abre);
+  color: var(--color-cierra);
 }
 .app__barra .boton--llano { color: var(--color-tinta); }
 .app__cuerpo {
@@ -1309,7 +1283,7 @@ a:has(> svg) {
   position: absolute;
   inset: -2px 12px auto 12px;
   height: 3px;
-  background: var(--color-abre);
+  background: var(--color-cierra);
   animation: entra-indicador var(--movimiento-normal) var(--movimiento-curva-empuje);
 }
 @keyframes entra-indicador {
@@ -1327,8 +1301,8 @@ a:has(> svg) {
   padding-inline: 4px;
   display: grid;
   place-items: center;
-  background: var(--color-abre);
-  color: var(--color-abre-texto);
+  background: var(--color-cierra);
+  color: var(--color-cierra-texto);
   font-size: 11px;
   font-weight: var(--tipografia-pesos-fuerte);
   border-radius: var(--radio-control);
@@ -1449,7 +1423,7 @@ a:has(> svg) {
 /* Los pasos dentro de un bloque de color: el filete gris no existe sobre azul ni sobre tinta. */
 .seccion--azul .pasos li,
 .seccion--tinta .pasos li,
-.seccion--naranja .pasos li { border-top-color: currentColor; opacity: 1; }
+.seccion--cierra .pasos li { border-top-color: currentColor; opacity: 1; }
 
 
 /* ── Hoja ──────────────────────────────────────────────────────────────────── */
@@ -1712,7 +1686,7 @@ a:has(> svg) {
 
 .salon:nth-child(4n + 2) { --tono: var(--color-tinta); --tono-texto: var(--color-papel); }
 
-.salon:nth-child(4n + 3) { --tono: var(--color-abre); --tono-texto: var(--color-abre-texto); }
+.salon:nth-child(4n + 3) { --tono: var(--color-cierra); --tono-texto: var(--color-cierra-texto); }
 
 .salon:nth-child(4n + 4) { --tono: var(--color-borde-fuerte); --tono-texto: var(--color-papel); }
 
@@ -1831,8 +1805,8 @@ a:has(> svg) {
   padding-inline: 5px;
   display: inline-grid;
   place-items: center;
-  background: var(--color-abre);
-  color: var(--color-abre-texto);
+  background: var(--color-cierra);
+  color: var(--color-cierra-texto);
   font-size: var(--tipografia-tamano-micro);
   font-weight: var(--tipografia-pesos-fuerte);
   border-radius: var(--radio-control);
@@ -2234,7 +2208,7 @@ textarea.entrada { resize: vertical; min-height: 7rem; line-height: var(--tipogr
   transition: height var(--movimiento-normal) var(--movimiento-curva);
 }
 
-.serie__barra:hover > span { background: var(--color-abre); }
+.serie__barra:hover > span { background: var(--color-cierra); }
 
 .peso { display: grid; gap: var(--espacio-2); }
 
@@ -2262,7 +2236,7 @@ textarea.entrada { resize: vertical; min-height: 7rem; line-height: var(--tipogr
   min-height: var(--espacio-toque-minimo);
   border: none;
   background: transparent;
-  /* Tinta, no naranja: sobre cal el naranja se queda en 2,61:1. La estrella elegida se
+  /* Tinta, no color de marca: sobre cal el saturado se queda en 2,61:1. La estrella elegida se
      distingue por estar rellena, que es la señal que de verdad se lee. */
   color: var(--color-tinta);
   font-size: var(--tipografia-tamano-titulo-2);
@@ -2390,7 +2364,7 @@ textarea.entrada { resize: vertical; min-height: 7rem; line-height: var(--tipogr
   margin-top: var(--espacio-2);
   padding: var(--espacio-1) var(--espacio-3);
   background: var(--superficie-calle-alta);
-  color: var(--color-abre);
+  color: var(--color-cierra);
   border: 1px solid var(--superficie-local-borde);
 }
 
@@ -2568,7 +2542,7 @@ h1, h2, .titular-adaptativo { }
   inset-inline-start: 34px;
   width: 33px;
   height: 21px;
-  background: var(--color-abre);
+  background: var(--color-cierra);
 }
 
 .sello-persona {
@@ -2580,7 +2554,7 @@ h1, h2, .titular-adaptativo { }
   overflow: hidden;
   background: var(--rotulo-fondo, var(--color-tinta));
   color: var(--rotulo-tinta, var(--color-papel));
-  border-top: 3px solid var(--color-abre);
+  border-top: 3px solid var(--color-cierra);
   font-family: var(--tipografia-familia-display);
   font-weight: var(--tipografia-pesos-display);
   font-size: var(--tipografia-tamano-titulo-4);
@@ -2635,8 +2609,8 @@ h1, h2, .titular-adaptativo { }
      ser un acento y pasa a ser el fondo. La bombilla lo remata por arriba. */
   background: var(--superficie-local);
   color: var(--color-tinta);
-  --foco-anillo: var(--color-abre);
-  border-top: var(--neon-tubo) solid var(--color-abre);
+  --foco-anillo: var(--color-cierra);
+  border-top: var(--neon-tubo) solid var(--color-cierra);
 }
 
 /* El titular no es una acción: va en tinta. El achiote se reserva para lo que abre algo. */
@@ -2647,7 +2621,7 @@ h1, h2, .titular-adaptativo { }
 .bloque-horas .aviso--info {
   background: color-mix(in srgb, var(--color-papel) 16%, transparent);
   color: var(--color-acento-texto);
-  border-left-color: var(--color-abre);
+  border-left-color: var(--color-cierra);
 }
 
 .bloque-panel--arena {
@@ -2666,12 +2640,12 @@ h1, h2, .titular-adaptativo { }
   color: var(--color-tinta);
   --foco-anillo: var(--color-papel);
   padding-block: var(--espacio-6) var(--espacio-5);
-  border-bottom: var(--filo-grosor) solid var(--color-abre);
+  border-bottom: var(--filo-grosor) solid var(--color-cierra);
 }
 
 .cabecera-buscar h1 { color: var(--color-tinta); }
 
-.cabecera-buscar .buscador__cuenta { background: var(--color-abre); color: var(--color-abre-texto); }
+.cabecera-buscar .buscador__cuenta { background: var(--color-cierra); color: var(--color-cierra-texto); }
 
 .seccion--arena-suelta { background: transparent; }
 
@@ -2854,7 +2828,7 @@ h1, h2, .titular-adaptativo { }
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--color-abre);
+  background: var(--color-cierra);
 }
 
 .jornada__ahora::before {
@@ -2864,7 +2838,7 @@ h1, h2, .titular-adaptativo { }
   top: -3px;
   width: 8px;
   height: 8px;
-  background: var(--color-abre);
+  background: var(--color-cierra);
 }
 
 /* Una columna sin nada no se deja en blanco: en blanco no se distingue de «no ha cargado». */

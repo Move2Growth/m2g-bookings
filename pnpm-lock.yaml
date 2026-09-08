@@ -16,10 +16,10 @@ importers:
       '@agenda/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
-      '@fontsource-variable/big-shoulders-display':
+      '@fontsource-variable/familjen-grotesk':
         specifier: ^5.3.0
         version: 5.3.0
-      '@fontsource-variable/chivo':
+      '@fontsource-variable/public-sans':
         specifier: ^5.3.0
         version: 5.3.0
       leaflet:
@@ -94,11 +94,11 @@ packages:
   '@emnapi/runtime@1.11.3':
     resolution: {integrity: sha512-Xz4Tpyki7XyrpbUK1jR1AhdAdaXyhhY4lZ3neLodmhpuWfy2PAQN5B46sAiU4liOXGLkHypn/qU+jvfWSCYYLA==}
 
-  '@fontsource-variable/big-shoulders-display@5.3.0':
-    resolution: {integrity: sha512-7k1REXMZFEa7gSWOURbmCJW5Gv9D0EbEFQgosZidM8Ob/qpPlK96vqyIzCTnNZ/C0XFZWxeKU53D3QdeHctYCA==}
+  '@fontsource-variable/familjen-grotesk@5.3.0':
+    resolution: {integrity: sha512-R9W0xEZRIHUV658cuOGRMAIcqX1QJ8p5/W6Boooa6zAw1BAozU//mr8C0VNggSE26/VHPwj2XNyMAG6yUJmjxA==}
 
-  '@fontsource-variable/chivo@5.3.0':
-    resolution: {integrity: sha512-lbYs65CyAE3RDvZjiFSt2HYF/cPl/2wB3RSBzSlRqPxYw5uqA/Ux/Wa/BuDEKo72NXmiR9F5ba8FXqJnooRhSA==}
+  '@fontsource-variable/public-sans@5.3.0':
+    resolution: {integrity: sha512-AVfkmAt50BMXWpOO21FAntiJFKGX6xTc2dSL8dxtDteONe9IuRXJWGbs0EbG955vAMCq23ENeuopuW87cGWDSQ==}
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -545,9 +545,9 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@fontsource-variable/big-shoulders-display@5.3.0': {}
+  '@fontsource-variable/familjen-grotesk@5.3.0': {}
 
-  '@fontsource-variable/chivo@5.3.0': {}
+  '@fontsource-variable/public-sans@5.3.0': {}
 
   '@img/colour@1.1.0':
     optional: true

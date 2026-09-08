@@ -59,6 +59,12 @@ def nombre_a_fuego() -> list[str]:
             if archivo == MARCA:
                 continue
             for numero, linea in enumerate(archivo.read_text().splitlines(), 1):
+                # **Los comentarios no cuentan.** Explicar de qué dirección salió un componente
+                # es justo lo que hay que escribir; lo que no puede haber es el nombre en algo
+                # que se pinta. Sin esta salvedad la comprobación acusaba a la línea que dice
+                # «la dirección Tanda», que es documentación y no una pantalla.
+                if linea.lstrip().startswith(("//", "*", "/*", "#")):
+                    continue
                 # Sin distinguir mayúsculas: el codename se coló en minúscula dentro de
                 # `bukeo.com` —el enlace que el panel le daba al salón para su Instagram— y una
                 # comparación exacta lo dejaba pasar.

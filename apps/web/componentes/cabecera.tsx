@@ -25,7 +25,13 @@ export function Cabecera({ variante = 'clara' }: { variante?: 'clara' | 'transpa
           minHeight: '68px',
         }}
       >
-        <Link href="/" aria-label={`${NOMBRE}, inicio`} style={{ display: 'flex' }}>
+        <Link
+          href="/"
+          aria-label={`${NOMBRE}, inicio`}
+          /* La marca no se pinta de color de enlace ni se subraya: es una sola tinta, siempre.
+             Sin esto salía en fucsia y subrayada, que es el aspecto de «esto es un enlace más». */
+          style={{ display: 'flex', color: 'var(--color-tinta)', textDecoration: 'none' }}
+        >
           <Marca alto={22} />
         </Link>
 

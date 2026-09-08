@@ -69,7 +69,7 @@ El panel tiene que ser usable **en un teléfono de gama media con 3G**. Mobile-f
 
 ## 8. Lo que no decide el equipo
 
-1. **El dominio** todavía. El nombre ya es **Bukeo** (ADR-0015), pero nunca a fuego: sale de configuración.
+1. **El dominio** todavía. El nombre ya es **Tanda** (ADR-0022), pero nunca a fuego: sale de configuración.
 2. **La pasarela concreta** (D5) — default Yappy + tarjetas, pero la elección y las credenciales son de Luis.
 3. **Mapas** (D8) — Mapbox por defecto, tiene coste y hay que confirmarlo.
 4. **Cualquier cosa que cobre dinero de verdad** a un negocio o a un cliente.

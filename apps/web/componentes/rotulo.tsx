@@ -30,7 +30,7 @@ const OFICIO: Record<string, string> = {
  */
 export const PARES = [
   { fondo: 'var(--superficie-calle-alta)', tubo: 'tubo' },
-  { fondo: 'var(--superficie-local-alta)', tubo: 'tubo tubo--calido' },
+  { fondo: 'var(--superficie-local-alta)', tubo: 'tubo tubo--cierra' },
   { fondo: 'var(--superficie-calle-media)', tubo: 'tubo tubo--apagado' },
   { fondo: 'var(--superficie-trastienda-alta)', tubo: 'tubo' },
 ]

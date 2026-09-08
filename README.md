@@ -1,12 +1,13 @@
-# Bukeo
+# Tanda
 
 Plataforma de reservas y marketplace para belleza y bienestar en **Panamá**, **gratis para el
 negocio**. Los negocios gestionan su agenda y su equipo sin pagar; los clientes descubren y
 reservan; M2G monetiza con posicionamiento pagado y, cuando toque, con una suscripción cuyo precio
 es un parámetro (0 al lanzamiento).
 
-> La marca es **Bukeo** (ADR-0015). No se escribe a fuego en ninguna pantalla: sale de
-> configuración y de `packages/tokens`, para que un cambio de identidad sea cambiar valores.
+> La marca es **Tanda** (ADR-0022, que supera a la ADR-0015). No se escribe a fuego en ninguna
+> pantalla: sale de configuración y de `packages/tokens`, para que un cambio de identidad sea
+> cambiar valores. `make variables` falla si alguien la teclea en un componente.
 
 ## Por dónde empezar
 
