@@ -1658,3 +1658,189 @@ a:hover {
   inline-size: auto;
   padding-inline: var(--espacio-2);
 }
+
+/* ── El portal del dueño ──────────────────────────────────────────────────────────────────── */
+
+/* La navegación de las seis piezas. Carril que se arrastra en el teléfono y fila normal en
+   cuanto cabe: esconderla en un menú es un clic de más doce veces al día. */
+/* **`min-inline-size: 0` no es un adorno.** Un hijo de flex mide por defecto su contenido
+   mínimo, así que un carril de cinco enlaces que no caben ensancha a su padre —y con él a la
+   página entera— aunque el carril tenga su propio `overflow-x`. Medido: 576 px de documento en
+   una pantalla de 390. */
+.nav-local {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.nav-local__carril {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  display: flex;
+  gap: var(--espacio-2);
+  overflow-x: auto;
+  padding-block-end: var(--espacio-2);
+  /* El borde de abajo hace de riel: se ve dónde acaba lo que se arrastra. */
+  border-block-end: 1px solid var(--color-borde);
+}
+
+.nav-local__sitio {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--espacio-toque-minimo);
+  padding-inline: var(--espacio-3);
+  border: 1px solid var(--color-borde-fuerte);
+  border-radius: var(--radio-control);
+  background-color: var(--color-lienzo);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.nav-local__sitio[data-elegida='si'] {
+  background-color: var(--color-tinta);
+  --foco-color: var(--color-acento-texto);
+  color: var(--color-papel);
+  border-color: var(--color-tinta);
+}
+
+/* Una persona del equipo: quién es a la izquierda, qué se hace con ella a la derecha. A 390 px
+   se apila, porque dos botones y un nombre no caben en una línea sin recortar el nombre. */
+.ficha-persona {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-3);
+  justify-content: space-between;
+  padding: var(--espacio-3);
+  border: 1px solid var(--color-borde);
+  background-color: var(--color-lienzo);
+  --foco-color: var(--color-foco);
+}
+
+.ficha-persona__quien {
+  display: flex;
+  gap: var(--espacio-3);
+  align-items: flex-start;
+  min-inline-size: 0;
+}
+
+.ficha-persona__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espacio-2);
+}
+
+.sello--apagado {
+  margin-inline-start: var(--espacio-2);
+  padding-inline: var(--espacio-2);
+  background-color: var(--color-arena);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta-tenue);
+  font-size: var(--tipografia-tamano-micro);
+  text-transform: uppercase;
+  letter-spacing: var(--tipografia-espaciado-etiqueta);
+}
+
+/* Las tres cifras del dinero. Tabulares y grandes: se miran de lejos, apoyado en el mostrador. */
+.cifras-grandes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--espacio-3);
+}
+
+.cifras-grandes li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-1);
+  padding: var(--espacio-3);
+  background-color: var(--color-arena);
+  --foco-color: var(--color-foco);
+}
+
+.cifras-grandes__valor {
+  font-family: var(--tipografia-familia-display);
+  font-size: var(--tipografia-tamano-titulo-2);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--tipografia-interlineado-titulo);
+}
+
+.cifras-grandes__que {
+  font-size: var(--tipografia-tamano-menor);
+  color: var(--color-tinta-tenue);
+}
+
+/* Las barras del dinero. **Cada una lleva su cifra al lado**: una barra sin número se lee «más
+   o menos», y el dueño no quiere más o menos. */
+.barras__fila {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr auto;
+  align-items: center;
+  gap: var(--espacio-2);
+  min-height: var(--espacio-toque-minimo);
+}
+
+.barras__cuando {
+  font-size: var(--tipografia-tamano-menor);
+  color: var(--color-tinta-tenue);
+}
+
+.barras__pista {
+  block-size: var(--espacio-3);
+  background-color: var(--color-arena);
+  --foco-color: var(--color-foco);
+}
+
+.barras__relleno {
+  display: block;
+  block-size: 100%;
+  background-color: var(--color-acento);
+  --foco-color: var(--color-acento-texto);
+}
+
+.barras__cuanto {
+  font-size: var(--tipografia-tamano-menor);
+  font-variant-numeric: tabular-nums;
+}
+
+/* El podio. El primero se distingue por peso y por bloque, no por una medalla de colores. */
+.podio__puesto {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+  padding: var(--espacio-3);
+  border-block-end: 1px solid var(--color-borde);
+}
+
+.podio__puesto[data-primero='si'] {
+  background-color: var(--color-tinta);
+  --foco-color: var(--color-acento-texto);
+  color: var(--color-papel);
+}
+
+.podio__puesto[data-primero='si'] .tenue {
+  color: var(--color-borde);
+}
+
+.podio__numero {
+  font-family: var(--tipografia-familia-display);
+  font-size: var(--tipografia-tamano-titulo-3);
+  inline-size: 1.5rem;
+}
+
+.podio__cifra {
+  margin-inline-start: auto;
+  font-family: var(--tipografia-familia-display);
+  font-size: var(--tipografia-tamano-mayor);
+  font-variant-numeric: tabular-nums;
+}
+
+.anuncio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-2);
+  padding: var(--espacio-3);
+  border: 1px solid var(--color-borde);
+  background-color: var(--color-lienzo);
+  --foco-color: var(--color-foco);
+}

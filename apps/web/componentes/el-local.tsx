@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Boton } from '@/componentes/boton';
+import { NavLocal } from '@/componentes/nav-local';
 import { Cargando, Roto, Vacio } from '@/componentes/estados';
 import { Inicial } from '@/componentes/piezas';
 import { api, comoMensaje, type DiaEnColumnas, type NegocioDeLaPersona } from '@/lib/api';
@@ -168,6 +169,12 @@ export function ElLocal() {
       <div className="seccion--corta pila">
         <span className="etiqueta">La agenda del salón</span>
         <h1 className="rotulo rotulo--grande">{activo?.nombre ?? 'Tu salón'}</h1>
+
+        {/* **Solo el dueño ve las seis puertas.** Es lo que hace que el portal del dueño se
+            distinga del panel de un profesional: el profesional entra, ve su día y no tiene a
+            dónde más ir. Si las dos zonas se vieran igual, la única diferencia sería lo que
+            falta, y eso no se ve. */}
+        {activo?.rol === 'dueno' ? <NavLocal /> : null}
 
         {negocios && negocios.length > 1 ? (
           <div className="pila pila--apretada">

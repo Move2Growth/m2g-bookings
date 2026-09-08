@@ -384,6 +384,96 @@ export const api = {
   checklist: (acceso: string) => pedir<Checklist>('/api/v1/negocio/checklist', { acceso }),
 
   publicar: (acceso: string) => pedir<NegocioCreado>('/api/v1/negocio/publicar', { metodo: 'POST', acceso }),
+
+  /* ── El portal del dueño, sus seis piezas (encargo §6) ─────────────────────────────────── */
+
+  finanzas: (acceso: string, desde: string, hasta: string, agrupacion: 'dia' | 'semana' | 'mes') =>
+    pedir<Finanzas>(
+      `/api/v1/negocio/finanzas?desde=${desde}&hasta=${hasta}&agrupacion=${agrupacion}`,
+      { acceso },
+    ),
+
+  mejorDelMes: (acceso: string, criterio: 'importe' | 'servicios', categoria?: string) =>
+    pedir<EnElPodio[]>(
+      `/api/v1/negocio/mejor-del-mes?criterio=${criterio}${categoria ? `&categoria=${encodeURIComponent(categoria)}` : ''}`,
+      { acceso },
+    ),
+
+  profesionalesDelLocal: (acceso: string) =>
+    pedir<ProfesionalEnPanel[]>('/api/v1/negocio/profesionales', { acceso }),
+
+  /** El fichaje es **por persona** (encargo §6): el dueño lo enciende a quien quiere. */
+  ponerFichaje: (profesionalId: string, activo: boolean, acceso: string) =>
+    pedir<ProfesionalEnPanel>(`/api/v1/negocio/profesionales/${profesionalId}/fichaje`, {
+      metodo: 'PUT',
+      cuerpo: { activo },
+      acceso,
+    }),
+
+  fichajes: (acceso: string) => pedir<Fichaje[]>('/api/v1/negocio/fichajes', { acceso }),
+
+  anuncios: (acceso: string) => pedir<AnuncioDelSalon[]>('/api/v1/negocio/anuncios', { acceso }),
+
+  crearAnuncio: (texto: string, acceso: string) =>
+    pedir<AnuncioDelSalon>('/api/v1/negocio/anuncios', { metodo: 'POST', cuerpo: { texto }, acceso }),
+
+  cambiarAnuncio: (id: string, cambio: { texto?: string; activo?: boolean }, acceso: string) =>
+    pedir<AnuncioDelSalon>(`/api/v1/negocio/anuncios/${id}`, { metodo: 'PATCH', cuerpo: cambio, acceso }),
+
+  borrarAnuncio: (id: string, acceso: string) =>
+    pedir<void>(`/api/v1/negocio/anuncios/${id}`, { metodo: 'DELETE', acceso }),
+};
+
+/* ── Tipos del portal del dueño ──────────────────────────────────────────────────────────── */
+
+export type Finanzas = {
+  zona: string;
+  moneda: string;
+  agrupacion: string;
+  citas: number;
+  importe_centavos: number;
+  ticket_medio_centavos: number;
+  /** Cuántas de esas citas no llevaban precio. Sin este número la media miente. */
+  citas_sin_precio: number;
+  periodos: { inicio: string; citas: number; importe_centavos: number }[];
+};
+
+export type EnElPodio = {
+  profesional_id: string;
+  nombre: string;
+  servicios: number;
+  importe_centavos: number;
+};
+
+export type ProfesionalEnPanel = {
+  id: string;
+  nombre: string;
+  slug: string | null;
+  titular: string | null;
+  foto: string | null;
+  anos_de_experiencia: number | null;
+  activo: boolean;
+  visible_en_marketplace: boolean;
+  tiene_cuenta: boolean;
+  fichaje_activo: boolean;
+  citas_futuras: number;
+};
+
+export type Fichaje = {
+  id: string;
+  profesional_id: string;
+  profesional: string;
+  entrada: string;
+  salida: string | null;
+};
+
+export type AnuncioDelSalon = {
+  id: string;
+  texto: string;
+  activo: boolean;
+  vigente: boolean;
+  desde: string | null;
+  hasta: string | null;
 };
 
 /* ── Tipos del alta ──────────────────────────────────────────────────────────────────────── */
