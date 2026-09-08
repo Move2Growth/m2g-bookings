@@ -437,6 +437,51 @@ export const api = {
   cambiarMiPerfilProfesional: (cambio: Partial<MiPerfilProfesional>, acceso: string) =>
     pedir<MiPerfilProfesional>('/api/v1/mi/perfil-profesional', { metodo: 'PATCH', cuerpo: cambio, acceso }),
 
+  /* ── La consola interna. Otro sistema de acceso entero (ADR-0006). ─────────────────────── */
+
+  entrarEnConsola: (email: string, password: string, codigo_2fa: string) =>
+    pedir<{ acceso: string; refresco: string }>('/api/v1/consola/entrar', {
+      metodo: 'POST',
+      cuerpo: { email, password, codigo_2fa },
+    }),
+
+  metricas: (acceso: string) => pedir<Metricas>('/api/v1/consola/metricas', { acceso }),
+
+  negociosEnConsola: (acceso: string, buscar?: string, estado?: string) =>
+    pedir<NegocioEnConsola[]>(
+      `/api/v1/consola/negocios?${buscar ? `buscar=${encodeURIComponent(buscar)}&` : ''}${estado ? `estado=${estado}` : ''}`,
+      { acceso },
+    ),
+
+  suspender: (negocioId: string, motivo: string, acceso: string) =>
+    pedir<NegocioEnConsola>(`/api/v1/consola/negocios/${negocioId}/suspender`, {
+      metodo: 'POST',
+      cuerpo: { motivo },
+      acceso,
+    }),
+
+  reactivar: (negocioId: string, acceso: string) =>
+    pedir<NegocioEnConsola>(`/api/v1/consola/negocios/${negocioId}/reactivar`, { metodo: 'POST', acceso }),
+
+  resenasReportadas: (acceso: string) =>
+    pedir<ReporteEnCola[]>('/api/v1/consola/moderacion/resenas', { acceso }),
+
+  resolverReporte: (reporteId: string, accion: 'ocultar' | 'mantener', nota: string | null, acceso: string) =>
+    pedir<ReporteEnCola>(`/api/v1/consola/moderacion/resenas/${reporteId}`, {
+      metodo: 'POST',
+      cuerpo: { accion, nota },
+      acceso,
+    }),
+
+  fotosEnCola: (acceso: string) => pedir<FotoEnCola[]>('/api/v1/consola/moderacion/fotos', { acceso }),
+
+  decidirFoto: (fotoId: string, accion: 'aprobar' | 'rechazar', nota: string | null, acceso: string) =>
+    pedir<FotoEnCola>(`/api/v1/consola/moderacion/fotos/${fotoId}`, {
+      metodo: 'POST',
+      cuerpo: { accion, nota },
+      acceso,
+    }),
+
   /** El mapa **por rectángulo**: lo que se ve es lo que se pregunta (encargo §5). */
   mapa: (rect: { oeste: number; sur: number; este: number; norte: number }) =>
     pedir<{ salones: SalonEnMapa[] }>(
@@ -483,6 +528,61 @@ export type MiPerfilProfesional = {
   clientes_atendidos: number;
   activo: boolean;
   visible_en_marketplace: boolean;
+};
+
+/* ── La consola interna de M2G ───────────────────────────────────────────────────────────── */
+
+export type Metricas = {
+  negocios_totales: number;
+  negocios_publicados: number;
+  negocios_suspendidos: number;
+  reportes_abiertos: number;
+  reservas_por_dia: { dia: string; valor: number }[];
+  impresiones_por_dia: { dia: string; valor: number }[];
+  clics_por_dia: { dia: string; valor: number }[];
+};
+
+export type NegocioEnConsola = {
+  id: string;
+  slug: string;
+  nombre: string;
+  estado: string;
+  direccion: string | null;
+  creado: string;
+  publicado: string | null;
+  suspendido: string | null;
+  motivo_suspension: string | null;
+  reservas: number;
+  clientes: number;
+  reviews: number;
+  rating: number | null;
+};
+
+export type ReporteEnCola = {
+  reporte_id: string;
+  resena_id: string;
+  negocio: string;
+  negocio_slug: string;
+  nota: number;
+  texto: string | null;
+  motivo: string;
+  reportado_por: string;
+  estado_resena: string;
+  estado_reporte: string;
+  fecha: string;
+};
+
+export type FotoEnCola = {
+  foto_id: string;
+  profesional_id: string;
+  profesional: string;
+  negocio: string;
+  negocio_slug: string;
+  url: string;
+  descripcion: string | null;
+  servicio: string | null;
+  estado: string;
+  fecha: string;
 };
 
 export type SalonEnMapa = {

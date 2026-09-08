@@ -222,6 +222,16 @@ a:hover {
   --color-enlace: var(--color-acento);
 }
 
+/* La trastienda: la consola de M2G. Es la tercera superficie con significado —la calle es lo
+   público, el local es donde se trabaja— y se distingue por temperatura, no por oscuridad,
+   porque el producto abre en claro. Que se note al cruzar es el punto: aquí se suspende un
+   salón. */
+[data-superficie='trastienda'] {
+  background-color: var(--superficie-trastienda);
+  --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
+}
+
 .contenido {
   width: 100%;
   max-width: var(--pantalla-ancho);
