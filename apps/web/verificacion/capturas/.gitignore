@@ -1,0 +1,8 @@
+# Las capturas de pantalla completa las regenera `pnpm --filter @agenda/web verificar` y pesan
+# ocho megas: son prueba de una ejecución, no código, y no tienen por qué vivir en el
+# repositorio. Quien critique esto abrirá la aplicación en su navegador, que es mejor prueba.
+#
+# Los seis estados del botón sí se guardan: pesan veintiocho kilobytes entre todos y son la
+# única prueba que no se ve abriendo una pantalla, porque hay que provocar cada estado.
+*.png
+!boton-*.png

@@ -1,0 +1,1623 @@
+/*
+ * La hoja de estilo entera.
+ *
+ * ── Regla número uno ────────────────────────────────────────────────────────────────────────
+ * Aquí NO hay ni un hexadecimal ni una familia tipográfica escrita a mano. Todo color, medida,
+ * letra, radio y duración sale de `@agenda/tokens`, que se importa arriba del todo. Las
+ * familias las registran los paquetes `@fontsource-variable/*` (autoalojados, ni una petición
+ * a un tercero) y aquí solo se nombran a través de `var(--tipografia-familia*)`.
+ * Los únicos literales que quedan son mecánica del navegador —0, 100%, la línea de 1 px, los
+ * porcentajes de posición— y ninguno es una decisión de color.
+ *
+ * ── Regla número dos ────────────────────────────────────────────────────────────────────────
+ * Redondeo: `--radio-superficie` (0) en todo lo que es superficie y `--radio-control` (4 px)
+ * en lo que se toca. No hay una tercera medida. Degradados: ninguno.
+ *
+ * ── Regla número tres ───────────────────────────────────────────────────────────────────────
+ * Se escribe a 390 px. Las medias van hacia arriba, nunca hacia abajo.
+ */
+
+@import '@agenda/tokens/css';
+@import '@fontsource-variable/familjen-grotesk';
+@import '@fontsource-variable/public-sans';
+
+/* ═══════════════════════════════════════════════════════════════════════════════════════════
+ * Base
+ * ═══════════════════════════════════════════════════════════════════════════════════════════ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* La familia se declara en la raíz y no solo en el `body`: sin esto, el propio `<html>` se
+   queda con la letra por defecto del navegador —Times— y el medidor de tokens lo caza. */
+html {
+  -webkit-text-size-adjust: 100%;
+  font-family: var(--tipografia-familia);
+  color: var(--color-tinta);
+  background-color: var(--superficie-calle);
+  --foco-color: var(--color-foco);
+}
+
+body {
+  margin: 0;
+  background-color: var(--superficie-calle);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta);
+  font-family: var(--tipografia-familia);
+  font-size: var(--tipografia-tamano-cuerpo);
+  font-weight: var(--tipografia-pesos-normal);
+  line-height: var(--tipografia-interlineado-normal);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+  /* La barra de la izquierda del riel y las columnas del salón se leen mejor sin ligaduras
+     raras: la letra ya trae cifras tabulares de verdad. */
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+ul,
+ol,
+dl,
+dd {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--color-acento);
+  text-decoration-thickness: var(--canto-menor);
+  text-underline-offset: var(--espacio-1);
+}
+
+/* **Pasar por encima no cambia el color. Engorda el subrayado.**
+   Cambiarlo era una fuente inagotable del mismo fallo: `--color-acento-hover` es un cobalto
+   oscuro pensado para papel, y un enlace puede estar encima de papel, de un bloque cobalto, de
+   la tinta del pie o de su propio fondo fucsia. Medido: 1,00:1 en el botón de la página de
+   error —la palabra desaparecía—, 1,54:1 en las horas de la portada, 1,63:1 en la navegación.
+   Cada superficie nueva traía el mismo fallo otra vez.
+   Es además la regla que esta misma dirección escribió después de medir sus animaciones: **se
+   anima el movimiento, nunca el color.** */
+a:hover {
+  text-decoration-thickness: var(--canto-secundario);
+}
+
+/* El foco NO es del color de marca (ADR-0016): es tinta, para que se vea igual encima de un
+   bloque cobalto que encima de papel. */
+/* **El anillo de foco lo decide la superficie, y la superficie se declara a sí misma.**
+   `--foco-color` se hereda: cualquier regla que pinte un fondo oscuro lo pone en hueso ahí mismo,
+   y todo lo que caiga dentro —o el propio botón macizo— lo hereda. Antes era un aro de tinta fijo
+   con una lista de excepciones por selector, y la lista siempre iba por detrás de la siguiente
+   pantalla: el pie quedó en 1,00:1 —el anillo no existía—, el botón de la página de error en
+   2,11:1 y las opciones de día en 1,10:1. Un `box-shadow` no valía como segundo aro: media docena
+   de piezas usan `box-shadow` para su propio zócalo y lo habrían pisado.
+   Y va en los dos sentidos: lo que pinta un fondo **claro** lo devuelve a tinta, o el campo de
+   buscar —blanco, dentro del bloque cobalto de la portada— heredaba el aro de hueso y quedaba en
+   1,00:1: blanco sobre blanco.
+   Y lo que se pinta **transparente** no decide: hereda el de la superficie que tiene debajo. Es
+   el caso de las opciones de día dentro del bloque cobalto de la portada, que se dibujan en
+   claro y sin fondo. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: var(--foco-grosor) solid var(--foco-color, var(--color-foco));
+  outline-offset: var(--foco-separacion);
+}
+
+/* Dentro de una superficie oscura la tinta no se ve: el foco pasa a ser el color del texto de esa
+   superficie, que siempre es claro.
+   **El pie estaba fuera de esta lista y es tinta sobre tinta**: el anillo medía 1,00:1 en las
+   cinco entradas del pie, en todas las pantallas, así que tabulando no se podía saber dónde
+   estabas. Van también los campos, que tampoco entraban y quedaban en 2,11:1 sobre el cobalto. */
+/* Dentro de una superficie oscura el aro interior de tinta se pierde, pero el exterior de hueso
+   no: por eso aquí ya no hay una lista de excepciones por superficie. */
+
+::selection {
+  background-color: var(--color-acento-suave);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════════════════
+ * Movimiento
+ *
+ * Solo hay tres animaciones en toda la aplicación y las tres tienen motivo:
+ *   · `entrar-desde-abajo`  — dice de dónde sale algo (una pantalla que aparece). Corre UNA vez.
+ *   · `latir-una-vez`       — confirma que se ha tocado. Corre UNA vez.
+ *   · `barrido`             — tapa una espera. Es la única que repite, y solo existe mientras
+ *                             hay una petición en vuelo: en una pantalla quieta no queda ni una
+ *                             animación viva (se comprueba con `document.getAnimations()`).
+ * Todo se apaga con `prefers-reduced-motion`.
+ * ═══════════════════════════════════════════════════════════════════════════════════════════ */
+
+@keyframes entrar-desde-abajo {
+  from {
+    opacity: 0;
+    transform: translateY(var(--espacio-3));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes latir-una-vez {
+  from {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.04);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes barrido {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════════════════
+ * Esqueleto de pantalla: cabecera, cuerpo y pie. Ninguna pantalla se entrega sin las tres.
+ * ═══════════════════════════════════════════════════════════════════════════════════════════ */
+
+.pagina {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100dvh;
+}
+
+[data-superficie='local'] {
+  background-color: var(--superficie-local);
+  --foco-color: var(--color-foco);
+}
+
+.contenido {
+  width: 100%;
+  max-width: var(--pantalla-ancho);
+  margin: 0 auto;
+  padding-inline: var(--espacio-4);
+}
+
+.saltar {
+  position: absolute;
+  inset-inline-start: var(--espacio-2);
+  inset-block-start: var(--espacio-2);
+  z-index: 20;
+  padding: var(--espacio-2) var(--espacio-3);
+  background-color: var(--color-tinta);
+  --foco-color: var(--color-acento-texto);
+  color: var(--color-papel);
+  transform: translateY(-200%);
+  transition: transform var(--movimiento-rapido) var(--movimiento-curva);
+}
+
+.saltar:focus-visible {
+  transform: translateY(0);
+}
+
+/* ── Cabecera ─────────────────────────────────────────────────────────────────────────────── */
+
+.cabecera {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--superficie-local);
+  --foco-color: var(--color-foco);
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.cabecera__caja {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espacio-2) var(--espacio-4);
+  min-height: var(--espacio-9);
+  padding-block: var(--espacio-2);
+}
+
+.cabecera__marca {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  color: var(--color-tinta);
+  text-decoration: none;
+  margin-inline-end: auto;
+}
+
+.cabecera__marca:hover {
+  color: var(--color-tinta);
+}
+
+.cabecera__nombre {
+  font-family: var(--tipografia-familia-display);
+  font-size: var(--tipografia-tamano-titulo-4);
+  font-weight: var(--tipografia-pesos-display);
+  letter-spacing: var(--tipografia-espaciado-titular);
+  line-height: var(--tipografia-interlineado-apretado);
+}
+
+.cabecera__enlaces {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-1);
+}
+
+.cabecera__enlace {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--espacio-toque-minimo);
+  padding-inline: var(--espacio-2);
+  color: var(--color-tinta-suave);
+  font-size: var(--tipografia-tamano-menor);
+  font-weight: var(--tipografia-pesos-medio);
+  text-decoration: none;
+  border-bottom: var(--filo-grosor) solid transparent;
+}
+
+.cabecera__enlace:hover {
+  color: var(--color-tinta);
+}
+
+.cabecera__enlace--boton {
+  background-color: transparent;
+  --foco-color: inherit;
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+  cursor: pointer;
+  font-family: var(--tipografia-familia);
+}
+
+/* El filo macizo dice «estás aquí». Misma medida en toda la aplicación. */
+.cabecera__enlace[aria-current='page'] {
+  color: var(--color-tinta);
+  font-weight: var(--tipografia-pesos-fuerte);
+  border-bottom-color: var(--color-acento);
+}
+
+/* ── Pie ──────────────────────────────────────────────────────────────────────────────────── */
+
+.pie {
+  margin-top: var(--espacio-8);
+  background-color: var(--color-tinta);
+  --foco-color: var(--color-acento-texto);
+  color: var(--color-papel);
+}
+
+.pie__caja {
+  display: grid;
+  gap: var(--espacio-5);
+  padding-block: var(--espacio-6);
+}
+
+.pie__lema {
+  font-family: var(--tipografia-familia-display);
+  font-size: var(--tipografia-tamano-titulo-4);
+  font-weight: var(--tipografia-pesos-display);
+  line-height: var(--tipografia-interlineado-titulo);
+  letter-spacing: var(--tipografia-espaciado-titular);
+  max-width: 26ch;
+}
+
+.pie__enlaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-2) var(--espacio-5);
+}
+
+.pie__enlaces a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--espacio-toque-minimo);
+  color: var(--color-papel);
+  font-size: var(--tipografia-tamano-menor);
+  font-weight: var(--tipografia-pesos-medio);
+}
+
+.pie__nota {
+  font-size: var(--tipografia-tamano-menor);
+  color: var(--color-borde);
+  line-height: var(--tipografia-interlineado-normal);
+}
+
+.pie__nota code {
+  font-family: var(--tipografia-familia);
+  font-weight: var(--tipografia-pesos-fuerte);
+  color: var(--color-papel);
+}
+
+@media (min-width: 768px) {
+  .pie__caja {
+    grid-template-columns: 1fr 1fr;
+    align-items: end;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════════════════
+ * Tipografía de pantalla
+ * ═══════════════════════════════════════════════════════════════════════════════════════════ */
+
+.rotulo {
+  font-family: var(--tipografia-familia-display);
+  font-weight: var(--tipografia-pesos-display);
+  line-height: var(--tipografia-interlineado-titulo);
+  letter-spacing: var(--tipografia-espaciado-titular);
+  text-wrap: balance;
+}
+
+.rotulo--cartel {
+  font-size: var(--tipografia-tamano-titulo-1);
+  line-height: var(--tipografia-interlineado-apretado);
+}
+
+.rotulo--grande {
+  font-size: var(--tipografia-tamano-titulo-2);
+}
+
+.rotulo--medio {
+  font-size: var(--tipografia-tamano-titulo-3);
+}
+
+.rotulo--pequeno {
+  font-size: var(--tipografia-tamano-titulo-4);
+}
+
+@media (min-width: 768px) {
+  .rotulo--cartel {
+    font-size: var(--tipografia-tamano-cartel);
+  }
+}
+
+.etiqueta {
+  display: block;
+  font-size: var(--tipografia-tamano-micro);
+  font-weight: var(--tipografia-pesos-fuerte);
+  letter-spacing: var(--tipografia-espaciado-etiqueta);
+  text-transform: uppercase;
+  color: var(--color-tinta-tenue);
+}
+
+.etiqueta--clara {
+  color: var(--color-papel);
+}
+
+.parrafo {
+  font-size: var(--tipografia-tamano-cuerpo);
+  line-height: var(--tipografia-interlineado-suelto);
+  color: var(--color-tinta-suave);
+  max-width: 62ch;
+}
+
+.menor {
+  font-size: var(--tipografia-tamano-menor);
+  color: var(--color-tinta-tenue);
+}
+
+.cifra {
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+  font-weight: var(--tipografia-pesos-fuerte);
+}
+
+.solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════════════════
+ * Bloques de color. Cada bloque es una decisión: cobalto abre e informa, fucsia cierra,
+ * amarillo avisa (y solo como superficie, nunca como color de texto).
+ * ═══════════════════════════════════════════════════════════════════════════════════════════ */
+
+.bloque {
+  border-radius: var(--radio-superficie);
+}
+
+.bloque--cobalto {
+  background-color: var(--color-acento);
+  --foco-color: var(--color-acento-texto);
+  color: var(--color-acento-texto);
+}
+
+.bloque--fucsia {
+  background-color: var(--color-cierra);
+  --foco-color: var(--color-acento-texto);
+  color: var(--color-cierra-texto);
+}
+
+.bloque--aviso {
+  background-color: var(--color-aviso-suave);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta);
+  border-left: var(--filo-grosor) solid var(--color-aviso);
+}
+
+.bloque--arena {
+  background-color: var(--color-arena);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta);
+}
+
+.bloque--lienzo {
+  background-color: var(--color-lienzo);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta);
+  border: 1px solid var(--color-borde);
+}
+
+.bloque--peligro {
+  background-color: var(--color-peligro-suave);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta);
+  border-left: var(--filo-grosor) solid var(--color-peligro);
+}
+
+.bloque--exito {
+  background-color: var(--color-exito-suave);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta);
+  border-left: var(--filo-grosor) solid var(--color-exito);
+}
+
+.relleno {
+  padding: var(--espacio-4);
+}
+
+.relleno--grande {
+  padding: var(--espacio-5) var(--espacio-4);
+}
+
+/* Un bloque a sangre: sale del ancho del contenido y se come el margen lateral. */
+.sangre {
+  margin-inline: calc(-1 * var(--espacio-4));
+  padding-inline: var(--espacio-4);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════════════════
+ * Botón. Seis estados, y el canto macizo del token `--canto-*` es la jerarquía:
+ * 4 px la acción que abre o cierra, 3 px la secundaria, 2 px la de texto.
+ * Al pasar por encima el canto crece a 6 px y la chapa se levanta; al pulsar se lo traga.
+ * ═══════════════════════════════════════════════════════════════════════════════════════════ */
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espacio-2);
+  min-height: var(--espacio-toque-minimo);
+  padding-inline: var(--espacio-4);
+  padding-block: var(--espacio-2);
+  border: 0;
+  border-radius: var(--radio-control);
+  font-family: var(--tipografia-familia);
+  font-size: var(--tipografia-tamano-menor);
+  font-weight: var(--tipografia-pesos-fuerte);
+  letter-spacing: var(--tipografia-espaciado-etiqueta);
+  text-transform: uppercase;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    transform var(--movimiento-rapido) var(--movimiento-curva),
+    box-shadow var(--movimiento-rapido) var(--movimiento-curva);
+}
+
+.boton--bloque {
+  display: flex;
+  width: 100%;
+}
+
+/* 1 · reposo */
+.boton--abre {
+  background-color: var(--color-acento);
+  --foco-color: var(--color-acento-texto);
+  color: var(--color-acento-texto);
+  box-shadow: inset 0 calc(-1 * var(--canto-principal)) 0 0 var(--color-acento-hover);
+}
+
+.boton--cierra {
+  background-color: var(--color-cierra);
+  --foco-color: var(--color-acento-texto);
+  color: var(--color-cierra-texto);
+  box-shadow: inset 0 calc(-1 * var(--canto-principal)) 0 0 var(--color-cierra-hover);
+}
+
+.boton--secundario {
+  background-color: var(--color-lienzo);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta);
+  box-shadow:
+    inset 0 0 0 1px var(--color-borde-fuerte),
+    inset 0 calc(-1 * var(--canto-secundario)) 0 0 var(--color-tinta);
+}
+
+.boton--texto {
+  background-color: transparent;
+  --foco-color: inherit;
+  color: var(--color-acento);
+  padding-inline: var(--espacio-2);
+  box-shadow: inset 0 calc(-1 * var(--canto-menor)) 0 0 var(--color-acento);
+}
+
+.boton--riesgo {
+  background-color: var(--color-lienzo);
+  --foco-color: var(--color-foco);
+  color: var(--color-peligro);
+  box-shadow:
+    inset 0 0 0 1px var(--color-peligro),
+    inset 0 calc(-1 * var(--canto-menor)) 0 0 var(--color-peligro);
+}
+
+/* La misma acción, pero cuando se repite en cada fila de una lista larga: sin caja, solo el
+   canto de 2 px que los tokens reservan para la acción de texto. Veintiséis cajas rojas en una
+   pantalla no avisan de nada, solo hacen ruido. */
+.boton--riesgo-suave {
+  background-color: transparent;
+  --foco-color: inherit;
+  color: var(--color-peligro);
+  padding-inline: var(--espacio-2);
+  box-shadow: inset 0 calc(-1 * var(--canto-menor)) 0 0 var(--color-peligro);
+}
+
+/* 2 · encima */
+@media (hover: hover) {
+  .boton:hover:not(:disabled):not([aria-busy='true']) {
+    transform: translateY(calc(-1 * var(--canto-menor)));
+  }
+
+  .boton--abre:hover:not(:disabled):not([aria-busy='true']) {
+    background-color: var(--color-acento-hover);
+    --foco-color: var(--color-acento-texto);
+    box-shadow: inset 0 calc(-1 * var(--canto-alzado)) 0 0 var(--color-tinta);
+  }
+
+  .boton--cierra:hover:not(:disabled):not([aria-busy='true']) {
+    background-color: var(--color-cierra-hover);
+    --foco-color: var(--color-acento-texto);
+    box-shadow: inset 0 calc(-1 * var(--canto-alzado)) 0 0 var(--color-tinta);
+  }
+
+  .boton--secundario:hover:not(:disabled):not([aria-busy='true']) {
+    background-color: var(--color-arena);
+    --foco-color: var(--color-foco);
+    box-shadow:
+      inset 0 0 0 1px var(--color-tinta),
+      inset 0 calc(-1 * var(--canto-alzado)) 0 0 var(--color-tinta);
+  }
+
+  .boton--texto:hover:not(:disabled):not([aria-busy='true']) {
+    background-color: var(--color-acento-suave);
+    --foco-color: var(--color-foco);
+    box-shadow: inset 0 calc(-1 * var(--canto-secundario)) 0 0 var(--color-acento-hover);
+  }
+
+  .boton--riesgo:hover:not(:disabled):not([aria-busy='true']) {
+    background-color: var(--color-peligro-suave);
+    --foco-color: var(--color-foco);
+    box-shadow:
+      inset 0 0 0 1px var(--color-peligro),
+      inset 0 calc(-1 * var(--canto-secundario)) 0 0 var(--color-peligro);
+  }
+
+  .boton--riesgo-suave:hover:not(:disabled):not([aria-busy='true']) {
+    background-color: var(--color-peligro-suave);
+    --foco-color: var(--color-foco);
+    box-shadow: inset 0 calc(-1 * var(--canto-secundario)) 0 0 var(--color-peligro);
+  }
+}
+
+/* 3 · pulsado — la chapa se traga el canto */
+.boton:active:not(:disabled):not([aria-busy='true']) {
+  transform: translateY(var(--canto-menor));
+  box-shadow: inset 0 0 0 0 transparent;
+  transition-duration: var(--movimiento-instante);
+}
+
+.boton--secundario:active:not(:disabled):not([aria-busy='true']),
+.boton--riesgo:active:not(:disabled):not([aria-busy='true']) {
+  box-shadow: inset 0 0 0 1px var(--color-tinta);
+}
+
+.boton--riesgo-suave:active:not(:disabled):not([aria-busy='true']) {
+  background-color: var(--color-peligro-suave);
+  --foco-color: var(--color-foco);
+  box-shadow: inset 0 0 0 0 transparent;
+}
+
+/* 4 · cargando */
+.boton[aria-busy='true'] {
+  cursor: progress;
+}
+
+.boton__espera {
+  position: relative;
+  display: block;
+  width: var(--espacio-6);
+  height: var(--canto-secundario);
+  overflow: hidden;
+  background-color: color-mix(in srgb, currentColor 28%, transparent);
+}
+
+.boton__espera::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: currentColor;
+  animation: barrido var(--movimiento-lento) var(--movimiento-curva) infinite;
+}
+
+/* 5 · inhabilitado */
+.boton:disabled {
+  background-color: var(--color-arena);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta-tenue);
+  box-shadow: inset 0 calc(-1 * var(--canto-principal)) 0 0 var(--color-borde);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 4 bis · cargando, otra vez.
+   Va DESPUÉS del inhabilitado a propósito. El botón que espera está `disabled` —para que no se
+   pueda enviar dos veces la misma reserva— pero **no se pinta como inhabilitado**: un botón
+   gris dice «esto no se puede», y lo que pasa es «esto se está haciendo». Se queda con su
+   color, en el tono oscuro, con la barra que tapa la espera y el cursor de reloj. */
+.boton--abre[aria-busy='true']:disabled {
+  background-color: var(--color-acento-hover);
+  --foco-color: var(--color-acento-texto);
+  color: var(--color-acento-texto);
+  box-shadow: inset 0 calc(-1 * var(--canto-principal)) 0 0 var(--color-tinta);
+  cursor: progress;
+}
+
+.boton--cierra[aria-busy='true']:disabled {
+  background-color: var(--color-cierra-hover);
+  --foco-color: var(--color-acento-texto);
+  color: var(--color-cierra-texto);
+  box-shadow: inset 0 calc(-1 * var(--canto-principal)) 0 0 var(--color-tinta);
+  cursor: progress;
+}
+
+.boton--secundario[aria-busy='true']:disabled,
+.boton--riesgo-suave[aria-busy='true']:disabled,
+.boton--riesgo[aria-busy='true']:disabled {
+  background-color: var(--color-lienzo);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta);
+  box-shadow:
+    inset 0 0 0 1px var(--color-tinta),
+    inset 0 calc(-1 * var(--canto-secundario)) 0 0 var(--color-tinta);
+  cursor: progress;
+}
+
+.boton--texto[aria-busy='true']:disabled {
+  background-color: var(--color-acento-suave);
+  --foco-color: var(--color-foco);
+  color: var(--color-acento-hover);
+  box-shadow: inset 0 calc(-1 * var(--canto-menor)) 0 0 var(--color-acento-hover);
+  cursor: progress;
+}
+
+/* 6 · foco de teclado — lo pone la regla global `:focus-visible` de arriba. */
+
+/* ═══════════════════════════════════════════════════════════════════════════════════════════
+ * Campos
+ * ═══════════════════════════════════════════════════════════════════════════════════════════ */
+
+.campo {
+  display: grid;
+  gap: var(--espacio-2);
+}
+
+.campo--separado {
+  padding-block: var(--espacio-4);
+}
+
+.campo__rotulo {
+  font-size: var(--tipografia-tamano-menor);
+  font-weight: var(--tipografia-pesos-fuerte);
+  color: var(--color-tinta);
+}
+
+.campo__caja {
+  min-height: var(--espacio-toque-minimo);
+  width: 100%;
+  padding: var(--espacio-2) var(--espacio-3);
+  background-color: var(--color-lienzo);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta);
+  border: 1px solid var(--color-borde-fuerte);
+  border-bottom-width: var(--canto-menor);
+  border-radius: var(--radio-control);
+  font-size: var(--tipografia-tamano-cuerpo);
+  transition: border-color var(--movimiento-rapido) var(--movimiento-curva);
+}
+
+.campo__caja::placeholder {
+  color: var(--color-tinta-tenue);
+}
+
+.campo__caja:hover:not(:disabled) {
+  border-color: var(--color-tinta);
+}
+
+.campo__caja:disabled {
+  background-color: var(--color-arena);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta-tenue);
+  cursor: not-allowed;
+}
+
+.campo__caja[aria-invalid='true'] {
+  border-color: var(--color-peligro);
+  border-bottom-width: var(--canto-secundario);
+}
+
+.campo__pista {
+  font-size: var(--tipografia-tamano-menor);
+  color: var(--color-tinta-tenue);
+}
+
+.campo__fallo {
+  font-size: var(--tipografia-tamano-menor);
+  font-weight: var(--tipografia-pesos-fuerte);
+  color: var(--color-peligro);
+}
+
+.bloque--cobalto .campo__rotulo {
+  color: var(--color-acento-texto);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════════════════
+ * Buscador y filtros
+ * ═══════════════════════════════════════════════════════════════════════════════════════════ */
+
+.buscador {
+  display: grid;
+  gap: var(--espacio-2);
+}
+
+@media (min-width: 768px) {
+  .buscador {
+    grid-template-columns: 1fr auto;
+    align-items: end;
+  }
+}
+
+.opciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-2);
+}
+
+.opcion {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--espacio-toque-minimo);
+  padding-inline: var(--espacio-3);
+  background-color: var(--color-lienzo);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta);
+  border: 1px solid var(--color-borde-fuerte);
+  border-radius: var(--radio-control);
+  font-size: var(--tipografia-tamano-menor);
+  font-weight: var(--tipografia-pesos-medio);
+  text-decoration: none;
+  cursor: pointer;
+  /* Aquí NO se funde el color.
+     Una ficha elegida cambia a la vez de fondo (claro → tinta) y de letra (tinta → claro). Si
+     las dos cosas se funden, hay un instante —medido: 1:1 en el punto medio— en el que la letra
+     y el fondo son el mismo gris y el rótulo desaparece. El color de «esto está elegido» es
+     instantáneo; lo que se anima es el movimiento, no la legibilidad. */
+  transition: box-shadow var(--movimiento-rapido) var(--movimiento-curva);
+}
+
+.opcion:hover {
+  background-color: var(--color-arena);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta);
+}
+
+.opcion[aria-pressed='true'],
+.opcion[data-elegida='si'] {
+  background-color: var(--color-tinta);
+  --foco-color: var(--color-acento-texto);
+  color: var(--color-papel);
+  border-color: var(--color-tinta);
+}
+
+.opcion[aria-pressed='true']:hover,
+.opcion[data-elegida='si']:hover {
+  background-color: var(--color-tinta-suave);
+  --foco-color: var(--color-foco);
+  color: var(--color-papel);
+}
+
+.opcion--ancha {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.opcion--entre {
+  justify-content: space-between;
+  gap: var(--espacio-3);
+}
+
+/* Dentro de un bloque cobalto las opciones se dibujan en claro, o no se leen. */
+.bloque--cobalto .opcion {
+  background-color: transparent;
+  --foco-color: inherit;
+  color: var(--color-acento-texto);
+  border-color: var(--color-acento-texto);
+}
+
+.bloque--cobalto .opcion:hover {
+  background-color: var(--color-acento-hover);
+  --foco-color: var(--color-acento-texto);
+  color: var(--color-acento-texto);
+}
+
+.bloque--cobalto .opcion[data-elegida='si'] {
+  background-color: var(--color-acento-texto);
+  --foco-color: var(--color-foco);
+  color: var(--color-acento);
+  border-color: var(--color-acento-texto);
+}
+
+.bloque--cobalto .opcion[data-elegida='si']:hover {
+  background-color: var(--color-acento-texto);
+  --foco-color: var(--color-foco);
+  color: var(--color-acento-hover);
+}
+
+.plegable {
+  border-top: 1px solid var(--color-borde);
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.plegable__tirador {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  min-height: var(--espacio-toque-minimo);
+  padding-block: var(--espacio-2);
+  font-size: var(--tipografia-tamano-menor);
+  font-weight: var(--tipografia-pesos-fuerte);
+  color: var(--color-tinta);
+  cursor: pointer;
+  list-style: none;
+}
+
+.plegable__tirador::-webkit-details-marker {
+  display: none;
+}
+
+/* El signo lo dibuja el propio tirador: cerrado suma, abierto resta. Sin iconos de terceros. */
+.plegable__tirador::after {
+  content: '+';
+  margin-inline-start: auto;
+  font-size: var(--tipografia-tamano-titulo-4);
+  font-weight: var(--tipografia-pesos-display);
+  line-height: var(--tipografia-interlineado-apretado);
+  color: var(--color-acento);
+}
+
+.plegable[open] > .plegable__tirador::after {
+  content: '−';
+}
+
+.plegable__cuerpo {
+  display: grid;
+  gap: var(--espacio-4);
+  padding-bottom: var(--espacio-4);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════════════════
+ * Listas: filas a sangre separadas por una línea. No hay tarjetas.
+ * ═══════════════════════════════════════════════════════════════════════════════════════════ */
+
+.lista {
+  border-top: 1px solid var(--color-borde);
+}
+
+.fila {
+  display: grid;
+  gap: var(--espacio-3);
+  padding-block: var(--espacio-4);
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.fila--resultado {
+  grid-template-columns: var(--espacio-8) 1fr;
+  align-items: start;
+}
+
+.fila__cuerpo {
+  display: grid;
+  gap: var(--espacio-2);
+  min-width: 0;
+}
+
+.fila__titulo {
+  font-family: var(--tipografia-familia-display);
+  font-size: var(--tipografia-tamano-mayor);
+  font-weight: var(--tipografia-pesos-display);
+  line-height: var(--tipografia-interlineado-titulo);
+  letter-spacing: var(--tipografia-espaciado-titular);
+  color: var(--color-tinta);
+  text-decoration: none;
+}
+
+.fila__titulo:hover {
+  color: var(--color-acento-hover);
+  text-decoration: underline;
+}
+
+.fila__datos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espacio-1) var(--espacio-3);
+  font-size: var(--tipografia-tamano-menor);
+  color: var(--color-tinta-tenue);
+}
+
+.fila__pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espacio-2);
+}
+
+/* La inicial en un bloque de color, en vez de una foto que no existe. */
+.inicial {
+  display: grid;
+  place-items: center;
+  width: var(--espacio-8);
+  height: var(--espacio-8);
+  background-color: var(--color-acento-suave);
+  --foco-color: var(--color-foco);
+  color: var(--color-acento);
+  font-family: var(--tipografia-familia-display);
+  font-size: var(--tipografia-tamano-titulo-4);
+  font-weight: var(--tipografia-pesos-display);
+  border-radius: var(--radio-superficie);
+}
+
+.inicial--persona {
+  background-color: var(--color-cierra-suave);
+  --foco-color: var(--color-foco);
+  color: var(--color-cierra-hover);
+}
+
+.inicial--grande {
+  width: var(--espacio-9);
+  height: var(--espacio-9);
+  font-size: var(--tipografia-tamano-titulo-2);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════════════════
+ * Marcas: patrocinado, estado de una cita, nota
+ * ═══════════════════════════════════════════════════════════════════════════════════════════ */
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-1);
+  padding: var(--espacio-1) var(--espacio-2);
+  font-size: var(--tipografia-tamano-micro);
+  font-weight: var(--tipografia-pesos-fuerte);
+  letter-spacing: var(--tipografia-espaciado-etiqueta);
+  text-transform: uppercase;
+  border-radius: var(--radio-superficie);
+}
+
+.marca--pagado {
+  background-color: var(--color-aviso-suave);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta);
+  border-left: var(--canto-secundario) solid var(--color-aviso);
+}
+
+.marca--abierto {
+  background-color: var(--color-exito-suave);
+  --foco-color: var(--color-foco);
+  color: var(--color-exito);
+}
+
+.marca--cerrado {
+  background-color: var(--color-arena);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta-suave);
+}
+
+.estado {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--espacio-1) var(--espacio-2);
+  font-size: var(--tipografia-tamano-micro);
+  font-weight: var(--tipografia-pesos-fuerte);
+  letter-spacing: var(--tipografia-espaciado-etiqueta);
+  text-transform: uppercase;
+  border-left: var(--canto-secundario) solid;
+  border-radius: var(--radio-superficie);
+}
+
+.estado[data-estado='pendiente'] {
+  background-color: var(--estado-reserva-pendiente-fondo);
+  color: var(--estado-reserva-pendiente-texto);
+  border-left-color: var(--estado-reserva-pendiente-borde);
+}
+
+.estado[data-estado='confirmada'] {
+  background-color: var(--estado-reserva-confirmada-fondo);
+  color: var(--estado-reserva-confirmada-texto);
+  border-left-color: var(--estado-reserva-confirmada-borde);
+}
+
+.estado[data-estado='completada'] {
+  background-color: var(--estado-reserva-completada-fondo);
+  color: var(--estado-reserva-completada-texto);
+  border-left-color: var(--estado-reserva-completada-borde);
+}
+
+.estado[data-estado='no_show'] {
+  background-color: var(--estado-reserva-no_show-fondo);
+  color: var(--estado-reserva-no_show-texto);
+  border-left-color: var(--estado-reserva-no_show-borde);
+}
+
+.estado[data-estado='cancelada'] {
+  background-color: var(--estado-reserva-cancelada-fondo);
+  color: var(--estado-reserva-cancelada-texto);
+  border-left-color: var(--estado-reserva-cancelada-borde);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════════════════
+ * Las horas. En esta dirección la hora ES el producto, así que tiene su propio botón.
+ * ═══════════════════════════════════════════════════════════════════════════════════════════ */
+
+.horas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+  gap: var(--espacio-2);
+}
+
+.hora {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--espacio-toque-minimo);
+  padding-inline: var(--espacio-2);
+  background-color: var(--color-lienzo);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta);
+  border: 0;
+  border-radius: var(--radio-control);
+  box-shadow:
+    inset 0 0 0 1px var(--color-borde-fuerte),
+    inset 0 calc(-1 * var(--canto-menor)) 0 0 var(--color-cierra);
+  font-size: var(--tipografia-tamano-cuerpo);
+  font-weight: var(--tipografia-pesos-fuerte);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+  cursor: pointer;
+  text-decoration: none;
+  /* Mismo motivo que en `.opcion`: la hora elegida cambia de fondo y de letra a la vez, y
+     fundirlo la deja ilegible durante 120 ms. Se mueve el bloque, no el contraste. */
+  transition:
+    transform var(--movimiento-rapido) var(--movimiento-curva),
+    box-shadow var(--movimiento-rapido) var(--movimiento-curva);
+}
+
+@media (hover: hover) {
+  .hora:hover:not(:disabled) {
+    transform: translateY(calc(-1 * var(--canto-menor)));
+    box-shadow:
+      inset 0 0 0 1px var(--color-cierra),
+      inset 0 calc(-1 * var(--canto-secundario)) 0 0 var(--color-cierra);
+  }
+}
+
+.hora:active:not(:disabled) {
+  transform: translateY(var(--canto-menor));
+  box-shadow: inset 0 0 0 1px var(--color-cierra);
+  transition-duration: var(--movimiento-instante);
+}
+
+.hora[aria-pressed='true'] {
+  background-color: var(--color-cierra);
+  --foco-color: var(--color-acento-texto);
+  color: var(--color-cierra-texto);
+  box-shadow: inset 0 calc(-1 * var(--canto-principal)) 0 0 var(--color-cierra-hover);
+  /* Confirma que se ha tocado. Corre una vez y se acaba. */
+  animation: latir-una-vez var(--movimiento-normal) var(--movimiento-curva-empuje) 1;
+}
+
+.hora:disabled {
+  background-color: var(--color-arena);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta-tenue);
+  box-shadow: inset 0 0 0 1px var(--color-borde);
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+/* La hora que sale en una fila de resultados: es la acción que cierra, así que es fucsia. */
+.hora-suelta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  min-height: var(--espacio-toque-minimo);
+  padding-inline: var(--espacio-3);
+  background-color: var(--color-cierra);
+  --foco-color: var(--color-acento-texto);
+  color: var(--color-cierra-texto);
+  border-radius: var(--radio-control);
+  box-shadow: inset 0 calc(-1 * var(--canto-principal)) 0 0 var(--color-cierra-hover);
+  font-size: var(--tipografia-tamano-menor);
+  font-weight: var(--tipografia-pesos-fuerte);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+  text-decoration: none;
+  transition:
+    transform var(--movimiento-rapido) var(--movimiento-curva),
+    box-shadow var(--movimiento-rapido) var(--movimiento-curva);
+}
+
+@media (hover: hover) {
+  .hora-suelta:hover {
+    color: var(--color-cierra-texto);
+    background-color: var(--color-cierra-hover);
+    --foco-color: var(--color-acento-texto);
+    transform: translateY(calc(-1 * var(--canto-menor)));
+    box-shadow: inset 0 calc(-1 * var(--canto-alzado)) 0 0 var(--color-tinta);
+  }
+}
+
+.hora-suelta:active {
+  transform: translateY(var(--canto-menor));
+  box-shadow: none;
+}
+
+.franja-horas {
+  display: grid;
+  gap: var(--espacio-3);
+  padding-block: var(--espacio-4);
+  border-bottom: 1px solid var(--color-borde);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════════════════
+ * El riel del día. Una sola columna de horas de arriba abajo, con las personas entrelazadas.
+ * A 390 px seis columnas no caben: caben a partir de 1024 px y entonces se abren.
+ * ═══════════════════════════════════════════════════════════════════════════════════════════ */
+
+.riel {
+  display: grid;
+  grid-template-columns: var(--espacio-7) 1fr;
+  border-top: 1px solid var(--color-borde);
+}
+
+.riel__hora {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-block: var(--espacio-3);
+  padding-inline-end: var(--espacio-3);
+  border-right: 1px solid var(--color-borde);
+  font-size: var(--tipografia-tamano-menor);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+  font-weight: var(--tipografia-pesos-fuerte);
+  color: var(--color-tinta-tenue);
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.riel__celda {
+  display: grid;
+  gap: var(--espacio-2);
+  padding: var(--espacio-3) 0 var(--espacio-3) var(--espacio-3);
+  border-bottom: 1px solid var(--color-borde);
+  min-height: var(--espacio-7);
+}
+
+.riel__vacio {
+  font-size: var(--tipografia-tamano-menor);
+  color: var(--color-tinta-tenue);
+  align-self: center;
+}
+
+.cita {
+  display: grid;
+  gap: var(--espacio-1);
+  padding: var(--espacio-3);
+  border-left: var(--filo-grosor) solid;
+  border-radius: var(--radio-superficie);
+}
+
+.cita[data-estado='pendiente'] {
+  background-color: var(--estado-reserva-pendiente-fondo);
+  border-left-color: var(--estado-reserva-pendiente-borde);
+}
+
+.cita[data-estado='confirmada'] {
+  background-color: var(--estado-reserva-confirmada-fondo);
+  border-left-color: var(--estado-reserva-confirmada-borde);
+}
+
+.cita[data-estado='completada'] {
+  background-color: var(--estado-reserva-completada-fondo);
+  border-left-color: var(--estado-reserva-completada-borde);
+}
+
+.cita[data-estado='no_show'] {
+  background-color: var(--estado-reserva-no_show-fondo);
+  border-left-color: var(--estado-reserva-no_show-borde);
+}
+
+.cita[data-estado='cancelada'] {
+  background-color: var(--estado-reserva-cancelada-fondo);
+  border-left-color: var(--estado-reserva-cancelada-borde);
+}
+
+.cita__linea {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--espacio-1) var(--espacio-3);
+}
+
+.cita__hora {
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+  font-weight: var(--tipografia-pesos-display);
+  font-size: var(--tipografia-tamano-mayor);
+  color: var(--color-tinta);
+}
+
+.cita__quien {
+  font-size: var(--tipografia-tamano-menor);
+  font-weight: var(--tipografia-pesos-fuerte);
+  color: var(--color-tinta-suave);
+}
+
+.cita__que {
+  font-size: var(--tipografia-tamano-menor);
+  color: var(--color-tinta-suave);
+}
+
+/* En pantalla ancha el día se abre en columnas, una por persona. */
+.columnas {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .riel {
+    display: none;
+  }
+
+  .columnas {
+    display: grid;
+    gap: var(--espacio-3);
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .columna__nombre {
+    display: flex;
+    align-items: center;
+    gap: var(--espacio-2);
+    padding-block: var(--espacio-3);
+    border-bottom: var(--filo-grosor) solid var(--color-acento);
+    font-family: var(--tipografia-familia-display);
+    font-size: var(--tipografia-tamano-titulo-4);
+    font-weight: var(--tipografia-pesos-display);
+  }
+
+  .columna__citas {
+    display: grid;
+    gap: var(--espacio-2);
+    padding-block: var(--espacio-3);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════════════════
+ * Los tres estados de cualquier pantalla: cargando, vacío y roto.
+ * ═══════════════════════════════════════════════════════════════════════════════════════════ */
+
+.hueco {
+  display: grid;
+  gap: var(--espacio-3);
+  padding-block: var(--espacio-7);
+  justify-items: start;
+}
+
+.hueco__titulo {
+  font-family: var(--tipografia-familia-display);
+  font-size: var(--tipografia-tamano-titulo-3);
+  font-weight: var(--tipografia-pesos-display);
+  line-height: var(--tipografia-interlineado-titulo);
+  letter-spacing: var(--tipografia-espaciado-titular);
+}
+
+.cargando {
+  display: grid;
+  gap: var(--espacio-3);
+  padding-block: var(--espacio-5);
+}
+
+.cargando__aviso {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+  font-size: var(--tipografia-tamano-menor);
+  font-weight: var(--tipografia-pesos-fuerte);
+  letter-spacing: var(--tipografia-espaciado-etiqueta);
+  text-transform: uppercase;
+  color: var(--color-tinta-suave);
+}
+
+.cargando__barra {
+  position: relative;
+  display: block;
+  width: var(--espacio-8);
+  height: var(--canto-secundario);
+  overflow: hidden;
+  background-color: var(--color-borde);
+}
+
+.cargando__barra::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--color-acento);
+  --foco-color: var(--color-acento-texto);
+  animation: barrido var(--movimiento-lento) var(--movimiento-curva) infinite;
+}
+
+.hueso {
+  background-color: var(--color-arena);
+  --foco-color: var(--color-foco);
+  border-radius: var(--radio-superficie);
+}
+
+.hueso--fila {
+  height: var(--espacio-8);
+}
+
+.hueso--linea {
+  height: var(--espacio-4);
+  max-width: 24ch;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════════════════
+ * Piezas sueltas
+ * ═══════════════════════════════════════════════════════════════════════════════════════════ */
+
+.pila {
+  display: grid;
+  gap: var(--espacio-4);
+}
+
+.pila--apretada {
+  gap: var(--espacio-2);
+}
+
+.pila--suelta {
+  gap: var(--espacio-6);
+}
+
+.tira {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espacio-2) var(--espacio-3);
+}
+
+.tira--entre {
+  justify-content: space-between;
+}
+
+.seccion {
+  padding-block: var(--espacio-6);
+}
+
+.seccion--corta {
+  padding-block: var(--espacio-5);
+}
+
+.titulo-seccion {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  padding-bottom: var(--espacio-3);
+  border-bottom: var(--filo-grosor) solid var(--color-tinta);
+  margin-bottom: var(--espacio-4);
+}
+
+.migas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espacio-2);
+  padding-block: var(--espacio-3);
+  font-size: var(--tipografia-tamano-menor);
+  color: var(--color-tinta-tenue);
+}
+
+.migas a {
+  color: var(--color-acento);
+}
+
+.pasos {
+  display: flex;
+  gap: var(--espacio-1);
+  padding-block: var(--espacio-3);
+}
+
+.paso {
+  flex: 1;
+  padding-block: var(--espacio-2);
+  border-top: var(--filo-grosor) solid var(--color-borde);
+  font-size: var(--tipografia-tamano-micro);
+  font-weight: var(--tipografia-pesos-fuerte);
+  letter-spacing: var(--tipografia-espaciado-etiqueta);
+  text-transform: uppercase;
+  color: var(--color-tinta-tenue);
+}
+
+.paso[data-estado='hecho'] {
+  border-top-color: var(--color-acento);
+  color: var(--color-tinta-suave);
+}
+
+.paso[data-estado='ahora'] {
+  border-top-color: var(--color-cierra);
+  color: var(--color-tinta);
+}
+
+.resumen {
+  display: grid;
+  gap: var(--espacio-2);
+}
+
+.resumen__linea {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  padding-block: var(--espacio-2);
+  border-bottom: 1px solid var(--color-borde);
+  font-size: var(--tipografia-tamano-menor);
+}
+
+.resumen__linea:last-child {
+  border-bottom: 0;
+}
+
+.resumen__linea dt {
+  color: var(--color-tinta-tenue);
+}
+
+.resumen__linea dd {
+  font-weight: var(--tipografia-pesos-fuerte);
+  text-align: right;
+  color: var(--color-tinta);
+}
+
+.reparto {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--espacio-2) var(--espacio-3);
+  font-size: var(--tipografia-tamano-menor);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+}
+
+.reparto__barra {
+  height: var(--espacio-3);
+  background-color: var(--color-arena);
+  --foco-color: var(--color-foco);
+}
+
+.reparto__parte {
+  display: block;
+  height: 100%;
+  background-color: var(--color-acento);
+  --foco-color: var(--color-acento-texto);
+}
+
+.resena {
+  display: grid;
+  gap: var(--espacio-2);
+  padding-block: var(--espacio-4);
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.resena__respuesta {
+  padding: var(--espacio-3);
+  background-color: var(--color-arena);
+  --foco-color: var(--color-foco);
+  border-left: var(--canto-secundario) solid var(--color-borde-fuerte);
+  font-size: var(--tipografia-tamano-menor);
+  color: var(--color-tinta-suave);
+}
+
+.dato {
+  display: grid;
+  gap: var(--espacio-1);
+  padding: var(--espacio-3);
+  background-color: var(--color-lienzo);
+  --foco-color: var(--color-foco);
+  border: 1px solid var(--color-borde);
+}
+
+.dato__cifra {
+  font-family: var(--tipografia-familia-display);
+  font-size: var(--tipografia-tamano-titulo-3);
+  font-weight: var(--tipografia-pesos-display);
+  font-variant-numeric: var(--tipografia-cifras-tabulares);
+  line-height: var(--tipografia-interlineado-apretado);
+}
+
+.datos {
+  display: grid;
+  /* Tres a lo ancho a 390 px: con 8rem de mínimo solo entraban dos y la tercera quedaba
+     descolgada al final de la fila, como si sobrara. */
+  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
+  gap: var(--espacio-2);
+}
+
+/* Aparecer una vez: dice de dónde sale la pantalla. No se repite. */
+.aparece {
+  animation: entrar-desde-abajo var(--movimiento-normal) var(--movimiento-curva) 1 backwards;
+}
+
+.sello {
+  flex: none;
+}
