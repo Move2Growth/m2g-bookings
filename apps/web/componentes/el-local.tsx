@@ -128,11 +128,16 @@ export function ElLocal() {
         <div className="seccion">
           <Vacio
             titulo="No trabajas en ningún salón"
-            explicacion="Esta cuenta no tiene ningún local asociado. Si te han invitado a uno, abre el enlace de la invitación."
+            explicacion="Esta cuenta no tiene ningún local asociado. Puedes dar de alta el tuyo —es gratis y son tres pasos— o, si te han invitado a uno, abrir el enlace de la invitación."
             accion={
-              <Link className="boton boton--abre" href="/mis-citas">
-                Ver mis citas como clienta
-              </Link>
+              <span className="tira">
+                <Link className="boton boton--cierra" href="/local/alta">
+                  Dar de alta mi salón
+                </Link>
+                <Link className="boton boton--secundario" href="/mis-citas">
+                  Ver mis citas como clienta
+                </Link>
+              </span>
             }
           />
         </div>

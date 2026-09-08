@@ -1621,3 +1621,40 @@ a:hover {
 .sello {
   flex: none;
 }
+
+/* ── El horario del alta ──────────────────────────────────────────────────────────────────── */
+
+/* Una fila por día, con el día a la izquierda y sus dos horas a la derecha. A 390 px las dos
+   horas caben porque el `input[type=time]` se deja al ancho que pide el navegador y nada más:
+   forzarlo a un ancho fijo es lo que parte la fila en teléfonos con la letra grande. */
+.horario__fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-2);
+  min-height: var(--espacio-toque-minimo);
+  padding-block: var(--espacio-1);
+  border-block-end: 1px solid var(--color-borde);
+}
+
+/* La casilla y el nombre del día son **un solo objetivo**: en el salón esto se toca con el
+   pulgar, y una casilla de 13 px suelta es un objetivo que falla una de cada tres veces. */
+.horario__dia {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  min-height: var(--espacio-toque-minimo);
+  cursor: pointer;
+}
+
+.horario__horas {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-2);
+}
+
+.campo__caja--hora {
+  inline-size: auto;
+  padding-inline: var(--espacio-2);
+}

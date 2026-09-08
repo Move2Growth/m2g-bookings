@@ -100,11 +100,21 @@ export default function Portada() {
             <div className="pila pila--apretada">
               <span className="etiqueta">Para el salón</span>
               <p className="rotulo rotulo--pequeno">¿Trabajas aquí dentro?</p>
-              <p className="menor">La agenda del día, con todo el equipo, en una sola columna.</p>
+              <p className="menor">
+                La agenda del día, con todo el equipo, en una sola columna. Y si todavía no tienes local, se da de
+                alta en tres pasos y es gratis.
+              </p>
             </div>
-            <Link className="boton boton--secundario" href="/local">
-              Entrar a mi salón
-            </Link>
+            {/* Dos puertas, y la de crear va primero: quien todavía no tiene salón es quien
+                necesita que se lo digan, porque el que ya lo tiene sabe volver solo. */}
+            <span className="tira">
+              <Link className="boton boton--cierra" href="/local/alta">
+                Dar de alta mi salón
+              </Link>
+              <Link className="boton boton--secundario" href="/local">
+                Entrar a mi salón
+              </Link>
+            </span>
           </div>
         </div>
       </div>

@@ -366,4 +366,60 @@ export const api = {
 
   diaEnColumnas: (acceso: string, dia?: string) =>
     pedir<DiaEnColumnas>(`/api/v1/negocio/agenda/columnas${dia ? `?dia=${dia}` : ''}`, { acceso }),
+
+  /* ── El alta del local, en tres pasos (encargo §4) ────────────────────────────────────── */
+
+  crearNegocio: (datos: AltaDeNegocio, acceso: string) =>
+    pedir<NegocioCreado>('/api/v1/negocios', { metodo: 'POST', cuerpo: datos, acceso }),
+
+  ponerHorario: (horario: TramoDeHorario[], acceso: string) =>
+    pedir<TramoDeHorario[]>('/api/v1/negocio/horario', { metodo: 'PUT', cuerpo: horario, acceso }),
+
+  invitar: (datos: { correo: string; rol: 'dueno' | 'profesional'; nombre?: string }, acceso: string) =>
+    pedir<InvitacionCreada>('/api/v1/negocio/miembros/invitaciones', { metodo: 'POST', cuerpo: datos, acceso }),
+
+  crearServicio: (datos: AltaDeServicio, acceso: string) =>
+    pedir<string>('/api/v1/negocio/servicios', { metodo: 'POST', cuerpo: datos, acceso }),
+
+  checklist: (acceso: string) => pedir<Checklist>('/api/v1/negocio/checklist', { acceso }),
+
+  publicar: (acceso: string) => pedir<NegocioCreado>('/api/v1/negocio/publicar', { metodo: 'POST', acceso }),
+};
+
+/* ── Tipos del alta ──────────────────────────────────────────────────────────────────────── */
+
+export type AltaDeNegocio = {
+  nombre: string;
+  categoria: string;
+  direccion: string;
+  longitud: number;
+  latitud: number;
+};
+
+export type NegocioCreado = { id: string; slug: string; estado: string };
+
+export type TramoDeHorario = { dia: number; abre: string; cierra: string };
+
+export type InvitacionCreada = {
+  miembro: { correo: string | null; rol: string; estado: string };
+  /** Solo en local: el enlace que en producción viaja al correo. */
+  enlace_de_desarrollo: string | null;
+};
+
+export type AltaDeServicio = {
+  nombre: string;
+  categoria: string;
+  duracion_minutos: number;
+  /** Opcional a propósito (encargo §4): hay servicios cuyo precio no se sabe de antemano. */
+  precio_centavos: number | null;
+  tipo_de_precio: 'fijo' | 'desde' | 'consultar';
+};
+
+export type Checklist = {
+  tiene_servicio_activo: boolean;
+  tiene_horario: boolean;
+  tiene_ubicacion: boolean;
+  tiene_foto: boolean;
+  listo_para_publicar: boolean;
+  completitud: number;
 };
