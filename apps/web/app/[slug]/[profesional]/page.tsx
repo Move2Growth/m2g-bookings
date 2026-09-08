@@ -106,8 +106,20 @@ export default async function PaginaDeProfesional({ params, searchParams }: Prop
   const servicio =
     perfil.catalogo.find((s) => s.id === servicioPedido) ?? perfil.catalogo[0] ?? null
 
-  const dias = proximosDias(new Date())
-  const dia = diaPedido ? new Date(`${diaPedido}T00:00:00`) : dias[0]
+  //: **Hoy es hoy en el salón, y una sola vez.** Se calculaba de dos maneras: la tira de días y
+  //: las horas salían de `new Date()` —que en el servidor es UTC—, y el calendario lo hacía otra
+  //: vez en el navegador. De siete de la tarde en adelante en Panamá eso son **dos días
+  //: distintos**: la tira ofrecía mañana como si fuera hoy, el calendario marcaba hoy, y React
+  //: avisaba de que el HTML servido y el hidratado no coincidían. Ahora sale de aquí, ya
+  //: partido en año, mes y día con la zona del salón, y de aquí lo toma todo.
+  const hoyIso = new Intl.DateTimeFormat('en-CA', {
+    timeZone: perfil.zona_horaria,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date())
+  const dia = new Date(`${diaPedido ?? hoyIso}T00:00:00`)
+  const dias = proximosDias(new Date(`${hoyIso}T00:00:00`))
   const finDelDia = new Date(dia)
   finDelDia.setDate(finDelDia.getDate() + 1)
 
@@ -343,8 +355,9 @@ export default async function PaginaDeProfesional({ params, searchParams }: Prop
               </nav>
 
               <Calendario
-                diaElegido={dia}
+                diaElegidoIso={diaPedido ?? hoyIso}
                 diasConHueco={diasConHueco}
+                hoyIso={hoyIso}
                 enlaceBase={`${aqui}?servicio=${servicio.id}&dia=`}
               />
 

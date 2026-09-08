@@ -35,14 +35,21 @@ function mismoDia(a: Date, b: Date): boolean {
 }
 
 export function Calendario({
-  diaElegido,
+  diaElegidoIso,
   diasConHueco,
   enlaceBase,
-  desde = new Date(),
+  hoyIso,
   meses = 3,
 }: {
-  /** El día que está mirando ahora mismo. */
-  diaElegido: Date
+  /**
+   * El día que está mirando ahora mismo, en `YYYY-MM-DD` y en la zona del salón.
+   *
+   * Era un `Date`, y un `Date` es un instante: el servidor lo partía en año, mes y día con la
+   * zona del contenedor —UTC— y el navegador con la suya, así que de siete de la tarde en
+   * adelante marcaban **días distintos como elegido**. Con el texto ya partido, las dos mitades
+   * marcan el mismo.
+   */
+  diaElegidoIso: string
   /** Días con al menos un hueco, en `YYYY-MM-DD`. Lo que no está aquí se apaga. */
   diasConHueco: Set<string>
   /**
@@ -51,13 +58,24 @@ export function Calendario({
    * la frontera desde el servidor.
    */
   enlaceBase: string
-  /** No se puede pedir hora para ayer. */
-  desde?: Date
+  /**
+   * Hoy, **en la zona del salón** y ya resuelto por el servidor, en `YYYY-MM-DD`.
+   *
+   * Era `desde = new Date()` y ese valor por defecto se calculaba dos veces: en el servidor, que
+   * corre en UTC, y otra vez en el navegador al hidratar. A partir de las siete de la tarde en
+   * Panamá ya no son el mismo día, así que el servidor mandaba un calendario con la flecha de
+   * atrás inhabilitada y el navegador pintaba otra cosa. React lo dice y no lo arregla: «some
+   * attributes of the server rendered HTML didn't match». Se pasa hecho para que las dos mitades
+   * miren el mismo día.
+   */
+  hoyIso: string
   /** Cuántos meses hacia delante se dejan abrir. */
   meses?: number
 }) {
-  const hoy = new Date(desde)
-  hoy.setHours(0, 0, 0, 0)
+  //: Sin hora y sin zona: `new Date('2026-09-07T00:00:00')` es medianoche local en los dos
+  //: lados, así que servidor y navegador construyen exactamente la misma fecha.
+  const hoy = new Date(`${hoyIso}T00:00:00`)
+  const diaElegido = new Date(`${diaElegidoIso}T00:00:00`)
   const [mes, setMes] = useState(() => new Date(diaElegido.getFullYear(), diaElegido.getMonth(), 1))
 
   const limite = new Date(hoy.getFullYear(), hoy.getMonth() + meses, 1)
