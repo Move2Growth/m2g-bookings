@@ -72,6 +72,15 @@ recargar:  ## Aplica cambios del .env a los contenedores (restart NO los relee)
 	# dejarla fuera hacía que se cambiara el `.env` y la cabecera siguiera diciendo lo de antes.
 	$(COMPOSE) up -d --force-recreate api worker planificador web
 
+web:  ## Reconstruye la web tras añadir una dependencia (el volumen tapa el node_modules nuevo)
+	# `docker compose build` no basta: el servicio monta `node_modules` como **volumen anónimo**,
+	# así que el contenedor sigue viendo el de antes y Next dice «Module not found» de un paquete
+	# que sí está instalado. Hay que tirar el volumen con el contenedor, y eso es `rm -sfv`.
+	# Se ha perdido media hora con esto dos veces: una con las tipografías y otra con el mapa.
+	$(COMPOSE) build web
+	$(COMPOSE) rm -sfv web
+	$(COMPOSE) up -d web
+
 reiniciar:  ## Recrea la base desde cero: borra los datos, migra y siembra
 	$(COMPOSE) down -v
 	$(MAKE) arriba

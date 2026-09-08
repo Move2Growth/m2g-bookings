@@ -69,6 +69,13 @@ export default function Portada() {
                 </Link>
               </div>
             </div>
+
+            {/* **El mapa va aquí y no en un menú.** Es la tercera forma de buscar lo mismo: quien
+                no sabe el nombre de nada pero sabe por dónde va a pasar. Escondido no lo
+                encuentra nadie. */}
+            <p className="menor">
+              <Link href="/mapa">O míralo en el mapa, por dónde te queda</Link>
+            </p>
           </div>
         </div>
       </div>

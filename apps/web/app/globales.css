@@ -1844,3 +1844,69 @@ a:hover {
   background-color: var(--color-lienzo);
   --foco-color: var(--color-foco);
 }
+
+/* ── El mapa ──────────────────────────────────────────────────────────────────────────────── */
+
+.mapa {
+  position: relative;
+  border: 1px solid var(--color-borde);
+  background-color: var(--color-arena);
+  --foco-color: var(--color-foco);
+}
+
+/* Alto fijo y no `vh`: en el teléfono la barra del navegador entra y sale, y con `vh` el mapa
+   salta cada vez que se desplaza la página. */
+.mapa__lienzo {
+  block-size: 60vh;
+  min-block-size: 20rem;
+  max-block-size: 34rem;
+}
+
+.mapa__estado {
+  padding: var(--espacio-2) var(--espacio-3);
+  border-block-start: 1px solid var(--color-borde);
+  font-size: var(--tipografia-tamano-menor);
+  color: var(--color-tinta-tenue);
+}
+
+/* El pin es el nombre, no una chincheta: doce chinchetas iguales no dicen nada. */
+.pin__caja {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-1);
+  padding: 2px var(--espacio-2);
+  background-color: var(--color-tinta);
+  --foco-color: var(--color-acento-texto);
+  color: var(--color-papel);
+  font-size: var(--tipografia-tamano-micro);
+  white-space: nowrap;
+  transform: translate(-50%, -140%);
+}
+
+.pin__nota {
+  padding-inline-start: var(--espacio-1);
+  border-inline-start: 1px solid var(--color-borde-fuerte);
+  font-variant-numeric: tabular-nums;
+}
+
+/* La lista de debajo: lo mismo que el mapa, pero recorrible con el tabulador. */
+.fila-mapa {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  min-height: var(--espacio-toque-minimo);
+  padding: var(--espacio-3);
+  border: 1px solid var(--color-borde);
+  background-color: var(--color-lienzo);
+  --foco-color: var(--color-foco);
+  color: var(--color-tinta);
+  text-decoration: none;
+}
+
+/* Leaflet pinta sus controles con su propia hoja; aquí solo se les quita el redondeo, que es
+   decorativo y lo prohíbe el listón. */
+.leaflet-control-zoom a,
+.leaflet-bar {
+  border-radius: 0 !important;
+}

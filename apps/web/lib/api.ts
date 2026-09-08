@@ -421,7 +421,23 @@ export const api = {
     pedir<AnuncioDelSalon>(`/api/v1/negocio/anuncios/${id}`, { metodo: 'PATCH', cuerpo: cambio, acceso }),
 
   borrarAnuncio: (id: string, acceso: string) =>
-    pedir<void>(`/api/v1/negocio/anuncios/${id}`, { metodo: 'DELETE', acceso }),
+    pedir<AnuncioDelSalon>(`/api/v1/negocio/anuncios/${id}`, { metodo: 'DELETE', acceso }),
+
+  /** El mapa **por rectángulo**: lo que se ve es lo que se pregunta (encargo §5). */
+  mapa: (rect: { oeste: number; sur: number; este: number; norte: number }) =>
+    pedir<{ salones: SalonEnMapa[] }>(
+      `/api/v1/publico/mapa?oeste=${rect.oeste}&sur=${rect.sur}&este=${rect.este}&norte=${rect.norte}`,
+    ),
+};
+
+export type SalonEnMapa = {
+  negocio_id: string;
+  slug: string;
+  nombre: string;
+  longitud: number;
+  latitud: number;
+  rating: number | null;
+  numero_reviews: number;
 };
 
 /* ── Tipos del portal del dueño ──────────────────────────────────────────────────────────── */
