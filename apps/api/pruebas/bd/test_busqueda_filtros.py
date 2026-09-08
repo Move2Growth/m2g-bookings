@@ -198,21 +198,31 @@ async def test_la_sonda_de_disponibilidad_elige_el_servicio_mas_corto():
 async def test_disponibilidad_hoy_usa_el_motor_y_devuelve_la_primera_hora():
     """El filtro se apoya en el **mismo motor** que la reserva, no en una copia (MKT-2).
 
-    Con jornada de 24 horas el salón tiene huecos hoy sí o sí, así que si esto viniera vacío
-    sería que el filtro no está preguntándole al motor.
+    **La hora se fija a mano y no es un detalle.** Esto decía «con jornada de 24 horas el salón
+    tiene huecos hoy sí o sí» y era mentira: «hoy» termina a medianoche, así que a las once y
+    media de la noche no cabe un servicio de tres cuartos de hora y la prueba fallaba. No fallaba
+    por un fallo del producto: fallaba por la hora a la que se lanzara, que es la peor clase de
+    prueba —la que se ignora cuando se pone roja—. Con `ahora` fijado a media mañana mide lo que
+    dice medir.
     """
     salon = await montar_salon()
     await _con_horario(salon.negocio_id, time(0, 0), time(23, 59))
     await _con_jornada_del_equipo(salon)
 
+    # Las nueve de la mañana en Panamá del día que sea que corra esto.
+    hoy = datetime.now(UTC).date()
+    manana_temprano = datetime.combine(hoy, time(14, 0), tzinfo=UTC)
+
     async with _sesion_publica() as sesion:
-        resultados = await busqueda.buscar(sesion, texto=salon.nombre, disponibilidad="hoy")
+        resultados = await busqueda.buscar(
+            sesion, texto=salon.nombre, disponibilidad="hoy", ahora=manana_temprano
+        )
 
     nuestro = [r for r in resultados if r.negocio_id == salon.negocio_id]
-    assert nuestro, "Un salón abierto todo el día tiene que tener hueco hoy."
+    assert nuestro, "Un salón abierto todo el día tiene que tener hueco a media mañana."
     assert nuestro[0].proxima_hora is not None
-    assert nuestro[0].proxima_hora > datetime.now(
-        UTC
+    assert (
+        nuestro[0].proxima_hora > manana_temprano
     ), "La próxima hora libre no puede estar en el pasado."
 
 

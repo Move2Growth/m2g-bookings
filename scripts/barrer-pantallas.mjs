@@ -155,7 +155,27 @@ async function barrer(titulo, rutas, sesion, llave = 'agenda.sesion') {
     //: Un 404 se espera en las rutas que se barren justamente para ver su página de «no está».
     const seEsperaUn404 = ruta.includes('no-existe')
     const estado = respuesta?.status() ?? 0
-    const ancho = await pagina.evaluate(() => document.documentElement.scrollWidth)
+
+    //: **Medir puede pillar la página a media navegación.** Alguna pantalla redirige sola
+    //: —cambia de sitio después de mirar la sesión—, y si eso pasa justo mientras se mide,
+    //: Playwright tira «Execution context was destroyed» y con ella el barrido **entero**: se
+    //: queda sin decir nada de las treinta y cuatro pantallas restantes. Pasó una vez de
+    //: veinte, que es lo peor que puede pasar: enseña a volver a lanzarlo hasta que salga
+    //: verde. Se espera a que se pose y se vuelve a medir; si aun así no se puede, se dice.
+    const medir = async (recuerdo) => {
+      for (let intento = 0; intento < 3; intento++) {
+        try {
+          return await pagina.evaluate(recuerdo)
+        } catch (fallo) {
+          if (!/Execution context was destroyed|Target closed/.test(String(fallo))) throw fallo
+          await pagina.waitForLoadState('networkidle').catch(() => {})
+          await pagina.waitForTimeout(600)
+        }
+      }
+      return null
+    }
+
+    const ancho = await medir(() => document.documentElement.scrollWidth)
     const texto = await pagina.locator('body').innerText().catch(() => '')
     const roto = /Application error|Internal Server Error|Algo salió mal/i.test(texto)
 
@@ -166,13 +186,11 @@ async function barrer(titulo, rutas, sesion, llave = 'agenda.sesion') {
     // Se mira el bloque de error del producto —`.aviso--error`, `role="alert"`— y solo si está
     // **visible**: uno oculto es el que se pinta cuando algo falla, y aquí no ha fallado nada.
     const buscarError = () =>
-      pagina
-        .evaluate(() => {
-          const posibles = [...document.querySelectorAll('.aviso--error, [role="alert"]')]
-          const visible = posibles.find((e) => e.getClientRects().length > 0)
-          return visible ? (visible.textContent || '').trim().slice(0, 90) : null
-        })
-        .catch(() => null)
+      medir(() => {
+        const posibles = [...document.querySelectorAll('.aviso--error, [role="alert"]')]
+        const visible = posibles.find((e) => e.getClientRects().length > 0)
+        return visible ? (visible.textContent || '').trim().slice(0, 90) : null
+      }).catch(() => null)
 
     // **Se mira dos veces antes de acusar.** En desarrollo, Next compila cada ruta la primera
     // vez que se pide —ocho segundos largos— y la llamada al servidor de dentro puede vencer,
@@ -186,8 +204,12 @@ async function barrer(titulo, rutas, sesion, llave = 'agenda.sesion') {
       avisoDeError = await buscarError()
     }
 
+    //: Sin medida no hay aprobado. `null <= 390` es cierto en JavaScript, así que una pantalla
+    //: que no se pudo medir pasaba por buena: el fallo silencioso que este barredor existe para
+    //: no tener.
     const bien =
       (estado === 200 || (seEsperaUn404 && estado === 404)) &&
+      ancho !== null &&
       ancho <= ANCHO &&
       !roto &&
       !avisoDeError &&
@@ -195,6 +217,7 @@ async function barrer(titulo, rutas, sesion, llave = 'agenda.sesion') {
     const porque = [
       errores.length ? errores[0] : '',
       roto ? 'PANTALLA ROTA' : '',
+      ancho === null ? 'no se pudo medir: la pantalla no se estuvo quieta' : '',
       avisoDeError ? `enseña un error: «${avisoDeError}»` : '',
     ]
       .filter(Boolean)
