@@ -1,4 +1,5 @@
 import { NavLocal } from '@/componentes/nav-local';
+import { SoloDueno } from '@/componentes/solo-dueno';
 import { Publicidad } from '@/componentes/portal-dueno';
 
 export const metadata = { title: 'Publicidad', description: 'Una línea tuya, encima de tu ficha, escrita y quitada desde aquí.' };
@@ -11,7 +12,9 @@ export default function Pantalla() {
         <span className="etiqueta">Tu salón</span>
         <h1 className="rotulo rotulo--grande">Publicidad</h1>
         <NavLocal />
-        <Publicidad />
+        <SoloDueno>
+          <Publicidad />
+        </SoloDueno>
       </div>
     </div>
   );

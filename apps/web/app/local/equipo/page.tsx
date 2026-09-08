@@ -1,4 +1,5 @@
 import { NavLocal } from '@/componentes/nav-local';
+import { SoloDueno } from '@/componentes/solo-dueno';
 import { ElEquipo } from '@/componentes/portal-dueno';
 
 export const metadata = { title: 'El equipo', description: 'Quién trabaja en tu salón, y a quién le pides fichaje.' };
@@ -11,7 +12,9 @@ export default function Pantalla() {
         <span className="etiqueta">Tu salón</span>
         <h1 className="rotulo rotulo--grande">El equipo</h1>
         <NavLocal />
-        <ElEquipo />
+        <SoloDueno>
+          <ElEquipo />
+        </SoloDueno>
       </div>
     </div>
   );

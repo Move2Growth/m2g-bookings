@@ -423,11 +423,66 @@ export const api = {
   borrarAnuncio: (id: string, acceso: string) =>
     pedir<AnuncioDelSalon>(`/api/v1/negocio/anuncios/${id}`, { metodo: 'DELETE', acceso }),
 
+  /* ── El portal del profesional ─────────────────────────────────────────────────────────── */
+
+  miAgenda: (acceso: string, desde?: string, hasta?: string) =>
+    pedir<MiAgenda>(
+      `/api/v1/mi/agenda${desde && hasta ? `?desde=${desde}&hasta=${hasta}` : ''}`,
+      { acceso },
+    ),
+
+  miPerfilProfesional: (acceso: string) =>
+    pedir<MiPerfilProfesional>('/api/v1/mi/perfil-profesional', { acceso }),
+
+  cambiarMiPerfilProfesional: (cambio: Partial<MiPerfilProfesional>, acceso: string) =>
+    pedir<MiPerfilProfesional>('/api/v1/mi/perfil-profesional', { metodo: 'PATCH', cuerpo: cambio, acceso }),
+
   /** El mapa **por rectángulo**: lo que se ve es lo que se pregunta (encargo §5). */
   mapa: (rect: { oeste: number; sur: number; este: number; norte: number }) =>
     pedir<{ salones: SalonEnMapa[] }>(
       `/api/v1/publico/mapa?oeste=${rect.oeste}&sur=${rect.sur}&este=${rect.este}&norte=${rect.norte}`,
     ),
+};
+
+/* ── El portal del profesional ───────────────────────────────────────────────────────────── */
+
+export type CitaEnMiAgenda = {
+  id: string;
+  inicio: string;
+  fin: string;
+  estado: string;
+  cliente: string | null;
+  telefono: string | null;
+  servicios: string[];
+  duracion_minutos: number;
+  total_centavos: number;
+  nota_del_cliente: string | null;
+};
+
+export type MiAgenda = {
+  profesional_id: string;
+  profesional: string;
+  negocio: string;
+  zona_horaria: string;
+  citas: CitaEnMiAgenda[];
+  bloqueos: { inicio: string; fin: string; motivo: string | null }[];
+};
+
+export type MiPerfilProfesional = {
+  id: string;
+  slug: string | null;
+  nombre: string;
+  titular: string | null;
+  descripcion: string | null;
+  foto: string | null;
+  anos_de_experiencia: number | null;
+  instagram: string | null;
+  facebook: string | null;
+  x: string | null;
+  citas_atendidas: number;
+  clientes_atendidos: number;
+  activo: boolean;
+  visible_en_marketplace: boolean;
 };
 
 export type SalonEnMapa = {

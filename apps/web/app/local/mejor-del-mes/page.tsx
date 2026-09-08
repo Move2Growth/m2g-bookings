@@ -1,4 +1,5 @@
 import { NavLocal } from '@/componentes/nav-local';
+import { SoloDueno } from '@/componentes/solo-dueno';
 import { MejorDelMes } from '@/componentes/portal-dueno';
 
 export const metadata = { title: 'Mejor del mes', description: 'Quién va por delante este mes, por dinero o por servicios.' };
@@ -11,7 +12,9 @@ export default function Pantalla() {
         <span className="etiqueta">Tu salón</span>
         <h1 className="rotulo rotulo--grande">Mejor del mes</h1>
         <NavLocal />
-        <MejorDelMes />
+        <SoloDueno>
+          <MejorDelMes />
+        </SoloDueno>
       </div>
     </div>
   );

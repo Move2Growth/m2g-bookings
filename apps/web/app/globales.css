@@ -1987,3 +1987,46 @@ a {
 .leaflet-bar {
   border-radius: 0 !important;
 }
+
+/* ── El día del profesional ───────────────────────────────────────────────────────────────── */
+
+/* La hora a la izquierda y quién viene a la derecha: en una columna estrecha, la hora es lo que
+   se busca con el ojo y por eso va primero y en cifra tabular. */
+.cita-mia {
+  display: flex;
+  gap: var(--espacio-3);
+  align-items: flex-start;
+  padding: var(--espacio-3);
+  border: 1px solid var(--color-borde);
+  border-inline-start: var(--neon-tubo) solid var(--color-acento);
+  background-color: var(--color-lienzo);
+  --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
+}
+
+/* Lo que ya no va a pasar se apaga, no se esconde: saber que alguien no vino es información. */
+.cita-mia[data-estado='cancelada_cliente'],
+.cita-mia[data-estado='cancelada_negocio'],
+.cita-mia[data-estado='no_show'] {
+  border-inline-start-color: var(--color-borde-fuerte);
+  color: var(--color-tinta-tenue);
+}
+
+.cita-mia[data-estado='completada'] {
+  border-inline-start-color: var(--color-exito);
+}
+
+.cita-mia__hora {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 3.5rem;
+  font-family: var(--tipografia-familia-display);
+  font-size: var(--tipografia-tamano-mayor);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--tipografia-interlineado-titulo);
+}
+
+.cita-mia__fin {
+  font-size: var(--tipografia-tamano-micro);
+  color: var(--color-tinta-tenue);
+}
