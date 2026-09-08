@@ -24,12 +24,14 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from agenda.ajustes import obtener_ajustes
-from agenda.api.dependencias import _leer_token
+from agenda.api import consola as api_consola
+from agenda.api.consola import DecisionDeModeracion
+from agenda.api.dependencias import IdentidadAdmin, _leer_token
 from agenda.dominio import totp
 from agenda.errores import CredencialesInvalidas, NoAutorizado
 from agenda.servicios import consola as servicio_consola
 from pruebas.bd.conftest import URL_APP
-from pruebas.bd.escenario_panel import conexion_de_dueno, montar_salon
+from pruebas.bd.escenario_panel import conexion_de_dueno, crear_cita_completada, montar_salon
 
 pytestmark = pytest.mark.bd
 
@@ -337,3 +339,153 @@ async def test_rechazar_una_foto_de_trabajo_la_apaga_en_el_perfil_publico():
     finally:
         await motor.dispose()
         await motor_publico.dispose()
+
+
+# ── Moderación de reseñas (ADM-3, REV-4) ──────────────────────────────────────────────────
+
+
+async def _resena_reportada(salon) -> tuple[uuid.UUID, uuid.UUID]:
+    """Una reseña publicada de cinco estrellas y un reporte abierto sobre ella."""
+    cita_id = await crear_cita_completada(
+        salon.negocio_id,
+        salon.kevin.id,
+        salon.cliente_de_kevin,
+        salon.servicio_id,
+        salon.dueno_user_id,
+    )
+    async with conexion_de_dueno() as sesion:
+        resena_id = (
+            await sesion.execute(
+                text(
+                    """
+                    INSERT INTO reviews (business_id, booking_id, author_user_id, staff_id,
+                                         rating, body, status)
+                    VALUES (:negocio, :cita, :cliente, :staff, 5, 'Impecable, vuelvo fijo.',
+                            'publicada')
+                    RETURNING id
+                    """
+                ),
+                {
+                    "negocio": salon.negocio_id,
+                    "cita": cita_id,
+                    "cliente": salon.dueno_user_id,
+                    "staff": salon.kevin.id,
+                },
+            )
+        ).scalar_one()
+        reporte_id = (
+            await sesion.execute(
+                text(
+                    """
+                    INSERT INTO review_reports (business_id, review_id, reporter_kind,
+                                                reporter_user_id, reason, status)
+                    VALUES (:negocio, :resena, 'cliente', :usuario, 'ofensiva', 'abierto')
+                    RETURNING id
+                    """
+                ),
+                {
+                    "negocio": salon.negocio_id,
+                    "resena": resena_id,
+                    "usuario": salon.dueno_user_id,
+                },
+            )
+        ).scalar_one()
+    return resena_id, reporte_id
+
+
+async def _admin_de_verdad() -> IdentidadAdmin:
+    """Una cuenta de consola real: resolver un reporte deja su identificador en la fila."""
+    email, _ = await _crear_admin()
+    async with conexion_de_dueno() as sesion:
+        admin_id = (
+            await sesion.execute(
+                text("SELECT id FROM admin_users WHERE email = :email"), {"email": email}
+            )
+        ).scalar_one()
+    return IdentidadAdmin(admin_id=admin_id, rol="superadmin", email=email)
+
+
+async def _estado_de_la_resena(resena_id: uuid.UUID) -> tuple[str, int]:
+    """Su estado y cuántas reseñas cuenta el agregado del salón."""
+    async with conexion_de_dueno() as sesion:
+        estado, negocio_id = (
+            await sesion.execute(
+                text("SELECT status, business_id FROM reviews WHERE id = :id"),
+                {"id": resena_id},
+            )
+        ).one()
+        total = (
+            await sesion.execute(
+                text("SELECT reviews_count FROM business_rating_stats WHERE business_id = :n"),
+                {"n": negocio_id},
+            )
+        ).scalar_one_or_none()
+    return estado, total or 0
+
+
+async def test_mantener_devuelve_al_perfil_una_resena_que_se_habia_ocultado():
+    """Moderar tiene que poder deshacerse, y no podía.
+
+    Ocultar quita la reseña del perfil y la saca de la media; «mantener» descartaba el reporte y
+    **dejaba la reseña oculta**, aunque el comentario del propio código decía lo contrario. Un
+    salón al que le ocultaban una reseña por error perdía su estrella para siempre: desde la
+    consola no había vuelta. Visto en vivo sobre la Barbería El Cangrejo —de 4,32 con doce
+    reseñas a 4,29 con once, y «mantener» la dejaba en 4,29 con once—.
+
+    Para creerse esta prueba: si el `else` vuelve a limitarse a descartar el reporte, el estado
+    final es «oculta» y esto falla.
+    """
+    salon = await montar_salon()
+    resena_id, reporte_id = await _resena_reportada(salon)
+    identidad = await _admin_de_verdad()
+
+    sesion = await _sesion_consola()
+    try:
+        await api_consola.resolver_reporte(
+            reporte_id, DecisionDeModeracion(accion="ocultar", nota="Prueba"), (sesion, identidad)
+        )
+        await sesion.commit()
+    finally:
+        await sesion.close()
+    assert await _estado_de_la_resena(resena_id) == ("oculta", 0)
+
+    sesion = await _sesion_consola()
+    try:
+        await api_consola.resolver_reporte(
+            reporte_id,
+            DecisionDeModeracion(accion="mantener", nota="Nos precipitamos"),
+            (sesion, identidad),
+        )
+        await sesion.commit()
+    finally:
+        await sesion.close()
+
+    estado, total = await _estado_de_la_resena(resena_id)
+    assert estado == "publicada", "Mantener tiene que devolver la reseña al perfil."
+    assert total == 1, "Y devolverla también a la media, que es lo que ve todo el mundo."
+
+
+async def test_mantener_no_resucita_una_resena_que_retiro_quien_la_escribio():
+    """`retirada` no es cosa de la moderación.
+
+    La quitó quien la escribió, y eso no lo deshace el equipo interno.
+    """
+    salon = await montar_salon()
+    resena_id, reporte_id = await _resena_reportada(salon)
+    async with conexion_de_dueno() as sesion:
+        await sesion.execute(
+            text("UPDATE reviews SET status = 'retirada' WHERE id = :id"), {"id": resena_id}
+        )
+
+    identidad = await _admin_de_verdad()
+    sesion = await _sesion_consola()
+    try:
+        await api_consola.resolver_reporte(
+            reporte_id, DecisionDeModeracion(accion="mantener"), (sesion, identidad)
+        )
+        await sesion.commit()
+    finally:
+        await sesion.close()
+
+    estado, _ = await _estado_de_la_resena(resena_id)
+    assert estado == "retirada"

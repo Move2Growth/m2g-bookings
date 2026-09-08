@@ -579,6 +579,19 @@ async def resolver_reporte(
         resena.hidden_by_admin_id = identidad.admin_id
         reporte.status = "resuelto"
     else:
+        # **Mantener la devuelve.** Esto faltaba, y el comentario de abajo describía una
+        # intención que el código no cumplía: se rehacía el agregado sobre el mismo conjunto,
+        # así que una reseña ocultada por error se quedaba oculta para siempre y el salón perdía
+        # su estrella sin que hubiera manera de deshacerlo desde la consola. Visto en vivo:
+        # ocultar bajó la Barbería El Cangrejo de 4,32 con doce reseñas a 4,29 con once, y
+        # «mantener» la dejaba exactamente igual.
+        #
+        # Solo se devuelve lo que **ocultó la moderación**. Una reseña `retirada` la quitó quien
+        # la escribió, y eso no lo deshace el equipo interno.
+        if resena.status == "oculta":
+            resena.status = "publicada"
+            resena.hidden_reason = None
+            resena.hidden_by_admin_id = None
         reporte.status = "descartado"
 
     reporte.resolved_by_admin_id = identidad.admin_id
