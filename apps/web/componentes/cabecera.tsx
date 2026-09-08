@@ -32,6 +32,7 @@ export function Cabecera() {
   const enlaces: { href: string; rotulo: string }[] = [
     { href: '/buscar', rotulo: 'Buscar' },
     { href: '/mis-citas', rotulo: 'Mis citas' },
+    { href: '/mis-salones', rotulo: 'Mis salones' },
     { href: '/local', rotulo: 'Mi salón' },
   ];
 

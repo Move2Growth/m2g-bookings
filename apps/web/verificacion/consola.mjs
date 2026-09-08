@@ -83,7 +83,7 @@ const donde = await p.evaluate(() => ({
 ok('su sesión vive en la pestaña, no en el disco', donde.sesion && !donde.local)
 
 /* Salones: suspender y devolver */
-await p.getByRole('link', { name: 'Salones' }).click()
+await p.locator('.nav-local__sitio', { hasText: /^Salones$/ }).click()
 await p.waitForTimeout(2500)
 await p.fill('input[aria-label="Buscar un salón"]', 'maquillaje')
 await p.getByRole('button', { name: /^Buscar$/ }).click()
@@ -105,7 +105,7 @@ const vuelta = await fetch(`${API}/api/v1/publico/negocios/maquillaje-por-karla`
 ok('reactivar lo devuelve', vuelta.status === 200, `ficha pública ${vuelta.status}`)
 
 /* Moderación */
-await p.getByRole('link', { name: 'Moderación' }).click()
+await p.locator('.nav-local__sitio', { hasText: 'Moderación' }).click()
 await p.waitForTimeout(2500)
 const texto = await p.locator('main').innerText()
 ok('la moderación enseña sus dos colas', texto.includes('Reseñas reportadas') && texto.includes('Fotos por revisar'))

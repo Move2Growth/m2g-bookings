@@ -16,7 +16,7 @@ import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Header
+from fastapi import APIRouter, Depends, Header, Query
 from pydantic import BaseModel, Field
 from sqlalchemy import select, text
 
@@ -121,12 +121,19 @@ async def mis_negocios(
 async def mis_reservas(
     sesion: SesionPlataforma,
     identidad: Annotated[Identidad, Depends(identidad_actual)],
+    pagina: Annotated[int, Query(ge=1, description="Página de lo que ya pasó")] = 1,
 ) -> list[MiCita]:
     """El historial de la persona, en todos los salones donde ha reservado.
 
     Se apoya en `client_user_id`, que está desnormalizado a propósito: si hubiera que cruzar
     las fichas de cliente de cada negocio, la pantalla de inicio de la app haría una consulta
     por salón (ADR sobre el modelo, §8.1).
+
+    **`pagina` recorre lo que ya pasó, y hacía falta.** Sin ella esto devolvía treinta futuras y
+    treinta pasadas y se acabó: quien tiene la agenda llena no llegaba nunca a sus citas
+    atendidas, y como el botón de opinar vive en la cita, **no podía opinar de ninguna**. La
+    cita existía, el permiso existía, y no había manera de verla. Lo próximo no se pagina: son
+    las que vienen, y son todas las que caben en una pantalla que se mira de un vistazo.
     """
     ahora = datetime.now(UTC)
 
@@ -137,7 +144,7 @@ async def mis_reservas(
     #
     # Así que se piden las dos mitades por separado, cada una en su orden natural: lo que viene,
     # de lo más cercano en adelante; lo que fue, de lo más reciente hacia atrás.
-    async def _mitad(futuras: bool, tope: int) -> list[Booking]:
+    async def _mitad(futuras: bool, tope: int, salto: int = 0) -> list[Booking]:
         condicion = Booking.starts_at >= ahora if futuras else Booking.starts_at < ahora
         orden = Booking.starts_at.asc() if futuras else Booking.starts_at.desc()
         return list(
@@ -146,6 +153,7 @@ async def mis_reservas(
                     select(Booking)
                     .where(Booking.client_user_id == identidad.usuario_id, condicion)
                     .order_by(orden)
+                    .offset(salto)
                     .limit(tope)
                 )
             )
@@ -153,8 +161,10 @@ async def mis_reservas(
             .all()
         )
 
-    proximas = await _mitad(futuras=True, tope=30)
-    pasadas = await _mitad(futuras=False, tope=30)
+    # Lo próximo solo en la primera página: pedir la página tres es pedir historia, y repetir
+    # las mismas treinta futuras encima sería ruido en cada scroll.
+    proximas = await _mitad(futuras=True, tope=30) if pagina == 1 else []
+    pasadas = await _mitad(futuras=False, tope=30, salto=(pagina - 1) * 30)
     return [await _pintar(sesion, reserva, ahora=ahora) for reserva in [*proximas, *pasadas]]
 
 

@@ -780,6 +780,12 @@ export interface paths {
          *     Se apoya en `client_user_id`, que está desnormalizado a propósito: si hubiera que cruzar
          *     las fichas de cliente de cada negocio, la pantalla de inicio de la app haría una consulta
          *     por salón (ADR sobre el modelo, §8.1).
+         *
+         *     **`pagina` recorre lo que ya pasó, y hacía falta.** Sin ella esto devolvía treinta futuras y
+         *     treinta pasadas y se acabó: quien tiene la agenda llena no llegaba nunca a sus citas
+         *     atendidas, y como el botón de opinar vive en la cita, **no podía opinar de ninguna**. La
+         *     cita existía, el permiso existía, y no había manera de verla. Lo próximo no se pagina: son
+         *     las que vienen, y son todas las que caben en una pantalla que se mira de un vistazo.
          */
         get: operations["mis_reservas_api_v1_mi_reservas_get"];
         put?: never;
@@ -6532,7 +6538,10 @@ export interface operations {
     };
     mis_reservas_api_v1_mi_reservas_get: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Página de lo que ya pasó */
+                pagina?: number;
+            };
             header?: {
                 authorization?: string | null;
             };

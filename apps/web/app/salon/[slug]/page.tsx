@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 
 import { Cargando, Roto, Vacio } from '@/componentes/estados';
+import { GuardarSalon } from '@/componentes/guardar-salon';
 import { Abierto, Inicial, Nota } from '@/componentes/piezas';
 import { api, BASE_API, comoMensaje, FalloDeApi, type PerfilPublico } from '@/lib/api';
 import { duracion, precioDeServicio } from '@/lib/formato';
@@ -75,6 +76,10 @@ export default async function Ficha({ params }: { params: Promise<{ slug: string
               <Abierto abierto={salon.abierto_ahora} />
             </p>
           </div>
+        </div>
+
+        <div className="tira">
+          <GuardarSalon negocioId={salon.id} slug={salon.slug} />
         </div>
 
         {salon.descripcion ? <p className="parrafo">{salon.descripcion}</p> : null}

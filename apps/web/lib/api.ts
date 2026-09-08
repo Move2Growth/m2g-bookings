@@ -6,7 +6,20 @@
  * de error, que es justo lo que hay que poder juzgar.
  */
 
-export const BASE_API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+/**
+ * **Dos direcciones para la misma API, y hacen falta las dos.**
+ *
+ * Dentro de Docker el servidor de Next y la API son dos contenedores: el servidor la alcanza en
+ * `http://api:8000` y el navegador en `http://localhost:8000`. Usando la del navegador en los
+ * dos sitios, el pintado en servidor falla con `ECONNREFUSED`, la página **se sirve vacía** y el
+ * navegador la rellena después. No se ve ningún error: la pantalla funciona y lo único que se
+ * pierde es lo que Google necesita, que es justo lo que esta dirección hace mejor que las otras.
+ * Se cazó con `curl`: la ficha de un salón volvía sin su nombre.
+ */
+export const BASE_API =
+  typeof window === 'undefined'
+    ? (process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000')
+    : (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000');
 
 /** El sobre de error que devuelve la API: `{"error": {"codigo", "mensaje"}}`. */
 export type ErrorDeApi = {
@@ -347,7 +360,8 @@ export const api = {
 
   miPerfil: (acceso: string) => pedir<MiPerfil>('/api/v1/mi/perfil', { acceso }),
 
-  misCitas: (acceso: string) => pedir<MiCita[]>('/api/v1/mi/reservas', { acceso }),
+  misCitas: (acceso: string, pagina = 1) =>
+    pedir<MiCita[]>(`/api/v1/mi/reservas${pagina > 1 ? `?pagina=${pagina}` : ''}`, { acceso }),
 
   cancelar: (citaId: string, acceso: string) =>
     pedir<MiCita>(`/api/v1/mi/reservas/${citaId}/cancelar`, { metodo: 'POST', acceso }),
@@ -436,6 +450,25 @@ export const api = {
 
   cambiarMiPerfilProfesional: (cambio: Partial<MiPerfilProfesional>, acceso: string) =>
     pedir<MiPerfilProfesional>('/api/v1/mi/perfil-profesional', { metodo: 'PATCH', cuerpo: cambio, acceso }),
+
+  /* ── La clienta: opinar, guardar y repetir ─────────────────────────────────────────────── */
+
+  opinar: (
+    citaId: string,
+    resena: { nota: number; texto?: string | null; profesional_id?: string | null; nota_al_profesional?: number | null },
+    acceso: string,
+  ) => pedir<{ id: string }>(`/api/v1/mi/reservas/${citaId}/review`, { metodo: 'POST', cuerpo: resena, acceso }),
+
+  favoritos: (acceso: string) => pedir<NegocioFavorito[]>('/api/v1/mi/favoritos', { acceso }),
+
+  guardarFavorito: (negocioId: string, acceso: string) =>
+    pedir<NegocioFavorito>('/api/v1/mi/favoritos', { metodo: 'POST', cuerpo: { negocio_id: negocioId }, acceso }),
+
+  quitarFavorito: (negocioId: string, acceso: string) =>
+    pedir<void>(`/api/v1/mi/favoritos/${negocioId}`, { metodo: 'DELETE', acceso }),
+
+  repetir: (citaId: string, acceso: string) =>
+    pedir<ReservaDeNuevo>(`/api/v1/mi/reservas/${citaId}/repetir`, { acceso }),
 
   /* ── La consola interna. Otro sistema de acceso entero (ADR-0006). ─────────────────────── */
 
@@ -528,6 +561,29 @@ export type MiPerfilProfesional = {
   clientes_atendidos: number;
   activo: boolean;
   visible_en_marketplace: boolean;
+};
+
+export type NegocioFavorito = {
+  negocio_id: string;
+  slug: string;
+  nombre: string;
+  zona: string | null;
+  direccion: string | null;
+  rating: number | null;
+  numero_reviews: number;
+  servicios_desde_centavos: number | null;
+  abierto_ahora: boolean | null;
+  categorias: string[];
+};
+
+export type ReservaDeNuevo = {
+  negocio_slug: string;
+  negocio_nombre: string;
+  profesional: string | null;
+  profesional_id: string | null;
+  profesional_disponible: boolean;
+  se_puede_repetir: boolean;
+  servicios: { id: string; nombre: string; duracion_minutos: number; precio_centavos: number | null; sigue_disponible: boolean }[];
 };
 
 /* ── La consola interna de M2G ───────────────────────────────────────────────────────────── */

@@ -13,15 +13,47 @@
  */
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Boton } from '@/componentes/boton';
+import { Opinar } from '@/componentes/opinar';
 import { Cargando, Roto, Vacio } from '@/componentes/estados';
 import { api, comoMensaje, type MiCita } from '@/lib/api';
 import { cuandoEs, diaLargo, dinero, duracion, estaCancelada, familiaDeEstado, hora, rotuloDeEstado } from '@/lib/formato';
 import { conSesion, leerSesion } from '@/lib/sesion';
 
 export function MisCitas() {
+  const router = useRouter();
+  const [opinando, setOpinando] = useState<string | null>(null);
+  /** Cuántas páginas de historia se han pedido. La primera trae además lo que viene. */
+  const [paginas, setPaginas] = useState(1);
+  const [trayendoMas, setTrayendoMas] = useState(false);
+  const [hayMas, setHayMas] = useState(true);
+  const [repitiendo, setRepitiendo] = useState<string | null>(null);
+
+  /**
+   * Reservar otra vez lo mismo. Se pregunta primero al servidor si el servicio y la persona
+   * siguen existiendo: mandar a alguien a reservar algo que el salón ya quitó es peor que no
+   * ofrecer el atajo. **La hora se vuelve a elegir**, porque el hueco de hace un mes no
+   * significa nada hoy.
+   */
+  async function repetir(cita: MiCita) {
+    setRepitiendo(cita.id);
+    try {
+      const plan = await conSesion((acceso) => api.repetir(cita.id, acceso));
+      const servicio = plan.servicios.find((s) => s.sigue_disponible);
+      const destino = new URLSearchParams();
+      if (servicio) destino.set('servicio', servicio.id);
+      if (plan.profesional_disponible && plan.profesional_id) destino.set('profesional', plan.profesional_id);
+      router.push(`/reservar/${plan.negocio_slug}?${destino}`);
+    } catch {
+      // Si el atajo falla, la ficha del salón sigue siendo el sitio correcto al que ir.
+      router.push(`/salon/${cita.negocio_slug}`);
+    } finally {
+      setRepitiendo(null);
+    }
+  }
   const [citas, setCitas] = useState<MiCita[] | null>(null);
   const [cargando, setCargando] = useState(true);
   const [fallo, setFallo] = useState<string | null>(null);
@@ -39,19 +71,45 @@ export function MisCitas() {
     }
     setSinSesion(false);
     try {
-      const mias = await conSesion((acceso) => api.misCitas(acceso));
-      setCitas(mias);
+      // Se vuelven a pedir **todas las páginas que ya estaban abiertas**: si se recarga después
+      // de opinar, lo que se había desplegado no puede encogerse solo.
+      const trozos = await Promise.all(
+        Array.from({ length: paginas }, (_, i) => conSesion((acceso) => api.misCitas(acceso, i + 1))),
+      );
+      setCitas(trozos.flat());
     } catch (error) {
       if (leerSesion() === null) setSinSesion(true);
       else setFallo(comoMensaje(error));
     } finally {
       setCargando(false);
     }
-  }, []);
+  }, [paginas]);
 
   useEffect(() => {
     void cargar();
   }, [cargar]);
+
+  /**
+   * Traer más historia.
+   *
+   * La API devuelve treinta pasadas por página, y sin esto la historia se acababa ahí. No es un
+   * detalle de comodidad: **el botón de opinar vive en la cita**, así que quien tenía la agenda
+   * llena no llegaba nunca a una cita atendida y no podía opinar de ninguna. La cita existía, el
+   * permiso existía, y no había manera de verla.
+   */
+  async function traerMas() {
+    setTrayendoMas(true);
+    try {
+      const mas = await conSesion((acceso) => api.misCitas(acceso, paginas + 1));
+      setCitas((antes) => [...(antes ?? []), ...mas]);
+      setPaginas((n) => n + 1);
+      setHayMas(mas.length === 30);
+    } catch (error) {
+      setFallo(comoMensaje(error));
+    } finally {
+      setTrayendoMas(false);
+    }
+  }
 
   async function cancelar(cita: MiCita) {
     setCancelando(cita.id);
@@ -160,13 +218,30 @@ export function MisCitas() {
 
           {/* Lo pasado se pliega. Con sesenta citas detrás, dejarlo abierto convierte esta
               pantalla en un rollo de veinte metros y entierra lo que sí importa. */}
-          <details className="plegable seccion--corta">
+          {/* Una vez que se ha pedido más historia, el pliegue **se queda abierto**: cerrarse
+              solo justo después de que alguien pida ver más es contestarle que no. */}
+          <details className="plegable seccion--corta" open={paginas > 1 || undefined}>
             <summary className="plegable__tirador">Lo que ya pasó ({resto.length})</summary>
             <div className="plegable__cuerpo">
               {resto.length === 0 ? (
                 <p className="parrafo">Todavía no has ido a ninguna cita.</p>
               ) : (
-                <ul className="lista">{resto.map((cita) => filaDeCita(cita))}</ul>
+                <>
+                  <ul className="lista">{resto.map((cita) => filaDeCita(cita))}</ul>
+                  {/* **Sin esto la historia se acababa a las treinta.** Y con ella se acababa la
+                      posibilidad de opinar, porque el botón vive en la cita. */}
+                  {hayMas ? (
+                    <div className="fila__pie">
+                      <Boton
+                        tono="secundario"
+                        onClick={() => void traerMas()}
+                        cargando={trayendoMas}
+                        rotuloCargando="Buscando"
+                        hijos="Ver más de antes"
+                      />
+                    </div>
+                  ) : null}
+                </>
               )}
             </div>
           </details>
@@ -174,6 +249,11 @@ export function MisCitas() {
       )}
     </div>
   );
+
+  /** Ya pasó si su hora de fin quedó atrás. Por la hora, no por el estado. */
+  function yaPaso(cita: MiCita): boolean {
+    return new Date(cita.fin).getTime() < Date.now();
+  }
 
   function filaDeCita(cita: MiCita) {
     return (
@@ -198,6 +278,39 @@ export function MisCitas() {
             {rotuloDeEstado(cita.estado)}
           </span>
         </div>
+
+        {/* **Opinar y repetir viven en la cita**, no en una pantalla aparte: es donde se
+            acuerda uno de que fue, y donde el servidor ya ha dicho si se puede. */}
+        {/* **Opinar y repetir no dependen de lo mismo, y colgarlos de la misma condición fue un
+            fallo:** repetir vale para cualquier cita que ya pasó —incluida una que cancelaste— y
+            opinar solo cuando el servidor dice que se puede. Con las dos juntas, «repetir» no
+            aparecía casi nunca. */}
+        {yaPaso(cita) && opinando !== cita.id ? (
+          <div className="fila__pie">
+            {cita.se_puede_resenar ? (
+              <Boton tono="cierra" onClick={() => setOpinando(cita.id)} hijos="Contar qué tal fue" />
+            ) : null}
+            <Boton
+              tono="secundario"
+              onClick={() => void repetir(cita)}
+              cargando={repitiendo === cita.id}
+              rotuloCargando="Buscando huecos"
+              hijos="Repetir esta cita"
+            />
+          </div>
+        ) : null}
+
+        {cita.ya_resenada ? <p className="fila__pie menor tenue">Ya opinaste de esta cita. Gracias.</p> : null}
+
+        {opinando === cita.id ? (
+          <Opinar
+            cita={cita}
+            alGuardar={() => {
+              setOpinando(null);
+              void cargar();
+            }}
+          />
+        ) : null}
 
         {cita.se_puede_cancelar ? (
           preguntando === cita.id ? (
