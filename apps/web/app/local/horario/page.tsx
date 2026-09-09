@@ -1,6 +1,6 @@
 import { Horario } from '@/componentes/horario';
 import { NavLocal } from '@/componentes/nav-local';
-import { SoloDueno } from '@/componentes/solo-dueno';
+import { SoloDueno } from '@/componentes/en-el-salon';
 
 export const metadata = {
   title: 'Horario',

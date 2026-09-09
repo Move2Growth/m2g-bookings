@@ -1,5 +1,5 @@
 import { NavLocal } from '@/componentes/nav-local';
-import { SoloDueno } from '@/componentes/solo-dueno';
+import { SoloDueno } from '@/componentes/en-el-salon';
 import { ElDinero } from '@/componentes/portal-dueno';
 
 export const metadata = { title: 'El dinero', description: 'Lo que has facturado, por día, por semana o por mes.' };

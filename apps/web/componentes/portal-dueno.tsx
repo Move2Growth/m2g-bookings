@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Boton } from '@/componentes/boton';
+import { QrDelSalon } from '@/componentes/qr-del-salon';
 import { Cargando, Roto, Vacio } from '@/componentes/estados';
 import { Inicial, Seccion } from '@/componentes/piezas';
 import {
@@ -334,6 +335,11 @@ export function MejorDelMes() {
 
 export function Publicidad() {
   const { dato: anuncios, fallo, traer } = useDelSalon((a) => api.anuncios(a), 'anuncios');
+  // El QR y el enlace viven aquí y no en una puerta propia: son lo mismo que el anuncio —cómo
+  // llega gente a tu ficha—, y una puerta más en el carril por cada cosa que se reparte
+  // acabaría siendo un menú donde ya no se encuentra nada.
+  const { dato: suyos } = useDelSalon((a) => api.misNegocios(a), 'mis-negocios');
+  const salon = suyos?.[0] ?? null;
   const [texto, setTexto] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [falloAlEscribir, setFalloAlEscribir] = useState<string | null>(null);
@@ -369,6 +375,10 @@ export function Publicidad() {
         Una línea que sale en tu ficha, encima de todo. Sirve para lo de esta semana: una oferta, un horario raro, que
         te has mudado. <strong>Se escribe y se quita desde aquí</strong>, sin pedírselo a nadie.
       </p>
+
+      {salon ? <QrDelSalon slug={salon.slug} nombre={salon.nombre} /> : null}
+
+      <h2 className="rotulo">Tu línea de esta semana</h2>
 
       <form className="pila" onSubmit={crear} noValidate>
         <div className="campo">

@@ -1,3 +1,4 @@
+import { EnElSalon } from '@/componentes/en-el-salon';
 import { NavProfesional } from '@/componentes/nav-profesional';
 import { MiDia } from '@/componentes/mi-agenda';
 
@@ -11,7 +12,9 @@ export default function PantallaDeMiAgenda() {
         <span className="etiqueta">Tu trabajo</span>
         <h1 className="rotulo rotulo--grande">Mi día</h1>
         <NavProfesional />
-        <MiDia />
+        <EnElSalon>
+          <MiDia />
+        </EnElSalon>
       </div>
     </div>
   );

@@ -41,49 +41,42 @@ let ANCHO = ANCHOS[0]
 const PUBLICAS = [
   '/',
   '/buscar',
-  //: La búsqueda de personas convive con la de locales: son dos listas y dos URL, y las dos
-  //: tienen que aguantar el barrido.
-  '/buscar/personas',
-  '/buscar/personas?texto=barbero',
   //: El mapa. Se barre como pública porque lo es, y porque es la única pantalla que carga algo
   //: de fuera —las baldosas—: si ese proveedor se cae, aquí se ve.
   '/mapa',
-  '/barberia-el-cangrejo',
+  '/salon/barberia-el-cangrejo',
   //: El perfil de una persona. Es la pantalla con más piezas del marketplace —datos, servicios,
   //: horas, fotos y reseñas— y la que más fácil desborda a lo ancho.
-  '/barberia-el-cangrejo/kevin-ortega',
-  //: Una dirección que no existe: comprueba que el 404 tiene salida y no es una página en blanco.
-  '/barberia-el-cangrejo/no-existe-esta-persona',
-  '/como-funciona',
-  '/para-negocios',
+  '/salon/barberia-el-cangrejo/con/kevin-ortega',
+  //: Una dirección que no existe: comprueba que el «no está» tiene salida y no es una página en
+  //: blanco.
+  '/salon/no-existe-este-salon',
+  //: Reservar sin sesión: se puede elegir servicio, persona y hora, y solo al confirmar se pide
+  //: entrar. Es el camino por el que llega la mayoría.
+  '/reservar/barberia-el-cangrejo',
   '/entrar',
+  '/legal/privacidad',
+  '/legal/terminos',
 ]
-const CLIENTA = ['/mi/citas', '/mi/favoritos', '/mi/perfil']
-const NEGOCIO = ['/panel', '/panel/agenda', '/panel/servicios', '/panel/equipo', '/panel/clientes', '/panel/ficha']
-//: Lo del profesional, que no es lo del dueño: su ficha pública, sus fotos y su fichaje. Se
-//: barren con una cuenta de profesional porque con la del dueño ni siquiera cargan igual.
-const PROFESIONAL = [
-  '/panel/agenda',
-  '/panel/horario',
-  '/panel/mi-perfil',
-  '/panel/mis-fotos',
-  '/panel/fichar',
-]
+const CLIENTA = ['/mis-citas', '/mis-salones']
 
-//: El portal del dueño. Va aparte de NEGOCIO porque es una zona con su propia navegación y
-//: porque un profesional **no puede entrar**: barrerlas con la sesión equivocada solo mediría el
-//: desvío. El alta del local se barre aquí aunque no necesite negocio: la abre un dueño.
+//: Lo del profesional, que no es lo del dueño: su día y su ficha, y nada más. Se barren con una
+//: cuenta de profesional porque con la del dueño ni siquiera cargan igual.
+const PROFESIONAL = ['/mi-agenda', '/mi-ficha']
+
+//: El portal del dueño: su propia navegación y su propia puerta. Un profesional **no puede
+//: entrar**, así que barrerlas con la sesión equivocada solo mediría el desvío. El alta del
+//: local se barre aquí aunque no necesite negocio: la abre un dueño.
 const DUENO = [
-  '/panel/local',
-  '/panel/local/calendarios',
-  '/panel/local/finanzas',
-  '/panel/local/mejor-del-mes',
-  '/panel/local/publicidad',
-  '/panel/local/fichaje',
-  '/panel/local/personas',
-  '/panel/alta',
+  '/local',
+  '/local/equipo',
+  '/local/horario',
+  '/local/finanzas',
+  '/local/mejor-del-mes',
+  '/local/publicidad',
+  '/local/alta',
 ]
-const CONSOLA = ['/consola', '/consola/negocios', '/consola/moderacion', '/consola/metricas', '/consola/ranking']
+const CONSOLA = ['/consola', '/consola/negocios', '/consola/moderacion']
 
 //: La cuenta de consola de la semilla. Vive solo en local y su secreto está en `semilla.py`;
 //: aquí se repite porque el script no importa Python. Nunca es una credencial de verdad.
@@ -117,7 +110,7 @@ const navegador = await chromium.launch()
 async function sesionDe(correo) {
   const r = await fetch(`${API}/api/v1/auth/entrar`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ correo, contrasena: 'demo-panama-2026' }),
+    body: JSON.stringify({ correo, contrasena: 'demo-panama-2026', superficie: 'web' }),
   })
   if (!r.ok) throw new Error(`no se pudo entrar como ${correo}: ${r.status}`)
   return r.json()
@@ -236,37 +229,27 @@ for (const ancho of ANCHOS) {
 
 async function todo() {
 await barrer('Sin sesión', PUBLICAS, null)
-await barrer('Clienta', CLIENTA, await sesionDe('abdiel@demo.pa'))
 
-const duena = await sesionDe('dueno.salon-obarrio@demo.pa')
-const negocios = await fetch(`${API}/api/v1/mi/negocios`, { headers: { Authorization: `Bearer ${duena.acceso}` } }).then((r) => r.json())
-const conNegocio = await fetch(`${API}/api/v1/auth/modo-negocio`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${duena.acceso}` },
-  body: JSON.stringify({ negocio_id: negocios[0].id }),
-}).then((r) => r.json())
-const sesionDeDuena = {
-  ...conNegocio,
-  negocio_nombre: negocios[0].nombre,
-  negocio_rol: negocios[0].rol,
-}
-await barrer('Dueña de salón', NEGOCIO, sesionDeDuena)
-await barrer('Portal del dueño', DUENO, sesionDeDuena)
-
-//: Un profesional del salón, que ve otras pestañas y otras pantallas. `/panel/fichar` sale
-//: apagado mientras el dueño no le active el fichaje, y eso también hay que verlo cargar.
-const profesional = await sesionDe('pro.barberia-el-cangrejo@demo.pa')
-const suyos = await fetch(`${API}/api/v1/mi/negocios`, { headers: { Authorization: `Bearer ${profesional.acceso}` } }).then((r) => r.json())
-const proEnNegocio = await fetch(`${API}/api/v1/auth/modo-negocio`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${profesional.acceso}` },
-  body: JSON.stringify({ negocio_id: suyos[0].id }),
-}).then((r) => r.json())
-await barrer('Profesional del salón', PROFESIONAL, {
-  ...proEnNegocio,
-  negocio_nombre: suyos[0].nombre,
-  negocio_rol: suyos[0].rol,
+/**
+ * La sesión **con la forma que lee el front**, que es camelCase y no la respuesta cruda de la
+ * API. Escribirla en snake_case dejaba una sesión que el navegador acepta y no entiende: las
+ * pantallas cargaban, no reventaban, y se barrían sin sesión sin que nada lo dijera.
+ */
+const comoLaLeeLaWeb = (credenciales) => ({
+  acceso: credenciales.acceso,
+  refresco: credenciales.refresco,
+  usuarioId: credenciales.usuario_id,
+  negocioActivo: credenciales.negocio_activo ?? null,
 })
+
+await barrer('Clienta', CLIENTA, comoLaLeeLaWeb(await sesionDe('abdiel@demo.pa')))
+
+//: **Al dueño y al profesional se les da la sesión de plataforma a secas, sin modo negocio.**
+//: Es la que deja `/entrar`, y es la que tiene quien vuelve al día siguiente por su marcador.
+//: Dársela ya en modo negocio era tapar el camino por el que entra la gente: así fue como
+//: pasaron desapercibidos cinco `403` en el portal entero.
+await barrer('Dueño de salón', DUENO, comoLaLeeLaWeb(await sesionDe('dueno.barberia-el-cangrejo@demo.pa')))
+await barrer('Profesional del salón', PROFESIONAL, comoLaLeeLaWeb(await sesionDe('pro.barberia-el-cangrejo@demo.pa')))
 
 // La consola es otro sistema de acceso entero: otras tablas, otro rol de base de datos y
 // segundo factor obligatorio. Por eso entra por su propia puerta y guarda en otra llave.

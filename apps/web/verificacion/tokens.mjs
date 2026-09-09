@@ -43,13 +43,22 @@ async function archivos(carpeta, extensiones) {
 
 const fuentesDelProducto = await archivos(WEB_DIR, ['.css', '.ts', '.tsx']);
 const culpables = { hex: [], rgb: [], familia: [] };
+/** Color escrito a mano que NO es de la marca y lo dice. Se enseña siempre, salga lo que salga. */
+const excepciones = [];
 
 for (const archivo of fuentesDelProducto) {
   const texto = await readFile(archivo, 'utf8');
   texto.split('\n').forEach((linea, numero) => {
     const sitio = `${path.relative(WEB_DIR, archivo)}:${numero + 1}`;
     const sinComentario = linea.replace(/\/\/.*$/, '');
-    if (/#[0-9a-fA-F]{3,8}\b/.test(sinComentario)) culpables.hex.push(`${sitio} → ${linea.trim()}`);
+    if (/#[0-9a-fA-F]{3,8}\b/.test(sinComentario)) {
+      // Una línea puede llevar color escrito a mano **si dice por qué**, con la marca
+      // `fuera-de-marca:` y un motivo. No es una puerta trasera: las excepciones se cuentan y
+      // se enseñan en cada pasada —abajo—, así que no pueden acumularse en silencio, que es
+      // como una regla dura se convierte en una costumbre.
+      if (/fuera-de-marca:/.test(linea)) excepciones.push(`${sitio} → ${linea.trim()}`);
+      else culpables.hex.push(`${sitio} → ${linea.trim()}`);
+    }
     if (/\b(rgba?|hsla?)\(/.test(sinComentario)) culpables.rgb.push(`${sitio} → ${linea.trim()}`);
     if (/font-family\s*:\s*['"]/.test(sinComentario) || /fontFamily\s*:\s*['"]/.test(sinComentario)) {
       culpables.familia.push(`${sitio} → ${linea.trim()}`);
@@ -58,6 +67,14 @@ for (const archivo of fuentesDelProducto) {
 }
 
 decir(culpables.hex.length === 0, 'ni un hexadecimal en el código de la web', culpables.hex.join(' | '));
+
+// Las excepciones **siempre se enseñan**, salgan cero o cinco. Una lista que solo aparece
+// cuando falla algo es una lista que nadie mira.
+console.log(
+  excepciones.length === 0
+    ? '  ·   sin color escrito a mano fuera de la marca'
+    : `  ·   ${excepciones.length} línea(s) con color fuera de la marca, declarado:\n        ${excepciones.join('\n        ')}`,
+);
 decir(culpables.rgb.length === 0, 'ni un rgb()/hsl() escrito a mano', culpables.rgb.join(' | '));
 decir(culpables.familia.length === 0, 'ni una familia tipográfica escrita a mano', culpables.familia.join(' | '));
 

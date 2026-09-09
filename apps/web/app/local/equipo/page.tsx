@@ -1,5 +1,5 @@
 import { NavLocal } from '@/componentes/nav-local';
-import { SoloDueno } from '@/componentes/solo-dueno';
+import { SoloDueno } from '@/componentes/en-el-salon';
 import { ElEquipo } from '@/componentes/portal-dueno';
 
 export const metadata = { title: 'El equipo', description: 'Quién trabaja en tu salón, y a quién le pides fichaje.' };

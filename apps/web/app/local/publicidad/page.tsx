@@ -1,5 +1,5 @@
 import { NavLocal } from '@/componentes/nav-local';
-import { SoloDueno } from '@/componentes/solo-dueno';
+import { SoloDueno } from '@/componentes/en-el-salon';
 import { Publicidad } from '@/componentes/portal-dueno';
 
 export const metadata = { title: 'Publicidad', description: 'Una línea tuya, encima de tu ficha, escrita y quitada desde aquí.' };

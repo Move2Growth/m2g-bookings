@@ -45,41 +45,35 @@ const WEB = process.env.BASE ?? 'http://127.0.0.1:3100'
 const RUTAS = [
   '/',
   '/buscar',
-  '/como-funciona',
-  '/para-negocios',
-  '/spa-costa-del-este',
+  '/mapa',
+  '/salon/spa-costa-del-este',
+  //: La ficha de una persona: la pantalla con más piezas del marketplace.
+  '/salon/spa-costa-del-este/con/ivonne-saavedra',
+  //: Reservar sin entrar, que es el camino por el que llega la mayoría.
+  '/reservar/spa-costa-del-este',
   '/entrar',
   '/legal/privacidad',
+  '/legal/terminos',
   '/consola',
-  //: Las del encargo del 7 de septiembre. Nacieron después de este verificador y por eso su
-  //: contraste no se había medido nunca: la ficha de una persona, la búsqueda de personas y el
-  //: mapa, que además pinta texto encima de una fotografía aérea.
-  '/buscar/personas',
-  '/spa-costa-del-este/ivonne-saavedra',
-  '/mapa',
 ]
 
 /** Las pantallas con sesión. Se recorren aparte porque hay que entrar antes. */
 const CON_SESION = {
-  panel: [
-    '/panel/agenda',
-    '/panel/servicios',
-    '/panel/equipo',
-    '/panel/horario',
-    '/panel/clientes',
-    '/panel/resenas',
-    '/panel/ficha',
-    //: El portal del dueño entero, que es donde hay más números pequeños y más color de estado.
-    '/panel/local',
-    '/panel/local/calendarios',
-    '/panel/local/finanzas',
-    '/panel/local/mejor-del-mes',
-    '/panel/local/publicidad',
-    '/panel/local/fichaje',
-    '/panel/local/personas',
-    '/panel/alta',
+  //: El salón entero, que es donde hay más números pequeños y más color de estado.
+  salon: [
+    '/local',
+    '/local/equipo',
+    '/local/horario',
+    '/local/finanzas',
+    '/local/mejor-del-mes',
+    '/local/publicidad',
+    '/local/alta',
   ],
-  consola: ['/consola/negocios', '/consola/moderacion', '/consola/metricas', '/consola/ranking'],
+  //: Lo del profesional, que es otra zona con otras piezas.
+  profesional: ['/mi-agenda', '/mi-ficha'],
+  //: Y lo de la clienta cuando ya tiene citas y salones guardados.
+  clienta: ['/mis-citas', '/mis-salones'],
+  consola: ['/consola/negocios', '/consola/moderacion'],
 }
 const ANCHOS = [390, 1440]
 
@@ -189,19 +183,31 @@ try {
   // Se entra con correo y contraseña, como se entra ahora. Antes esto pedía un código por
   // teléfono y fallaba cuando el límite de envíos se agotaba, que es como decir «no pude
   // mirar» y contarlo igual que «hay un fallo de contraste»: dos cosas distintas.
-  const CORREO = process.env.CORREO_SALON ?? 'dueno.salon-obarrio@demo.pa'
   const CLAVE = process.env.CONTRASENA_DEMO ?? 'demo-panama-2026'
 
-  const salon = await navegador.newContext({ viewport: { width: 390, height: 844 } })
-  const entrada = await salon.newPage()
-  await entrada.goto(`${WEB}/entrar`, { waitUntil: 'networkidle' })
-  await entrada.fill('#correo', CORREO)
-  await entrada.fill('#contrasena', CLAVE)
-  await entrada.click('button[type="submit"]')
-  await entrada.waitForURL('**/panel**', { timeout: 20000 })
-  await entrada.close()
+  /** Entra por la pantalla de verdad y devuelve el contexto ya con sesión. */
+  const entrarComo = async (correo) => {
+    const contexto = await navegador.newContext({ viewport: { width: 390, height: 844 } })
+    const entrada = await contexto.newPage()
+    await entrada.goto(`${WEB}/entrar`, { waitUntil: 'networkidle' })
+    await entrada.fill('#correo', correo)
+    await entrada.fill('#contrasena', CLAVE)
+    await entrada.click('button[type="submit"]')
+    //: Cada rol aterriza donde le toca —el dueño en el salón, la clienta en sus citas—, así que
+    //: no se espera una URL concreta: se espera a salir de la pantalla de entrar.
+    await entrada.waitForURL((url) => !url.pathname.startsWith('/entrar'), { timeout: 20000 })
+    await entrada.close()
+    return contexto
+  }
 
-  await recorrerConSesion(salon, CON_SESION.panel, 'panel')
+  const salon = await entrarComo(process.env.CORREO_SALON ?? 'dueno.barberia-el-cangrejo@demo.pa')
+  await recorrerConSesion(salon, CON_SESION.salon, 'salón')
+
+  const profesional = await entrarComo('pro.barberia-el-cangrejo@demo.pa')
+  await recorrerConSesion(profesional, CON_SESION.profesional, 'pro')
+
+  const clienta = await entrarComo('abdiel@demo.pa')
+  await recorrerConSesion(clienta, CON_SESION.clienta, 'clienta')
 
   const consola = await navegador.newContext({ viewport: { width: 390, height: 844 } })
   const c = await consola.newPage()

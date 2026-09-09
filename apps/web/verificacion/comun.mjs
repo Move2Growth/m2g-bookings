@@ -13,6 +13,7 @@ export const MOVIL = { width: 390, height: 844 };
 export const CUENTAS = {
   clienta: { correo: 'abdiel@demo.pa', contrasena: 'demo-panama-2026' },
   dueno: { correo: 'dueno.barberia-el-cangrejo@demo.pa', contrasena: 'demo-panama-2026' },
+  profesional: { correo: 'pro.barberia-el-cangrejo@demo.pa', contrasena: 'demo-panama-2026' },
 };
 
 export async function abrirNavegador() {

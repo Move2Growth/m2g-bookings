@@ -1,5 +1,5 @@
 import { NavLocal } from '@/componentes/nav-local';
-import { SoloDueno } from '@/componentes/solo-dueno';
+import { SoloDueno } from '@/componentes/en-el-salon';
 import { MejorDelMes } from '@/componentes/portal-dueno';
 
 export const metadata = { title: 'Mejor del mes', description: 'Quién va por delante este mes, por dinero o por servicios.' };

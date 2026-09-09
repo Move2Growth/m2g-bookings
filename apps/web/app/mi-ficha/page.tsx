@@ -1,3 +1,4 @@
+import { EnElSalon } from '@/componentes/en-el-salon';
 import { NavProfesional } from '@/componentes/nav-profesional';
 import { MiFicha } from '@/componentes/mi-agenda';
 
@@ -11,7 +12,9 @@ export default function PantallaDeMiFicha() {
         <span className="etiqueta">Tu trabajo</span>
         <h1 className="rotulo rotulo--grande">Mi ficha</h1>
         <NavProfesional />
-        <MiFicha />
+        <EnElSalon>
+          <MiFicha />
+        </EnElSalon>
       </div>
     </div>
   );
