@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Boton } from '@/componentes/boton';
+import { LlevarCita } from '@/componentes/llevar-cita';
 import { NavLocal } from '@/componentes/nav-local';
 import { Cargando, Roto, Vacio } from '@/componentes/estados';
 import { Inicial } from '@/componentes/piezas';
@@ -102,6 +103,11 @@ export function ElLocal() {
   );
 
   useEffect(() => {
+    if (activo) void cargarDia(activo, dia);
+  }, [activo, dia, cargarDia]);
+
+  /** Volver a pedir el día. Lo usan las acciones sobre una cita, que cambian los totales. */
+  const recargar = useCallback(() => {
     if (activo) void cargarDia(activo, dia);
   }, [activo, dia, cargarDia]);
 
@@ -276,8 +282,12 @@ export function ElLocal() {
             </div>
           ) : (
             <>
-              <RielDelDia jornada={jornada} soloVivas={!verCanceladas} />
-              <ColumnasDelDia jornada={jornada} soloVivas={!verCanceladas} />
+              {/* Las dos vistas del mismo día. Al cambiar una cita **se vuelve a pedir la
+                  jornada entera** en vez de parchear la fila: los números de arriba —citas,
+                  personas de turno, dinero del día— salen de ella, y actualizarla a medias es
+                  como se acaba enseñando «4 citas» con cinco en pantalla. */}
+              <RielDelDia jornada={jornada} soloVivas={!verCanceladas} alCambiar={recargar} />
+              <ColumnasDelDia jornada={jornada} soloVivas={!verCanceladas} alCambiar={recargar} />
             </>
           )}
         </>
@@ -287,7 +297,16 @@ export function ElLocal() {
 }
 
 /** A 390 px: una sola columna de horas con todo el equipo entrelazado. */
-function RielDelDia({ jornada, soloVivas }: { jornada: DiaEnColumnas; soloVivas: boolean }) {
+function RielDelDia({
+  jornada,
+  soloVivas,
+  alCambiar,
+}: {
+  jornada: DiaEnColumnas;
+  soloVivas: boolean;
+  /** Se llama al mover una cita de estado: la jornada se vuelve a pedir entera. */
+  alCambiar: () => void;
+}) {
   const citas = jornada.columnas
     .flatMap((columna) => columna.citas.map((cita) => ({ ...cita, quien: columna.nombre })))
     .filter((cita) => !soloVivas || !estaCancelada(cita.estado))
@@ -307,7 +326,7 @@ function RielDelDia({ jornada, soloVivas }: { jornada: DiaEnColumnas; soloVivas:
                 <span className="riel__vacio">Libre</span>
               ) : (
                 deEsaHora.map((cita) => (
-                  <article key={cita.id} className="cita" data-estado={familiaDeEstado(cita.estado)}>
+                  <article key={cita.id} className="cita" data-cita={cita.id} data-estado={familiaDeEstado(cita.estado)}>
                     <div className="cita__linea">
                       <span className="cita__hora">
                         {hora(cita.inicio, jornada.zona)}–{hora(cita.fin, jornada.zona)}
@@ -322,6 +341,7 @@ function RielDelDia({ jornada, soloVivas }: { jornada: DiaEnColumnas; soloVivas:
                     <p className="cita__que">
                       {cita.servicios.join(' + ')} · {dinero(cita.importe_centavos)}
                     </p>
+                    <LlevarCita citaId={cita.id} estado={cita.estado} inicio={cita.inicio} alCambiar={alCambiar} />
                   </article>
                 ))
               )}
@@ -334,7 +354,15 @@ function RielDelDia({ jornada, soloVivas }: { jornada: DiaEnColumnas; soloVivas:
 }
 
 /** A partir de 1024 px: el mismo día, una columna por persona. */
-function ColumnasDelDia({ jornada, soloVivas }: { jornada: DiaEnColumnas; soloVivas: boolean }) {
+function ColumnasDelDia({
+  jornada,
+  soloVivas,
+  alCambiar,
+}: {
+  jornada: DiaEnColumnas;
+  soloVivas: boolean;
+  alCambiar: () => void;
+}) {
   return (
     <section className="columnas" aria-label="El día por persona">
       {jornada.columnas.map((columna) => {
@@ -350,7 +378,7 @@ function ColumnasDelDia({ jornada, soloVivas }: { jornada: DiaEnColumnas; soloVi
               <p className="menor">Sin citas hoy</p>
             ) : (
               citas.map((cita) => (
-                <article key={cita.id} className="cita" data-estado={familiaDeEstado(cita.estado)}>
+                <article key={cita.id} className="cita" data-cita={cita.id} data-estado={familiaDeEstado(cita.estado)}>
                   <div className="cita__linea">
                     <span className="cita__hora">
                       {hora(cita.inicio, jornada.zona)}–{hora(cita.fin, jornada.zona)}
@@ -363,6 +391,7 @@ function ColumnasDelDia({ jornada, soloVivas }: { jornada: DiaEnColumnas; soloVi
                   <p className="cita__que">
                     {cita.servicios.join(' + ')} · {dinero(cita.importe_centavos)}
                   </p>
+                  <LlevarCita citaId={cita.id} estado={cita.estado} inicio={cita.inicio} alCambiar={alCambiar} />
                 </article>
               ))
             )}

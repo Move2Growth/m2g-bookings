@@ -80,8 +80,16 @@ if (!opinable) {
     await p.locator('.plegable__cuerpo button', { hasText: 'Ver más de antes' }).click()
     await p.waitForTimeout(2500)
   }
-  const boton = p.getByRole('button', { name: /Contar qué tal fue/i }).first()
-  ok('la cita atendida ofrece opinar', (await boton.count()) >= 1)
+  // **Se opina de la cita que se miró, no de la primera de la lista.** Comparando después el
+  // recuento de reseñas de *su* salón, pulsar otra cualquiera hacía que la prueba dijera que la
+  // reseña no había llegado cuando sí había llegado — a otro sitio.
+  const suya = p.locator(`[data-cita="${opinable.id}"]`)
+  for (let i = 0; i < 4 && (await suya.count()) === 0; i++) {
+    await p.locator('.plegable__cuerpo button', { hasText: 'Ver más de antes' }).click()
+    await p.waitForTimeout(2500)
+  }
+  const boton = suya.getByRole('button', { name: /Contar qué tal fue/i })
+  ok('la cita atendida ofrece opinar', (await boton.count()) === 1)
   await boton.click()
   await p.waitForTimeout(800)
   ok('sin nota no deja enviar', await p.getByRole('button', { name: /Elige una nota/i }).isDisabled())
@@ -90,7 +98,7 @@ if (!opinable) {
   await p.waitForTimeout(3000)
   const despues = await (await fetch(`${API}/api/v1/publico/negocios/${opinable.negocio_slug}/reviews`)).json()
   ok('la reseña llega a la ficha pública', despues.resumen.total === antes.resumen.total + 1, `${antes.resumen.total} → ${despues.resumen.total}`)
-  ok('y la cita queda marcada como opinada', (await p.locator('text=Ya opinaste').count()) > 0)
+  ok('y la cita queda marcada como opinada', (await suya.locator('text=Ya opinaste').count()) > 0)
 }
 
 /* Repetir una cita */

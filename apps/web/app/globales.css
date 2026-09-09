@@ -287,6 +287,10 @@ a:hover {
 }
 
 .cabecera__caja {
+  /* La caja también: es flex, y un hijo suyo que no puede encogerse la ensancha a ella y con
+     ella a la página. El `min-inline-size` del carril de dentro no basta si el de fuera crece. */
+  min-inline-size: 0;
+  max-inline-size: 100%;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -316,10 +320,27 @@ a:hover {
   line-height: var(--tipografia-interlineado-apretado);
 }
 
+/* **La cabecera no puede empujar a la página.** Con sesión abierta son seis enlaces y a 390 px
+   no caben: el documento se iba a 565 px. Se convierte en un carril que se arrastra, con
+   `min-inline-size: 0` para que su contenido mínimo no ensanche al padre.
+   Se coló porque el barrido de pantallas mira casi todo **sin sesión**, y sin sesión la cabecera
+   tiene tres enlaces y cabe. */
 .cabecera__enlaces {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
   display: flex;
   align-items: center;
   gap: var(--espacio-1);
+}
+
+.cabecera__enlaces::-webkit-scrollbar {
+  display: none;
+}
+
+.cabecera__enlace {
+  flex: 0 0 auto;
 }
 
 .cabecera__enlace {
@@ -1751,6 +1772,9 @@ a:hover {
 
 .campo__caja--hora {
   inline-size: auto;
+  /* Que pueda encogerse: su ancho natural no cabe en 390 px. */
+  min-inline-size: 0;
+  max-inline-size: 100%;
   padding-inline: var(--espacio-2);
 }
 
@@ -2022,8 +2046,12 @@ a:hover {
 
 /* La hora a la izquierda y quién viene a la derecha: en una columna estrecha, la hora es lo que
    se busca con el ojo y por eso va primero y en cifra tabular. */
+/* La fila es hora · quién viene · llamar, **y debajo lo que se puede hacer con ella**. Sin el
+   salto, las acciones se ponían en fila con lo demás y empujaban la cita a 512 px dentro de una
+   pantalla de 390. */
 .cita-mia {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--espacio-3);
   align-items: flex-start;
   padding: var(--espacio-3);
@@ -2061,6 +2089,11 @@ a:hover {
   color: var(--color-tinta-tenue);
 }
 
+/* Las acciones ocupan su propia línea, de lado a lado de la cita. */
+.cita-mia .llevar {
+  flex-basis: 100%;
+}
+
 /* Una lista con marca, para los textos legales. El resto del producto usa listas sin viñeta
    —son datos, no prosa—; aquí sí, porque son enumeraciones dentro de un texto que se lee
    seguido y sin la marca se leen como párrafos partidos. */
@@ -2078,4 +2111,42 @@ a:hover {
   margin-block-start: var(--espacio-2);
   font-size: var(--tipografia-tamano-menor);
   opacity: 0.82;
+}
+
+/* ── Llevar una cita ──────────────────────────────────────────────────────────────────────── */
+
+/* Las acciones cuelgan de la cita, no de una barra aparte: lo que se decide mirando una cita se
+   hace en esa cita. Se separan con un filete para que no parezcan parte del texto. */
+/* **`min-inline-size: 0` otra vez, y por lo mismo que en el carril de navegación:** un hijo de
+   flex mide por su contenido mínimo, y un `input[type=datetime-local]` pide un ancho enorme. Sin
+   esto, la fila empujaba a la página entera a 544 px dentro de una pantalla de 390. Medido con
+   `scrollWidth`, que es el único que no miente. */
+.llevar {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-2);
+  margin-block-start: var(--espacio-2);
+  padding-block-start: var(--espacio-2);
+  border-block-start: 1px solid var(--color-borde);
+}
+
+/* La pregunta ocupa el sitio de los botones en vez de abrir una ventana: lo que se está a punto
+   de hacer se decide con la cita delante, no encima de ella. */
+.llevar--pregunta {
+  padding: var(--espacio-3);
+  background-color: var(--color-peligro-suave);
+  --foco-color: var(--color-foco);
+  --color-enlace: var(--color-acento);
+  border-block-start: 0;
+}
+
+.llevar__mover {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espacio-2);
 }

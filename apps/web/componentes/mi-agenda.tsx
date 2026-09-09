@@ -16,6 +16,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { Boton } from '@/componentes/boton';
 import { Cargando, Roto, Vacio } from '@/componentes/estados';
+import { LlevarCita } from '@/componentes/llevar-cita';
 import { Seccion } from '@/componentes/piezas';
 import { api, comoMensaje, type MiAgenda, type MiPerfilProfesional } from '@/lib/api';
 import { conSesion } from '@/lib/sesion';
@@ -115,7 +116,7 @@ export function MiDia() {
           ) : (
             <ul className="pila pila--apretada">
               {agenda.citas.map((cita) => (
-                <li key={cita.id} className="cita-mia" data-estado={cita.estado}>
+                <li key={cita.id} className="cita-mia" data-cita={cita.id} data-estado={cita.estado}>
                   <span className="cita-mia__hora cifras">
                     {hora(cita.inicio, agenda.zona_horaria)}
                     <span className="cita-mia__fin">{hora(cita.fin, agenda.zona_horaria)}</span>
@@ -135,6 +136,10 @@ export function MiDia() {
                       Llamar
                     </a>
                   ) : null}
+                  {/* **Su día también se lleva, no solo se mira.** Quien atiende es quien sabe
+                      si la clienta vino, y hacerle pedirle al dueño que cierre cada cita es
+                      convertir el trabajo de dos en el de tres. */}
+                  <LlevarCita citaId={cita.id} estado={cita.estado} inicio={cita.inicio} alCambiar={traer} />
                 </li>
               ))}
             </ul>

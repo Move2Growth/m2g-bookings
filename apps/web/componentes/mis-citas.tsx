@@ -257,7 +257,7 @@ export function MisCitas() {
 
   function filaDeCita(cita: MiCita) {
     return (
-      <li key={cita.id} className="fila">
+      <li key={cita.id} className="fila" data-cita={cita.id}>
         <div className="tira tira--entre">
           <div className="pila pila--apretada">
             <span className="cita__hora">

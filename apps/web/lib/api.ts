@@ -437,6 +437,33 @@ export const api = {
   borrarAnuncio: (id: string, acceso: string) =>
     pedir<AnuncioDelSalon>(`/api/v1/negocio/anuncios/${id}`, { metodo: 'DELETE', acceso }),
 
+  /* ── Llevar la agenda, no solo mirarla ─────────────────────────────────────────────────── */
+
+  /**
+   * Mover una cita de estado. Las transiciones que el salón puede hacer las decide el dominio:
+   * de `pendiente` a confirmada o cancelada; de `confirmada` a completada, no-show o cancelada.
+   * Lo terminal no se toca. Si se pide otra cosa, la API contesta y la pantalla lo enseña.
+   */
+  cambiarEstado: (
+    citaId: string,
+    estado: 'confirmada' | 'completada' | 'no_show' | 'cancelada_negocio',
+    motivo: string | null,
+    acceso: string,
+  ) =>
+    pedir<CitaEnAgenda>(`/api/v1/negocio/reservas/${citaId}/estado`, {
+      metodo: 'POST',
+      cuerpo: { estado, motivo },
+      acceso,
+    }),
+
+  /** Mover la hora. Va en la consulta y no en el cuerpo porque así lo declara la API. */
+  reprogramarCita: (citaId: string, nuevoInicio: string, acceso: string, profesionalId?: string) =>
+    pedir<CitaEnAgenda>(
+      `/api/v1/negocio/reservas/${citaId}/reprogramar?nuevo_inicio=${encodeURIComponent(nuevoInicio)}` +
+        (profesionalId ? `&profesional=${profesionalId}` : ''),
+      { metodo: 'POST', acceso },
+    ),
+
   /* ── El portal del profesional ─────────────────────────────────────────────────────────── */
 
   miAgenda: (acceso: string, desde?: string, hasta?: string) =>
@@ -535,6 +562,17 @@ export type CitaEnMiAgenda = {
   duracion_minutos: number;
   total_centavos: number;
   nota_del_cliente: string | null;
+};
+
+export type CitaEnAgenda = {
+  id: string;
+  inicio: string;
+  fin: string;
+  estado: string;
+  cliente: string | null;
+  profesional_id: string;
+  servicios: { nombre: string; duracion_minutos: number; precio_centavos: number | null }[];
+  tiene_telefono: boolean;
 };
 
 export type MiAgenda = {
