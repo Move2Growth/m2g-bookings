@@ -437,6 +437,37 @@ export const api = {
   borrarAnuncio: (id: string, acceso: string) =>
     pedir<AnuncioDelSalon>(`/api/v1/negocio/anuncios/${id}`, { metodo: 'DELETE', acceso }),
 
+  /* ── El horario y los bloqueos ─────────────────────────────────────────────────────────── */
+
+  horarioDelSalon: (acceso: string) => pedir<TramoDeHorario[]>('/api/v1/negocio/horario', { acceso }),
+
+  horarioDeLaPersona: (profesionalId: string, acceso: string) =>
+    pedir<TramoDelProfesional[]>(`/api/v1/negocio/profesionales/${profesionalId}/horario`, { acceso }),
+
+  /**
+   * Reemplaza el horario de una persona. **No cancela las citas que queden fuera**: eso lo
+   * decide el salón mirándolas, y un cambio de horario que cancela en silencio es la peor
+   * sorpresa posible un lunes por la mañana.
+   */
+  ponerHorarioDeLaPersona: (profesionalId: string, tramos: TramoDelProfesional[], acceso: string) =>
+    pedir<TramoDelProfesional[]>(`/api/v1/negocio/profesionales/${profesionalId}/horario`, {
+      metodo: 'PUT',
+      cuerpo: tramos,
+      acceso,
+    }),
+
+  ausencias: (acceso: string, desde: string, hasta: string) =>
+    pedir<Ausencia[]>(`/api/v1/negocio/ausencias?desde=${desde}&hasta=${hasta}`, { acceso }),
+
+  /** Sin `profesional_id` bloquea a **todo el equipo**: así se cierra el salón un día. */
+  bloquear: (
+    datos: { desde: string; hasta: string; motivo?: string | null; profesional_id?: string | null },
+    acceso: string,
+  ) => pedir<Ausencia[]>('/api/v1/negocio/ausencias', { metodo: 'POST', cuerpo: datos, acceso }),
+
+  levantarBloqueo: (ausenciaId: string, acceso: string) =>
+    pedir<Ausencia>(`/api/v1/negocio/ausencias/${ausenciaId}`, { metodo: 'DELETE', acceso }),
+
   /* ── Llevar la agenda, no solo mirarla ─────────────────────────────────────────────────── */
 
   /**
@@ -562,6 +593,24 @@ export type CitaEnMiAgenda = {
   duracion_minutos: number;
   total_centavos: number;
   nota_del_cliente: string | null;
+};
+
+export type TramoDelProfesional = {
+  dia: number;
+  desde: string;
+  hasta: string;
+  /** «trabajo» es jornada; «descanso» la recorta —el almuerzo de cada día—. */
+  clase: 'trabajo' | 'descanso';
+};
+
+export type Ausencia = {
+  id: string;
+  profesional_id: string;
+  profesional: string;
+  desde: string;
+  hasta: string;
+  motivo: string | null;
+  activa: boolean;
 };
 
 export type CitaEnAgenda = {

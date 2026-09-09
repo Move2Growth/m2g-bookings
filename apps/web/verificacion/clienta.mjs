@@ -97,7 +97,16 @@ if (!opinable) {
   await p.getByRole('button', { name: /Enviar mi opinión/i }).click()
   await p.waitForTimeout(3000)
   const despues = await (await fetch(`${API}/api/v1/publico/negocios/${opinable.negocio_slug}/reviews`)).json()
-  ok('la reseña llega a la ficha pública', despues.resumen.total === antes.resumen.total + 1, `${antes.resumen.total} → ${despues.resumen.total}`)
+  // **Se busca la reseña, no se cuenta.** Contar da falsos negativos: la lista pública trae una
+  // página, no el total de todas, y dos pasadas seguidas sobre el mismo salón se pisan. Lo que
+  // importa es que **esta** opinión esté publicada y con su nota.
+  const ids = new Set((antes.resenas ?? []).map((r) => r.id))
+  const nueva = (despues.resenas ?? []).find((r) => !ids.has(r.id))
+  ok(
+    'la reseña llega a la ficha pública',
+    Boolean(nueva) && nueva.nota === 5,
+    nueva ? `«${nueva.autor}» · ${nueva.nota} estrellas` : `${antes.resumen.total} → ${despues.resumen.total}`,
+  )
   ok('y la cita queda marcada como opinada', (await suya.locator('text=Ya opinaste').count()) > 0)
 }
 

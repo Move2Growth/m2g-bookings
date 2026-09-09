@@ -19,6 +19,7 @@ import { usePathname } from 'next/navigation';
 const SITIOS = [
   ['/local', 'La agenda'],
   ['/local/equipo', 'El equipo'],
+  ['/local/horario', 'Horario'],
   ['/local/finanzas', 'El dinero'],
   ['/local/mejor-del-mes', 'Mejor del mes'],
   ['/local/publicidad', 'Publicidad'],
