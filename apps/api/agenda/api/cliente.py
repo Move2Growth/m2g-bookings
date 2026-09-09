@@ -32,6 +32,7 @@ from agenda.modelos.identidad import Membership, User
 from agenda.modelos.negocio import Business, BusinessSettings
 from agenda.modelos.reservas import Booking, BookingItem
 from agenda.modelos.reviews import Review
+from agenda.servicios import idempotencia
 from agenda.servicios import reservas as servicio_reservas
 
 router = APIRouter(prefix="/api/v1/mi", tags=["cliente"])
@@ -168,6 +169,12 @@ async def mis_reservas(
     return [await _pintar(sesion, reserva, ahora=ahora) for reserva in [*proximas, *pasadas]]
 
 
+#: Con qué nombre se guarda la clave. Va en la unicidad junto a la clave para que la misma
+#: cadena en dos endpoints distintos no se pise: quien genera un UUID por gesto no sabe —ni
+#: tiene por qué— que otra pantalla usa el mismo pozo de claves.
+ENDPOINT_RESERVAR = "POST /api/v1/mi/reservas"
+
+
 @router.post("/reservas", status_code=201, summary="Reservar (RSV-1, AGD-4)")
 async def reservar(
     peticion: PeticionDeReserva,
@@ -179,6 +186,10 @@ async def reservar(
 
     Mirar un hueco no lo aparta: se compite por él al confirmar, y quien pierde recibe un
     mensaje que entiende en vez de una cita a otra hora que no eligió.
+
+    **Con `Idempotency-Key`, un reintento devuelve la misma cita** en vez de chocar contra el
+    hueco que él mismo ocupó (ADR-0012). Sin ella se atiende igual: la cabecera la mandan
+    nuestros clientes, pero la API no obliga a nadie a tenerla.
     """
     usuario = await sesion.get(User, identidad.usuario_id)
     if usuario is None or usuario.phone_verified_at is None:
@@ -205,6 +216,21 @@ async def reservar(
         text("SELECT set_config('app.current_business_id', :negocio, true)"),
         {"negocio": str(negocio.id)},
     )
+
+    # El reclamo va **después** de fijar el negocio, porque la política de la tabla compara
+    # `business_id` con el negocio de la sesión, y **antes** de tocar la agenda, que es lo que
+    # no puede pasar dos veces.
+    if idempotency_key:
+        ya = await idempotencia.reclamar(
+            sesion,
+            clave=idempotency_key,
+            endpoint=ENDPOINT_RESERVAR,
+            cuerpo=peticion.model_dump(mode="json"),
+            usuario_id=usuario.id,
+            negocio_id=negocio.id,
+        )
+        if ya is not None:
+            return MiCita.model_validate(ya.cuerpo)
 
     ficha = (
         await sesion.execute(
@@ -240,7 +266,20 @@ async def reservar(
             nota_cliente=peticion.nota,
         ),
     )
-    return await _pintar(sesion, reserva)
+    cita = await _pintar(sesion, reserva)
+
+    # Se contesta en esta misma transacción: la clave y la cita se guardan juntas o no se
+    # guarda ninguna. Si aquí abajo algo fallara, la clave se iría con la cita y el reintento
+    # volvería a intentarlo de verdad, que es lo correcto.
+    if idempotency_key:
+        await idempotencia.contestar(
+            sesion,
+            clave=idempotency_key,
+            endpoint=ENDPOINT_RESERVAR,
+            estado=201,
+            cuerpo=cita.model_dump(mode="json"),
+        )
+    return cita
 
 
 @router.post("/reservas/{reserva_id}/cancelar", summary="Cancelar mi cita (RSV-4)")

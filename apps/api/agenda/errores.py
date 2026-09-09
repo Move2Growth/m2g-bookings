@@ -72,6 +72,34 @@ class CarreraEnLaBase(ErrorDeDominio):
     estado_http = 409
 
 
+class ReintentoEnVuelo(ErrorDeDominio):
+    """La `Idempotency-Key` está cogida y su respuesta no se puede leer desde aquí.
+
+    Los dos dedos impacientes **no** llegan hasta este error: PostgreSQL hace esperar al
+    segundo `INSERT` hasta que el primero confirma, y entonces encuentra la respuesta. Lo que
+    sí llega es la clave que ya usó **otro salón**, invisible por su política de fila.
+
+    **No es «la hora está ocupada»** y no puede contestarse como tal: decirle a alguien que
+    perdió un hueco que quizá sigue libre es la peor mentira posible. Se le pide repetir.
+    """
+
+    codigo = "REINTENTO_EN_VUELO"
+    estado_http = 409
+    mensaje = "Esa reserva se está confirmando ahora mismo. Espera un momento y mira tus citas."
+
+
+class ClaveReutilizada(ErrorDeDominio):
+    """La misma clave de reintento con un cuerpo distinto. Eso no es un reintento.
+
+    Devolverle la respuesta de la petición anterior sería mentirle: pidió otra cosa. Es un fallo
+    del cliente, y se le dice para que se arregle en vez de dejarle una cita que no pidió.
+    """
+
+    codigo = "CLAVE_REUTILIZADA"
+    estado_http = 422
+    mensaje = "Esa clave de reintento ya se usó para otra reserva distinta."
+
+
 class FueraDeAntelacion(ErrorDeDominio):
     codigo = "FUERA_DE_ANTELACION"
     estado_http = 422
