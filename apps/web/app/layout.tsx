@@ -12,13 +12,33 @@ import './globales.css';
  * posibilidad de entregar una pantalla a medias. Lo único que cambia por ruta es lo de dentro.
  */
 
+const PROMESA =
+  'Reservas de barbería, salón, uñas, cejas y spa en la ciudad de Panamá. Elige a quién quieres que te atienda y a qué hora.';
+
 export const metadata: Metadata = {
+  /**
+   * `metadataBase` no es un adorno: sin ella, Next resuelve las direcciones de `openGraph` como
+   * relativas y **lo que se comparte por WhatsApp llega sin tarjeta**. Aquí se entra por el
+   * enlace que el salón pega en su bio de Instagram, así que la tarjeta es la portada del
+   * producto para media ciudad.
+   */
+  metadataBase: new URL(process.env.NEXT_PUBLIC_URL_PUBLICA ?? 'http://localhost:3100'),
   title: {
     default: `${NOMBRE_COMERCIAL} · reserva tu turno en Panamá`,
     template: `%s · ${NOMBRE_COMERCIAL}`,
   },
-  description:
-    'Reservas de barbería, salón, uñas, cejas y spa en la ciudad de Panamá. Elige a quién quieres que te atienda y a qué hora.',
+  description: PROMESA,
+  applicationName: NOMBRE_COMERCIAL,
+  openGraph: {
+    type: 'website',
+    locale: 'es_PA',
+    siteName: NOMBRE_COMERCIAL,
+    title: `${NOMBRE_COMERCIAL} · reserva tu turno en Panamá`,
+    description: PROMESA,
+  },
+  twitter: { card: 'summary_large_image', title: NOMBRE_COMERCIAL, description: PROMESA },
+  // El icono se dibuja en `icon.svg`, con la misma geometría que el sello de la marca.
+  icons: { icon: '/icon.svg' },
 };
 
 export const viewport: Viewport = {

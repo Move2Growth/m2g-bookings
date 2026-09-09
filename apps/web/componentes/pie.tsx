@@ -24,9 +24,17 @@ export function Pie() {
           <nav className="pie__enlaces" aria-label="Pie">
             <Link href="/">Portada</Link>
             <Link href="/buscar">Buscar</Link>
+            <Link href="/mapa">Mapa</Link>
             <Link href="/mis-citas">Mis citas</Link>
             <Link href="/local">Mi salón</Link>
             <Link href="/entrar">Entrar</Link>
+          </nav>
+          {/* **Los legales van aparte del resto.** No son navegación: son lo que hay que poder
+              encontrar sin buscarlo, y mezclados con «Buscar» y «Entrar» se pierden. Faltaban
+              las dos páginas y el enlace a las dos. */}
+          <nav className="pie__enlaces pie__enlaces--legal" aria-label="Legal">
+            <Link href="/legal/privacidad">Qué hacemos con tus datos</Link>
+            <Link href="/legal/terminos">Términos de uso</Link>
           </nav>
           <p className="pie__nota">
             Prototipo local. Todo lo que se ve en pantalla sale de la API en <code>{BASE_API}</code>: no hay ni un dato

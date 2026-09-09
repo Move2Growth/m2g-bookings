@@ -73,6 +73,14 @@ dd {
   margin: 0;
 }
 
+/* **Ninguna palabra sola en la última línea.** Va en el elemento y no en una clase porque el
+   texto corrido está repartido entre media docena de clases —el lema del pie, la nota de una
+   cita, la explicación de un estado vacío— y perseguirlas una a una es garantizar que a la
+   séptima se olvida. `pretty` solo reparte las dos últimas líneas: no toca la medida. */
+p {
+  text-wrap: pretty;
+}
+
 ul,
 ol {
   padding: 0;
@@ -102,6 +110,10 @@ a {
   color: var(--color-enlace, var(--color-acento));
   text-decoration-thickness: var(--canto-menor);
   text-underline-offset: var(--espacio-1);
+  /* El subrayado engordaba de golpe. Se anima **solo el grosor**, que es lo único que cambia:
+     el color no se toca al pasar por encima, y esa es la regla que evita el 1:1 sobre bloques
+     de color. */
+  transition: text-decoration-thickness var(--movimiento-rapido) var(--movimiento-curva);
 }
 
 /* **Pasar por encima no cambia el color. Engorda el subrayado.**
@@ -240,6 +252,11 @@ a:hover {
 }
 
 .saltar {
+  /* Medía 40 px. Es el primer objetivo de quien navega con teclado y el único que ve quien usa
+     un lector de pantalla al llegar, así que cumple el mínimo como cualquier otro. */
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--espacio-toque-minimo);
   position: absolute;
   inset-inline-start: var(--espacio-2);
   inset-block-start: var(--espacio-2);
@@ -450,9 +467,13 @@ a:hover {
   line-height: var(--tipografia-interlineado-suelto);
   color: var(--color-tinta-suave);
   max-width: 62ch;
+  /* **Sin esto, media docena de párrafos por pantalla acaban con una palabra sola en la última
+     línea.** `pretty` solo reparte las dos últimas, así que no toca la medida ni el ritmo. */
+  text-wrap: pretty;
 }
 
 .menor {
+  text-wrap: pretty;
   font-size: var(--tipografia-tamano-menor);
   color: var(--color-tinta-tenue);
 }
@@ -1562,9 +1583,8 @@ a:hover {
    ese color es invisible —1,00:1 medido en la portada, con el enlace al mapa recién puesto—.
    `--color-enlace` se hereda: cada superficie lo declara una vez y todo lo que cae dentro lo
    toma. */
-a {
-  color: var(--color-enlace, var(--color-acento));
-}
+/* (Aquí había un segundo `a { color }` que repetía el de arriba sin cambiar nada: sobraba, y
+   mandaba a buscar el color del enlace a dos sitios distintos.) */
 
 .pasos {
   display: flex;
@@ -2039,4 +2059,23 @@ a {
 .cita-mia__fin {
   font-size: var(--tipografia-tamano-micro);
   color: var(--color-tinta-tenue);
+}
+
+/* Una lista con marca, para los textos legales. El resto del producto usa listas sin viñeta
+   —son datos, no prosa—; aquí sí, porque son enumeraciones dentro de un texto que se lee
+   seguido y sin la marca se leen como párrafos partidos. */
+.lista-marcada {
+  padding-inline-start: var(--espacio-5);
+  list-style: disc;
+}
+
+.lista-marcada li {
+  margin-block-end: var(--espacio-2);
+}
+
+/* Los legales, un escalón por debajo del resto del pie: se encuentran, no compiten. */
+.pie__enlaces--legal {
+  margin-block-start: var(--espacio-2);
+  font-size: var(--tipografia-tamano-menor);
+  opacity: 0.82;
 }

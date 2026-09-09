@@ -14,7 +14,14 @@
  * Se pide **por rectángulo**: lo que se ve es lo que se pregunta. Arrastrar el mapa vuelve a
  * preguntar, y por eso la petición va con freno — sin él, un dedo arrastrando dispara veinte
  * consultas que nadie llega a leer.
+ *
+ * Su hoja de estilo se **importa del paquete**, no se copia a `public/`. La copia obligaba a
+ * mantener a mano una hoja de terceros de seiscientas líneas —con sus propios hexadecimales y su
+ * propia tipografía— dentro de un proyecto cuya regla es que todo el color salga de los tokens.
+ * Importada, el empaquetador la trae, la regla sigue siendo cierta y no hay dos versiones.
  */
+
+import 'leaflet/dist/leaflet.css';
 
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -110,11 +117,6 @@ export function Mapa() {
 
   return (
     <div className="pila">
-      {/* La hoja de estilo de Leaflet, desde el paquete: nada se pide a un tercero salvo las
-          propias baldosas, que es lo que un mapa no puede evitar. */}
-      {/* eslint-disable-next-line @next/next/no-css-tags */}
-      <link rel="stylesheet" href="/leaflet.css" />
-
       <div className="mapa">
         <div className="mapa__lienzo" ref={caja} role="application" aria-label="Mapa de salones" />
         <p className="mapa__estado" role="status">

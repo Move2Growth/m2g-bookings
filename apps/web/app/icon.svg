@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- El sello: un círculo de seis porciones al que le falta una. Misma geometría que
+       `componentes/marca.tsx`, para que la pestaña y la marca no sean dos dibujos distintos.
+       Los dos colores van escritos: el navegador pide este archivo suelto, sin la hoja de
+       estilo, así que aquí no hay variables que valgan. Son `tinta` y `papel` de los tokens. -->
+  <rect width="100" height="100" fill="#101014"/>
+  <path fill="#FBFBF9" d="M50 50L71.9 90.4A46 46 0 0 1 28.1 90.4ZM50 50L26.0 89.2A46 46 0 0 1 4.0 51.2ZM50 50L4.0 48.8A46 46 0 0 1 26.0 10.8ZM50 50L28.1 9.6A46 46 0 0 1 71.9 9.6ZM50 50L74.0 10.8A46 46 0 0 1 96.0 48.8Z" transform="translate(50 50) scale(0.74) translate(-50 -50)"/>
+</svg>

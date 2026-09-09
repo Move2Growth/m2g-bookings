@@ -6,7 +6,7 @@
 
 import { chromium } from 'playwright';
 
-export const WEB = process.env.WEB ?? 'http://localhost:3400';
+export const WEB = process.env.WEB ?? 'http://localhost:3100';
 export const API = process.env.API ?? 'http://localhost:8000';
 export const MOVIL = { width: 390, height: 844 };
 
