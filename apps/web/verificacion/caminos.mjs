@@ -186,6 +186,17 @@ async function elegirDiaConHoras(pagina) {
     (await pagina.locator('.hora[aria-pressed="true"]').count()) === 1,
   );
 
+  // Se apunta **qué cita** se acaba de crear. Buscarla luego por su hora es lo que hacía esta
+  // prueba y es una trampa: una cuenta de ejemplo tiene decenas de citas en el mismo salón, y
+  // «las 6:15 p. m.» cae en varias de días distintos. El día que coincidían, la prueba fallaba
+  // sin que hubiera nada roto — y eso es peor que no tenerla.
+  let citaCreada = null;
+  pagina.on('response', async (respuesta) => {
+    if (respuesta.request().method() === 'POST' && respuesta.url().endsWith('/mi/reservas') && respuesta.status() === 201) {
+      citaCreada = (await respuesta.json()).id;
+    }
+  });
+
   await pagina.getByRole('button', { name: /^Confirmar / }).click();
   await pagina.waitForSelector('text=Tu turno está cogido.', { timeout: 40_000 });
   await comprobar(pagina, 'la reserva se hace y la API la devuelve confirmada', async () =>
@@ -196,15 +207,11 @@ async function elegirDiaConHoras(pagina) {
   await pagina.getByRole('link', { name: 'Ver mis citas' }).click();
   await pagina.waitForURL('**/mis-citas', { timeout: 20_000 });
   await pagina.waitForSelector('text=Tu próximo turno', { timeout: 30_000 });
-  // Se busca la fila de esa hora que TODAVÍA se puede cancelar: en una cuenta de ejemplo
-  // puede haber otra a la misma hora ya cancelada de una prueba anterior, y `.first()` sin más
-  // pillaría esa, que no tiene botón.
-  const suya = pagina
-    .locator('li.fila')
-    .filter({ hasText: 'Barbería El Cangrejo' })
-    .filter({ hasText: rotuloHora })
-    .filter({ has: pagina.getByRole('button', { name: 'Cancelar' }) });
-  await comprobar(pagina, 'la cita recién hecha aparece en «mis citas»', async () => (await suya.count()) >= 1);
+  // Su fila, por identificador. Cada fila lleva el suyo justamente para esto.
+  const suya = pagina.locator(`li.fila[data-cita="${citaCreada}"]`);
+  await comprobar(pagina, 'la cita recién hecha aparece en «mis citas»', async () =>
+    citaCreada !== null && (await suya.count()) === 1,
+  );
   await foto(pagina, 'camino-3d-mis-citas');
 
   // Y se cancela desde la pantalla: prueba el camino de vuelta y, de paso, deja la agenda del
@@ -214,14 +221,13 @@ async function elegirDiaConHoras(pagina) {
   // La fila cancelada NO se busca con el mismo localizador: ya no tiene botón de cancelar, que
   // es justo lo que se quiere comprobar. Y sigue en su sitio, sin caerse al pliegue de lo
   // pasado, para que quien cancela vea que le hicieron caso.
-  const yaCancelada = pagina
-    .locator('li.fila')
-    .filter({ hasText: 'Barbería El Cangrejo' })
-    .filter({ hasText: rotuloHora })
-    .filter({ hasText: /cancelada por la clienta/i });
-  await yaCancelada.first().waitFor({ timeout: 20_000 });
+  const yaCancelada = suya.filter({ hasText: /cancelada por la clienta/i });
+  await yaCancelada.waitFor({ timeout: 20_000 });
   await comprobar(pagina, 'se cancela desde la fila, sin salir de la pantalla', async () =>
-    (await yaCancelada.count()) >= 1 && (await suya.count()) === 0,
+    // La MISMA fila: sigue en su sitio —para que quien cancela vea que le hicieron caso— y ya
+    // no ofrece cancelar. Contar filas parecidas no demostraba ninguna de las dos cosas.
+    (await yaCancelada.count()) === 1 &&
+    (await suya.getByRole('button', { name: 'Cancelar' }).count()) === 0,
   );
   await foto(pagina, 'camino-3e-cancelada');
   await pagina.context().close();
@@ -250,6 +256,14 @@ async function elegirDiaConHoras(pagina) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ...CUENTAS.dueno, superficie: 'web' }),
   })).json();
+  // **El servicio y la persona se preguntan, no se escriben aquí.** Estaban puestos a mano
+  // como dos UUID literales y funcionaron hasta que se recargaron los datos de ejemplo: a
+  // partir de ahí el robo contestaba `422 SERVICIO_NO_DISPONIBLE` y la prueba acusaba a la web
+  // de un fallo que era suyo. Un identificador copiado en una prueba se pudre en silencio.
+  const perfil = await (await fetch(`${API}/api/v1/publico/negocios/barberia-el-cangrejo`)).json();
+  const queRoba = perfil.servicios.find((servicio) => /Corte niño/i.test(servicio.nombre)) ?? perfil.servicios[0];
+  const quienRoba = perfil.equipo.find((persona) => /Yaritza/i.test(persona.nombre)) ?? perfil.equipo[0];
+
   const robo = await fetch(`${API}/api/v1/mi/reservas`, {
     method: 'POST',
     headers: {
@@ -259,9 +273,9 @@ async function elegirDiaConHoras(pagina) {
     },
     body: JSON.stringify({
       negocio_slug: 'barberia-el-cangrejo',
-      servicios: ['01a07d4c-d949-7091-9d58-22dbded02912'],
+      servicios: [queRoba.id],
       inicio,
-      profesional_id: '01a07d4c-d960-7270-94aa-2606a9b1e297',
+      profesional_id: quienRoba.id,
     }),
   });
   const cita = await robo.json();

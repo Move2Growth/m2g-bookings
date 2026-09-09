@@ -22,7 +22,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Boton } from '@/componentes/boton';
 import { Cargando, Roto, Vacio } from '@/componentes/estados';
@@ -64,6 +64,8 @@ export function Reserva({
   const camino = usePathname();
   const zona = salon.zona_horaria;
 
+  /** Qué se está intentando reservar ahora mismo y con qué clave. Ver `llaveDelIntento`. */
+  const intento = useRef<{ firma: string; clave: string } | null>(null);
   const [servicios, setServicios] = useState<string[]>(inicial.servicio ? [inicial.servicio] : []);
   const [profesional, setProfesional] = useState<string | null>(inicial.profesional ?? null);
   const [dia, setDia] = useState<string>(inicial.dia ?? fechaLocal(new Date(), zona));
@@ -170,6 +172,27 @@ export function Reserva({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [huecos]);
 
+  /**
+   * La clave de reintento **de este intento**, no de este contenido.
+   *
+   * Antes salía solo del salón, la hora y los servicios, y parecía razonable: el mismo hueco
+   * pedido dos veces es el mismo hueco. Lo malo es que esa clave nunca caduca para el cliente,
+   * y probándolo salió lo que hace: **reservar, cancelar y volver a reservar la misma hora**
+   * devolvía la cita cancelada, con su estado congelado en «confirmada». La persona leía «tu
+   * turno está cogido» y no tenía nada. Cancelar y repensárselo es de lo más normal que hace
+   * alguien con una cita.
+   *
+   * Ahora la firma del contenido solo sirve para saber si es **el mismo intento**: mientras no
+   * cambie, el reintento manda la misma clave —que es para lo que está—; en cuanto cambia algo,
+   * o en cuanto un intento acaba, empieza otro con clave nueva.
+   */
+  function llaveDelIntento(firma: string): string {
+    if (intento.current?.firma !== firma) {
+      intento.current = { firma, clave: crypto.randomUUID() };
+    }
+    return intento.current.clave;
+  }
+
   async function confirmar() {
     if (!elegida) return;
     setEnviando(true);
@@ -180,7 +203,7 @@ export function Reserva({
         setFalloEnvio('Ese hueco no dice quién lo atiende. Elige a alguien del equipo y vuelve a intentarlo.');
         return;
       }
-      const llave = `${salon.slug}-${elegida.inicio}-${servicios.join('-')}`;
+      const llave = llaveDelIntento(`${salon.slug}-${elegida.inicio}-${servicios.join('-')}`);
       const cita = await conSesion((acceso) =>
         api.reservar(
           {
@@ -194,8 +217,11 @@ export function Reserva({
           llave,
         ),
       );
+      intento.current = null; // intento cerrado: el siguiente empieza de cero
       setHecha(cita);
     } catch (error) {
+      // Se olvida también al fallar: al soltar el hueco, lo que venga después es otra cosa.
+      intento.current = null;
       setFalloEnvio(comoMensaje(error));
       setElegida(null);
       void pedirHuecos();

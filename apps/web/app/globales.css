@@ -586,6 +586,34 @@ a:hover {
   padding: var(--espacio-5) var(--espacio-4);
 }
 
+/* ── Apuntar una cita desde el mostrador (AGD-2) ──────────────────────────────────────────
+ * Un panel que se abre dentro de la agenda, no una ventana encima: la cita de teléfono se
+ * decide mirando el día que hay debajo, y taparlo sería quitar justo el dato que hace falta.
+ * El filo de cobalto a la izquierda dice que esto abre algo, y lo separa de la lista sin
+ * necesidad de una caja con sombra. */
+.apuntar {
+  background-color: var(--color-arena);
+  border-left: var(--filo-grosor) solid var(--color-acento);
+  padding: var(--espacio-4);
+  /* Sin esto, una fila larga de servicios estira la página entera a 500 px y el móvil se va
+     de lado. Es el mismo fallo que ya estiró el carril del equipo y la cabecera. */
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.apuntar__cabeza {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  min-inline-size: 0;
+}
+
+/* A quién se le apunta, ya elegido. No es un botón: es el dato en firme. */
+.ficha-elegida {
+  font-weight: 600;
+}
+
 /* Un bloque a sangre: sale del ancho del contenido y se come el margen lateral. */
 .sangre {
   margin-inline: calc(-1 * var(--espacio-4));

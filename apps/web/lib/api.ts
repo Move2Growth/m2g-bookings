@@ -426,6 +426,44 @@ export const api = {
 
   fichajes: (acceso: string) => pedir<Fichaje[]>('/api/v1/negocio/fichajes', { acceso }),
 
+  /* ── Apuntar una cita desde el mostrador (AGD-2) ───────────────────────────────────────── */
+
+  /** La carta del salón, con los inactivos fuera: no se puede vender lo que está retirado. */
+  serviciosDelLocal: (acceso: string) =>
+    pedir<ServicioDelPanel[]>('/api/v1/negocio/servicios?incluir_inactivos=false', { acceso }),
+
+  clientesDelLocal: (acceso: string, buscar?: string) =>
+    pedir<ClienteDelSalon[]>(
+      `/api/v1/negocio/clientes${buscar ? `?buscar=${encodeURIComponent(buscar)}` : ''}`,
+      { acceso },
+    ),
+
+  /**
+   * La cita que apunta el salón por teléfono o en el mostrador.
+   *
+   * Lleva `Idempotency-Key` por la misma razón que la del cliente: el doble toque en «Apuntar»
+   * crearía dos fichas de cliente rápido con el mismo nombre y chocaría consigo misma.
+   */
+  apuntarCita: (
+    datos: {
+      profesional_id: string;
+      servicios: string[];
+      inicio: string;
+      cliente_id?: string | null;
+      cliente_nombre?: string | null;
+      cliente_telefono?: string | null;
+      nota?: string | null;
+    },
+    acceso: string,
+    llave: string,
+  ) =>
+    pedir<CitaEnAgenda>('/api/v1/negocio/reservas', {
+      metodo: 'POST',
+      cuerpo: datos,
+      acceso,
+      cabeceras: { 'Idempotency-Key': llave },
+    }),
+
   anuncios: (acceso: string) => pedir<AnuncioDelSalon[]>('/api/v1/negocio/anuncios', { acceso }),
 
   crearAnuncio: (texto: string, acceso: string) =>
@@ -757,6 +795,40 @@ export type EnElPodio = {
   nombre: string;
   servicios: number;
   importe_centavos: number;
+};
+
+export type ServicioDelPanel = {
+  id: string;
+  nombre: string;
+  descripcion: string | null;
+  categoria_slug: string;
+  categoria_nombre: string;
+  duracion_minutos: number;
+  precio_centavos: number | null;
+  tipo_de_precio: string;
+  moneda: string;
+  buffer_antes_min: number;
+  buffer_despues_min: number;
+  foto: string | null;
+  activo: boolean;
+  orden: number;
+  /** Cuántos profesionales lo prestan. Con cero **no se puede reservar** (STF-1). */
+  profesionales: number;
+};
+
+export type ClienteDelSalon = {
+  id: string;
+  nombre: string;
+  telefono: string | null;
+  correo: string | null;
+  completadas: number;
+  ausencias: number;
+  canceladas: number;
+  bloqueado: boolean;
+  motivo_bloqueo: string | null;
+  origen: string;
+  ultima_cita: string | null;
+  tiene_cuenta: boolean;
 };
 
 export type ProfesionalEnPanel = {

@@ -19,7 +19,7 @@ import uuid
 from datetime import datetime, timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Header, Query
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -29,6 +29,7 @@ from agenda.dominio.reservas import Actor, EstadoReserva
 from agenda.errores import ReservaNoModificable
 from agenda.modelos.clientes import BusinessClient
 from agenda.modelos.reservas import Booking, BookingItem
+from agenda.servicios import idempotencia
 from agenda.servicios import reservas as servicio_reservas
 
 router = APIRouter(prefix="/api/v1/negocio", tags=["negocio"])
@@ -119,17 +120,41 @@ async def agenda(
     return [await _pintar_cita(sesion, cita) for cita in citas]
 
 
+#: Con qué nombre se guardan las claves de este endpoint, para que no se pisen con las de la
+#: reserva del cliente aunque coincida la cadena.
+ENDPOINT_RESERVA_MANUAL = "POST /api/v1/negocio/reservas"
+
+
 @router.post("/reservas", status_code=201, summary="Reserva manual de walk-in o teléfono (AGD-2)")
 async def crear_reserva_manual(
-    peticion: PeticionReservaManual, sesion_negocio: SesionNegocio
+    peticion: PeticionReservaManual,
+    sesion_negocio: SesionNegocio,
+    idempotency_key: Annotated[str | None, Header(alias="Idempotency-Key")] = None,
 ) -> CitaEnAgenda:
     """La cita que apunta el salón. **Puede saltarse la antelación mínima**: si la persona ya
     está en la puerta, no tiene sentido decirle que vuelva dentro de una hora.
 
     Lo que no se salta es la restricción de exclusión: si el hueco está cogido, la base lo
     rechaza igual que a cualquiera.
+
+    Con `Idempotency-Key`, el doble toque en «Apuntar» devuelve la misma cita en vez de un
+    «ese rato ya está cogido» por la que acaba de crear (ADR-0012). En el mostrador pasa por
+    otro motivo que en la calle: no es la red, es el dedo — y el resultado sería el mismo,
+    dos fichas de cliente rápido con el mismo nombre y una cita fantasma.
     """
     sesion, identidad = sesion_negocio
+
+    if idempotency_key:
+        ya = await idempotencia.reclamar(
+            sesion,
+            clave=idempotency_key,
+            endpoint=ENDPOINT_RESERVA_MANUAL,
+            cuerpo=peticion.model_dump(mode="json"),
+            usuario_id=identidad.usuario_id,
+            negocio_id=identidad.negocio_id,
+        )
+        if ya is not None:
+            return CitaEnAgenda.model_validate(ya.cuerpo)
 
     cliente_id = peticion.cliente_id
     if cliente_id is None:
@@ -160,7 +185,16 @@ async def crear_reserva_manual(
             nota_cliente=peticion.nota,
         ),
     )
-    return await _pintar_cita(sesion, reserva)
+    cita = await _pintar_cita(sesion, reserva)
+    if idempotency_key:
+        await idempotencia.contestar(
+            sesion,
+            clave=idempotency_key,
+            endpoint=ENDPOINT_RESERVA_MANUAL,
+            estado=201,
+            cuerpo=cita.model_dump(mode="json"),
+        )
+    return cita
 
 
 @router.post("/reservas/{reserva_id}/estado", summary="Confirmar, completar o marcar no-show")

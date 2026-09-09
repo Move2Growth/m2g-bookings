@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Boton } from '@/componentes/boton';
+import { ApuntarCita } from '@/componentes/apuntar-cita';
 import { LlevarCita } from '@/componentes/llevar-cita';
 import { NavLocal } from '@/componentes/nav-local';
 import { Cargando, Roto, Vacio } from '@/componentes/estados';
@@ -255,6 +256,11 @@ export function ElLocal() {
               <span className="etiqueta">Se factura hoy</span>
             </div>
           </div>
+
+          {/* Apuntar va **antes** de la lista y no al final: la mayoría de las citas de un
+              salón de Panamá entran por teléfono, así que esto no es una excepción que se
+              busca, es lo que más se toca en toda la pantalla. */}
+          <ApuntarCita dia={dia} zona={jornada.zona} alApuntar={recargar} />
 
           {canceladas.length > 0 ? (
             <p className="tira">
