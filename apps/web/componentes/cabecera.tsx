@@ -33,6 +33,9 @@ export function Cabecera() {
     { href: '/buscar', rotulo: 'Buscar' },
     { href: '/mis-citas', rotulo: 'Mis citas' },
     { href: '/mis-salones', rotulo: 'Mis salones' },
+    // «Mi cuenta» está en el carril y no escondida en un menú: es donde vive el derecho a
+    // que te borren (Ley 81), y un derecho que hay que buscar no está ejercido.
+    { href: '/mi-cuenta', rotulo: 'Mi cuenta' },
     { href: '/local', rotulo: 'Mi salón' },
   ];
 

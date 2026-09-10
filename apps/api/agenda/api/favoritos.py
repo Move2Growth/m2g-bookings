@@ -18,18 +18,19 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
-from sqlalchemy import delete, select, text
+from sqlalchemy import delete, func, select, text
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from agenda.api.dependencias import Identidad, SesionPlataforma, identidad_actual
 from agenda.bd import sesion_de_marketplace
-from agenda.errores import NoExiste
+from agenda.errores import DatoInvalido, NoExiste
 from agenda.modelos.catalogo import Service
 from agenda.modelos.clientes import Favorite
 from agenda.modelos.equipo import StaffProfile, StaffService
-from agenda.modelos.identidad import User
+from agenda.modelos.identidad import Membership, User
 from agenda.modelos.negocio import Business
 from agenda.modelos.reservas import Booking, BookingItem
+from agenda.servicios import baja as servicio_baja
 from agenda.servicios import tarjetas as servicio_tarjetas
 
 router = APIRouter(prefix="/api/v1/mi", tags=["cliente"])
@@ -143,6 +144,76 @@ async def editar_perfil(
 
     await sesion.flush()
     return _pintar_perfil(usuario)
+
+
+class LoQueSeVa(BaseModel):
+    """Lo que se pierde al darse de baja, **antes** de perderlo."""
+
+    citas_por_venir: int
+    citas_pasadas: int
+    #: Si lleva algún salón vivo. Con esto puesto la baja no se puede hacer, y la pantalla dice
+    #: qué hay que hacer antes en vez de dejar pulsar un botón que va a fallar.
+    lleva_un_salon: bool
+
+
+class QuieroDarmeDeBaja(BaseModel):
+    """Se escribe una palabra a mano. No es ceremonia: es que no se pulse sin querer.
+
+    Un botón de «borrar mi cuenta» detrás de una sola confirmación se pulsa por error desde un
+    móvil, y esto **no tiene vuelta**.
+    """
+
+    confirmacion: str = Field(description="Tiene que ser exactamente: BORRAR")
+
+
+@router.get("/cuenta/lo-que-se-va", summary="Qué se pierde al darte de baja (Ley 81)")
+async def lo_que_se_va(
+    sesion: SesionPlataforma,
+    identidad: Annotated[Identidad, Depends(identidad_actual)],
+) -> LoQueSeVa:
+    """Los números de verdad, para poder decidir.
+
+    Una pantalla de baja que solo dice «esto no se puede deshacer» no informa de nada.
+    """
+    cuentas = await servicio_baja.cuantas_cosas_se_van(sesion, identidad.usuario_id)
+    salones = (
+        await sesion.execute(
+            select(func.count())
+            .select_from(Membership)
+            .join(Business, Business.id == Membership.business_id)
+            .where(
+                Membership.user_id == identidad.usuario_id,
+                Membership.role == "dueno",
+                Membership.status == "activa",
+                Business.status != "cerrado",
+            )
+        )
+    ).scalar_one()
+    return LoQueSeVa(**cuentas, lleva_un_salon=salones > 0)
+
+
+@router.post("/cuenta/baja", status_code=200, summary="Darme de baja (Ley 81)")
+async def darme_de_baja(
+    peticion: QuieroDarmeDeBaja,
+    sesion: SesionPlataforma,
+    identidad: Annotated[Identidad, Depends(identidad_actual)],
+) -> dict[str, int | str]:
+    """Anonimiza la cuenta y corta todo lo que permitiría volver a entrar.
+
+    **La fila sobrevive vacía**, porque de ella cuelgan reservas —la contabilidad de un salón—
+    y opiniones de las que dependen otras personas para elegir. Lo que se va es todo lo que
+    identifica. Y lo que viniera se cancela: irse en silencio dejando tres citas puestas le
+    deja al salón tres plantones y ningún aviso.
+    """
+    if peticion.confirmacion.strip().upper() != "BORRAR":
+        raise DatoInvalido("Para darte de baja hay que escribir BORRAR.")
+
+    resumen = await servicio_baja.dar_de_baja(sesion, identidad.usuario_id)
+    return {
+        "citas_canceladas": resumen.citas_canceladas,
+        "fichas_anonimizadas": resumen.fichas_anonimizadas,
+        "cuando": resumen.cuando.isoformat(),
+    }
 
 
 @router.get("/favoritos", summary="Mis salones guardados (MKT-5)")

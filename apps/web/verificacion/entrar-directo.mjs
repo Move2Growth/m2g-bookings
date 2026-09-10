@@ -32,6 +32,7 @@ const PUERTAS = [
   ['/mi-agenda', 'profesional'],
   ['/mi-ficha', 'profesional'],
   ['/mis-citas', 'clienta'],
+  ['/mi-cuenta', 'clienta'],
 ];
 
 const bien = [];

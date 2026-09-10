@@ -262,6 +262,13 @@ export type DiaEnColumnas = {
 
 export type CategoriaGlobal = { id: string; slug: string; nombre: string; padre_slug: string | null };
 
+export type LoQueSeVa = {
+  citas_por_venir: number;
+  citas_pasadas: number;
+  /** Con un salón vivo la baja no se puede hacer: hay que cerrarlo o pasarlo a otra persona. */
+  lleva_un_salon: boolean;
+};
+
 export type MiPerfil = {
   id: string;
   nombre: string;
@@ -359,6 +366,16 @@ export const api = {
   misNegocios: (acceso: string) => pedir<NegocioDeLaPersona[]>('/api/v1/mi/negocios', { acceso }),
 
   miPerfil: (acceso: string) => pedir<MiPerfil>('/api/v1/mi/perfil', { acceso }),
+
+  /* ── Darse de baja (Ley 81 · ADR-0025) ─────────────────────────────────────────────────── */
+
+  loQueSeVa: (acceso: string) => pedir<LoQueSeVa>('/api/v1/mi/cuenta/lo-que-se-va', { acceso }),
+
+  darmeDeBaja: (acceso: string) =>
+    pedir<{ citas_canceladas: number; fichas_anonimizadas: number; cuando: string }>(
+      '/api/v1/mi/cuenta/baja',
+      { metodo: 'POST', cuerpo: { confirmacion: 'BORRAR' }, acceso },
+    ),
 
   misCitas: (acceso: string, pagina = 1) =>
     pedir<MiCita[]>(`/api/v1/mi/reservas${pagina > 1 ? `?pagina=${pagina}` : ''}`, { acceso }),
