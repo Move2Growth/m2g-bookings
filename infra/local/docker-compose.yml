@@ -46,6 +46,72 @@ services:
       timeout: 3s
       retries: 20
 
+  # ── El buzón de correo de desarrollo ──────────────────────────────────────────────────────
+  # Mailpit habla SMTP como cualquier proveedor y enseña lo que se manda en una web. Está por
+  # el mismo motivo que el almacén: que **una máquina recién clonada pueda ver un correo de
+  # verdad** —con su HTML, su asunto y su destinatario— sin credencial de nadie y sin mandarle
+  # nada a una persona real. Un correo que solo existe en un fichero de registro no enseña que
+  # el enlace de la invitación estaba roto.
+  correo:
+    image: axllent/mailpit:v1.21
+    environment:
+      MP_MAX_MESSAGES: 500
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    ports:
+      # 1025 es SMTP; 8025 es la web donde se leen los correos.
+      - "1025:1025"
+      - "8025:8025"
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # ── El almacén de fotos ───────────────────────────────────────────────────────────────────
+  # Compatible con S3, que es el estándar de hecho: el mismo código sirve para Hetzner Object
+  # Storage, Cloudflare R2, Backblaze B2 o el propio Amazon. Aquí corre MinIO, que habla ese
+  # idioma, para que **subir una foto funcione en una máquina recién clonada** sin una sola
+  # credencial de nadie. El día que se contrate un espacio de verdad cambian cuatro variables
+  # y no se toca ni una línea.
+  almacen:
+    image: minio/minio:RELEASE.2024-10-13T13-34-11Z
+    command: ["server", "/datos", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY_ID:-agenda-local}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_ACCESS_KEY:-agenda-local-secreta}
+    ports:
+      # 9000 es la API de S3; 9001 es la consola web, para mirar qué hay dentro cuando algo
+      # no cuadra. Las dos publicadas porque el navegador sube **directo** al almacén.
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - datos_almacen:/datos
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # Crea el cubo y lo deja de lectura pública. Es un trabajo de una vez que termina y se va.
+  #
+  # **Lectura pública a propósito:** son las fotos que un salón enseña en su ficha del
+  # marketplace, hechas para que las vea cualquiera y las indexe un buscador. Firmar cada
+  # lectura las volvería incacheables y añadiría una petición a la API por cada imagen de cada
+  # listado. Lo que no es público es **escribir**: para eso hace falta un permiso firmado.
+  almacen_init:
+    image: minio/mc:RELEASE.2024-10-08T09-37-26Z
+    depends_on:
+      almacen:
+        condition: service_healthy
+    entrypoint: >
+      sh -c "
+      mc alias set local http://almacen:9000 ${S3_ACCESS_KEY_ID:-agenda-local} ${S3_SECRET_ACCESS_KEY:-agenda-local-secreta} &&
+      mc mb --ignore-existing local/${S3_BUCKET:-m2g-agenda-media-dev} &&
+      mc anonymous set download local/${S3_BUCKET:-m2g-agenda-media-dev} &&
+      echo 'almacén listo'
+      "
+
   api:
     build:
       context: ../../apps/api
@@ -172,3 +238,4 @@ services:
 
 volumes:
   datos_db:
+  datos_almacen:

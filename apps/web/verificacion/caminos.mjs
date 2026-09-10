@@ -207,8 +207,13 @@ async function elegirDiaConHoras(pagina) {
   await pagina.getByRole('link', { name: 'Ver mis citas' }).click();
   await pagina.waitForURL('**/mis-citas', { timeout: 20_000 });
   await pagina.waitForSelector('text=Tu próximo turno', { timeout: 30_000 });
-  // Su fila, por identificador. Cada fila lleva el suyo justamente para esto.
-  const suya = pagina.locator(`li.fila[data-cita="${citaCreada}"]`);
+  // Su cita, por identificador y **esté donde esté**.
+  //
+  // No siempre es una fila: la más próxima se pinta arriba, grande y sola, en su propio bloque.
+  // Buscarla solo como `li.fila` funcionaba mientras la cuenta de ejemplo tuviera algo más
+  // cercano por delante, y fallaba el día que la cita recién hecha era la siguiente — acusando
+  // a la pantalla de perder una cita que estaba en lo alto y en letra grande.
+  const suya = pagina.locator(`[data-cita="${citaCreada}"]`);
   await comprobar(pagina, 'la cita recién hecha aparece en «mis citas»', async () =>
     citaCreada !== null && (await suya.count()) === 1,
   );
@@ -216,20 +221,29 @@ async function elegirDiaConHoras(pagina) {
 
   // Y se cancela desde la pantalla: prueba el camino de vuelta y, de paso, deja la agenda del
   // salón como estaba. Una prueba que llena la agenda de ejemplo rompe la siguiente.
-  await suya.first().getByRole('button', { name: 'Cancelar' }).click();
-  await suya.first().getByRole('button', { name: 'Sí, cancelar' }).click();
+  // **Cancelar solo si el servidor deja.** Dentro de la ventana de cancelación no hay botón, y
+  // eso es lo correcto: la pantalla no promete lo que la API va a rechazar. Exigirlo siempre
+  // convertía la prueba en un sorteo con la hora del día.
+  const sePuedeCancelar = (await suya.first().getByRole('button', { name: 'Cancelar' }).count()) > 0;
+  if (!sePuedeCancelar) {
+    decir('  --  · esa hora ya cae dentro de la ventana de cancelación: no se puede soltar, y así debe ser')
+    await foto(pagina, 'camino-3e-sin-cancelar');
+  } else {
+    await suya.first().getByRole('button', { name: 'Cancelar' }).click();
+    await suya.first().getByRole('button', { name: 'Sí, cancelar' }).click();
   // La fila cancelada NO se busca con el mismo localizador: ya no tiene botón de cancelar, que
   // es justo lo que se quiere comprobar. Y sigue en su sitio, sin caerse al pliegue de lo
   // pasado, para que quien cancela vea que le hicieron caso.
-  const yaCancelada = suya.filter({ hasText: /cancelada por la clienta/i });
-  await yaCancelada.waitFor({ timeout: 20_000 });
-  await comprobar(pagina, 'se cancela desde la fila, sin salir de la pantalla', async () =>
-    // La MISMA fila: sigue en su sitio —para que quien cancela vea que le hicieron caso— y ya
-    // no ofrece cancelar. Contar filas parecidas no demostraba ninguna de las dos cosas.
-    (await yaCancelada.count()) === 1 &&
-    (await suya.getByRole('button', { name: 'Cancelar' }).count()) === 0,
-  );
-  await foto(pagina, 'camino-3e-cancelada');
+    const yaCancelada = suya.filter({ hasText: /cancelada por la clienta/i });
+    await yaCancelada.waitFor({ timeout: 20_000 });
+    await comprobar(pagina, 'se cancela desde la fila, sin salir de la pantalla', async () =>
+      // La MISMA cita: sigue en su sitio —para que quien cancela vea que le hicieron caso— y ya
+      // no ofrece cancelar. Contar filas parecidas no demostraba ninguna de las dos cosas.
+      (await yaCancelada.count()) === 1 &&
+      (await suya.getByRole('button', { name: 'Cancelar' }).count()) === 0,
+    );
+    await foto(pagina, 'camino-3e-cancelada');
+  }
   await pagina.context().close();
 }
 

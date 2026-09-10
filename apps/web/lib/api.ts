@@ -426,6 +426,30 @@ export const api = {
 
   fichajes: (acceso: string) => pedir<Fichaje[]>('/api/v1/negocio/fichajes', { acceso }),
 
+  /* ── Las fotos del salón (NEG-1, D11 · ADR-0023) ───────────────────────────────────────── */
+
+  fotosDelLocal: (acceso: string) => pedir<FotoDelSalon[]>('/api/v1/negocio/fotos', { acceso }),
+
+  /**
+   * Pide permiso para subir **una** foto. El archivo no pasa por la API: con esto, el navegador
+   * lo manda directo al almacén.
+   */
+  permisoDeSubida: (tipo: string, acceso: string) =>
+    pedir<PermisoDeSubida>('/api/v1/negocio/fotos/permiso', {
+      metodo: 'POST',
+      cuerpo: { tipo },
+      acceso,
+    }),
+
+  /** Registra en la ficha una foto **que ya está subida**. La API comprueba que llegó. */
+  registrarFoto: (
+    datos: { clave: string; clase: 'portada' | 'galeria'; texto_alternativo?: string | null },
+    acceso: string,
+  ) => pedir<FotoDelSalon>('/api/v1/negocio/fotos', { metodo: 'POST', cuerpo: datos, acceso }),
+
+  quitarFoto: (fotoId: string, acceso: string) =>
+    pedir<void>(`/api/v1/negocio/fotos/${fotoId}`, { metodo: 'DELETE', acceso }),
+
   /* ── Apuntar una cita desde el mostrador (AGD-2) ───────────────────────────────────────── */
 
   /** La carta del salón, con los inactivos fuera: no se puede vender lo que está retirado. */
@@ -829,6 +853,30 @@ export type ClienteDelSalon = {
   origen: string;
   ultima_cita: string | null;
   tiene_cuenta: boolean;
+};
+
+export type FotoDelSalon = {
+  id: string;
+  url: string;
+  clase: string;
+  texto_alternativo: string | null;
+  orden: number;
+};
+
+/**
+ * El permiso de subida firmado por el servidor.
+ *
+ * `campos` se reenvía **tal cual y antes del archivo**: son los valores que el almacén
+ * comprueba contra la firma. Reordenarlos o añadir algo por en medio invalida la subida, y el
+ * error que sale habla de permisos y no de orden.
+ */
+export type PermisoDeSubida = {
+  url: string;
+  campos: Record<string, string>;
+  clave: string;
+  caduca_en_segundos: number;
+  tamano_maximo_bytes: number;
+  tipos_admitidos: string[];
 };
 
 export type ProfesionalEnPanel = {

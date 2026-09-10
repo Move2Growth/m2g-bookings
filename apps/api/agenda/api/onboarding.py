@@ -37,7 +37,7 @@ from agenda.errores import (
 from agenda.modelos.base import nuevo_id
 from agenda.modelos.catalogo import Service, ServiceCategory
 from agenda.modelos.equipo import StaffHours, StaffProfile, StaffService
-from agenda.modelos.identidad import Membership
+from agenda.modelos.identidad import Membership, User
 from agenda.modelos.negocio import (
     Business,
     BusinessHours,
@@ -145,6 +145,7 @@ class AltaDeProfesional(BaseModel):
 class EstadoDelChecklist(BaseModel):
     """Qué falta para publicar (ONB-7). El mínimo lo fija D11 y no se negocia."""
 
+    #: Un servicio activo **y con alguien que lo preste**: sin eso no hay nada que reservar.
     tiene_servicio_activo: bool
     tiene_horario: bool
     tiene_ubicacion: bool
@@ -244,6 +245,32 @@ async def crear_negocio(
     )
     await sesion.flush()
 
+    # **Quien da de alta el salón nace siendo profesional de su salón.**
+    #
+    # La mayoría de los salones de Panamá son una persona. Obligarla a «añadir un profesional»
+    # que es ella misma es pedirle que se dé de alta dos veces, y es lo que dejaba a un salón
+    # recién creado sin nadie que prestara sus servicios: cumplía el mínimo para publicar y su
+    # ficha no tenía ni una hora libre.
+    #
+    # Nace **invisible en el marketplace**: un salón de una persona no quiere una segunda ficha
+    # con su nombre compitiendo con la del local. En cuanto haya equipo, el dueño la enciende
+    # desde «El equipo» y su ficha aparece.
+    usuario = await sesion.get(User, identidad.usuario_id)
+    sesion.add(
+        StaffProfile(
+            business_id=negocio.id,
+            user_id=identidad.usuario_id,
+            display_name=(usuario.full_name if usuario and usuario.full_name else alta.nombre),
+            slug=await servicio_profesionales.slug_libre(
+                sesion,
+                negocio.id,
+                usuario.full_name if usuario and usuario.full_name else alta.nombre,
+            ),
+            visible_in_marketplace=False,
+        )
+    )
+    await sesion.flush()
+
     return NegocioCreado(id=negocio.id, slug=negocio.slug, estado=negocio.status)
 
 
@@ -318,6 +345,40 @@ async def crear_servicio(alta: AltaDeServicio, sesion_negocio: SesionNegocio) ->
     )
     sesion.add(servicio)
     await sesion.flush()
+
+    # **Un servicio nuevo lo presta todo el equipo, y el dueño quita a quien no lo haga.**
+    #
+    # Es lo que hacen los productos del oficio, y no por comodidad: un servicio que no presta
+    # nadie **no se puede reservar** (STF-1) y no da ningún síntoma — el salón sale en la
+    # búsqueda con la ficha sin una sola hora libre, y no se entera nunca.
+    #
+    # Las dos opciones dejan trabajo al dueño; la diferencia es cuál falla en silencio.
+    # Empezar con nadie asignado se descubre cuando un cliente no encuentra hueco. Empezar con
+    # todos asignados se descubre **mirando la pantalla del equipo**, que dice cuántos prestan
+    # cada servicio, y se arregla desmarcando. Se prefiere el error que se ve.
+    equipo = (
+        (
+            await sesion.execute(
+                select(StaffProfile.id).where(
+                    StaffProfile.business_id == identidad.negocio_id,
+                    StaffProfile.active.is_(True),
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for staff_id in equipo:
+        sesion.add(
+            StaffService(
+                business_id=identidad.negocio_id,
+                staff_id=staff_id,
+                service_id=servicio.id,
+            )
+        )
+    if equipo:
+        await sesion.flush()
+
     return servicio.id
 
 
@@ -376,6 +437,10 @@ async def checklist(sesion_negocio: SesionNegocio) -> EstadoDelChecklist:
 async def publicar(sesion_negocio: SesionNegocio) -> NegocioCreado:
     """Publica **solo si cumple el mínimo**: un servicio activo, horario, ubicación y una foto.
 
+    Y «un servicio activo» quiere decir **un servicio que alguien presta**: uno sin nadie
+    asignado no se puede reservar, así que publicar con eso sacaría al salón en la búsqueda con
+    la ficha sin una sola hora libre.
+
     El error dice qué falta, no «no se pudo publicar». Una puerta que no explica por qué está
     cerrada es una puerta que la gente aporrea.
     """
@@ -404,7 +469,7 @@ async def publicar(sesion_negocio: SesionNegocio) -> NegocioCreado:
         faltan = [
             nombre
             for nombre, cumplido in (
-                ("un servicio activo", estado.tiene_servicio_activo),
+                ("un servicio activo que alguien preste", estado.tiene_servicio_activo),
                 ("el horario", estado.tiene_horario),
                 ("la ubicación", estado.tiene_ubicacion),
                 ("una foto", estado.tiene_foto),
@@ -432,7 +497,25 @@ async def _estado_del_checklist(sesion, negocio_id: uuid.UUID) -> EstadoDelCheck
         ).scalar_one()
         return total > 0
 
-    servicio = await hay(Service, Service.active.is_(True), Service.deleted_at.is_(None))
+    # **«Un servicio activo» significa un servicio que alguien presta.** No es un requisito
+    # nuevo sobre D11: es que el que ya estaba diga lo que dice. Un servicio sin nadie asignado
+    # **no se puede reservar** (STF-1), así que un salón que se publicara solo con eso saldría
+    # en el marketplace, en la búsqueda y en el mapa, y al abrir su ficha no habría ni una hora
+    # libre. La persona se cree que está lleno y se va a otro; el salón no se entera nunca.
+    #
+    # Salió probando: el mínimo de D11 se cumplía sin un solo profesional en el equipo.
+    servicio = (
+        await sesion.execute(
+            select(func.count())
+            .select_from(Service)
+            .join(StaffService, StaffService.service_id == Service.id)
+            .where(
+                Service.business_id == negocio_id,
+                Service.active.is_(True),
+                Service.deleted_at.is_(None),
+            )
+        )
+    ).scalar_one() > 0
     horario = await hay(BusinessHours)
     ubicacion = await hay(Location)
     foto = await hay(BusinessMedia)

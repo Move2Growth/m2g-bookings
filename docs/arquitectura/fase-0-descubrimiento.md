@@ -292,7 +292,15 @@ real que escriba su dirección**, porque su punto en el mapa no se puede inventa
 
 ---
 
-#### P7 · Almacenamiento de fotos compatible con S3
+#### P7 · Almacenamiento de fotos compatible con S3 — **decidido y construido (ADR-0023)**
+
+> **Al día el 10 de septiembre de 2026.** La tecnología estaba decidida —S3, que es el estándar de
+> hecho— y lo único abierto era **qué proveedor se contrata**, que es una decisión de dinero y no
+> de arquitectura. Así que se construyó: en local corre **MinIO dentro del `docker-compose`** y
+> subir una foto funciona en una máquina recién clonada **sin credencial de nadie**. El navegador
+> sube directo al almacén con un permiso firmado que lleva el tipo y el tamaño dentro. El día que
+> se contrate un espacio de verdad se rellenan las variables `S3_*` y `URL_BASE_MEDIA`, y **no se
+> toca ni una línea de código**. Lo de abajo sigue siendo la guía para contratarlo.
 
 **Qué es.** Un espacio en internet donde guardar archivos —las fotos— que se sirve por dirección
 web. «Compatible con S3» quiere decir que habla el mismo idioma que el almacenamiento de Amazon, que
@@ -436,9 +444,9 @@ de Apple para publicar la app.
 
 | # | Qué hay que decidir | **Lo que se hace mientras tanto** | Por qué no lo decide el equipo |
 |---|---|---|---|
-| **P14** | Qué pasa con **el texto de una opinión cuando su autor borra la cuenta**: si desaparece con él o se queda con el nombre borrado | **Se conserva el texto con el autor anonimizado.** Un negocio que reunió cuarenta opiniones no puede perderlas porque un cliente se dé de baja, y quien las lee tampoco | Es el equilibrio entre el derecho de supresión de una persona y el interés legítimo del negocio y de los demás clientes. Tiene que quedar escrito en la política de opiniones **antes** de que haya una sola opinión publicada |
-| **P15** | **Cuánto tiempo se guarda el registro de auditoría** de las acciones internas: quién entró en qué negocio, quién forzó una cancelación, quién suplantó a quién | **Se guarda sin borrar**, y se anota como deuda | Sin un plazo, la tabla crece para siempre. Con un plazo demasiado corto, se pierde la única prueba de qué hizo el equipo interno el día que alguien reclame |
-| **P16** | **Cuánto hay que conservar las facturas y los recibos** en Panamá | **Se conservan indefinidamente** y no se borran nunca por error | Es un plazo fiscal, no una decisión de producto: lo dice la asesoría, y equivocarse hacia abajo es un problema con la DGI |
+| **P14** ✅ | **Decidido (ADR-0025).** Qué pasa con **el texto de una opinión cuando su autor borra la cuenta**: si desaparece con él o se queda con el nombre borrado | **Se conserva el texto con el autor anonimizado.** Un negocio que reunió cuarenta opiniones no puede perderlas porque un cliente se dé de baja, y quien las lee tampoco | Es el equilibrio entre el derecho de supresión de una persona y el interés legítimo del negocio y de los demás clientes. Tiene que quedar escrito en la política de opiniones **antes** de que haya una sola opinión publicada |
+| **P15** ✅ | **Decidido y construido (ADR-0025): doce meses**, con un trabajo diario que lo barre. Cuánto tiempo se guarda el registro de auditoría de las acciones internas: quién entró en qué negocio, quién forzó una cancelación, quién suplantó a quién | **Se guarda sin borrar**, y se anota como deuda | Sin un plazo, la tabla crece para siempre. Con un plazo demasiado corto, se pierde la única prueba de qué hizo el equipo interno el día que alguien reclame |
+| **P16** ⚠️ | **Decidido a medias (ADR-0025): cinco años por defecto y NADA lo borra** hasta que la asesoría confirme el número. Cuánto hay que conservar las facturas y los recibos en Panamá | **Se conservan indefinidamente** y no se borran nunca por error | Es un plazo fiscal, no una decisión de producto: lo dice la asesoría, y equivocarse hacia abajo es un problema con la DGI |
 | **P17** | Si **la verificación del teléfono cuenta como una de las tres pantallas** del flujo de reserva | **No cuenta**: se resuelve como una hoja que sube sobre la pantalla de confirmar, sin sacar a la persona del flujo | El brief pide dos cosas que solo caben juntas así: máximo tres pantallas tras elegir servicio (RSV-1) y teléfono verificado obligatorio (D9). Si Luis la cuenta como pantalla, hay que fusionar la elección de profesional con la de hora, y elegir hora empeora |
 
 ---

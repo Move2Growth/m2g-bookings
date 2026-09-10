@@ -158,3 +158,34 @@ async def test_al_borrador_al_que_le_falta_algo_se_le_dice_qué_falta() -> None:
     assert "el horario" in fallo.value.mensaje
     assert "una foto" in fallo.value.mensaje
     assert await estado_de(salon.negocio_id) == ("borrador", False)
+
+
+@pytest.mark.asyncio
+async def test_un_servicio_que_no_presta_nadie_no_deja_publicar() -> None:
+    """Un salón **sin nadie en el equipo** no puede salir al marketplace.
+
+    Salió usando el producto: el mínimo de D11 se cumplía con un servicio activo aunque no
+    hubiera un solo profesional. El salón aparecía en la búsqueda y en el mapa, y al abrir su
+    ficha no había ni una hora libre — porque un servicio sin nadie asignado **no se puede
+    reservar** (STF-1). La persona se cree que está lleno y se va a otro; el salón no se entera
+    nunca.
+
+    No es un requisito nuevo sobre D11: es que «un servicio activo» signifique lo que dice.
+    """
+    salon = await montar_salon()
+    await completar_el_minimo(salon.negocio_id)
+    await poner_estado(salon.negocio_id, "borrador")
+
+    # Se deja al salón sin nadie que preste nada, que es como nace uno recién dado de alta.
+    async with conexion_de_dueno() as sesion:
+        await sesion.execute(
+            text("DELETE FROM staff_services WHERE business_id = :negocio"),
+            {"negocio": salon.negocio_id},
+        )
+
+    async with como_dueno(salon.negocio_id, salon.dueno_user_id) as (sesion, identidad):
+        with pytest.raises(FaltaMinimoParaPublicar) as fallo:
+            await api_onboarding.publicar((sesion, identidad))
+
+    assert "que alguien preste" in fallo.value.mensaje
+    assert await estado_de(salon.negocio_id) == ("borrador", False)

@@ -586,6 +586,55 @@ a:hover {
   padding: var(--espacio-5) var(--espacio-4);
 }
 
+/* ── Las fotos del salón (NEG-1, D11) ──────────────────────────────────────────────────────
+ * La portada va grande y sola porque **no es una foto más**: es la única que se ve en la
+ * búsqueda y en el mapa, y por tanto la que decide si alguien entra. En una cuadrícula junto a
+ * las demás, esa diferencia desaparece.
+ *
+ * `aspect-ratio` fijo y `object-fit: cover` para que el sitio esté reservado **antes** de que
+ * la imagen llegue: sin eso, cada foto que carga empuja lo que hay debajo, y en un teléfono con
+ * 3G eso es el dedo tocando otra cosa. Es la diferencia entre CLS 0 y una pantalla que baila. */
+.foto-grande {
+  margin: 0;
+  min-inline-size: 0;
+}
+
+.foto-grande img {
+  inline-size: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  display: block;
+  background-color: var(--color-arena);
+}
+
+.foto-grande figcaption {
+  margin-block-start: var(--espacio-2);
+}
+
+.galeria {
+  display: grid;
+  /* Dos columnas a 390 px y las que quepan después. `minmax` con `1fr` y no un ancho fijo: una
+     rejilla de anchos fijos es lo que estira la página de lado en cuanto entra una foto más. */
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: var(--espacio-3);
+  min-inline-size: 0;
+}
+
+.galeria__pieza {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-2);
+  min-inline-size: 0;
+}
+
+.galeria__pieza img {
+  inline-size: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+  background-color: var(--color-arena);
+}
+
 /* ── El código y el enlace del salón (NEG-4) ───────────────────────────────────────────────
  * El código va sobre blanco liso y con aire alrededor, **a propósito y no por descuido de la
  * marca**: una cámara necesita contraste alto entre módulos, y un QR pegado al borde de un

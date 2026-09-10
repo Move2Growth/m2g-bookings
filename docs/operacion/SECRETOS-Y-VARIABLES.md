@@ -39,7 +39,7 @@
 | `ZONA_HORARIA_DEFECTO` | Zona IANA que se propone al dar de alta un negocio. Default `America/Panama` (ADR-0003) | variable | `.env` |
 | `MONEDA_DEFECTO` | Código de moneda de los importes. Default `USD`; el símbolo que se pinta es `$` (D12) | variable | `.env` |
 | `URL_PUBLICA_WEB` | Base de las URL absolutas del sitemap, los enlaces de las notificaciones y los enlaces profundos | variable | `.env` |
-| `URL_BASE_MEDIA` | Prefijo de las URL de fotos de negocio y de reseña. **Vacía por defecto**: entonces la clave guardada se sirve tal cual, que hoy es una ruta de la web (`/fotos/spa.webp`) o una URL absoluta. Cuando exista almacenamiento de objetos se rellena aquí y no se toca ni una fila | variable | `.env` |
+| `URL_BASE_MEDIA` | Prefijo de las URL de fotos de negocio y de reseña. En local apunta al MinIO del `docker-compose`. Una clave que ya empieza por `/` o por `http` se sirve tal cual, así que las fotos de la semilla siguen funcionando sin tocar una fila | variable | `.env` |
 | `ACCESO_ADMIN_MINUTOS` | Duración del token de acceso de la consola interna. Más corta que la de un cliente a propósito (default 30) | variable | `.env` |
 | `REFRESCO_ADMIN_HORAS` | Duración del refresco de la consola interna (default 8) | variable | `.env` |
 | `CONSOLA_EMAIL_INICIAL` | Correo de la **primera cuenta** de la consola, que crea `python -m agenda.consola_alta`. Sin valor en el repositorio | variable | `.env` |
@@ -55,7 +55,7 @@
 | `WHATSAPP_PHONE_ID` | Identificador del número emisor en Meta | secreto | SOPS |
 | `WHATSAPP_WEBHOOK_TOKEN` | Verificación del webhook de estados de entrega de Meta | secreto | SOPS |
 | `SMS_API_KEY` | Proveedor de SMS, **solo como respaldo del OTP** (D14). Vigilar coste: es el vector clásico de fraude por tarificación | secreto | SOPS |
-| `EMAIL_API_KEY` | Correo transaccional: respaldo de notificaciones e invitaciones de equipo | secreto | SOPS |
+| ~~`EMAIL_API_KEY`~~ | **Retirada.** El correo se manda por SMTP (ADR-0024), no contra la API de un proveedor: lo hablan todos, así que la elección es de `SMTP_*` y no de código | — | — |
 | `PUSH_CREDENCIALES` | Credenciales de FCM y APNs para las notificaciones de la app (Fase 5) | secreto | SOPS |
 
 ### Mapas, almacenamiento y pagos
@@ -63,7 +63,19 @@
 | Nombre | Para qué | Tipo | Dónde se define |
 |---|---|---|---|
 | `MAPAS_TOKEN` | Token del proveedor de mapas y geocoding. **D8: Mapbox por defecto, pendiente de confirmar por coste.** Con el geocoding cacheado por texto normalizado (ADR-0005) | secreto | SOPS |
-| `S3_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY` | Almacenamiento compatible con S3 para fotos de negocio, servicios y reviews | secreto | SOPS |
+| `S3_ENDPOINT` | Dirección del almacén **que usa la API**: firma los permisos y borra archivos. En local es `http://almacen:9000`, el nombre del servicio dentro de la red de Docker | variable | `.env` |
+| `S3_ENDPOINT_PUBLICO` | Dirección del almacén **que usa el navegador**, que sube directo. En local es `http://localhost:9000`. **Son dos y no una**: `almacen:9000` no existe fuera de Docker y `localhost:9000` no existe dentro; con una sola, o no firma la API o no sube el navegador, y el fallo no se parece a su causa. En un entorno publicado las dos son la misma | variable | `.env` |
+| `S3_REGION` | La región del cubo. Los almacenes compatibles que no tienen regiones aceptan `us-east-1` | variable | `.env` |
+| `S3_BUCKET` | El cubo. En local `m2g-agenda-media-dev`, que crea el propio `docker-compose` con lectura pública | variable | `.env` |
+| `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | Las credenciales del almacén. En local abren un MinIO que vive en el portátil: **no son un secreto y no lo pretenden**. En un entorno publicado se generan en la consola del proveedor y **la secreta se enseña una sola vez** | secreto | SOPS |
+| `S3_PERMISO_MINUTOS` | Cuánto vale un permiso de subida. Cinco por defecto: lo que tarda alguien en elegir una foto con una conexión mala, y poco para que un permiso filtrado sirva de algo | variable | `.env` |
+| `S3_TAMANO_MAXIMO_BYTES` | El tope de una foto. Cinco megas: una foto de móvil sin recortar. El límite viaja **dentro de la firma**, así que lo impone el almacén y no la buena voluntad de quien sube | variable | `.env` |
+| `SMTP_HOST`, `SMTP_PUERTO` | El servidor de correo. En local `correo:1025`, el buzón del `docker-compose`, que enseña lo que se manda en `http://localhost:8025` y **no le manda nada a nadie** | variable | `.env` |
+| `SMTP_USUARIO`, `SMTP_CONTRASENA` | Credenciales del proveedor. Vacías en local; un relé de la propia red tampoco las pide | secreto | SOPS |
+| `SMTP_DESDE` | El remitente. En un entorno publicado tiene que ser una dirección del **dominio verificado, con SPF y DKIM puestos**, o el correo acaba en la carpeta de basura de todo el mundo — que se parece mucho a no llegar | variable | `.env` |
+| `SMTP_TLS` | `STARTTLS`. Falso **solo** en local, donde el buzón de desarrollo no cifra. Verdadero en cualquier otro sitio: sin esto el usuario y la contraseña viajan en claro | variable | `.env` |
+| `RETENCION_AUDITORIA_MESES` | Cuánto se guarda el rastro de acciones internas antes de que un trabajo diario lo borre. Doce por defecto: cubre una reclamación sin volverse un archivo histórico de la vida privada de nadie (Ley 81 · ADR-0025) | variable | `.env` |
+| `RETENCION_FACTURAS_ANOS` | El plazo fiscal. **No lo decide el producto: lo dice la DGI y hay que confirmarlo con la asesoría.** Cinco por defecto, y mientras tanto **nada borra una factura** — hay una prueba que lo fija. Se prefiere guardar de más a tener un problema con Hacienda | variable | `.env` |
 | `PASARELA_API_KEY` | Credencial de la pasarela de pago. **D5 sin decidir**: la elige Luis. Solo se guarda el **token** del método de pago, jamás datos de tarjeta (PAY-3) | secreto | SOPS |
 | `PASARELA_WEBHOOK_SECRET` | Verificación de los webhooks de cobro | secreto | SOPS |
 

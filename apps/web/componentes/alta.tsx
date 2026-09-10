@@ -18,9 +18,10 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Boton } from '@/componentes/boton';
+import { SubirFoto } from '@/componentes/subir-foto';
 import { Seccion } from '@/componentes/piezas';
 import { api, comoMensaje, type CategoriaGlobal, type Checklist, type TramoDeHorario } from '@/lib/api';
 import { conSesion, guardarSesion, leerSesion } from '@/lib/sesion';
@@ -573,11 +574,14 @@ function Final({ slug, alPanel }: { slug: string; alPanel: () => void }) {
   const [publicando, setPublicando] = useState(false);
   const [publicado, setPublicado] = useState(false);
 
-  useEffect(() => {
+  /** Se vuelve a mirar al subir la foto: es lo que enciende el botón de publicar. */
+  const mirarChecklist = useCallback(() => {
     conSesion((acceso) => api.checklist(acceso))
       .then(setChecklist)
       .catch((error) => setFallo(comoMensaje(error)));
   }, []);
+
+  useEffect(mirarChecklist, [mirarChecklist]);
 
   async function publicar() {
     setPublicando(true);
@@ -594,7 +598,7 @@ function Final({ slug, alPanel }: { slug: string; alPanel: () => void }) {
 
   const puntos: [string, boolean][] = checklist
     ? [
-        ['Un servicio activo', checklist.tiene_servicio_activo],
+        ['Un servicio que alguien preste', checklist.tiene_servicio_activo],
         ['El horario', checklist.tiene_horario],
         ['Dónde estás', checklist.tiene_ubicacion],
         ['Una foto', checklist.tiene_foto],
@@ -627,11 +631,17 @@ function Final({ slug, alPanel }: { slug: string; alPanel: () => void }) {
         </ul>
       ) : null}
 
+      {/* La foto es lo último que separa a un salón de publicarse, así que se sube **aquí
+          mismo** y no en otra pantalla: mandar a alguien a buscar dónde subirla, justo en el
+          paso en el que ya casi está, es donde se abandona un alta. */}
       {!publicado && checklist && !checklist.tiene_foto ? (
-        <p className="parrafo tenue">
-          La foto todavía no se puede subir desde aquí: falta decidir dónde se guardan las imágenes. Es lo único que
-          te separa de publicar.
-        </p>
+        <div className="pila pila--apretada">
+          <p className="parrafo">
+            Solo falta <strong>una foto</strong>. Es la que se ve en la búsqueda y en el mapa: con el escaparate o la
+            silla recién ordenada basta.
+          </p>
+          <SubirFoto clase="portada" rotulo="Subir la portada" alSubir={() => void mirarChecklist()} />
+        </div>
       ) : null}
 
       {fallo ? (

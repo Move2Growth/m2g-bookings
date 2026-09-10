@@ -20,6 +20,7 @@ import { abrirNavegador, nuevaPagina, sembrarSesion, esperarAQueSeQuede, WEB } f
 const PUERTAS = [
   ['/local', 'dueno'],
   ['/local/equipo', 'dueno'],
+  ['/local/fotos', 'dueno'],
   ['/local/horario', 'dueno'],
   ['/local/finanzas', 'dueno'],
   ['/local/mejor-del-mes', 'dueno'],

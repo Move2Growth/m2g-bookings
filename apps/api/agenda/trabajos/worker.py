@@ -42,6 +42,7 @@ from agenda.trabajos.recordatorios import (
     planificar_recordatorios_24h,
     planificar_reviews,
 )
+from agenda.trabajos.retencion import barrer_lo_caducado
 
 registro = logging.getLogger("agenda.trabajos")
 
@@ -92,6 +93,7 @@ class TrabajadorProgramado:
         planificar_reviews,
         planificar_cierre_de_citas_pasadas,
         barrer_la_cola,
+        barrer_lo_caducado,
     ]
     on_startup = al_arrancar
     max_jobs = 4
@@ -108,6 +110,9 @@ class TrabajadorProgramado:
         cron(planificar_cierre_de_citas_pasadas, hour={20}, minute={0}, run_at_startup=False),
         # La red debajo de la entrega reactiva: recoge lo reintentable y lo programado.
         cron(barrer_la_cola, minute={10, 40}, run_at_startup=False),
+        # Una vez al día y de madrugada: borra el rastro de auditoría pasado su plazo (Ley 81).
+        # No toca nada fiscal — eso tiene un plazo que lo dice la DGI y **nada lo borra**.
+        cron(barrer_lo_caducado, hour={4}, minute={20}, run_at_startup=False),
     ]
 
 

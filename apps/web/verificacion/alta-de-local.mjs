@@ -87,9 +87,38 @@ ok('paso 4 · dice que el local está creado', final.includes('creado'))
 const puntos = await p.locator('ul.pila--apretada li').allInnerTexts()
 ok('paso 4 · el checklist dice qué falta', puntos.length === 4, puntos.map((t) => t.replace(/\n/g, ' ')).join(' | '))
 ok('paso 4 · lo único que falta es la foto', puntos.filter((t) => t.startsWith('○')).length === 1)
+
+// Y la foto se sube **aquí mismo**, que es lo que separa a un salón nuevo de estar publicado.
+// Mandarlo a otra pantalla justo en el paso en el que ya casi está es donde se abandona un alta.
+const { writeFile } = await import('node:fs/promises')
+const { tmpdir } = await import('node:os')
+const rutaFoto = `${tmpdir()}/alta-${Date.now()}.png`
+await writeFile(
+  rutaFoto,
+  Buffer.from(
+    '89504e470d0a1a0a0000000d494844520000000800000008080200000004b5f7dd0000000e49444154789c636460606000000005000165c8a3f70000000049454e44ae426082',
+    'hex',
+  ),
+)
+await p.setInputFiles('input[type="file"]', rutaFoto)
+const publicable = await p
+  .waitForSelector('button:has-text("Publicar mi salón")', { timeout: 45_000 })
+  .then(() => true)
+  .catch(() => false)
+ok('paso 4 · con la foto subida ya se puede publicar', publicable, publicable ? '' : (await p.locator('.campo__fallo').allInnerTexts()).join(' | '))
+
+if (publicable) {
+  await p.getByRole('button', { name: 'Publicar mi salón' }).click()
+  const publicado = await p
+    .waitForSelector('text=Tu salón ya se ve.', { timeout: 30_000 })
+    .then(() => true)
+    .catch(() => false)
+  ok('paso 4 · y publica de verdad', publicado, publicado ? '' : (await p.locator('.campo__fallo').allInnerTexts()).join(' | '))
+}
+
 ok('paso 4 · no desborda', (await p.evaluate(() => document.documentElement.scrollWidth)) === 390)
 ok('sin errores de JavaScript', errores.length === 0, errores[0] ?? '')
 
 await nav.close()
-console.log(fallos.length ? `\n${fallos.length} fallo(s)` : '\nEl alta de un local se recorre entera, y el precio puede quedar sin poner.')
+console.log(fallos.length ? `\n${fallos.length} fallo(s)` : '\nUn salón se da de alta, sube su foto y se publica, entero y sin salir del alta.')
 process.exit(fallos.length ? 1 : 0)

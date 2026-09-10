@@ -34,6 +34,7 @@ from agenda.modelos.negocio import (
     BusinessMedia,
     Location,
 )
+from agenda.servicios import almacen
 
 router = APIRouter(prefix="/api/v1/negocio", tags=["ficha del negocio"])
 
@@ -100,6 +101,21 @@ class AltaDeFoto(BaseModel):
     clase: str = Field(default="galeria", pattern="^(portada|galeria)$")
     texto_alternativo: str | None = Field(default=None, max_length=200)
     orden: int = Field(default=0, ge=0, le=99)
+
+
+class PermisoDeSubida(BaseModel):
+    """Lo que hace falta para subir una foto **directamente al almacén**, sin pasar por aquí."""
+
+    url: str = Field(description="A dónde manda el navegador el formulario")
+    campos: dict[str, str] = Field(description="Se reenvían tal cual, antes del archivo")
+    clave: str = Field(description="Con esta clave se registra la foto después de subirla")
+    caduca_en_segundos: int
+    tamano_maximo_bytes: int
+    tipos_admitidos: list[str]
+
+
+class QuieroSubir(BaseModel):
+    tipo: str = Field(description="El `Content-Type` del archivo: image/jpeg, image/png…")
 
 
 class GrupoDeAtributos(BaseModel):
@@ -203,6 +219,33 @@ async def listar_fotos(sesion_negocio: SesionNegocio) -> list[FotoDelNegocio]:
     return await _fotos_de(sesion, identidad.negocio_id)
 
 
+@router.post("/fotos/permiso", summary="Permiso para subir una foto (NEG-1, D11)")
+async def permiso_para_subir(
+    peticion: QuieroSubir, sesion_negocio: SesionNegocio
+) -> PermisoDeSubida:
+    """Firma un permiso de subida de vida corta. **El archivo no pasa por la API.**
+
+    Una foto de cinco megas subiendo por una conexión de Panamá ocuparía un trabajador de esta
+    API durante un minuto; con diez salones a la vez, la agenda deja de responder por culpa de
+    unas fotos. El navegador sube directo al almacén y aquí solo se firma el permiso.
+
+    El permiso vale para **una** clave, **un** tipo y **un** rango de tamaño, durante unos
+    minutos. Los límites viajan dentro de la firma, así que los comprueba el almacén y no la
+    buena voluntad de quien sube.
+    """
+    _, identidad = sesion_negocio
+    exigir_dueno(identidad)
+    permiso = almacen.permiso_de_subida(negocio_id=identidad.negocio_id, tipo=peticion.tipo)
+    return PermisoDeSubida(
+        url=permiso.url,
+        campos=permiso.campos,
+        clave=permiso.clave,
+        caduca_en_segundos=permiso.caduca_en_segundos,
+        tamano_maximo_bytes=permiso.tamano_maximo_bytes,
+        tipos_admitidos=sorted(almacen.TIPOS),
+    )
+
+
 @router.post("/fotos", status_code=201, summary="Añadir una foto (NEG-1, D11)")
 async def anadir_foto(alta: AltaDeFoto, sesion_negocio: SesionNegocio) -> FotoDelNegocio:
     """Registra la foto. **Una portada y solo una**: si ya había, la anterior pasa a galería.
@@ -213,6 +256,20 @@ async def anadir_foto(alta: AltaDeFoto, sesion_negocio: SesionNegocio) -> FotoDe
     """
     sesion, identidad = sesion_negocio
     exigir_dueno(identidad)
+
+    # Una clave del almacén se comprueba dos veces antes de creérsela. Que la haya dado este
+    # mismo servidor hace un minuto no la convierte en un dato de confianza: llega por la API
+    # como cualquier otro.
+    if not alta.clave.startswith(("http://", "https://", "/")):
+        if not almacen.es_nuestra(alta.clave, negocio_id=identidad.negocio_id):
+            # Sin esto, registrar la clave de otro salón pondría su foto en tu ficha.
+            raise DatoInvalido("Esa foto no es de este salón.")
+        if not almacen.existe(alta.clave):
+            # Y sin esto quedaría una fila apuntando a nada: un hueco roto en la ficha que no
+            # descubre nadie hasta que lo mira un cliente.
+            raise DatoInvalido(
+                "Esa foto no llegó a subirse. Vuelve a elegirla e inténtalo otra vez."
+            )
 
     if alta.clase == "portada":
         anterior = (
@@ -259,6 +316,13 @@ async def quitar_foto(foto_id: uuid.UUID, sesion_negocio: SesionNegocio) -> None
     ).scalar_one_or_none()
     if foto is None:
         raise NoExiste("Esa foto no existe en este negocio.")
+
+    # Primero el archivo, luego la fila, y la fila **pase lo que pase con el archivo**. Al
+    # revés, un almacén caído dejaría al salón sin poder quitar de su ficha la foto que subió
+    # por error, que es justo lo que se hace con prisa. Un archivo huérfano no lo ve nadie.
+    if not foto.storage_key.startswith(("http://", "https://", "/")):
+        almacen.borrar(foto.storage_key)
+
     await sesion.delete(foto)
     await sesion.flush()
 

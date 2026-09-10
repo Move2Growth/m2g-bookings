@@ -20,6 +20,10 @@ dependencies = [
     "httpx>=0.28",
     "python-slugify>=8.0",
     "uuid-utils>=0.10",
+    # Solo para firmar subidas al almacén de fotos. Se usa la librería estándar y no una
+    # firma escrita a mano: la firma es terreno de seguridad, y un SigV4 casero falla dentro
+    # de un año con una clave que lleva un carácter raro.
+    "boto3>=1.35",
 ]
 
 [project.optional-dependencies]

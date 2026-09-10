@@ -185,7 +185,16 @@ export function MisCitas() {
           ) : null}
 
           {siguiente ? (
-            <section className="seccion--corta aparece" aria-label="Tu próximo turno">
+            /* Lleva su identificador como cualquier fila. No es para el diseño: es para poder
+               señalar **esta cita concreta** desde fuera. Sin él, una comprobación que busca
+               «la cita que acabo de hacer» no la encuentra en cuanto esa cita resulta ser la
+               más próxima —que es justo lo que pasa cuando alguien reserva para hoy—, y
+               entonces acusa a la pantalla de perder una cita que está delante de sus ojos. */
+            <section
+              className="seccion--corta aparece"
+              aria-label="Tu próximo turno"
+              data-cita={siguiente.id}
+            >
               <div className="bloque bloque--cobalto relleno--grande pila pila--apretada">
                 <span className="etiqueta etiqueta--clara">Tu próximo turno · {cuandoEs(siguiente.inicio, siguiente.zona_horaria)}</span>
                 <p className="rotulo rotulo--cartel">{hora(siguiente.inicio, siguiente.zona_horaria)}</p>
@@ -194,11 +203,47 @@ export function MisCitas() {
                   {diaLargo(siguiente.inicio, siguiente.zona_horaria)} ·{' '}
                   {siguiente.servicios.map((servicio) => servicio.nombre).join(' + ')}
                 </p>
-                <div className="tira">
-                  <Link className="boton boton--secundario" href={`/salon/${siguiente.negocio_slug}`}>
-                    Ver el salón
-                  </Link>
-                </div>
+                {/* **Cancelar tiene que estar aquí**, y faltaba.
+                    La cita que se cancela es casi siempre la próxima —surge algo y la sueltas—,
+                    y la próxima es justamente la que este bloque saca de la lista de abajo. El
+                    resultado era que la única cita que no se podía cancelar desde ninguna parte
+                    era la que más se cancela. Se descubrió reservando para hoy y buscando cómo
+                    deshacerlo.
+
+                    La pregunta se hace **aquí dentro**, como en las filas: una ventana emergente
+                    para soltar una hora es más ceremonia de la que merece, y en un móvil tapa
+                    justo el dato con el que se decide. */}
+                {preguntando === siguiente.id ? (
+                  <div className="bloque bloque--peligro relleno pila pila--apretada" role="group">
+                    <p>¿Seguro que sueltas esta hora? Se la queda quien la pida después.</p>
+                    <div className="tira">
+                      <Boton
+                        tono="riesgo"
+                        cargando={cancelando === siguiente.id}
+                        rotuloCargando="Cancelando"
+                        onClick={() => void cancelar(siguiente)}
+                        hijos="Sí, cancelar"
+                      />
+                      <Boton tono="secundario" onClick={() => setPreguntando(null)} hijos="No, dejarla" />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="tira">
+                    <Link className="boton boton--secundario" href={`/salon/${siguiente.negocio_slug}`}>
+                      Ver el salón
+                    </Link>
+                    {/* Solo si el servidor dice que se puede: dentro de la ventana de
+                        cancelación, el salón manda y la pantalla no promete lo que la API va a
+                        rechazar. */}
+                    {siguiente.se_puede_cancelar ? (
+                      <Boton
+                        tono="riesgo-suave"
+                        onClick={() => setPreguntando(siguiente.id)}
+                        hijos="Cancelar"
+                      />
+                    ) : null}
+                  </div>
+                )}
               </div>
             </section>
           ) : null}

@@ -19,14 +19,18 @@ tiene el mismo valor que no tener nada, con la diferencia de que parece que func
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import os
+import smtplib
+import ssl
 import tempfile
 import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from email.message import EmailMessage
 from pathlib import Path
 from typing import Any
 
@@ -198,33 +202,99 @@ class ProveedorWhatsApp(ProveedorDeMensajes):
 
 
 class ProveedorCorreo(ProveedorDeMensajes):
-    """Correo transaccional. **Esqueleto: falta decidir y contratar el proveedor.**
+    """Correo transaccional **por SMTP** (ADR-0024).
 
-    El correo es el respaldo de WhatsApp y el canal de todo lo que no es urgente. Se queda
-    igual de honesto que WhatsApp: sin clave no manda, y con clave falla diciendo que el
-    proveedor concreto todavía no está elegido.
+    El correo es el respaldo de WhatsApp y el canal de todo lo que no es urgente: la invitación
+    al equipo y la recuperación de contraseña dependen de él.
+
+    ## Por qué SMTP y no la API de un proveedor
+
+    Por lo mismo que el almacén de fotos habla S3: **lo hablan todos**. Resend, SendGrid,
+    Postmark, Amazon SES y Mailgun aceptan SMTP, así que elegir proveedor deja de ser una
+    decisión de arquitectura y pasa a ser cinco variables de entorno. Escribir contra la API
+    de uno concreto sería atar el código a una elección que todavía no está hecha — y que se
+    puede cambiar el día que sus precios suban.
+
+    El precio de SMTP es que **no devuelve identificador de mensaje ni coste**, y por eso
+    `id_en_el_proveedor` y `coste_minor` se quedan vacíos: vacío es vacío y no se estima por
+    nuestra cuenta. Quien quiera esos datos los tiene en el panel del proveedor.
+
+    ## El envío va en un hilo aparte
+
+    `smtplib` es de la biblioteca estándar y es **bloqueante**. Llamarlo directamente desde el
+    trabajador pararía el bucle de eventos mientras un servidor de correo lento contesta, y con
+    él pararía todo lo demás que ese proceso esté entregando.
     """
 
-    nombre = "correo"
+    nombre = "smtp"
     canales = ("email",)
 
-    def __init__(self, api_key: str = "") -> None:
-        self.api_key = api_key
+    def __init__(
+        self,
+        *,
+        host: str,
+        puerto: int,
+        usuario: str = "",
+        contrasena: str = "",
+        desde: str = "",
+        tls: bool = True,
+    ) -> None:
+        self.host = host
+        self.puerto = puerto
+        self.usuario = usuario
+        self.contrasena = contrasena
+        self.desde = desde
+        self.tls = tls
 
     @property
     def configurado(self) -> bool:
-        return bool(self.api_key)
+        # Un servidor y un remitente bastan: **el usuario y la contraseña no**, porque un
+        # relé de la propia red no pide ninguno, y exigirlos dejaría ese caso fuera sin motivo.
+        return bool(self.host and self.desde)
+
+    def _mandar(self, mensaje: MensajeSaliente) -> None:
+        """Lo bloqueante, para llamarlo desde un hilo."""
+        correo = EmailMessage()
+        correo["From"] = self.desde
+        correo["To"] = mensaje.destino
+        correo["Subject"] = mensaje.asunto or ""
+        # Un identificador estable por notificación: es lo que deja rastrear un correo desde el
+        # panel del proveedor hasta la fila que lo pidió, sin adivinar por la hora.
+        if mensaje.notificacion_id is not None:
+            correo["X-Agenda-Notificacion"] = str(mensaje.notificacion_id)
+        correo.set_content(mensaje.cuerpo or "")
+
+        with smtplib.SMTP(self.host, self.puerto, timeout=20) as servidor:
+            if self.tls:
+                servidor.starttls(context=ssl.create_default_context())
+            if self.usuario:
+                servidor.login(self.usuario, self.contrasena)
+            servidor.send_message(correo)
 
     async def enviar(self, mensaje: MensajeSaliente) -> ResultadoDeEnvio:
         if not self.configurado:
             raise ProveedorNoConfigurado(
-                "El correo no tiene credenciales: falta EMAIL_API_KEY. Sin ella el canal no se "
-                "usa; en local se manda por el proveedor de desarrollo."
+                "El correo no tiene servidor: faltan SMTP_HOST y SMTP_DESDE. Sin ellos el canal "
+                "no se usa; en local se manda al buzón del docker-compose."
             )
-        raise NotImplementedError(
-            "El proveedor de correo todavía no está elegido ni verificado. La integración se "
-            "escribe contra el que se contrate, no contra uno supuesto."
-        )
+        try:
+            await asyncio.to_thread(self._mandar, mensaje)
+        except smtplib.SMTPResponseException as fallo:
+            # El servidor contestó y dijo que no. Se guarda su código y su frase tal cual: es
+            # lo que distingue «esa dirección no existe» de «hoy no, vuelve luego».
+            return ResultadoDeEnvio(
+                proveedor=self.nombre,
+                estado="rechazado",
+                crudo={
+                    "codigo": fallo.smtp_code,
+                    "motivo": fallo.smtp_error.decode(errors="replace")
+                    if isinstance(fallo.smtp_error, bytes)
+                    else str(fallo.smtp_error),
+                },
+            )
+        # Sin excepción, el servidor lo aceptó. **Aceptado no es entregado** y no se finge que
+        # lo sea: lo que pase después —rebote, buzón lleno— lo cuenta el proveedor en su panel.
+        return ResultadoDeEnvio(proveedor=self.nombre, estado="aceptado")
 
 
 def registro_de_proveedores(
@@ -237,17 +307,33 @@ def registro_de_proveedores(
     que ADR-0007 quiere evitar.
     """
     ajustes = ajustes or obtener_ajustes()
+    desarrollo = ProveedorDeDesarrollo(buzon)
+
+    # **El correo se manda de verdad siempre que haya a dónde**, también en local, porque en
+    # local hay un servidor de correo en el propio `docker-compose`. No es un capricho: un
+    # correo escrito en un fichero de registro no enseña que el enlace de la invitación estaba
+    # roto, ni que el asunto salía vacío, ni que el acento del nombre del salón se rompía por el
+    # camino. Un buzón que se abre en el navegador, sí. Y no le llega a nadie.
+    correo: ProveedorDeMensajes = ProveedorCorreo(
+        host=ajustes.smtp_host,
+        puerto=ajustes.smtp_puerto,
+        usuario=ajustes.smtp_usuario,
+        contrasena=ajustes.smtp_contrasena,
+        desde=ajustes.smtp_desde,
+        tls=ajustes.smtp_tls,
+    )
+    if not correo.configurado:
+        correo = desarrollo
 
     if ajustes.usa_proveedores_de_desarrollo:
-        # Uno solo para los cuatro canales: así el buzón lleva la conversación completa en
-        # orden, que es como se lee cuando algo no cuadra.
-        desarrollo = ProveedorDeDesarrollo(buzon)
-        return dict.fromkeys(CANALES, desarrollo)
+        # Lo demás sí va al buzón de fichero: WhatsApp no se puede simular sin Meta, el push es
+        # de la app y el SMS es el respaldo del OTP. Ahí el fichero lleva la conversación
+        # completa en orden, que es como se lee cuando algo no cuadra.
+        return {**dict.fromkeys(CANALES, desarrollo), "email": correo}
 
-    desarrollo = ProveedorDeDesarrollo(buzon)
     return {
         "whatsapp": ProveedorWhatsApp(ajustes.whatsapp_token, ajustes.whatsapp_phone_id),
-        "email": ProveedorCorreo(ajustes.email_api_key),
+        "email": correo,
         # Push y SMS siguen sin proveedor real: push es de la app (Fase 3) y el SMS solo es el
         # respaldo del OTP. Mandarlos al buzón es más honesto que un esqueleto que no aporta.
         "push": desarrollo,
